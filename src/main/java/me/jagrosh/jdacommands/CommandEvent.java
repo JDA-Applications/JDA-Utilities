@@ -266,7 +266,7 @@ public class CommandEvent {
     private static void sendMessage(MessageChannel chan, String message)
     {
         ArrayList<String> messages = splitMessage(message);
-        for(int i=0; i<MAX_MESSAGES; i++)
+        for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
         {
             chan.sendMessage(messages.get(i)).queue();
         }

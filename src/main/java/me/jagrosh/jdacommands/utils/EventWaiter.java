@@ -46,27 +46,18 @@ public class EventWaiter implements EventListener {
     /**
      * Waits an indefinite amount of time for an event
      * @param <T> the type of event
+     * @param classType
      * @param condition the condition that the waiter will do that action
      * @param action the action to perform when the condition is met
      */
-    public <T extends Event> void waitForEvent(Predicate<T> condition, Consumer<T> action)
+    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action)
     {
-        List<WaitingEvent> list;
-        Class<?> classType = condition.getClass();
-        if(waitingEvents.containsKey(classType))
-            list = waitingEvents.get(classType);
-        else
-        {
-            list = new ArrayList<>();
-            waitingEvents.put(classType, list);
-        }
-        list.add(new WaitingEvent<>(condition, action));
+        waitForEvent(classType, condition, action, -1, null, null);
     }
     
-    public <T extends Event> void waitForEvent(Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit, Runnable timeoutAction)
+    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit, Runnable timeoutAction)
     {
         List<WaitingEvent> list;
-        Class<?> classType = condition.getClass();
         if(waitingEvents.containsKey(classType))
             list = waitingEvents.get(classType);
         else

@@ -52,28 +52,34 @@ public class CommandClientBuilder {
     /**
      * Sets the owner for the bot
      * @param ownerId the id of the owner
+     * @return 
      */
-    public void setOwnerId(String ownerId)
+    public CommandClientBuilder setOwnerId(String ownerId)
     {
         this.ownerId = ownerId;
+        return this;
     }
     
     /**
      * Sets the bot's prefix. If null, the bot will use a mention as a prefix
      * @param prefix the prefix
+     * @return 
      */
-    public void setPrefix(String prefix)
+    public CommandClientBuilder setPrefix(String prefix)
     {
         this.prefix = prefix;
+        return this;
     }
     
     /**
      * Sets the bot's support server invite
      * @param serverInvite the support server invite
+     * @return 
      */
-    public void setServerInvite(String serverInvite)
+    public CommandClientBuilder setServerInvite(String serverInvite)
     {
         this.serverInvite = serverInvite;
+        return this;
     }
     
     /**
@@ -81,74 +87,90 @@ public class CommandClientBuilder {
      * @param success emoji for success
      * @param warning emoji for warning
      * @param error emoji for failure
+     * @return 
      */
-    public void setEmojis(String success, String warning, String error)
+    public CommandClientBuilder setEmojis(String success, String warning, String error)
     {
         this.success = success;
         this.warning = warning;
         this.error = error;
+        return this;
     }
     
     /**
      * Sets the game to use when the bot is ready. Set to null for no game
      * @param game the game to use when the bot is ready
+     * @return 
      */
-    public void setGame(Game game)
+    public CommandClientBuilder setGame(Game game)
     {
         this.game = game;
+        return this;
     }
     
     /**
      * Uses the default game, 'Type [prefix]help'
+     * @return 
      */
-    public void useDefaultGame()
+    public CommandClientBuilder useDefaultGame()
     {
         this.game = Game.of("default");
+        return this;
     }
     
     /**
      * Adds a command
      * @param command 
+     * @return  
      */
-    public void addCommand(Command command)
+    public CommandClientBuilder addCommand(Command command)
     {
         commands.add(command);
+        return this;
     }
     
     /**
      * Adds multiple commands. This is the same as calling addCommand multiple times
      * @param commands 
+     * @return  
      */
-    public void addCommands(Command... commands)
+    public CommandClientBuilder addCommands(Command... commands)
     {
         for(Command command: commands)
             this.addCommand(command);
+        return this;
     }
     
     /**
      * Sets a key for Carbonitex for updating server count
      * @param key 
+     * @return  
      */
-    public void setCarbonitexKey(String key)
+    public CommandClientBuilder setCarbonitexKey(String key)
     {
         this.carbonKey = key;
+        return this;
     }
     
     /**
      * Sets a key for the Discord Bots listing for updating server count
      * @param key
+     * @return 
      */
-    public void setDiscordBotsKey(String key)
+    public CommandClientBuilder setDiscordBotsKey(String key)
     {
         this.botsKey = key;
+        return this;
     }
     
     /**
      * Sets the CommandListener for the CommandClientImpl
      * @param listener the CommandListener for the CommandClientImpl
+     * @return 
      */
-    public void setListener(CommandListener listener)
+    public CommandClientBuilder setListener(CommandListener listener)
     {
         this.listener = listener;
+        return this;
     }
 }
