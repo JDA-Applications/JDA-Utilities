@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
-import menu.MenuBuilder;
+import me.jagrosh.jdautilities.menu.MenuBuilder;
 
 /**
  *

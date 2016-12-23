@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package menu;
+package me.jagrosh.jdautilities.menu;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
