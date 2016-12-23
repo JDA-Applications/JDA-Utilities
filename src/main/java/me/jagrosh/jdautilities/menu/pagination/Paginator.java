@@ -24,7 +24,6 @@ import me.jagrosh.jdautilities.waiter.EventWaiter;
 import me.jagrosh.jdautilities.menu.Menu;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -149,23 +148,23 @@ public class Paginator extends Menu {
     
     private Message renderPage(int pageNum)
     {
-        StringBuilder strbuilder = new StringBuilder();
         MessageBuilder mbuilder = new MessageBuilder();
         EmbedBuilder ebuilder = new EmbedBuilder();
         int start = (pageNum-1)*itemsPerPage;
         int end = strings.size() < pageNum*itemsPerPage ? strings.size() : pageNum*itemsPerPage;
         switch(columns)
         {
-            
             case 1:
+                StringBuilder sbuilder = new StringBuilder();
                 for(int i=start; i<end; i++)
-                    strbuilder.append("\n").append(numberItems ? (i+1)+". " : "").append(strings.get(i));
-                ebuilder.setDescription(strbuilder.toString());
+                    sbuilder.append("\n").append(numberItems ? "`"+(i+1)+".` " : "").append(strings.get(i));
+                ebuilder.setDescription(sbuilder.toString());
                 break;
             default:
                 int per = (int)Math.ceil((double)(end-start)/columns);
                 for(int k=0; k<columns; k++)
                 {
+                    StringBuilder strbuilder = new StringBuilder();
                     for(int i=start+k*per; i<end && i<start+(k+1)*per; i++)
                         strbuilder.append("\n").append(numberItems ? (i+1)+". " : "").append(strings.get(i));
                     ebuilder.addField("", strbuilder.toString(), true);
