@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.jagrosh.jdautilities.pagination;
+package me.jagrosh.jdautilities.menu.pagination;
 
 import java.awt.Color;
 import java.util.List;
