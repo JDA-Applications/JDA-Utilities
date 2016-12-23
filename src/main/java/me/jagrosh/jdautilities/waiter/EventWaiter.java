@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.jagrosh.jdacommands.utils;
+package me.jagrosh.jdautilities.waiter;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +25,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 /**
@@ -46,7 +53,7 @@ public class EventWaiter implements EventListener {
     /**
      * Waits an indefinite amount of time for an event
      * @param <T> the type of event
-     * @param classType
+     * @param classType the class of the event
      * @param condition the condition that the waiter will do that action
      * @param action the action to perform when the condition is met
      */
@@ -55,6 +62,16 @@ public class EventWaiter implements EventListener {
         waitForEvent(classType, condition, action, -1, null, null);
     }
     
+    /**
+     * Waits for up-to a predetermined amount of time for an event
+     * @param <T> the type of event
+     * @param classType the class of the event
+     * @param condition the condition that the waiter will do that action
+     * @param action the action to perform when the condition is met
+     * @param timeout the maximum time to wait
+     * @param unit the time units of the timeout
+     * @param timeoutAction the action to do when the time runs out
+     */
     public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit, Runnable timeoutAction)
     {
         List<WaitingEvent> list;
@@ -89,4 +106,25 @@ public class EventWaiter implements EventListener {
             threadpool.shutdown();
         }
     }
+    
+    private class WaitingEvent<T extends Event> {
+    final private Predicate<T> condition;
+    final private Consumer<T> action;
+    
+    public WaitingEvent(Predicate<T> condition, Consumer<T> action)
+    {
+        this.condition = condition;
+        this.action = action;
+    }
+    
+    public boolean attempt(T event)
+    {
+        if(condition.test(event))
+        {
+            action.accept(event);
+            return true;
+        }
+        return false;
+    }
+}
 }

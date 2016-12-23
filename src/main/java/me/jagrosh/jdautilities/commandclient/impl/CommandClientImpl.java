@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.jagrosh.jdacommands.impl;
+package me.jagrosh.jdautilities.commandclient.impl;
 
 import com.mashape.unirest.http.Unirest;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
-import me.jagrosh.jdacommands.Command;
-import me.jagrosh.jdacommands.Command.Category;
-import me.jagrosh.jdacommands.CommandClient;
-import me.jagrosh.jdacommands.CommandEvent;
-import me.jagrosh.jdacommands.CommandListener;
+import me.jagrosh.jdautilities.commandclient.Command;
+import me.jagrosh.jdautilities.commandclient.Command.Category;
+import me.jagrosh.jdautilities.commandclient.CommandClient;
+import me.jagrosh.jdautilities.commandclient.CommandEvent;
+import me.jagrosh.jdautilities.commandclient.CommandListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;

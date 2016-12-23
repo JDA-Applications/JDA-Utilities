@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.jagrosh.jdacommands;
+package me.jagrosh.jdautilities.commandclient;
 
-import me.jagrosh.jdacommands.impl.CommandClientImpl;
+import me.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import net.dv8tion.jda.core.entities.Game;
