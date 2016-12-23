@@ -54,7 +54,7 @@ public class PaginatorBuilder extends MenuBuilder {
     
     /**
      * Sets the color of the embed, default is no color
-     * @param color
+     * @param color the color
      * @return the builder after the color has been set
      */
     @Override
@@ -67,7 +67,7 @@ public class PaginatorBuilder extends MenuBuilder {
     /**
      * Sets the color of the embed page to be a function of the current page number and
      * the total number of pages
-     * @param color a function of the page number and total pages to a color
+     * @param colorBiFunction a function of the page number and total pages to a color
      * @return the builder after the colors have been set
      */
     public PaginatorBuilder setColorBiFunction(BiFunction<Integer,Integer,Color> colorBiFunction)

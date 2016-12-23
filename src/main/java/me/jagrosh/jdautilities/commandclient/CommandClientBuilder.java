@@ -52,7 +52,7 @@ public class CommandClientBuilder {
     /**
      * Sets the owner for the bot
      * @param ownerId the id of the owner
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder setOwnerId(String ownerId)
     {
@@ -63,7 +63,7 @@ public class CommandClientBuilder {
     /**
      * Sets the bot's prefix. If null, the bot will use a mention as a prefix
      * @param prefix the prefix
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder setPrefix(String prefix)
     {
@@ -74,7 +74,7 @@ public class CommandClientBuilder {
     /**
      * Sets the bot's support server invite
      * @param serverInvite the support server invite
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder setServerInvite(String serverInvite)
     {
@@ -87,7 +87,7 @@ public class CommandClientBuilder {
      * @param success emoji for success
      * @param warning emoji for warning
      * @param error emoji for failure
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder setEmojis(String success, String warning, String error)
     {
@@ -100,7 +100,7 @@ public class CommandClientBuilder {
     /**
      * Sets the game to use when the bot is ready. Set to null for no game
      * @param game the game to use when the bot is ready
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder setGame(Game game)
     {
@@ -110,7 +110,7 @@ public class CommandClientBuilder {
     
     /**
      * Uses the default game, 'Type [prefix]help'
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder useDefaultGame()
     {
@@ -120,8 +120,8 @@ public class CommandClientBuilder {
     
     /**
      * Adds a command
-     * @param command 
-     * @return  
+     * @param command the command to add
+     * @return the builder
      */
     public CommandClientBuilder addCommand(Command command)
     {
@@ -131,8 +131,8 @@ public class CommandClientBuilder {
     
     /**
      * Adds multiple commands. This is the same as calling addCommand multiple times
-     * @param commands 
-     * @return  
+     * @param commands the commands to add
+     * @return the builder
      */
     public CommandClientBuilder addCommands(Command... commands)
     {
@@ -143,8 +143,8 @@ public class CommandClientBuilder {
     
     /**
      * Sets a key for Carbonitex for updating server count
-     * @param key 
-     * @return  
+     * @param key a Carbonitex key
+     * @return the builder
      */
     public CommandClientBuilder setCarbonitexKey(String key)
     {
@@ -154,8 +154,8 @@ public class CommandClientBuilder {
     
     /**
      * Sets a key for the Discord Bots listing for updating server count
-     * @param key
-     * @return 
+     * @param key A bots.discord.pw API key
+     * @return the builder
      */
     public CommandClientBuilder setDiscordBotsKey(String key)
     {
@@ -166,7 +166,7 @@ public class CommandClientBuilder {
     /**
      * Sets the CommandListener for the CommandClientImpl
      * @param listener the CommandListener for the CommandClientImpl
-     * @return 
+     * @return the builder
      */
     public CommandClientBuilder setListener(CommandListener listener)
     {

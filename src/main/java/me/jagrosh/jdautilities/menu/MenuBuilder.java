@@ -41,6 +41,7 @@ public abstract class MenuBuilder {
         
     /**
      * Sets the EventWaiter to use to do menu operations
+     * @param <T> the type of MenuBuilder
      * @param waiter the EventWaiter
      * @return the builder after the waiter has been set
      */
@@ -52,6 +53,7 @@ public abstract class MenuBuilder {
     
     /**
      * Adds users that are allowed to use the menu
+     * @param <T> the type of MenuBuilder
      * @param users the users allowed to use the menu
      * @return the builder when the users have been added
      */
@@ -63,6 +65,7 @@ public abstract class MenuBuilder {
     
     /**
      * Sets users that are allowed to use the menu
+     * @param <T> the type of MenuBuilder
      * @param users the users allowed to use the menu
      * @return the builder when the users have been set
      */
@@ -75,6 +78,7 @@ public abstract class MenuBuilder {
     
     /**
      * Adds roles that are allowed to use the menu
+     * @param <T> the type of MenuBuilder
      * @param roles the roles allowed to use the menu
      * @return  the builder when the roles have been added
      */
@@ -86,6 +90,7 @@ public abstract class MenuBuilder {
     
     /**
      * Sets roles that are allowed to use the menu
+     * @param <T> the type of MenuBuilder
      * @param roles the roles allowed to use the menu
      * @return  the builder when the roles have been set
      */
@@ -99,6 +104,7 @@ public abstract class MenuBuilder {
     /**
      * Sets the timeout that the menu should stay available
      * 
+     * @param <T> the type of MenuBuilder
      * @param timeout the amount of time
      * @param unit the time units
      * @return the menu builder when the timeout has been set

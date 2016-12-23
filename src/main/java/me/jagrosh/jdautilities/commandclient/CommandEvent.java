@@ -41,9 +41,9 @@ public class CommandEvent {
      * Constructor for a CommandEvent. You should not call this! It is a
      * generated wrapper for a MessageReceivedEvent.
      * 
-     * @param event
-     * @param args 
-     * @param client 
+     * @param event the MRE
+     * @param args the arguments after the command
+     * @param client the commandclient
      */
     public CommandEvent(MessageReceivedEvent event, String args, CommandClient client)
     {
@@ -106,7 +106,7 @@ public class CommandEvent {
      * Replies with a file
      * @param file the file to reply with
      * @param filename the filename that Discord should display (null for default)
-     * @throws java.io.IOException
+     * @throws java.io.IOException if the file is invalid
      */
     public void reply(File file, String filename) throws IOException
     {
@@ -118,7 +118,7 @@ public class CommandEvent {
      * @param message the message
      * @param file the file
      * @param filename the filename that Discord should display (null for default)
-     * @throws java.io.IOException
+     * @throws java.io.IOException if the file is invalid
      */
     public void reply(String message, File file, String filename) throws IOException
     {
@@ -197,7 +197,7 @@ public class CommandEvent {
      * @param message the message to send (can be null)
      * @param file the file to send
      * @param filename the file name for Discord to display
-     * @throws java.io.IOException
+     * @throws java.io.IOException if the file is invalid
      */
     public void replyInDm(String message, File file, String filename) throws IOException
     {

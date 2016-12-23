@@ -39,7 +39,7 @@ public interface CommandClient {
     
     /**
      * Sets the Command Listener to listen for command-related events
-     * @param listener 
+     * @param listener the command listener
      */
     public void setListener(CommandListener listener);
     
