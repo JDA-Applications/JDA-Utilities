@@ -20,7 +20,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import me.jagrosh.jdautilities.menu.MenuBuilder;
+import net.dv8tion.jda.core.entities.Message;
 
 /**
  *
@@ -30,6 +32,7 @@ public class PaginatorBuilder extends MenuBuilder {
     
     private BiFunction<Integer,Integer,Color> color = (page, pages) -> null;
     private BiFunction<Integer,Integer,String> text = (page, pages) -> null;
+    private Consumer<Message> finalAction = m -> m.deleteMessage().queue();
     private int columns = 1;
     private int itemsPerPage = 12;
     private boolean showPageNumbers = true;
@@ -48,8 +51,8 @@ public class PaginatorBuilder extends MenuBuilder {
             throw new IllegalArgumentException("Must set an EventWaiter");
         if(strings.isEmpty())
             throw new IllegalArgumentException("Must include at least one item to paginate");
-        return new Paginator(waiter, users, roles, timeout, unit, color, text, columns, 
-                itemsPerPage, showPageNumbers, numberItems, strings);
+        return new Paginator(waiter, users, roles, timeout, unit, color, text, finalAction, 
+                columns, itemsPerPage, showPageNumbers, numberItems, strings);
     }
     
     /**
@@ -70,7 +73,7 @@ public class PaginatorBuilder extends MenuBuilder {
      * @param colorBiFunction a function of the page number and total pages to a color
      * @return the builder after the colors have been set
      */
-    public PaginatorBuilder setColorBiFunction(BiFunction<Integer,Integer,Color> colorBiFunction)
+    public PaginatorBuilder setColor(BiFunction<Integer,Integer,Color> colorBiFunction)
     {
         this.color = colorBiFunction;
         return this;
@@ -93,9 +96,21 @@ public class PaginatorBuilder extends MenuBuilder {
      * @param textBiFunction the bifunction to use to determine text
      * @return the builder after the text bifunction has been set
      */
-    public PaginatorBuilder setTextBiFunction(BiFunction<Integer,Integer,String> textBiFunction)
+    public PaginatorBuilder setText(BiFunction<Integer,Integer,String> textBiFunction)
     {
         this.text = textBiFunction;
+        return this;
+    }
+    
+    /**
+     * Sets the final action to take, either when the paginator stop button is
+     * pressed, or when it times out
+     * @param finalAction the final action to take
+     * @return the builder
+     */
+    public PaginatorBuilder setFinalAction(Consumer<Message> finalAction)
+    {
+        this.finalAction = finalAction;
         return this;
     }
     

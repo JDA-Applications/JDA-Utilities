@@ -20,15 +20,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import me.jagrosh.jdautilities.waiter.EventWaiter;
 import me.jagrosh.jdautilities.menu.Menu;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -47,13 +46,14 @@ public class Paginator extends Menu {
     private final boolean numberItems;
     private final List<String> strings;
     private final int pages;
+    private final Consumer<Message> finalAction;
     
     public static final String LEFT = "\u25C0";
     public static final String STOP = "\u23F9";
     public static final String RIGHT = "\u25B6";
     
     protected Paginator(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text,
+            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, Consumer<Message> finalAction,
             int columns, int itemsPerPage, boolean showPageNumbers, boolean numberItems, List<String> items)
     {
         super(waiter, users, roles, timeout, unit);
@@ -65,6 +65,25 @@ public class Paginator extends Menu {
         this.numberItems = numberItems;
         this.strings = items;
         this.pages = (int)Math.ceil((double)strings.size()/itemsPerPage);
+        this.finalAction = finalAction;
+    }
+
+    /**
+     * Begins pagination on page 1, sending a new message to the provided channel
+     * @param channel the channel in which to begin pagination
+     */
+    @Override
+    public void display(MessageChannel channel) {
+        paginate(channel, 1);
+    }
+
+    /**
+     * Begins pagination on page 1, editing the menu into the provided message
+     * @param message the message to use for pagination=
+     */
+    @Override
+    public void display(Message message) {
+        paginate(message, 1);
     }
     
     /**
@@ -122,28 +141,21 @@ public class Paginator extends Menu {
                     || STOP.equals(event.getReaction().getEmote().getName())
                     || RIGHT.equals(event.getReaction().getEmote().getName())))
                 return false;
-            if(users.isEmpty() && roles.isEmpty())
-                return true;
-            if(users.contains(event.getUser()))
-                return true;
-            if(!(event.getChannel() instanceof TextChannel))
-                return false;
-            Member m = ((TextChannel)event.getChannel()).getGuild().getMember(event.getUser());
-            return m.getRoles().stream().anyMatch(r -> roles.contains(r));
+            return isValidUser(event);
         }, event -> {
             int newPageNum = pageNum;
             switch(event.getReaction().getEmote().getName())
             {
                 case LEFT:  if(newPageNum>1) newPageNum--; break;
                 case RIGHT: if(newPageNum<pages) newPageNum++; break;
-                case STOP: message.deleteMessage().queue(); return;
+                case STOP: finalAction.accept(message); return;
             }
             event.getReaction().removeReaction(event.getUser()).queue();
             int n = newPageNum;
             message.editMessage(renderPage(newPageNum)).queue(m -> {
                 pagination(m, n);
             });
-        }, timeout, unit, () -> message.deleteMessage().queue());
+        }, timeout, unit, () -> finalAction.accept(message));
     }
     
     private Message renderPage(int pageNum)

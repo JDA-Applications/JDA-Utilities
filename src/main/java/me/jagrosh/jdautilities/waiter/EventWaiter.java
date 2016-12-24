@@ -15,7 +15,6 @@
  */
 package me.jagrosh.jdautilities.waiter;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,14 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ShutdownEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 /**

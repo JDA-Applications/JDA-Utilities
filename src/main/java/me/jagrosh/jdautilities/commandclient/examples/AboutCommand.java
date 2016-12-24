@@ -51,7 +51,7 @@ public class AboutCommand extends Command {
         builder.setAuthor("All about "+event.getSelfUser().getName()+"!", null, event.getSelfUser().getAvatarUrl());
         String descr = "Hello! I am **"+event.getSelfUser().getName()+"**, "+description
                 + "\nI was written in Java by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
-                + "** using jagrosh's [Commands Extension](https://github.com/jagrosh/JDA-Commands) and the "
+                + "** using jagrosh's [Commands Extension](https://github.com/jagrosh/JDA-Utilities) and the "
                 + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+") <:jda:230988580904763393>"
                 + "\nType `"+event.getClient().getTextualPrefix()+"help` to see my commands!"
                 + "\nJoin my server [`here`]("+event.getClient().getServerInvite()+"), or [`invite`]("+oauthLink+") me to your server!"
