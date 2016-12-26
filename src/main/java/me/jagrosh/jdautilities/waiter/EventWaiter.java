@@ -88,15 +88,19 @@ public class EventWaiter implements EventListener {
     @SuppressWarnings("unchecked")
     public final void onEvent(Event event)
     {
-        if(waitingEvents.containsKey(event.getClass()))
-        {
-            List<WaitingEvent> list = waitingEvents.get(event.getClass());
-            List<WaitingEvent> ulist = new ArrayList<>(list);
-            list.removeAll(ulist.stream().filter(i -> i.attempt(event)).collect(Collectors.toList()));
-        }
-        else if(event instanceof ShutdownEvent)
-        {
-            threadpool.shutdown();
+        Class c = event.getClass();
+        while(c.getSuperclass()!=null) {
+            if(waitingEvents.containsKey(c))
+            {
+                List<WaitingEvent> list = waitingEvents.get(c);
+                List<WaitingEvent> ulist = new ArrayList<>(list);
+                list.removeAll(ulist.stream().filter(i -> i.attempt(event)).collect(Collectors.toList()));
+            }
+            if(event instanceof ShutdownEvent)
+            {
+                threadpool.shutdown();
+            }
+            c = c.getSuperclass();
         }
     }
     

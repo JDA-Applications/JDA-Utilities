@@ -7,7 +7,7 @@ You will need to add this project as a dependency (either from the latest .jar f
   <dependency>
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <type>pom</type>
   </dependency>
 ```

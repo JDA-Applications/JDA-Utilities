@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 /**
@@ -60,5 +61,16 @@ public abstract class Menu {
             return false;
         Member m = ((TextChannel)event.getChannel()).getGuild().getMember(event.getUser());
         return m.getRoles().stream().anyMatch(r -> roles.contains(r));
+    }
+    
+    protected boolean isValidUser(MessageReceivedEvent event)
+    {
+        if(users.isEmpty() && roles.isEmpty())
+            return true;
+        if(users.contains(event.getAuthor()))
+            return true;
+        if(!(event.getChannel() instanceof TextChannel))
+            return false;
+        return event.getMember().getRoles().stream().anyMatch(r -> roles.contains(r));
     }
 }
