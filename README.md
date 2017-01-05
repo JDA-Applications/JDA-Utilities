@@ -8,14 +8,10 @@ You will need to add this project as a dependency (either from the latest .jar f
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
     <version>0.3</version>
-    <type>pom</type>
   </dependency>
 ```
 ```xml
   <repository>
-    <snapshots>
-      <enabled>false</enabled>
-    </snapshots>
     <id>bintray-jagrosh-maven</id>
     <name>bintray</name>
     <url>http://dl.bintray.com/jagrosh/maven</url>
