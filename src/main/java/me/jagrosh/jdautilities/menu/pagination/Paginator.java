@@ -30,6 +30,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
@@ -47,6 +48,7 @@ public class Paginator extends Menu {
     private final List<String> strings;
     private final int pages;
     private final Consumer<Message> finalAction;
+    private final boolean waitOnSinglePage;
     
     public static final String LEFT = "\u25C0";
     public static final String STOP = "\u23F9";
@@ -54,7 +56,7 @@ public class Paginator extends Menu {
     
     protected Paginator(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
             BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, Consumer<Message> finalAction,
-            int columns, int itemsPerPage, boolean showPageNumbers, boolean numberItems, List<String> items)
+            int columns, int itemsPerPage, boolean showPageNumbers, boolean numberItems, List<String> items, boolean waitOnSinglePage)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -66,6 +68,7 @@ public class Paginator extends Menu {
         this.strings = items;
         this.pages = (int)Math.ceil((double)strings.size()/itemsPerPage);
         this.finalAction = finalAction;
+        this.waitOnSinglePage = waitOnSinglePage;
     }
 
     /**
@@ -125,9 +128,13 @@ public class Paginator extends Menu {
                 m.addReaction(STOP).queue();
                 m.addReaction(RIGHT).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
-            else
+            else if(waitOnSinglePage)
             {
                 m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+            }
+            else
+            {
+                finalAction.accept(m);
             }
         });
     }
@@ -150,7 +157,7 @@ public class Paginator extends Menu {
                 case RIGHT: if(newPageNum<pages) newPageNum++; break;
                 case STOP: finalAction.accept(message); return;
             }
-            event.getReaction().removeReaction(event.getUser()).queue();
+            try{event.getReaction().removeReaction(event.getUser()).queue();}catch(PermissionException e){}
             int n = newPageNum;
             message.editMessage(renderPage(newPageNum)).queue(m -> {
                 pagination(m, n);

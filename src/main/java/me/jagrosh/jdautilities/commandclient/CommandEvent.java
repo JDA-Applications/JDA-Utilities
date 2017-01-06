@@ -224,11 +224,7 @@ public class CommandEvent {
      */
     public void reactSuccess()
     {
-        Emote emote = parseEmote(client.getSuccess());
-        if(emote==null)
-            event.getMessage().addReaction(client.getSuccess()).queue();
-        else
-            event.getMessage().addReaction(emote).queue();
+        react(client.getSuccess());
     }
     
     /**
@@ -236,11 +232,7 @@ public class CommandEvent {
      */
     public void reactWarning()
     {
-        Emote emote = parseEmote(client.getWarning());
-        if(emote==null)
-            event.getMessage().addReaction(client.getWarning()).queue();
-        else
-            event.getMessage().addReaction(emote).queue();
+        react(client.getWarning());
     }
     
     /**
@@ -248,15 +240,24 @@ public class CommandEvent {
      */
     public void reactEror()
     {
-        Emote emote = parseEmote(client.getError());
-        if(emote==null)
-            event.getMessage().addReaction(client.getError()).queue();
-        else
-            event.getMessage().addReaction(emote).queue();
+        react(client.getError());
     }
     
     
     //private methods
+    private void react(String reaction)
+    {
+        if(reaction.isEmpty())
+            return;
+        try{
+            Emote emote = parseEmote(reaction);
+            if(emote==null)
+                event.getMessage().addReaction(reaction).queue();
+            else
+                event.getMessage().addReaction(emote).queue();
+        }catch(PermissionException ex){}
+    }
+    
     private Emote parseEmote(String text)
     {
         String id = text.replaceAll("<:.+:(\\d+)>", "$1");

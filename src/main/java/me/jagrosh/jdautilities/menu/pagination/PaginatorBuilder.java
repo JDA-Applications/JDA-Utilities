@@ -37,6 +37,7 @@ public class PaginatorBuilder extends MenuBuilder {
     private int itemsPerPage = 12;
     private boolean showPageNumbers = true;
     private boolean numberItems = false;
+    private boolean waitOnSinglePage = false;
     
     private final List<String> strings = new LinkedList<>();
     
@@ -52,7 +53,7 @@ public class PaginatorBuilder extends MenuBuilder {
         if(strings.isEmpty())
             throw new IllegalArgumentException("Must include at least one item to paginate");
         return new Paginator(waiter, users, roles, timeout, unit, color, text, finalAction, 
-                columns, itemsPerPage, showPageNumbers, numberItems, strings);
+                columns, itemsPerPage, showPageNumbers, numberItems, strings, waitOnSinglePage);
     }
     
     /**
@@ -159,6 +160,18 @@ public class PaginatorBuilder extends MenuBuilder {
     public PaginatorBuilder useNumberedItems(boolean number)
     {
         this.numberItems = number;
+        return this;
+    }
+    
+    /**
+     * Sets whether or not the paginator should wait for an input when
+     * only one page is visible
+     * @param wait if the paginator should wait
+     * @return the builder
+     */
+    public PaginatorBuilder waitOnSinglePage(boolean wait)
+    {
+        this.waitOnSinglePage = wait;
         return this;
     }
 

@@ -24,14 +24,19 @@ import me.jagrosh.jdautilities.menu.Menu;
 import me.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 /**
  *
@@ -76,6 +81,10 @@ public class OrderedMenu extends Menu {
      */
     @Override
     public void display(MessageChannel channel) {
+        if(channel.getType()==ChannelType.TEXT 
+                && !allowTypedInput 
+                && !PermissionUtil.checkPermission((TextChannel)channel, ((TextChannel)channel).getGuild().getSelfMember(), Permission.MESSAGE_ADD_REACTION))
+            throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(channel.sendMessage(getMessage()));
     }
 
@@ -85,66 +94,88 @@ public class OrderedMenu extends Menu {
      */
     @Override
     public void display(Message message) {
+        if(message.getChannelType()==ChannelType.TEXT 
+                && !allowTypedInput 
+                && !PermissionUtil.checkPermission(message.getTextChannel(), message.getGuild().getSelfMember(), Permission.MESSAGE_ADD_REACTION))
+            throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(message.editMessage(getMessage()));
     }
     
     private void initialize(RestAction<Message> ra)
     {
         ra.queue(m -> {
-            for(int i=1; i<=choices.size(); i++)
-            {
-                if(i<choices.size())
-                    m.addReaction(getEmoji(i)).queue();
-                else 
+            try{
+                for(int i=1; i<=choices.size(); i++)
                 {
-                    RestAction<Void> re = m.addReaction(getEmoji(i));
-                    if(useCancel)
+                    if(i<choices.size())
+                        m.addReaction(getEmoji(i)).queue();
+                    else 
                     {
-                        re.queue();
-                        re = m.addReaction(CANCEL);
-                    }
-                    re.queue(v -> {
-                        if(allowTypedInput)
-                            waiter.waitForEvent(Event.class, e -> {
-                                if(e instanceof MessageReactionAddEvent)
-                                    return isValidReaction(m, (MessageReactionAddEvent)e);
-                                if(e instanceof MessageReceivedEvent)
-                                    return isValidMessage(m, (MessageReceivedEvent)e);
-                                return false;
-                            }, e -> {
-                                m.deleteMessage().queue();
-                                if(e instanceof MessageReactionAddEvent)
-                                {
-                                    MessageReactionAddEvent event = (MessageReactionAddEvent)e;
-                                    if(event.getReaction().getEmote().getName().equals(CANCEL))
-                                        cancel.run();
-                                    else
-                                        action.accept(getNumber(event.getReaction().getEmote().getName()));
-                                }
-                                else if (e instanceof MessageReceivedEvent)
-                                {
-                                    MessageReceivedEvent event = (MessageReceivedEvent)e;
-                                    int num = getMessageNumber(event.getMessage().getRawContent());
-                                    if(num<0 || num>choices.size())
-                                        cancel.run();
-                                    else
-                                        action.accept(num);
-                                }
-                            });
-                        else
-                            waiter.waitForEvent(MessageReactionAddEvent.class, e -> {
-                                return isValidReaction(m, e);
-                            }, e -> {
-                                m.deleteMessage().queue();
-                                if(e.getReaction().getEmote().getName().equals(CANCEL))
-                                    cancel.run();
+
+                            RestAction<Void> re = m.addReaction(getEmoji(i));
+                            if(useCancel)
+                            {
+                                re.queue();
+                                re = m.addReaction(CANCEL);
+                            }
+                            re.queue(v -> {
+                                if(allowTypedInput)
+                                    waitGeneric(m);
                                 else
-                                    action.accept(getNumber(e.getReaction().getEmote().getName()));
+                                    waitReactionOnly(m);
                             });
-                    });
+                    }
                 }
+            }catch(PermissionException ex){
+                if(allowTypedInput)
+                    waitGeneric(m);
+                else
+                    waitReactionOnly(m);
             }
         });
+    }
+    
+    private void waitGeneric(Message m)
+    {
+        waiter.waitForEvent(Event.class, e -> {
+                if(e instanceof MessageReactionAddEvent)
+                    return isValidReaction(m, (MessageReactionAddEvent)e);
+                if(e instanceof MessageReceivedEvent)
+                    return isValidMessage(m, (MessageReceivedEvent)e);
+                return false;
+            }, e -> {
+                m.deleteMessage().queue();
+                if(e instanceof MessageReactionAddEvent)
+                {
+                    MessageReactionAddEvent event = (MessageReactionAddEvent)e;
+                    if(event.getReaction().getEmote().getName().equals(CANCEL))
+                        cancel.run();
+                    else
+                        action.accept(getNumber(event.getReaction().getEmote().getName()));
+                }
+                else if (e instanceof MessageReceivedEvent)
+                {
+                    MessageReceivedEvent event = (MessageReceivedEvent)e;
+                    int num = getMessageNumber(event.getMessage().getRawContent());
+                    if(num<0 || num>choices.size())
+                        cancel.run();
+                    else
+                        action.accept(num);
+                }
+            });
+    }
+    
+    private void waitReactionOnly(Message m)
+    {
+        waiter.waitForEvent(MessageReactionAddEvent.class, e -> {
+                return isValidReaction(m, e);
+            }, e -> {
+                m.deleteMessage().queue();
+                if(e.getReaction().getEmote().getName().equals(CANCEL))
+                    cancel.run();
+                else
+                    action.accept(getNumber(e.getReaction().getEmote().getName()));
+            });
     }
     
     private Message getMessage()

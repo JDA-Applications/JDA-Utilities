@@ -3,14 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>0.3</version>
+    <version>0.4</version>
     <packaging>jar</packaging>
     
     <repositories>
       <repository>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
         <id>bintray-dv8fromtheworld-maven</id>
         <name>bintray</name>
         <url>http://dl.bintray.com/dv8fromtheworld/maven</url>
@@ -20,7 +17,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.BETA2_112</version>
+            <version>3.0.BETA2_118</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>

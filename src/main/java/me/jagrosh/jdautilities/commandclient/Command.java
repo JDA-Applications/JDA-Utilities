@@ -180,7 +180,7 @@ public abstract class Command {
             event.getClient().getListener().onTerminatedCommand(event, this);
     }
     
-    public class Category
+    public static class Category
     {
         private final String name;
         private final Predicate<CommandEvent> predicate;

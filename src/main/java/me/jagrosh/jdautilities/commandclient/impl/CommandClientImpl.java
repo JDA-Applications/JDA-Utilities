@@ -28,6 +28,7 @@ import me.jagrosh.jdautilities.commandclient.CommandListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
@@ -153,7 +154,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         if(event.getAuthor().isBot())
             return;
-        boolean isCommand = false;
+        boolean[] isCommand = new boolean[]{false};
         String[] parts = null;
         if(prefix==null)
         {
@@ -170,7 +171,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         {
             if(parts[0].equalsIgnoreCase("help"))
             {
-                isCommand = true;
+                isCommand[0] = true;
                 CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
@@ -184,7 +185,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                             category = command.getCategory();
                             builder.append("\n\n  __").append(category.getName()).append("__:\n");
                         }
-                        builder.append("\n`").append(textPrefix).append(command.getName())
+                        builder.append("\n`").append(textPrefix).append(prefix==null?" ":"").append(command.getName())
                                 .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
                                 .append(" - ").append(command.getHelp());
                     }
@@ -215,21 +216,47 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             else
             {
                 String name = parts[0];
-                Command command = commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().orElse(null);
-                if(command!=null)
-                {
-                    isCommand = true;
-                    CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
+                String args = parts[1]==null ? "" : parts[1];
+                commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
+                    isCommand[0] = true;
+                    CommandEvent cevent = new CommandEvent(event, args, this);
                     if(listener!=null)
                         listener.onCommand(cevent, command);
-                    command.run(cevent);
-                }
+                    if(isAllowed(command, event.getTextChannel()))
+                        command.run(cevent);
+                    else
+                        cevent.reply(error+" That command cannot be used in this channel!");
+                });
             }
         }
-        if(!isCommand && listener!=null)
+        if(!isCommand[0] && listener!=null)
             listener.onNonCommandMessage(event);
     }
 
+    private boolean isAllowed(Command command, TextChannel channel)
+    {
+        if(channel==null)
+            return true;
+        String topic = channel.getTopic();
+        if(topic==null || topic.isEmpty())
+            return true;
+        topic = topic.toLowerCase();
+        String lowerName = command.getName().toLowerCase();
+        if(topic.contains("{"+lowerName+"}"))
+            return true;
+        if(topic.contains("{-"+lowerName+"}"))
+            return false;
+        String lowerCat = command.getCategory()==null ? null : command.getCategory().getName();
+        if(lowerCat!=null)
+        {
+            if(topic.contains("{"+lowerCat+"}"))
+                return true;
+            if(topic.contains("{-"+lowerCat+"}"))
+                return false;
+        }
+        return !topic.contains("{-all}");
+    }
+    
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
         sendStats(event.getJDA());
