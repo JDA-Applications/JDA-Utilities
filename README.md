@@ -8,14 +8,10 @@ You will need to add this project as a dependency (either from the latest .jar f
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
     <version>0.3</version>
-    <type>pom</type>
   </dependency>
 ```
 ```xml
   <repository>
-    <snapshots>
-      <enabled>false</enabled>
-    </snapshots>
     <id>bintray-jagrosh-maven</id>
     <name>bintray</name>
     <url>http://dl.bintray.com/jagrosh/maven</url>
@@ -23,7 +19,7 @@ You will need to add this project as a dependency (either from the latest .jar f
 ```
 
 ## Usage
-Tutorials coming soon!
+Check out the [Example Bot](https://github.com/jagrosh/ExampleBot)!
 
 ## Projects
-Project List coming soon!
+[**Vortex**](https://github.com/jagrosh/Vortex) - Vortex is an easy-to-use moderation bot that utilizes the JDA-Utilities library for the Command Client and some of the menus
