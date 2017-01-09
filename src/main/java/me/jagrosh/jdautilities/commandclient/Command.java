@@ -15,6 +15,7 @@
  */
 package me.jagrosh.jdautilities.commandclient;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -32,6 +33,7 @@ public abstract class Command {
     protected Category category = null;
     protected String arguments = null;
     protected boolean guildOnly = true;
+    protected String requiredRole = null;
     protected boolean ownerCommand = false;
     protected Permission[] userPermissions = new Permission[0];
     protected Permission[] botPermissions = new Permission[0];
@@ -57,6 +59,14 @@ public abstract class Command {
             terminate(event,null);
             return;
         }
+        
+        // required role check
+        if(requiredRole!=null)
+            if(event.getChannelType()!=ChannelType.TEXT || !event.getMember().getRoles().stream().anyMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
+            {
+                terminate(event, event.getClient().getError()+" You must have a role called `"+requiredRole+"` to use that!");
+                return;
+            }
         
         // availabilty check
         if(event.getChannelType()==ChannelType.TEXT)
@@ -206,5 +216,14 @@ public abstract class Command {
         {
             return predicate==null ? true : predicate.test(event);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(!(obj instanceof Category))
+                return false;
+            Category other = (Category)obj;
+            return Objects.equals(name, other.name) && Objects.equals(predicate, other.predicate);
+        }
+        
     }
 }

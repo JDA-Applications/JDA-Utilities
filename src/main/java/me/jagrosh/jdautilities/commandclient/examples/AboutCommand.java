@@ -15,46 +15,77 @@
  */
 package me.jagrosh.jdautilities.commandclient.examples;
 
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import java.awt.Color;
+import me.jagrosh.jdautilities.JDAUtilitiesInfo;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.CommandEvent;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.Permission;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
  * @author John Grosh (jagrosh)
  */
 public class AboutCommand extends Command {
-
+    public static boolean IS_AUTHOR = true;
     private final Color color;
     private final String description;
-    private final String oauthLink;
+    private final long perms;
+    private String oauthLink;
     private final String[] features;
     
-    public AboutCommand(Color color, String description, String oauthLink, String[] features)
+    public AboutCommand(Color color, String description, String[] features, Permission... requestedPerms)
     {
         this.color = color;
         this.description = description;
-        this.oauthLink = oauthLink;
         this.features = features;
         this.name = "about";
         this.help = "shows info about the bot";
         this.guildOnly = false;
+        if(requestedPerms==null)
+        {
+            this.oauthLink = "";
+            this.perms = 0;
+        }
+        else
+        {
+            this.oauthLink = null;
+            long p = 0;
+            for(Permission perm: requestedPerms)
+                p += perm.getRawValue();
+            perms = p;
+        }
     }
     
     @Override
     protected void execute(CommandEvent event) {
+        if(oauthLink==null)
+        {
+            try{
+                JSONObject app = Unirest.get("https://discordapp.com/api/oauth2/applications/@me")
+                    .header("Authorization", "Bot "+event.getJDA().getToken())
+                    .asJson().getBody().getObject();
+                oauthLink = "https://discordapp.com/oauth2/authorize?client_id="+app.getString("id")+"&permissions="+perms+"&scope=bot";
+            }catch(UnirestException | JSONException e){
+                oauthLink = "";
+            }
+        }
         EmbedBuilder builder = new EmbedBuilder();
         builder.setColor(event.getGuild()==null ? color : event.getGuild().getSelfMember().getColor());
         builder.setAuthor("All about "+event.getSelfUser().getName()+"!", null, event.getSelfUser().getAvatarUrl());
         String descr = "Hello! I am **"+event.getSelfUser().getName()+"**, "+description
-                + "\nI was written in Java by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
-                + "** using jagrosh's [Commands Extension](https://github.com/jagrosh/JDA-Utilities) and the "
+                + "\nI "+(IS_AUTHOR ? "was written in Java" : "am owned")+" by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
+                + "** using "+JDAUtilitiesInfo.AUTHOR+"'s [Commands Extension]("+JDAUtilitiesInfo.GITHUB+") ("+JDAUtilitiesInfo.VERSION+") and the "
                 + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+") <:jda:230988580904763393>"
                 + "\nType `"+event.getClient().getTextualPrefix()+"help` to see my commands!"
-                + "\nJoin my server [`here`]("+event.getClient().getServerInvite()+"), or [`invite`]("+oauthLink+") me to your server!"
+                + "\nJoin my server [`here`]("+event.getClient().getServerInvite()+")"
+                +(oauthLink.isEmpty() ? "" : ", or [`invite`]("+oauthLink+") me to your server")+"!"
                 + "\n\nSome of my features include: ```css";
         for(String feature: features)
             descr+="\n"+event.getClient().getSuccess()+" "+feature;

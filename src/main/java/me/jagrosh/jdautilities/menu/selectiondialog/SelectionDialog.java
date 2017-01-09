@@ -30,6 +30,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
@@ -171,7 +172,7 @@ public class SelectionDialog extends Menu {
                     success.accept(selection);
                     return;
             }
-            event.getReaction().removeReaction(event.getUser()).queue();
+            try{event.getReaction().removeReaction(event.getUser()).queue();}catch(PermissionException e){}
             int n = newSelection;
             message.editMessage(render(n)).queue(m -> {
                 selectionDialog(m, n);

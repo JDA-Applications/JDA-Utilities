@@ -7,7 +7,7 @@ You will need to add this project as a dependency (either from the latest .jar f
   <dependency>
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>0.4</version>
+    <version>0.5</version>
   </dependency>
 ```
 ```xml
@@ -22,4 +22,5 @@ You will need to add this project as a dependency (either from the latest .jar f
 Check out the [Example Bot](https://github.com/jagrosh/ExampleBot)!
 
 ## Projects
-[**Vortex**](https://github.com/jagrosh/Vortex) - Vortex is an easy-to-use moderation bot that utilizes the JDA-Utilities library for the Command Client and some of the menus
+[**Vortex**](https://github.com/jagrosh/Vortex) - Vortex is an easy-to-use moderation bot that utilizes the JDA-Utilities library for the Command Client and some of the menus<br>
+[**JMusicBot**](https://github.com/jagrosh/MusicBot) - This music bot uses the Command Client for its base, and several menus, including the OrderedMenu for search results and the Paginator for the current queue
