@@ -246,7 +246,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             return true;
         if(topic.contains("{-"+lowerName+"}"))
             return false;
-        String lowerCat = command.getCategory()==null ? null : command.getCategory().getName();
+        String lowerCat = command.getCategory()==null ? null : command.getCategory().getName().toLowerCase();
         if(lowerCat!=null)
         {
             if(topic.contains("{"+lowerCat+"}"))

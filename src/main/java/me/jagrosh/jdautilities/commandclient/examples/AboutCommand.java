@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.utils.SimpleLog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,7 +56,6 @@ public class AboutCommand extends Command {
         }
         else
         {
-            this.oauthLink = null;
             long p = 0;
             for(Permission perm: requestedPerms)
                 p += perm.getRawValue();
@@ -69,10 +69,12 @@ public class AboutCommand extends Command {
         {
             try{
                 JSONObject app = Unirest.get("https://discordapp.com/api/oauth2/applications/@me")
-                    .header("Authorization", "Bot "+event.getJDA().getToken())
+                    .header("Authorization", event.getJDA().getToken())
                     .asJson().getBody().getObject();
-                oauthLink = "https://discordapp.com/oauth2/authorize?client_id="+app.getString("id")+"&permissions="+perms+"&scope=bot";
+                boolean isPublic = app.has("bot_public") ? app.getBoolean("bot_public") : true;
+                oauthLink = isPublic ? "https://discordapp.com/oauth2/authorize?client_id="+app.getString("id")+"&permissions="+perms+"&scope=bot" : "";
             }catch(UnirestException | JSONException e){
+                SimpleLog.getLog("OAuth2").fatal("Could not generate invite link: "+e);
                 oauthLink = "";
             }
         }
