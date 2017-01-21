@@ -19,6 +19,7 @@ import com.mashape.unirest.http.Unirest;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.Command.Category;
@@ -196,20 +197,17 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                     if(serverInvite!=null)
                         builder.append(" or join ").append(serverInvite);
                 }
-                if(!event.getAuthor().hasPrivateChannel())
-                {
-                    event.getAuthor().openPrivateChannel().queue(
-                        pc -> pc.sendMessage(builder.toString()).queue( 
-                            m-> {if(event.getGuild()!=null) cevent.reactSuccess();},
-                            t-> event.getChannel().sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.").queue()), 
-                        t-> event.getChannel().sendMessage(warning+" Help cannot be sent because I could not open a Direct Message with you.").queue());
-                }
-                else
-                {
-                    event.getAuthor().getPrivateChannel().sendMessage(builder.toString()).queue(
-                        m-> {if(event.getGuild()!=null) cevent.reactSuccess();}, 
-                        t-> event.getChannel().sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.").queue());
-                }
+                List<String> messages = CommandEvent.splitMessage(builder.toString());
+                event.getAuthor().openPrivateChannel().queue(
+                    pc -> {
+                        pc.sendMessage(messages.get(0)).queue( 
+                            m-> {
+                                if(event.getGuild()!=null)
+                                    cevent.reactSuccess();
+                                for(int i=1; i<messages.size(); i++)
+                                    pc.sendMessage(messages.get(i)).queue();
+                            },t-> event.getChannel().sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.").queue());}, 
+                    t-> event.getChannel().sendMessage(warning+" Help cannot be sent because I could not open a Direct Message with you.").queue());
                 if(listener!=null)
                     listener.onCompletedCommand(cevent, null);
             }

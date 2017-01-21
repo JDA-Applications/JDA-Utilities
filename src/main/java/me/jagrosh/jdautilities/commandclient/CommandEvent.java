@@ -273,7 +273,7 @@ public class CommandEvent {
         }
     }
     
-    private static ArrayList<String> splitMessage(String stringtoSend)
+    public static ArrayList<String> splitMessage(String stringtoSend)
     {
         ArrayList<String> msgs =  new ArrayList<>();
         if(stringtoSend!=null)
