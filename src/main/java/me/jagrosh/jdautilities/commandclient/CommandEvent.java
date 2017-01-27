@@ -238,7 +238,7 @@ public class CommandEvent {
     /**
      * Adds an error reaction
      */
-    public void reactEror()
+    public void reactError()
     {
         react(client.getError());
     }
