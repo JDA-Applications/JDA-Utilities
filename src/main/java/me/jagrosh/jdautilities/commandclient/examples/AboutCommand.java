@@ -25,6 +25,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,17 +96,20 @@ public class AboutCommand extends Command {
         descr+=" ```";
         builder.setDescription(descr);
         builder.addField("Stats", event.getJDA().getGuilds().size()+" servers\n"+(event.getJDA().getShardInfo()==null ? "1 shard" : event.getJDA().getShardInfo().getShardTotal()+" shards"), true);
-        builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"
-                +event.getJDA().getUsers().stream().filter(u -> 
-                    {
-                        try{
-                            OnlineStatus status = event.getJDA().getGuilds().stream().filter(g -> g.isMember(u)).findAny().get().getMember(u).getOnlineStatus();
-                            return status == OnlineStatus.ONLINE || status == OnlineStatus.IDLE || status == OnlineStatus.DO_NOT_DISTURB || status == OnlineStatus.INVISIBLE;
-                        } catch(Exception e){
-                            return false;
-                        }
-                    }
-                ).count()+" online", true);
+        int online = 0;
+        for(User u : event.getJDA().getUsers())
+        {
+            for(Guild g : event.getJDA().getGuilds())
+            {
+                if(g.isMember(u))
+                {
+                    if(g.getMember(u).getOnlineStatus()!=OnlineStatus.OFFLINE)
+                        online++;
+                    break;
+                }
+            }
+        }
+        builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"+online+" online", true);
         builder.addField("Channels", event.getJDA().getTextChannels().size()+" Text\n"+event.getJDA().getVoiceChannels().size()+" Voice", true);
         builder.setFooter("Last restart", null);
         builder.setTimestamp(event.getClient().getStartTime());

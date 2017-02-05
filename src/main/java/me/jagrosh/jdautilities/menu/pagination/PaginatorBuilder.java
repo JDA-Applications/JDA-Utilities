@@ -176,6 +176,16 @@ public class PaginatorBuilder extends MenuBuilder {
     }
 
     /**
+     * Clears the list of items to paginate
+     * @return the builder after the list is cleared
+     */
+    public PaginatorBuilder clearItems()
+    {
+        strings.clear();
+        return this;
+    }
+    
+    /**
      * Adds items to the list of items to paginate
      * @param items the list of items to add
      * @return the builder after the items have been added

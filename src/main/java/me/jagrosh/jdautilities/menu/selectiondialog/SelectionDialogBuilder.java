@@ -157,6 +157,16 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
+     * Clears the choices to be shown
+     * @return the builder
+     */
+    public SelectionDialogBuilder clearChoices()
+    {
+        this.choices.clear();
+        return this;
+    }
+    
+    /**
      * Sets the choices to be shown as selections
      * @param choices the choices to show
      * @return the builder

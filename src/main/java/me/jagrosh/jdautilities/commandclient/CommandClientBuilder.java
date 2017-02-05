@@ -18,6 +18,7 @@ package me.jagrosh.jdautilities.commandclient;
 import me.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.function.Function;
 import net.dv8tion.jda.core.entities.Game;
 
 /**
@@ -36,6 +37,7 @@ public class CommandClientBuilder {
     private String botsKey;
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
+    private Function<CommandEvent,String> helpFunction;
     
     /**
      * Builds a CommandClientImpl with the provided settings
@@ -43,7 +45,7 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands));
+        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), helpFunction);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -68,6 +70,18 @@ public class CommandClientBuilder {
     public CommandClientBuilder setPrefix(String prefix)
     {
         this.prefix = prefix;
+        return this;
+    }
+    
+    /**
+     * Sets the function to build the bot's help command. If null, it will
+     * use the default help function builder
+     * @param helpFunction a function to convert a commandevent to a help message
+     * @return the builder
+     */
+    public CommandClientBuilder setHelpFunction(Function<CommandEvent,String> helpFunction)
+    {
+        this.helpFunction = helpFunction;
         return this;
     }
     

@@ -12,9 +12,9 @@ You will need to add this project as a dependency (either from the latest .jar f
 ```
 ```xml
   <repository>
-    <id>bintray-jagrosh-maven</id>
+    <id>central</id>
     <name>bintray</name>
-    <url>http://dl.bintray.com/jagrosh/maven</url>
+    <url>http://jcenter.bintray.com</url>
   </repository>
 ```
 

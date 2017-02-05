@@ -16,6 +16,7 @@
 package me.jagrosh.jdautilities.commandclient;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /**
  *
@@ -48,6 +49,12 @@ public interface CommandClient {
      * @return possibly-null CommandListener
      */
     public CommandListener getListener();
+    
+    /**
+     * Returns the list of registered commands
+     * @return never-null list
+     */
+    public List<Command> getCommands();
     
     /**
      * Gets the time this CommandClientImpl was instantiated

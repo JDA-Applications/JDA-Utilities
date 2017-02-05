@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.Command.Category;
 import me.jagrosh.jdautilities.commandclient.CommandClient;
@@ -28,6 +30,7 @@ import me.jagrosh.jdautilities.commandclient.CommandEvent;
 import me.jagrosh.jdautilities.commandclient.CommandListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -56,11 +59,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String error;
     private final String carbonKey;
     private final String botsKey;
+    private final Function<CommandEvent,String> helpFunction;
     
     private String textPrefix;
     private CommandListener listener = null;
     
-    public CommandClientImpl(String ownerId, String prefix, Game game, String serverInvite, String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands)
+    public CommandClientImpl(String ownerId, String prefix, Game game, String serverInvite, String success, 
+            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, Function<CommandEvent,String> helpFunction)
     {
         Objects.nonNull(ownerId);
         
@@ -76,6 +81,29 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.carbonKey = carbonKey;
         this.botsKey = botsKey;
         this.commands = commands;
+        this.helpFunction = helpFunction==null ? (event) -> {
+                StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
+                Category category = null;
+                for(Command command : commands)
+                    if(!command.isOwnerCommand() || event.getAuthor().getId().equals(ownerId))
+                    {
+                        if(!Objects.equals(category, command.getCategory()))
+                        {
+                            category = command.getCategory();
+                            builder.append("\n\n  __").append(category==null ? "No Category" : category.getName()).append("__:\n");
+                        }
+                        builder.append("\n`").append(textPrefix).append(prefix==null?" ":"").append(command.getName())
+                                .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
+                                .append(" - ").append(command.getHelp());
+                    }
+                User owner = event.getJDA().getUserById(ownerId);
+                if(owner!=null)
+                {
+                    builder.append("\n\nFor additional help, contact **").append(owner.getName()).append("**#").append(owner.getDiscriminator());
+                    if(serverInvite!=null)
+                        builder.append(" or join ").append(serverInvite);
+                }
+                return builder.toString();} : helpFunction;
     }
     
     @Override
@@ -90,6 +118,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         return listener;
     }
 
+    @Override
+    public List<Command> getCommands() {
+        return commands;
+    }
+    
     @Override
     public OffsetDateTime getStartTime()
     {
@@ -141,7 +174,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     @Override
     public void onReady(ReadyEvent event)
     {
-        textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName() : prefix;
+        textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         event.getJDA().getPresence().setStatus(OnlineStatus.ONLINE);
         if(game!=null)
             event.getJDA().getPresence().setGame("default".equals(game.getName()) ? 
@@ -176,28 +209,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
-                StringBuilder builder = new StringBuilder("**"+event.getJDA().getSelfUser().getName()+"** commands:\n");
-                Category category = null;
-                for(Command command : commands)
-                    if(!command.isOwnerCommand() || event.getAuthor().getId().equals(ownerId))
-                    {
-                        if(!Objects.equals(category, command.getCategory()))
-                        {
-                            category = command.getCategory();
-                            builder.append("\n\n  __").append(category==null ? "No Category" : category.getName()).append("__:\n");
-                        }
-                        builder.append("\n`").append(textPrefix).append(prefix==null?" ":"").append(command.getName())
-                                .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
-                                .append(" - ").append(command.getHelp());
-                    }
-                User owner = event.getJDA().getUserById(ownerId);
-                if(owner!=null)
-                {
-                    builder.append("\n\nFor additional help, contact **").append(owner.getName()).append("**#").append(owner.getDiscriminator());
-                    if(serverInvite!=null)
-                        builder.append(" or join ").append(serverInvite);
-                }
-                List<String> messages = CommandEvent.splitMessage(builder.toString());
+                List<String> messages = CommandEvent.splitMessage(helpFunction.apply(cevent));
                 event.getAuthor().openPrivateChannel().queue(
                     pc -> {
                         pc.sendMessage(messages.get(0)).queue( 
@@ -211,7 +223,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 if(listener!=null)
                     listener.onCompletedCommand(cevent, null);
             }
-            else
+            else if(event.isFromType(ChannelType.PRIVATE) || event.getTextChannel().canTalk())
             {
                 String name = parts[0];
                 String args = parts[1]==null ? "" : parts[1];
