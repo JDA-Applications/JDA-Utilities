@@ -200,8 +200,6 @@ public abstract class Command {
         return botPermissions;
     }
     
-    public 
-    
     public boolean isOwnerCommand()
     {
         return ownerCommand;
