@@ -17,12 +17,15 @@ package me.jagrosh.jdautilities.commandclient.impl;
 
 import com.mashape.unirest.http.Unirest;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.Command.Category;
 import me.jagrosh.jdautilities.commandclient.CommandClient;
@@ -60,6 +63,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String carbonKey;
     private final String botsKey;
     private final Function<CommandEvent,String> helpFunction;
+    private final HashMap<String,OffsetDateTime> cooldowns;
     
     private String textPrefix;
     private CommandListener listener = null;
@@ -81,6 +85,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.carbonKey = carbonKey;
         this.botsKey = botsKey;
         this.commands = commands;
+        this.cooldowns = new HashMap<>();
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -127,6 +132,40 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     public OffsetDateTime getStartTime()
     {
         return start;
+    }
+
+    @Override
+    public OffsetDateTime getCooldown(String name)
+    {
+        return cooldowns.get(name);
+    }
+
+    @Override
+    public int getRemainingCooldown(String name)
+    {
+        if(cooldowns.containsKey(name))
+        {
+            int time = (int)OffsetDateTime.now().until(cooldowns.get(name), ChronoUnit.SECONDS);
+            if(time<=0)
+            {
+                cooldowns.remove(name);
+                return 0;
+            }
+            return time;
+        }
+        return 0;
+    }
+    
+    @Override
+    public void applyCooldown(String name, int seconds)
+    {
+        cooldowns.put(name, OffsetDateTime.now().plusSeconds(seconds));
+    }
+
+    @Override
+    public void cleanCooldowns() {
+        OffsetDateTime now = OffsetDateTime.now();
+        cooldowns.keySet().stream().filter((str) -> (cooldowns.get(str).isBefore(now))).collect(Collectors.toList()).stream().forEach(str -> cooldowns.remove(str));
     }
     
     @Override

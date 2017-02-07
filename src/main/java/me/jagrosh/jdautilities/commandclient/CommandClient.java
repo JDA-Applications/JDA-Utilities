@@ -63,6 +63,32 @@ public interface CommandClient {
     public OffsetDateTime getStartTime();
     
     /**
+     * Gets the time that the specified cooldown expires
+     * @param name the cooldown name
+     * @return the expiration time, or null if the cooldown does not exist
+     */
+    public OffsetDateTime getCooldown(String name);
+    
+    /**
+     * Gets the remaining time on the specified cooldown
+     * @param name the cooldown name
+     * @return the time remaining
+     */
+    public int getRemainingCooldown(String name);
+    
+    /**
+     * Applies the specified cooldown
+     * @param name the cooldown name
+     * @param seconds the time to make the cooldown last
+     */
+    public void applyCooldown(String name, int seconds);
+    
+    /**
+     * Cleans up expired cooldowns to reduce memory
+     */
+    public void cleanCooldowns();
+    
+    /**
      * Gets the ID of the owner of this bot
      * @return the ID of the owner of the bot
      */

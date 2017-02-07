@@ -35,6 +35,7 @@ public abstract class Command {
     protected boolean guildOnly = true;
     protected String requiredRole = null;
     protected boolean ownerCommand = false;
+    protected int cooldown = 0;
     protected Permission[] userPermissions = new Permission[0];
     protected Permission[] botPermissions = new Permission[0];
     protected String[] aliases = new String[0];
@@ -134,6 +135,18 @@ public abstract class Command {
         {
             event.reply(event.getClient().getError()+" This command cannot be used in Direct messages");
             return;
+        }
+        
+        //cooldown check
+        if(cooldown>0)
+        {
+            int remaining = event.getClient().getRemainingCooldown(name+"|"+event.getAuthor().getId());
+            if(remaining>0)
+            {
+                event.reply(event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds!");
+                return;
+            }
+            else event.getClient().applyCooldown(name+"|"+event.getAuthor().getId(), cooldown);
         }
         
         // run
