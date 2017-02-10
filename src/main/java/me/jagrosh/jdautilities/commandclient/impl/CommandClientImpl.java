@@ -16,21 +16,13 @@
 package me.jagrosh.jdautilities.commandclient.impl;
 
 import com.mashape.unirest.http.Unirest;
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.Command.Category;
 import me.jagrosh.jdautilities.commandclient.CommandClient;
 import me.jagrosh.jdautilities.commandclient.CommandEvent;
 import me.jagrosh.jdautilities.commandclient.CommandListener;
+import me.jagrosh.jdautilities.commandclient.annotated.AnnotatedCommandListener;
+import me.jagrosh.jdautilities.commandclient.annotated.OnCommand;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -43,6 +35,15 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.json.JSONObject;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This represents a command client, to be used by a bot.
@@ -57,6 +58,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String prefix;
     private final String serverInvite;
     private final ArrayList<Command> commands;
+    private final ArrayList<Object> commandConsumers;
     private final String success;
     private final String warning;
     private final String error;
@@ -67,9 +69,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     
     private String textPrefix;
     private CommandListener listener = null;
+    private AnnotatedCommandListener annotatedCommandListener = new AnnotatedCommandListener();
     
     public CommandClientImpl(String ownerId, String prefix, Game game, String serverInvite, String success, 
-            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, Function<CommandEvent,String> helpFunction)
+            String warning, String error, String carbonKey, String botsKey,
+            ArrayList<Command> commands, ArrayList<Object> commandConsumers, Function<CommandEvent,String> helpFunction)
     {
         Objects.nonNull(ownerId);
         
@@ -85,6 +89,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.carbonKey = carbonKey;
         this.botsKey = botsKey;
         this.commands = commands;
+        this.commandConsumers = commandConsumers;
         this.cooldowns = new HashMap<>();
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
@@ -116,6 +121,12 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         this.listener = listener;
     }
+
+    @Override
+    public void setAnnotatedListener(Object listener)
+    {
+        this.annotatedCommandListener.setTarget(listener);
+    }
     
     @Override
     public CommandListener getListener()
@@ -127,7 +138,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     public List<Command> getCommands() {
         return commands;
     }
-    
+
+    @Override
+    public List<Object> getCommandConsumers()
+    {
+        return commandConsumers;
+    }
+
     @Override
     public OffsetDateTime getStartTime()
     {
@@ -266,23 +283,48 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             {
                 String name = parts[0];
                 String args = parts[1]==null ? "" : parts[1];
+                final CommandEvent cevent = new CommandEvent(event, args, this);
                 commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
                     isCommand[0] = true;
-                    CommandEvent cevent = new CommandEvent(event, args, this);
                     if(listener!=null)
                         listener.onCommand(cevent, command);
+                    annotatedCommandListener.onCommand(cevent, command);
                     if(isAllowed(command, event.getTextChannel()))
                         command.run(cevent);
                     else
                         cevent.reply(error+" That command cannot be used in this channel!");
                 });
+                commandConsumers.forEach(target -> getCommandConsumerMethods(target)
+                    .filter(method -> method.getName().equalsIgnoreCase(name))
+                    .forEach(method -> {
+                        isCommand[0] = true;
+                        //if(listener!=null)
+                        //    listener.onCommand(cevent, command); // todo: Add support for object commands
+                        if(isAllowed(method.getName().toLowerCase(), null, event.getTextChannel()))
+                            try { method.invoke(target, cevent); } catch (Exception ex) { ex.printStackTrace(); }
+                        else
+                            cevent.reply(error+" That command cannot be used in this channel!");
+                }));
             }
         }
-        if(!isCommand[0] && listener!=null)
-            listener.onNonCommandMessage(event);
+
+        if(!isCommand[0])
+        {
+            if(listener!=null)
+                listener.onNonCommandMessage(event);
+            annotatedCommandListener.onNonCommandMessage(event);
+        }
     }
 
     private boolean isAllowed(Command command, TextChannel channel)
+    {
+        String cmdName = command.getName() != null ? command.getName().toLowerCase() : null;
+        Category cat = command.getCategory();
+        String lowerCat = cat != null && cat.getName() != null ? cat.getName().toLowerCase() : null;
+        return isAllowed(cmdName, lowerCat, channel);
+    }
+
+    private boolean isAllowed(String name, String categoryName, TextChannel channel)
     {
         if(channel==null)
             return true;
@@ -290,20 +332,25 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         if(topic==null || topic.isEmpty())
             return true;
         topic = topic.toLowerCase();
-        String lowerName = command.getName().toLowerCase();
-        if(topic.contains("{"+lowerName+"}"))
+
+        if(topic.contains("{"+name+"}"))
             return true;
-        if(topic.contains("{-"+lowerName+"}"))
+        if(topic.contains("{-"+name+"}"))
             return false;
-        String lowerCat = command.getCategory()==null ? null : command.getCategory().getName().toLowerCase();
-        if(lowerCat!=null)
+        if(categoryName!=null)
         {
-            if(topic.contains("{"+lowerCat+"}"))
+            if(topic.contains("{"+categoryName+"}"))
                 return true;
-            if(topic.contains("{-"+lowerCat+"}"))
+            if(topic.contains("{-"+categoryName+"}"))
                 return false;
         }
         return !topic.contains("{-all}");
+    }
+
+    private Stream<Method> getCommandConsumerMethods(Object object)
+    {
+        Class<? extends Annotation> type = OnCommand.class;
+        return Stream.of(object.getClass().getMethods()).filter(m -> m.getAnnotationsByType(type).length > 0);
     }
     
     @Override

@@ -43,7 +43,9 @@ public interface CommandClient {
      * @param listener the command listener
      */
     public void setListener(CommandListener listener);
-    
+
+    public void setAnnotatedListener(Object listener);
+
     /**
      * Returns the current CommandListener
      * @return possibly-null CommandListener
@@ -55,6 +57,8 @@ public interface CommandClient {
      * @return never-null list
      */
     public List<Command> getCommands();
+
+    public List<Object> getCommandConsumers();
     
     /**
      * Gets the time this CommandClientImpl was instantiated

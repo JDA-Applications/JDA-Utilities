@@ -15,11 +15,15 @@
  */
 package me.jagrosh.jdautilities.commandclient;
 
+import me.jagrosh.jdautilities.commandclient.annotated.OnCommand;
 import me.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
+import net.dv8tion.jda.core.entities.Game;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.function.Function;
-import net.dv8tion.jda.core.entities.Game;
+import java.util.stream.Stream;
 
 /**
  *
@@ -36,6 +40,7 @@ public class CommandClientBuilder {
     private String carbonKey;
     private String botsKey;
     private final LinkedList<Command> commands = new LinkedList<>();
+    private final LinkedList<Object> commandConsumers = new LinkedList<>();
     private CommandListener listener;
     private Function<CommandEvent,String> helpFunction;
     
@@ -45,7 +50,8 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), helpFunction);
+        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey,
+                new ArrayList<>(commands), new ArrayList<>(commandConsumers), helpFunction);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -142,7 +148,7 @@ public class CommandClientBuilder {
         commands.add(command);
         return this;
     }
-    
+
     /**
      * Adds multiple commands. This is the same as calling addCommand multiple times
      * @param commands the commands to add
@@ -154,7 +160,21 @@ public class CommandClientBuilder {
             this.addCommand(command);
         return this;
     }
-    
+
+    public CommandClientBuilder addCommandListener(Object command)
+    {
+        checkListeners(command);
+        commandConsumers.add(command);
+        return this;
+    }
+
+    public CommandClientBuilder addCommandListeners(Object... commands)
+    {
+        checkListeners(commands);
+        Collections.addAll(commandConsumers, commands);
+        return this;
+    }
+
     /**
      * Sets a key for Carbonitex for updating server count
      * @param key a Carbonitex key
@@ -186,5 +206,19 @@ public class CommandClientBuilder {
     {
         this.listener = listener;
         return this;
+    }
+
+    private static void checkListeners(Object... targets)
+    {
+        Stream.of(targets)
+              // Convert to Stream<Stream<Method>> representing all methods of the target
+              .map(target -> Stream.of(target.getClass().getMethods()))
+              .forEach(methods ->
+              {
+                  // Count all methods that are annotated with @OnCommand
+                  int listeners = methods.mapToInt(method -> method.getAnnotationsByType(OnCommand.class).length).sum();
+                  if (listeners < 1) // no annotations were found -> illegal target type
+                      throw new IllegalArgumentException("One of the provided listeners does not have any OnCommand annotations!");
+              });
     }
 }
