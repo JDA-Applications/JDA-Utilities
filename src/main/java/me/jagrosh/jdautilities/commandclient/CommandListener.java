@@ -15,19 +15,26 @@
  */
 package me.jagrosh.jdautilities.commandclient;
 
+import me.jagrosh.jdautilities.commandclient.annotated.OnCommandCompleted;
+import me.jagrosh.jdautilities.commandclient.annotated.OnCommandEvent;
+import me.jagrosh.jdautilities.commandclient.annotated.OnCommandTerminated;
+import me.jagrosh.jdautilities.commandclient.annotated.OnUnprocessedMessage;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
- *
  * @author John Grosh (jagrosh)
  */
 public interface CommandListener {
-    
+
+    @OnCommandEvent
     public void onCommand(CommandEvent event, Command command);
-    
+
+    @OnCommandCompleted
     public void onCompletedCommand(CommandEvent event, Command command);
-    
+
+    @OnCommandTerminated
     public void onTerminatedCommand(CommandEvent event, Command command);
-    
+
+    @OnUnprocessedMessage
     public void onNonCommandMessage(MessageReceivedEvent event);
 }
