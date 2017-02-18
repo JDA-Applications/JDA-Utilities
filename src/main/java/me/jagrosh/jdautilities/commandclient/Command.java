@@ -190,6 +190,16 @@ public abstract class Command {
         return arguments;
     }
     
+    public Permission[] getUserPermissions()
+    {
+        return userPermissions;
+    }
+    
+    public Permission[] getBotPermissions()
+    {
+        return botPermissions;
+    }
+    
     public boolean isOwnerCommand()
     {
         return ownerCommand;
