@@ -36,6 +36,7 @@ public class CommandEvent {
     private final MessageReceivedEvent event;
     private final String args;
     private final CommandClient client;
+    private final String childName;
     
     /**
      * Constructor for a CommandEvent. You should not call this! It is a
@@ -45,11 +46,12 @@ public class CommandEvent {
      * @param args the arguments after the command
      * @param client the commandclient
      */
-    public CommandEvent(MessageReceivedEvent event, String args, CommandClient client)
+    public CommandEvent(MessageReceivedEvent event, String args, CommandClient client, String childName)
     {
         this.event = event;
         this.args = args == null ? "" : args;
         this.client = client;
+        this.childName = childName;
     }
     
     /**
@@ -81,6 +83,15 @@ public class CommandEvent {
         return client;
     }
     
+    /**
+     * Returns the name of a child command if the arguments trigger it, otherwise null.
+     
+     * @return the name of a child command if one is triggered, otherwise null.
+     */
+    public String getChildName()
+    {
+        return childName;
+    }
     
     // functional calls
     
