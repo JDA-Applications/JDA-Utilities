@@ -245,7 +245,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             if(parts[0].equalsIgnoreCase("help"))
             {
                 isCommand[0] = true;
-                CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
+                CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this, null);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
                 List<String> messages = CommandEvent.splitMessage(helpFunction.apply(cevent));
@@ -270,7 +270,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                     isCommand[0] = true;
                     CommandEvent cevent = null;
                     Command[] children = command.getChildren();
-                    if(children>0)
+                    if(children.length>0)
                     {
                         for(Command child : children)
                         {
