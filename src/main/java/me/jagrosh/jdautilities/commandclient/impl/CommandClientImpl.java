@@ -268,7 +268,21 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 String args = parts[1]==null ? "" : parts[1];
                 commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
                     isCommand[0] = true;
-                    CommandEvent cevent = new CommandEvent(event, args, this);
+                    CommandEvent cevent = null;
+                    Command[] children = command.getChildren();
+                    if(children>0)
+                    {
+                        for(Command child : children)
+                        {
+                            String[] childParts = args.split("\\s+", 2);
+                            String childName = childParts[0];
+                            String childArgs = childParts[1]==null ? "" : childParts[1];
+                            if(childName.toLowerCase()==child.getName().toLowerCase())
+                                cevent = new CommandEvent(event, childArgs, this, childName);
+                        }
+                    }
+                    if(cevent==null)
+                        new CommandEvent(event, args, this, null);
                     if(listener!=null)
                         listener.onCommand(cevent, command);
                     if(isAllowed(command, event.getTextChannel()))
