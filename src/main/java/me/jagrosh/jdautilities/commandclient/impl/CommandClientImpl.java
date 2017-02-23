@@ -286,18 +286,18 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private String getSpecifiedArgs(Command command, String args) 
     {
     	Command[] children = command.getChildren();
-    	if(children.length==0) //If no child commands
-    		return args; //return arguments provided, untouched
+    	if(children.length==0)
+    		return args;
     	Command child;
-    	try{ //attempts getting child by name
+    	try{
     		child = Arrays.asList(children).stream().filter(c -> args.toLowerCase().startsWith(c.getName())).findFirst().get();
-    	} catch(NoSuchElementException e) { //If no child command is found, returns provided arguments
+    	} catch(NoSuchElementException e) {
     		return args;
     	}
-    	String specArgs = null; //Specified arguments are left empty.
-    	if(child.getChildren().length>0) //If there exists more children, it will attempt to get further specified arguments
+    	String specArgs = null;
+    	if(child.getChildren().length>0)
     		specArgs = getSpecifiedArgs(child, args.replaceFirst(child.getName(), "").trim());
-    	else //Otherwise the specified arguments are set and returned
+    	else
     		specArgs = args.replaceFirst(child.getName(), "").trim();
     	return specArgs;
     	
