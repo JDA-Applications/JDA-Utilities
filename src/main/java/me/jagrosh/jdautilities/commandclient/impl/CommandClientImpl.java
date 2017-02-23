@@ -268,8 +268,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 String args = parts[1]==null ? "" : parts[1];
                 commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
                     isCommand[0] = true;
-                    String specArgs = getSpecifiedArgs(command, args);
-                    CommandEvent cevent = new CommandEvent(event, args, this, specArgs);
+                    String childArgs = getChildArgs(command, args);
+                    CommandEvent cevent = new CommandEvent(event, args, this, childArgs);
                     if(listener!=null)
                         listener.onCommand(cevent, command);
                     if(isAllowed(command, event.getTextChannel()))
@@ -283,7 +283,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             listener.onNonCommandMessage(event);
     }
     
-    private String getSpecifiedArgs(Command command, String args) 
+    private String getChildArgs(Command command, String args) 
     {
     	Command[] children = command.getChildren();
     	if(children.length==0)
@@ -294,12 +294,12 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     	} catch(NoSuchElementException e) {
     		return args;
     	}
-    	String specArgs = null;
+    	String childArgs = null;
     	if(child.getChildren().length>0)
-    		specArgs = getSpecifiedArgs(child, args.replaceFirst(child.getName(), "").trim());
+    		childArgs = getChildArgs(child, args.replaceFirst(child.getName(), "").trim());
     	else
-    		specArgs = args.replaceFirst(child.getName(), "").trim();
-    	return specArgs;
+    		childArgs = args.replaceFirst(child.getName(), "").trim();
+    	return childArgs;
     	
     }
 
