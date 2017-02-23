@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import me.jagrosh.jdautilities.commandclient.Command;
@@ -245,7 +245,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             if(parts[0].equalsIgnoreCase("help"))
             {
                 isCommand[0] = true;
-                CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this, null);
+                CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this, parts[1]==null ? "" : parts[1]);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
                 List<String> messages = CommandEvent.splitMessage(helpFunction.apply(cevent));
@@ -268,21 +268,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 String args = parts[1]==null ? "" : parts[1];
                 commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
                     isCommand[0] = true;
-                    CommandEvent cevent = null;
-                    Command[] children = command.getChildren();
-                    if(children.length>0)
-                    {
-                        for(Command child : children)
-                        {
-                            String[] childParts = args.split("\\s+", 2);
-                            String childName = childParts[0];
-                            String childArgs = childParts[1]==null ? "" : childParts[1];
-                            if(childName.toLowerCase()==child.getName().toLowerCase())
-                                cevent = new CommandEvent(event, childArgs, this, childName);
-                        }
-                    }
-                    if(cevent==null)
-                        new CommandEvent(event, args, this, null);
+                    String specArgs = getSpecifiedArgs(command, args);
+                    CommandEvent cevent = new CommandEvent(event, args, this, specArgs);
                     if(listener!=null)
                         listener.onCommand(cevent, command);
                     if(isAllowed(command, event.getTextChannel()))
@@ -294,6 +281,26 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         }
         if(!isCommand[0] && listener!=null)
             listener.onNonCommandMessage(event);
+    }
+    
+    private String getSpecifiedArgs(Command command, String args) 
+    {
+    	Command[] children = command.getChildren();
+    	if(children.length==0) //If no child commands
+    		return args; //return arguments provided, untouched
+    	Command child;
+    	try{ //attempts getting child by name
+    		child = Arrays.asList(children).stream().filter(c -> args.toLowerCase().startsWith(c.getName())).findFirst().get();
+    	} catch(NoSuchElementException e) { //If no child command is found, returns provided arguments
+    		return args;
+    	}
+    	String specArgs = null; //Specified arguments are left empty.
+    	if(child.getChildren().length>0) //If there exists more children, it will attempt to get further specified arguments
+    		specArgs = getSpecifiedArgs(child, args.replaceFirst(child.getName(), "").trim());
+    	else //Otherwise the specified arguments are set and returned
+    		specArgs = args.replaceFirst(child.getName(), "").trim();
+    	return specArgs;
+    	
     }
 
     private boolean isAllowed(Command command, TextChannel channel)
