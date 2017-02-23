@@ -36,6 +36,7 @@ public abstract class Command {
     protected String requiredRole = null;
     protected boolean ownerCommand = false;
     protected int cooldown = 0;
+    protected Command[] children = new Command[0];
     protected Permission[] userPermissions = new Permission[0];
     protected Permission[] botPermissions = new Permission[0];
     protected String[] aliases = new String[0];
@@ -47,6 +48,19 @@ public abstract class Command {
     
     public final void run(CommandEvent event)
     {
+    	// child check
+        if(!event.getArgs().equalsIgnoreCase(event.getRawArgs()))
+        {
+        	for(Command child : children) for(String cname : event.getRawArgs().replace(event.getArgs(), "").trim().split("\\s+"))
+        	{
+        		if(child.getName().equalsIgnoreCase(cname))
+        		{
+        			child.run(event);
+        			return;
+        		}
+        	}
+        }
+    	
         // owner check
         if(ownerCommand && !event.getAuthor().getId().equals(event.getClient().getOwnerId()))
         {
@@ -175,6 +189,11 @@ public abstract class Command {
         return name;
     }
     
+    public String[] getAliases()
+    {
+    	return aliases;
+    }
+    
     public String getHelp()
     {
         return help;
@@ -190,6 +209,11 @@ public abstract class Command {
         return arguments;
     }
     
+    public Command[] getChildren()
+    {
+    	return children;
+    }
+   
     public Permission[] getUserPermissions()
     {
         return userPermissions;
