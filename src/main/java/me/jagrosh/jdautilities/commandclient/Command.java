@@ -210,8 +210,7 @@ public abstract class Command {
     {
     	return children;
     }
-   
-    
+
     public Permission[] getUserPermissions()
     {
         return userPermissions;
