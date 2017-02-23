@@ -51,15 +51,12 @@ public abstract class Command {
     	// child check
         if(!event.getArgs().equalsIgnoreCase(event.getRawArgs()))
         {
-        	for(Command child : children)
+        	for(Command child : children) for(String cname : event.getRawArgs().replace(event.getArgs(), "").trim().split("\\s+"))
         	{
-        		for(int i = 0; i < event.getRawArgs().replaceFirst(event.getArgs(), "").trim().split("\\s+").length; i++)
+        		if(child.getName().equalsIgnoreCase(cname))
         		{
-        			if(child.getName().equalsIgnoreCase(event.getRawArgs().replaceFirst(event.getArgs(), "").trim().split("\\s+")[i]))
-        			{
-        				child.run(event);
-        				return;
-        			}
+        			child.run(event);
+        			return;
         		}
         	}
         }
@@ -192,6 +189,11 @@ public abstract class Command {
         return name;
     }
     
+    public String[] getAliases()
+    {
+    	return aliases;
+    }
+    
     public String getHelp()
     {
         return help;
@@ -211,7 +213,7 @@ public abstract class Command {
     {
     	return children;
     }
-
+   
     public Permission[] getUserPermissions()
     {
         return userPermissions;
