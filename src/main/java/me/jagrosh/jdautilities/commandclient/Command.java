@@ -22,7 +22,6 @@ import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 
-
 /**
  *
  * @author John Grosh (jagrosh)
@@ -36,6 +35,7 @@ public abstract class Command {
     protected String requiredRole = null;
     protected boolean ownerCommand = false;
     protected int cooldown = 0;
+    protected Command[] children = new Command[0];
     protected Permission[] userPermissions = new Permission[0];
     protected Permission[] botPermissions = new Permission[0];
     protected String[] aliases = new String[0];
@@ -47,6 +47,22 @@ public abstract class Command {
     
     public final void run(CommandEvent event)
     {
+    	// child check
+        if(!event.getArgs().equalsIgnoreCase(event.getRawArgs()))
+        {
+        	for(Command child : children)
+        	{
+        		for(int i = 0; i < event.getRawArgs().replaceFirst(event.getArgs(), "").trim().split("\\s+").length; i++)
+        		{
+        			if(child.getName().equalsIgnoreCase(event.getRawArgs().replaceFirst(event.getArgs(), "").trim().split("\\s+")[i]))
+        			{
+        				child.run(event);
+        				return;
+        			}
+        		}
+        	}
+        }
+    	
         // owner check
         if(ownerCommand && !event.getAuthor().getId().equals(event.getClient().getOwnerId()))
         {
@@ -190,6 +206,11 @@ public abstract class Command {
         return arguments;
     }
     
+    public Command[] getChildren()
+    {
+    	return children;
+    }
+
     public Permission[] getUserPermissions()
     {
         return userPermissions;
