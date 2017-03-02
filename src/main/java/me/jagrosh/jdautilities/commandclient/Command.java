@@ -217,6 +217,16 @@ public abstract class Command {
         return botPermissions;
     }
     
+    public Command[] getChildren()
+    {
+        return children;
+    }
+    
+    public String[] getAliases()
+    {
+        return aliases;
+    }
+    
     public boolean isOwnerCommand()
     {
         return ownerCommand;
