@@ -21,6 +21,7 @@ import java.awt.Color;
 import me.jagrosh.jdautilities.JDAUtilitiesInfo;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.CommandEvent;
+import me.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -83,34 +84,46 @@ public class AboutCommand extends Command {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setColor(event.getGuild()==null ? color : event.getGuild().getSelfMember().getColor());
         builder.setAuthor("All about "+event.getSelfUser().getName()+"!", null, event.getSelfUser().getAvatarUrl());
+        boolean join = !(event.getClient().getServerInvite()==null || event.getClient().getServerInvite().isEmpty());
+        boolean inv =  !oauthLink.isEmpty();
+        String invline = "\n"+(join ? "Join my server [`here`]("+event.getClient().getServerInvite()+")" : (inv ? "Please " : ""))+(inv ? (join ? ", or " : "")+"[`invite`]("+oauthLink+") me to your server" : "")+"!";
         String descr = "Hello! I am **"+event.getSelfUser().getName()+"**, "+description
                 + "\nI "+(IS_AUTHOR ? "was written in Java" : "am owned")+" by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
                 + "** using "+JDAUtilitiesInfo.AUTHOR+"'s [Commands Extension]("+JDAUtilitiesInfo.GITHUB+") ("+JDAUtilitiesInfo.VERSION+") and the "
                 + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+") <:jda:230988580904763393>"
                 + "\nType `"+event.getClient().getTextualPrefix()+"help` to see my commands!"
-                + "\nJoin my server [`here`]("+event.getClient().getServerInvite()+")"
-                +(oauthLink.isEmpty() ? "" : ", or [`invite`]("+oauthLink+") me to your server")+"!"
+                + (join||inv ? invline : "")
                 + "\n\nSome of my features include: ```css";
         for(String feature: features)
             descr+="\n"+event.getClient().getSuccess()+" "+feature;
         descr+=" ```";
         builder.setDescription(descr);
-        builder.addField("Stats", event.getJDA().getGuilds().size()+" servers\n"+(event.getJDA().getShardInfo()==null ? "1 shard" : event.getJDA().getShardInfo().getShardTotal()+" shards"), true);
-        int online = 0;
-        for(User u : event.getJDA().getUsers())
+        if(event.getJDA().getShardInfo()==null)
         {
-            for(Guild g : event.getJDA().getGuilds())
+            builder.addField("Stats", event.getJDA().getGuilds().size()+" servers\n1 shard", true);
+            int online = 0;
+            for(User u : event.getJDA().getUsers())
             {
-                if(g.isMember(u))
+                for(Guild g : event.getJDA().getGuilds())
                 {
-                    if(g.getMember(u).getOnlineStatus()!=OnlineStatus.OFFLINE)
-                        online++;
-                    break;
+                    if(g.isMember(u))
+                    {
+                        if(g.getMember(u).getOnlineStatus()!=OnlineStatus.OFFLINE)
+                            online++;
+                        break;
+                    }
                 }
             }
+            builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"+online+" online", true);
+            builder.addField("Channels", event.getJDA().getTextChannels().size()+" Text\n"+event.getJDA().getVoiceChannels().size()+" Voice", true);
         }
-        builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"+online+" online", true);
-        builder.addField("Channels", event.getJDA().getTextChannels().size()+" Text\n"+event.getJDA().getVoiceChannels().size()+" Voice", true);
+        else
+        {
+            builder.addField("Stats",((CommandClientImpl)event.getClient()).getTotalGuilds()+" Servers\nShard "
+                    +(event.getJDA().getShardInfo().getShardId()+1)+"/"+event.getJDA().getShardInfo().getShardTotal(), true);
+            builder.addField("This shard",event.getJDA().getUsers().size()+" Users\n"+event.getJDA().getGuilds().size()+" Servers", true);
+            builder.addField("", event.getJDA().getTextChannels().size()+" Text Channels\n"+event.getJDA().getVoiceChannels().size()+" Voice Channels", true);
+        }
         builder.setFooter("Last restart", null);
         builder.setTimestamp(event.getClient().getStartTime());
         event.reply(builder.build());

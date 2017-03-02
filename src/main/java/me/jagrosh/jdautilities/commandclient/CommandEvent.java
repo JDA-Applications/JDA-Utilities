@@ -34,7 +34,7 @@ public class CommandEvent {
     public static int MAX_MESSAGES = 2;
     
     private final MessageReceivedEvent event;
-    private final String args;
+    private String args;
     private final CommandClient client;
     
     /**
@@ -60,6 +60,11 @@ public class CommandEvent {
     public String getArgs()
     {
         return args;
+    }
+    
+    protected void setArgs(String args)
+    {
+        this.args = args;
     }
     
     /**

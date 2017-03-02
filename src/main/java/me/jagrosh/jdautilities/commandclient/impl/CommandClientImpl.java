@@ -16,6 +16,7 @@
 package me.jagrosh.jdautilities.commandclient.impl;
 
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import me.jagrosh.jdautilities.commandclient.Command;
@@ -42,6 +42,9 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.utils.SimpleLog;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -64,12 +67,15 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String botsKey;
     private final Function<CommandEvent,String> helpFunction;
     private final HashMap<String,OffsetDateTime> cooldowns;
+    private final String helpWord;
     
     private String textPrefix;
     private CommandListener listener = null;
+    private int totalGuilds;
     
     public CommandClientImpl(String ownerId, String prefix, Game game, String serverInvite, String success, 
-            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, Function<CommandEvent,String> helpFunction)
+            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, 
+            Function<CommandEvent,String> helpFunction, String helpWord)
     {
         Objects.nonNull(ownerId);
         
@@ -86,6 +92,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.botsKey = botsKey;
         this.commands = commands;
         this.cooldowns = new HashMap<>();
+        this.helpWord = helpWord==null ? "help" : helpWord;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -209,6 +216,10 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         return textPrefix;
     }
+
+    public int getTotalGuilds() {
+        return totalGuilds;
+    }
     
     @Override
     public void onReady(ReadyEvent event)
@@ -242,7 +253,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         }
         if(parts!=null) //starts with valid prefix
         {
-            if(parts[0].equalsIgnoreCase("help"))
+            if(parts[0].equalsIgnoreCase(helpWord))
             {
                 isCommand[0] = true;
                 CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
@@ -269,10 +280,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
                     isCommand[0] = true;
                     CommandEvent cevent = new CommandEvent(event, args, this);
-                    if(listener!=null)
-                        listener.onCommand(cevent, command);
+                    
                     if(isAllowed(command, event.getTextChannel()))
+                    {
+                        if(listener!=null)
+                            listener.onCommand(cevent, command);
                         command.run(cevent);
+                    }
                     else
                         cevent.reply(error+" That command cannot be used in this channel!");
                 });
@@ -318,16 +332,55 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     
     private void sendStats(JDA jda)
     {
-        if(carbonKey!=null)
-            Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
-                    .field("key", carbonKey)
-                    .field("servercount", jda.getGuilds().size())
-                    .asJsonAsync();
-        if(botsKey!=null)
-            Unirest.post("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
-                    .header("Authorization", botsKey)
-                    .header("Content-Type","application/json")
-                    .body(new JSONObject().put("server_count",jda.getGuilds().size()).toString())
-                    .asJsonAsync();
+        if(jda.getShardInfo()==null)
+        {
+            if(carbonKey!=null)
+                Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
+                        .field("key", carbonKey)
+                        .field("servercount", jda.getGuilds().size())
+                        .asJsonAsync();
+            if(botsKey!=null)
+                Unirest.post("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
+                        .header("Authorization", botsKey)
+                        .header("Content-Type","application/json")
+                        .body(new JSONObject().put("server_count",jda.getGuilds().size()).toString())
+                        .asJsonAsync();
+        }
+        else
+        {
+            if(carbonKey!=null)
+            {
+                Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
+                        .field("key", carbonKey)
+                        .field("shard_id", jda.getShardInfo().getShardId())
+                        .field("shard_count", jda.getShardInfo().getShardTotal())
+                        .field("servercount", jda.getGuilds().size())
+                        .asJsonAsync();
+            }
+            if(botsKey!=null)
+            {
+                Unirest.post("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
+                        .header("Authorization", botsKey)
+                        .header("Content-Type","application/json")
+                        .body(new JSONObject()
+                                .put("shard_id", jda.getShardInfo().getShardId())
+                                .put("shard_count", jda.getShardInfo().getShardTotal())
+                                .put("server_count",jda.getGuilds().size())
+                                .toString())
+                        .asJsonAsync();
+                try {
+                    JSONArray array = Unirest.get("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
+                            .header("Authorization", botsKey)
+                            .header("Content-Type","application/json")
+                            .asJson().getBody().getObject().getJSONArray("stats");
+                    int total = 0;
+                    for(int i=0; i<array.length(); i++)
+                        total += array.getJSONObject(i).getInt("server_count");
+                    this.totalGuilds = total;
+                } catch (UnirestException | JSONException ex) {
+                    SimpleLog.getLog("BotList").warn("Failed to retrieve bot shard information from bots.discord.pw");
+                }
+            }
+        }
     }
 }

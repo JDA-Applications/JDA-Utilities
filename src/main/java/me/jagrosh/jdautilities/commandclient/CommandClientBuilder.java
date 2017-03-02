@@ -38,6 +38,7 @@ public class CommandClientBuilder {
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
     private Function<CommandEvent,String> helpFunction;
+    private String helpWord;
     
     /**
      * Builds a CommandClientImpl with the provided settings
@@ -45,7 +46,7 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), helpFunction);
+        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), helpFunction, helpWord);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -82,6 +83,17 @@ public class CommandClientBuilder {
     public CommandClientBuilder setHelpFunction(Function<CommandEvent,String> helpFunction)
     {
         this.helpFunction = helpFunction;
+        return this;
+    }
+    
+    /**
+     * Sets the word used to trigger the command list. If null, it will use 'help'
+     * @param helpWord - the word to trigger the command list
+     * @return the builder
+     */
+    public CommandClientBuilder setHelpWord(String helpWord)
+    {
+        this.helpWord = helpWord;
         return this;
     }
     

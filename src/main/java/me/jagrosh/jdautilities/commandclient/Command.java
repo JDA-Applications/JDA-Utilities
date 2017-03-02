@@ -15,6 +15,7 @@
  */
 package me.jagrosh.jdautilities.commandclient;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 import net.dv8tion.jda.core.Permission;
@@ -39,6 +40,7 @@ public abstract class Command {
     protected Permission[] userPermissions = new Permission[0];
     protected Permission[] botPermissions = new Permission[0];
     protected String[] aliases = new String[0];
+    protected Command[] children = new Command[0];
     
     private final static String BOT_PERM = "%s I need the %s permission in this %s!";
     private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
@@ -47,6 +49,21 @@ public abstract class Command {
     
     public final void run(CommandEvent event)
     {
+        // child check
+        if(!event.getArgs().isEmpty())
+        {
+            String[] parts = Arrays.copyOf(event.getArgs().split("\\s+",2), 2);
+            for(Command cmd: children)
+            {
+                if(cmd.isCommandFor(parts[0]))
+                {
+                    event.setArgs(parts[1]==null ? "" : parts[1]);
+                    cmd.run(event);
+                    return;
+                }
+            }
+        }
+        
         // owner check
         if(ownerCommand && !event.getAuthor().getId().equals(event.getClient().getOwnerId()))
         {

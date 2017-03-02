@@ -50,7 +50,7 @@ public class GuildlistCommand extends Command {
                     try {
                         m.clearReactions().queue();
                     } catch(PermissionException ex) {
-                        m.deleteMessage().queue();
+                        m.delete().queue();
                     }
                 })
                 .setEventWaiter(waiter)
@@ -77,7 +77,8 @@ public class GuildlistCommand extends Command {
                 .map(g -> "**"+g.getName()+"** (ID:"+g.getId()+") ~ "+g.getMembers().size()+" Members")
                 .forEach(s -> pbuilder.addItems(s));
         Paginator p = pbuilder.setColor(event.isFromType(ChannelType.TEXT) ? event.getSelfMember().getColor() : Color.black)
-                .setText(event.getClient().getSuccess()+" Guilds that **"+event.getSelfUser().getName()+"** is connected to:")
+                .setText(event.getClient().getSuccess()+" Guilds that **"+event.getSelfUser().getName()+"** is connected to"
+                        +(event.getJDA().getShardInfo()==null ? ":" : "(Shard ID "+event.getJDA().getShardInfo().getShardId()+"):"))
                 .setUsers(event.getAuthor())
                 .build();
         p.paginate(event.getChannel(), page);
