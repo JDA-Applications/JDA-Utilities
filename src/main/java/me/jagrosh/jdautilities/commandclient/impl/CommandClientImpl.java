@@ -57,6 +57,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final OffsetDateTime start;
     private final Game game;
     private final String ownerId;
+    private final String[] coOwnerIds;
     private final String prefix;
     private final String serverInvite;
     private final ArrayList<Command> commands;
@@ -65,23 +66,26 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String error;
     private final String carbonKey;
     private final String botsKey;
-    private final Function<CommandEvent,String> helpFunction;
     private final HashMap<String,OffsetDateTime> cooldowns;
+    private final HashMap<String,Integer> uses;
+    private final boolean useHelp;
+    private final Function<CommandEvent,String> helpFunction;
     private final String helpWord;
     
     private String textPrefix;
     private CommandListener listener = null;
     private int totalGuilds;
     
-    public CommandClientImpl(String ownerId, String prefix, Game game, String serverInvite, String success, 
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, Game game, String serverInvite, String success, 
             String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, 
-            Function<CommandEvent,String> helpFunction, String helpWord)
+            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord)
     {
         Objects.nonNull(ownerId);
         
         this.start = OffsetDateTime.now();
         
         this.ownerId = ownerId;
+        this.coOwnerIds = coOwnerIds;
         this.prefix = prefix;
         this.game = game;
         this.serverInvite = serverInvite;
@@ -92,12 +96,14 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.botsKey = botsKey;
         this.commands = commands;
         this.cooldowns = new HashMap<>();
+        this.uses = new HashMap<>();
+        this.useHelp = useHelp;
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
                 for(Command command : commands)
-                    if(!command.isOwnerCommand() || event.getAuthor().getId().equals(ownerId))
+                    if(!command.isOwnerCommand() || (event.getAuthor().getId().equals(ownerId) || Arrays.asList(coOwnerIds).contains(event.getAuthor().getId())))
                     {
                         if(!Objects.equals(category, command.getCategory()))
                         {
@@ -176,9 +182,27 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
     
     @Override
+    public int getCommandUses(Command command)
+    {
+    	return uses.getOrDefault(command.getName(), 0);
+    }
+    
+    @Override
+    public int getCommandUses(String name)
+    {
+    	return uses.getOrDefault(name, 0);
+    }
+    
+    @Override
     public String getOwnerId()
     {
         return ownerId;
+    }
+    
+    @Override
+    public String[] getCoOwnerIds()
+    {
+    	return coOwnerIds;
     }
     
     @Override
@@ -231,6 +255,10 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                     Game.of("Type "+textPrefix+"help") : 
                     game);
         sendStats(event.getJDA());
+        for(Command command : commands)
+        {
+        	uses.put(command.getName(), 0);
+        }
     }
     
     @Override
@@ -253,7 +281,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         }
         if(parts!=null) //starts with valid prefix
         {
-            if(parts[0].equalsIgnoreCase(helpWord))
+            if(useHelp && parts[0].equalsIgnoreCase(helpWord))
             {
                 isCommand[0] = true;
                 CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
@@ -285,6 +313,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                     {
                         if(listener!=null)
                             listener.onCommand(cevent, command);
+                        uses.put(command.getName(), uses.getOrDefault(command.getName(),0)+1);
                         command.run(cevent);
                     }
                     else
