@@ -25,7 +25,14 @@ import net.dv8tion.jda.core.utils.PermissionUtil;
 
 
 /**
- *
+ * The internal inheritance for Commands used in JDA-Utilities.<p>
+ * Classes created inheriting this class gain the unique traits of commands operated using the
+ * Commands Extension. Using several fields, a command can define properties that make it 
+ * unique and complex while maintaining a low level of development. All Commands extending this
+ * class can define any number of these fields and then a main command body:<p>
+ * <code>protected void execute(CommandEvent event) {<ul>
+ * event.reply("Hey look! This would be the bot's reply if this was a command!");
+ * </ul>}</code><p>
  * @author John Grosh (jagrosh)
  */
 public abstract class Command {
@@ -45,8 +52,18 @@ public abstract class Command {
     private final static String BOT_PERM = "%s I need the %s permission in this %s!";
     private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
     
+    /**
+     * The main body method of a {@linkplain Command}. This is the "response" for a successful
+     * {@linkplain #run}.
+     * @param event the CommandEvent that triggered this Command
+     */
     protected abstract void execute(CommandEvent event);
     
+    /**
+     * Runs checks for the {@linkplain Command} with the given {@linkplain CommandEvent} that called it.
+     * Will terminate, and possibly respond with a failure message, if any checks fail.
+     * @param event the CommandEvent that triggered this Command
+     */
     public final void run(CommandEvent event)
     {
         // child check
@@ -65,7 +82,8 @@ public abstract class Command {
         }
         
         // owner check
-        if(ownerCommand && !event.getAuthor().getId().equals(event.getClient().getOwnerId()))
+        if(ownerCommand && !(event.getAuthor().getId().equals(event.getClient().getOwnerId())
+        		|| event.getClient().getCoOwnerIds().contains(event.getAuthor().getId())))
         {
             terminate(event,null);
             return;
@@ -74,7 +92,7 @@ public abstract class Command {
         // category check
         if(category!=null && !category.test(event))
         {
-            terminate(event,null);
+            terminate(event,category.getFailureResponse());
             return;
         }
         
@@ -187,46 +205,82 @@ public abstract class Command {
         return false;
     }
     
+    /**
+     * Gets the name of the command
+     * @return the name of the command
+     */
     public String getName()
     {
         return name;
     }
     
+    /**
+     * Gets the help string for the command
+     * @return the help string for the command
+     */
     public String getHelp()
     {
         return help;
     }
     
+    /**
+     * Gets the {@linkplain Category} for the command
+     * @return the category for the command
+     */
     public Category getCategory()
     {
         return category;
     }
     
+    /**
+     * Gets the argument format for the command
+     * @return the argument format for the command
+     */
     public String getArguments()
     {
         return arguments;
     }
     
+    /**
+     * Gets the required user permissions to run the command on a guild
+     * @return the required user permissions to run the command on a guild
+     */
     public Permission[] getUserPermissions()
     {
         return userPermissions;
     }
     
+    /**
+     * Gets the required bot permissions to run the command on a guild
+     * @return the required bot permissions to run the command on a guild
+     */
     public Permission[] getBotPermissions()
     {
         return botPermissions;
     }
     
+    /**
+     * Gets the command's child commands
+     * @return the child commands of the command
+     */
     public Command[] getChildren()
     {
         return children;
     }
     
+    /**
+     * Gets the aliases for the command
+     * @return the aliases for the command
+     */
     public String[] getAliases()
     {
         return aliases;
     }
     
+    /**
+     * Checks whether or not this command is an owner only command
+     * @return true if the command is an owner command, otherwise false if it is not
+     */
     public boolean isOwnerCommand()
     {
         return ownerCommand;
@@ -240,28 +294,81 @@ public abstract class Command {
             event.getClient().getListener().onTerminatedCommand(event, this);
     }
     
+    /**
+     * To be used in {@linkplain Command}s as a means of organizing commands into "Categories" as well 
+     * as terminate command usage when the calling CommandEvent doesn't meet certain requirements
+     * 
+     * @author John Grosh (jagrosh)
+     */
     public static class Category
     {
         private final String name;
+        private final String failResponse;
         private final Predicate<CommandEvent> predicate;
         
+        /**
+         * A Command Category containing a name
+         * @param name The name of the Category
+         */
         public Category(String name)
         {
             this.name = name;
+            this.failResponse = null;
             this.predicate = null;
         }
         
+        /**
+         * A Command Category containing a name and a predicate.<p>
+         * The command will be terminated if the {@linkplain #test(CommandEvent)} returns false.
+         * @param name The name of the Category
+         * @param predicate the Category test
+         */
         public Category(String name, Predicate<CommandEvent> predicate)
         {
             this.name = name;
+            this.failResponse = null;
             this.predicate = predicate;
         }
         
+        /**
+         * A Command Category containing a name, a predicate, and a failure response.<p>
+         * The command will be terminated if the {@linkplain #test(CommandEvent)} returns false, 
+         * and the failure response will be sent.
+         * @param name the name of the Category
+         * @param failResponse the response if the test fails
+         * @param predicate the Category test
+         */
+        public Category(String name, String failResponse, Predicate<CommandEvent> predicate)
+        {
+            this.name = name;
+            this.failResponse = failResponse;
+            this.predicate = predicate;
+        }
+        
+        /**
+         * Gets the name of the Category
+         * @return the name of the Category
+         */
         public String getName()
         {
             return name;
         }
         
+        /**
+         * Gets the failure response of the Category
+         * @return the failure response of the Category
+         */
+        public String getFailureResponse()
+        {
+        	return failResponse;
+        }
+        
+        /**
+         * Runs a test of the provided predicate 
+         * @param event the CommandEvent that was called when this method is tested
+         * @return true if the predicate was not set, was set as null, or was tested and returned true, otherwise
+         * returns false
+         */
         public boolean test(CommandEvent event)
         {
             return predicate==null ? true : predicate.test(event);
@@ -272,7 +379,7 @@ public abstract class Command {
             if(!(obj instanceof Category))
                 return false;
             Category other = (Category)obj;
-            return Objects.equals(name, other.name) && Objects.equals(predicate, other.predicate);
+            return Objects.equals(name, other.name) && Objects.equals(predicate, other.predicate) && Objects.equals(failResponse, other.failResponse);
         }
         
     }
