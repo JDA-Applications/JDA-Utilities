@@ -144,7 +144,7 @@ public class OrderedMenu extends Menu {
                     return isValidMessage(m, (MessageReceivedEvent)e);
                 return false;
             }, e -> {
-                m.deleteMessage().queue();
+                m.delete().queue();
                 if(e instanceof MessageReactionAddEvent)
                 {
                     MessageReactionAddEvent event = (MessageReactionAddEvent)e;
@@ -170,7 +170,7 @@ public class OrderedMenu extends Menu {
         waiter.waitForEvent(MessageReactionAddEvent.class, e -> {
                 return isValidReaction(m, e);
             }, e -> {
-                m.deleteMessage().queue();
+                m.delete().queue();
                 if(e.getReaction().getEmote().getName().equals(CANCEL))
                     cancel.run();
                 else
