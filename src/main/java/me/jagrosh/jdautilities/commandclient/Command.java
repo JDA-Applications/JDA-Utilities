@@ -82,8 +82,7 @@ public abstract class Command {
         }
         
         // owner check
-        if(ownerCommand && !(event.getAuthor().getId().equals(event.getClient().getOwnerId())
-        		|| Arrays.asList(event.getClient().getCoOwnerIds()).contains(event.getAuthor().getId())))
+        if(ownerCommand && !(event.isOwner() || event.isCoOwner()))
         {
             terminate(event,null);
             return;
