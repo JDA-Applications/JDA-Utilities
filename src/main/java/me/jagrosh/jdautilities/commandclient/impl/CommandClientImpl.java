@@ -103,7 +103,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
                 for(Command command : commands)
-                    if(!command.isOwnerCommand() || (event.getAuthor().getId().equals(ownerId) || Arrays.asList(coOwnerIds).contains(event.getAuthor().getId())))
+                    if(!command.isOwnerCommand() || event.isOwner() || event.isCoOwner())
                     {
                         if(!Objects.equals(category, command.getCategory()))
                         {
