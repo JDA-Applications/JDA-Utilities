@@ -351,6 +351,29 @@ public class CommandEvent {
     {
         return event.getGuild() == null ? null : event.getGuild().getSelfMember();
     }
+
+    /**
+     * Tests whether or not the user who triggered this event is the owner
+     * @return true if the user is the owner, else false
+     */
+    public boolean isOwner()
+    {
+    	return event.getAuthor().getId().equals(this.getClient().getOwnerId());
+    }
+    
+    /**
+     * Tests whether or not the user who triggered this event is a co-owner
+     * @return true if the user is a co-owner, else false
+     */
+    public boolean isCoOwner()
+    {
+    	if(this.getClient().getCoOwnerIds()==null)
+    		return false;
+    	for(String id : this.getClient().getCoOwnerIds())
+    		if(id.equals(event.getAuthor().getId()))
+    			return true;
+    	return false;
+    }
     
     
     // shortcuts
