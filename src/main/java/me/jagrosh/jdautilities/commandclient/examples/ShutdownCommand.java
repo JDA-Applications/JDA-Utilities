@@ -15,7 +15,6 @@
  */
 package me.jagrosh.jdautilities.commandclient.examples;
 
-import java.time.temporal.ChronoUnit;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.CommandEvent;
 

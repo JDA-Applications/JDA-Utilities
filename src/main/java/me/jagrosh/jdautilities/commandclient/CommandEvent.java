@@ -18,6 +18,7 @@ package me.jagrosh.jdautilities.commandclient;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -54,7 +55,6 @@ public class CommandEvent {
     
     /**
      * Returns the user's text input for the command
-     * 
      * @return never-null arguments that a user has supplied to a command
      */
     public String getArgs()
@@ -69,7 +69,6 @@ public class CommandEvent {
     
     /**
      * Returns the underlying MessageReceivedEvent for this CommandEvent
-     * 
      * @return the underlying MessageReceivedEvent
      */
     public MessageReceivedEvent getEvent()
@@ -99,12 +98,32 @@ public class CommandEvent {
     }
     
     /**
+     * Replies with a string and then queues a consumer
+     * @param message the message to reply
+     * @param queue the consumer to queue
+     */
+    public void reply(String message, Consumer<Message> queue)
+    {
+    	sendMessage(event.getChannel(), message, queue);
+    }
+    
+    /**
      * Replies with an embed
      * @param embed the embed to reply
      */
     public void reply(MessageEmbed embed)
     {
         event.getChannel().sendMessage(embed).queue();
+    }
+    
+    /**
+     * Replies with an embed and then queues a consumer
+     * @param embed the embed to reply
+     * @param queue the consumer to queue
+     */
+    public void reply(MessageEmbed embed, Consumer<Message> queue)
+    {
+    	event.getChannel().sendMessage(embed).queue(queue);
     }
     
     /**
@@ -133,7 +152,6 @@ public class CommandEvent {
     
     /**
      * Replies with an embed if possible, or just a string if it cannot embed
-     * 
      * @param embed the embed to send
      * @param alternateMessage the message if the embed cannot be sent
      */
@@ -278,6 +296,15 @@ public class CommandEvent {
         }
     }
     
+    private static void sendMessage(MessageChannel chan, String message, Consumer<Message> queue)
+    {
+        ArrayList<String> messages = splitMessage(message);
+        for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
+        {
+            chan.sendMessage(messages.get(i)).queue(queue);
+        }
+    }
+    
     public static ArrayList<String> splitMessage(String stringtoSend)
     {
         ArrayList<String> msgs =  new ArrayList<>();
@@ -305,73 +332,157 @@ public class CommandEvent {
     
     
     // custom shortcuts
+    
+    /**
+     * Gets a {@linkplain User} representing the bot
+     * @return a user representing the bot
+     */
     public SelfUser getSelfUser()
     {
         return event.getJDA().getSelfUser();
     }
     
+    /**
+     * Gets a {@linkplain Member} representing the bot, or null if the event does
+     * not take place on a guild
+     * @return a possibly-null member representing the bot
+     */
     public Member getSelfMember()
     {
         return event.getGuild() == null ? null : event.getGuild().getSelfMember();
     }
+
+    /**
+     * Tests whether or not the user who triggered this event is the owner
+     * @return true if the user is the owner, else false
+     */
+    public boolean isOwner()
+    {
+    	return event.getAuthor().getId().equals(this.getClient().getOwnerId());
+    }
+    
+    /**
+     * Tests whether or not the user who triggered this event is a co-owner
+     * @return true if the user is a co-owner, else false
+     */
+    public boolean isCoOwner()
+    {
+    	if(this.getClient().getCoOwnerIds()==null)
+    		return false;
+    	for(String id : this.getClient().getCoOwnerIds())
+    		if(id.equals(event.getAuthor().getId()))
+    			return true;
+    	return false;
+    }
     
     
     // shortcuts
+    
+    /**
+     * Gets the {@linkplain User} who triggered this event
+     * @return the user who triggered this event
+     */
     public User getAuthor()
     {
         return event.getAuthor();
     }
     
+    /**
+     * Gets the {@linkplain MessageChannel} that the event was triggered on
+     * @return the message channel that the event was triggered on
+     */
     public MessageChannel getChannel()
     {
         return event.getChannel();
     }
     
+    /**
+     * Gets the {@linkplain ChannelType} of the {@linkplain MessageChannel} that
+     * this event was triggered on
+     * @return the ChannelType of the message channel that this event was triggered on
+     */
     public ChannelType getChannelType()
     {
         return event.getChannelType();
     }
     
+    /**
+     * Gets the Group that this event was triggered in
+     * @return the group that this event was triggered in
+     */
     public Group getGroup()
     {
         return event.getGroup();
     }
     
+    /**
+     * Gets the {@linkplain Guild} that this event was triggered on
+     * @return the guild that this event was triggered on
+     */
     public Guild getGuild()
     {
         return event.getGuild();
     }
     
+    /**
+     * Gets the instance of {@linkplain JDA} that this event was caught by
+     * @return the instance of JDA that this event was caught by
+     */
     public JDA getJDA()
     {
         return event.getJDA();
     }
     
+    /**
+     * Gets the {@linkplain Member} that triggered this event
+     * @return the member that triggered this event
+     */
     public Member getMember()
     {
         return event.getMember();
     }
     
+    /**
+     * Gets the {@linkplain Message} responsible for triggering this event
+     * @return the message responsible for the event
+     */
     public Message getMessage()
     {
         return event.getMessage();
     }
     
+    /**
+     * Gets the {@linkplain PrivateChannel} that this event may have taken place in
+     * @return the private channel that this event may have taken place in
+     */
     public PrivateChannel getPrivateChannel()
     {
         return event.getPrivateChannel();
     }
     
+    /**
+     * Gets the response number for this event
+     * @return the response number
+     */
     public long getResponseNumber()
     {
         return event.getResponseNumber();
     }
     
+    /**
+     * Gets the {@linkplain TextChannel} that this event may have taken place in
+     * @return the text channel this event took place in
+     */
     public TextChannel getTextChannel()
     {
         return event.getTextChannel();
     }
     
+    /**
+     * Tests whether or not this event occurred in the provided {@linkplain ChannelType}
+     * @param channelType the ChannelType to be tested
+     * @return true if the event originated from a channel with the provided ChannelType, otherwise false
+     */
     public boolean isFromType(ChannelType channelType)
     {
         return event.isFromType(channelType);

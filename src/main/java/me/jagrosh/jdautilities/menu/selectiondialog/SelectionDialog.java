@@ -164,11 +164,11 @@ public class SelectionDialog extends Menu {
                         newSelection = 1;
                     break;
                 case CANCEL:
-                    message.deleteMessage().queue();
+                    message.delete().queue();
                     cancel.run();
                     return;
                 case SELECT:
-                    message.deleteMessage().queue();
+                    message.delete().queue();
                     success.accept(selection);
                     return;
             }
@@ -177,7 +177,7 @@ public class SelectionDialog extends Menu {
             message.editMessage(render(n)).queue(m -> {
                 selectionDialog(m, n);
             });
-        }, timeout, unit, () -> {message.deleteMessage().queue(); cancel.run();});
+        }, timeout, unit, () -> {message.delete().queue(); cancel.run();});
     }
     
     private Message render(int selection)
