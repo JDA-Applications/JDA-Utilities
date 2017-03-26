@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import me.jagrosh.jdautilities.commandclient.Command;
 import me.jagrosh.jdautilities.commandclient.Command.Category;
@@ -116,6 +118,10 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                         builder.append(" or join ").append(serverInvite);
                 }
                 return builder.toString();} : helpFunction;
+        if(carbonKey!=null || botsKey!=null)
+        {
+            Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
+        }
     }
     
     @Override
@@ -222,6 +228,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
     
     @Override
+    public String getHelpWord() {
+        return helpWord;
+    }
+    
+    @Override
     public void onReady(ReadyEvent event)
     {
         textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
@@ -322,7 +333,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        sendStats(event.getJDA());
+        if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isAfter(OffsetDateTime.now()));
+            sendStats(event.getJDA());
     }
 
     @Override

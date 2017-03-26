@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
     
     <repositories>
@@ -17,7 +17,8 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.BETA2_141</version>
+            <version>3.0.0_162</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>

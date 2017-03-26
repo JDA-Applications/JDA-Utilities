@@ -91,7 +91,7 @@ public class AboutCommand extends Command {
                 + "\nI "+(IS_AUTHOR ? "was written in Java" : "am owned")+" by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
                 + "** using "+JDAUtilitiesInfo.AUTHOR+"'s [Commands Extension]("+JDAUtilitiesInfo.GITHUB+") ("+JDAUtilitiesInfo.VERSION+") and the "
                 + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+") <:jda:230988580904763393>"
-                + "\nType `"+event.getClient().getTextualPrefix()+"help` to see my commands!"
+                + "\nType `"+event.getClient().getTextualPrefix()+event.getClient().getHelpWord()+"` to see my commands!"
                 + (join||inv ? invline : "")
                 + "\n\nSome of my features include: ```css";
         for(String feature: features)

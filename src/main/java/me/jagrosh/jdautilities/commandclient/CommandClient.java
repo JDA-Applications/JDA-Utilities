@@ -117,4 +117,10 @@ public interface CommandClient {
      * @return possibly-null server invite
      */
     public String getServerInvite();
+    
+    /**
+     * Gets the word used to invoke the help
+     * @return the help word
+     */
+    public String getHelpWord();
 }

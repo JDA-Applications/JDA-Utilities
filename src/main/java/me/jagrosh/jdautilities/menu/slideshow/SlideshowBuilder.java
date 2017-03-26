@@ -32,7 +32,7 @@ public class SlideshowBuilder extends MenuBuilder {
     
     private BiFunction<Integer,Integer,Color> color = (page, pages) -> null;
     private BiFunction<Integer,Integer,String> text = (page, pages) -> null;
-    private Consumer<Message> finalAction = m -> m.deleteMessage().queue();
+    private Consumer<Message> finalAction = m -> m.delete().queue();
     private boolean showPageNumbers = true;
     private boolean waitOnSinglePage = false;
     

@@ -10,8 +10,8 @@ package me.jagrosh.jdautilities;
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public class JDAUtilitiesInfo {
-    public static final String VERSION_MAJOR = "0";
-    public static final String VERSION_MINOR = "9";
+    public static final String VERSION_MAJOR = "1";
+    public static final String VERSION_MINOR = "0";
     public static final String VERSION = VERSION_MAJOR+"."+VERSION_MINOR;
     public static final String GITHUB = "https://github.com/jagrosh/JDA-Utilities";
     public static final String AUTHOR = "jagrosh";

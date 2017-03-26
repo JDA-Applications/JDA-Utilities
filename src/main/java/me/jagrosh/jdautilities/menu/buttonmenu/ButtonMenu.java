@@ -96,7 +96,7 @@ public class ButtonMenu extends Menu {
                                 return false;
                             return isValidUser(event);
                         }, (MessageReactionAddEvent event) -> {
-                            m.deleteMessage().queue();
+                            m.delete().queue();
                             action.accept(event.getReaction().getEmote());
                         }, timeout, unit, cancel);
                     });
