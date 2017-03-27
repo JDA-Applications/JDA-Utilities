@@ -28,6 +28,7 @@ import net.dv8tion.jda.core.entities.Game;
 public class CommandClientBuilder {
     private Game game = Game.of("default");
     private String ownerId;
+    private String[] coOwnerIds;
     private String prefix;
     private String serverInvite;
     private String success;
@@ -37,16 +38,17 @@ public class CommandClientBuilder {
     private String botsKey;
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
+    private boolean useHelp = true;
     private Function<CommandEvent,String> helpFunction;
     private String helpWord;
     
     /**
      * Builds a CommandClientImpl with the provided settings
-     * @return a CommandClientImpl
+     * @return the built CommandClient
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), helpFunction, helpWord);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -64,6 +66,17 @@ public class CommandClientBuilder {
     }
     
     /**
+     * Sets the co-owner(s) of the bot
+     * @param coOwnerIds the id(s) of the co-owner(s)
+     * @return the builder
+     */
+    public CommandClientBuilder setCoOwnerIds(String... coOwnerIds)
+    {
+    	this.coOwnerIds = coOwnerIds;
+    	return this;
+    }
+    
+    /**
      * Sets the bot's prefix. If null, the bot will use a mention as a prefix
      * @param prefix the prefix
      * @return the builder
@@ -71,6 +84,19 @@ public class CommandClientBuilder {
     public CommandClientBuilder setPrefix(String prefix)
     {
         this.prefix = prefix;
+        return this;
+    }
+    
+    /**
+     * Sets whether the CommandClient will use the builder to automatically create a
+     * help command or not
+     * @param useHelp false to disable the help command builder, otherwise the CommandClient
+     * will use either the default or one provided via {@linkplain #setHelpFunction(Function)}
+     * @return the builder
+     */
+    public CommandClientBuilder useHelpBuilder(boolean useHelp)
+    {
+    	this.useHelp = useHelp;
         return this;
     }
     

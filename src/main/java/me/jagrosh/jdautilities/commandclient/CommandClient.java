@@ -89,10 +89,30 @@ public interface CommandClient {
     public void cleanCooldowns();
     
     /**
+     * Gets the number of uses for the provide command during this session
+     * @param command the command
+     * @return the number of uses for the command
+     */
+    public int getCommandUses(Command command);
+    
+    /**
+     * Gets the number of uses for the provide command during this session
+     * @param name the name of the command
+     * @return the number of uses for the command
+     */
+    public int getCommandUses(String name);
+    
+    /**
      * Gets the ID of the owner of this bot
      * @return the ID of the owner of the bot
      */
     public String getOwnerId();
+    
+    /**
+     * Gets the ID(s) of all co-owners of this bot
+     * @return the ID(s) of all co-owners of this bot
+     */
+    public String[] getCoOwnerIds();
     
     /**
      * Gets the success emoji
