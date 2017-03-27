@@ -30,9 +30,9 @@ import net.dv8tion.jda.core.utils.PermissionUtil;
  * Commands Extension. Using several fields, a command can define properties that make it 
  * unique and complex while maintaining a low level of development. All Commands extending this
  * class can define any number of these fields and then a main command body:<p>
- * <code>protected void execute(CommandEvent event) {<ul>
+ * <code>protected void execute(CommandEvent event) {
  * event.reply("Hey look! This would be the bot's reply if this was a command!");
- * </ul>}</code><p>
+ * }</code><p>
  * @author John Grosh (jagrosh)
  */
 public abstract class Command {
