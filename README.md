@@ -27,7 +27,7 @@ With gradle:
 ```java
 dependencies {
     compile 'com.jagrosh:JDA-Utilities:1.0'
-	compile 'net.dv8tion:JDA:LATEST'
+    compile 'net.dv8tion:JDA:LATEST'
 }
 
 repositories {
