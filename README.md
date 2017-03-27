@@ -5,7 +5,7 @@ JDA-Utilities is a series of tools and utilities for use with [JDA](https://gith
 You will need to add this project as a dependency (either from the latest .jar from the releases page, or via maven or gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). With maven, you can use the snippets below:
 ```xml
   <dependency>
-    <groupId>me.jagrosh</groupId>
+    <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
     <version>1.0</version>
 	<scope>compile</scope>
@@ -26,7 +26,7 @@ You will need to add this project as a dependency (either from the latest .jar f
 With gradle:
 ```java
 dependencies {
-    compile 'me.jagrosh:JDA-Utilities:1.0'
+    compile 'com.jagrosh:JDA-Utilities:1.0'
 	compile 'net.dv8tion:JDA:LATEST'
 }
 
