@@ -7,7 +7,13 @@ You will need to add this project as a dependency (either from the latest .jar f
   <dependency>
     <groupId>me.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
+	<scope>compile</scope>
+  </dependency>
+  <dependency>
+    <groupId>net.dv8tion</groupId>
+    <artifactId>JDA</artifactId>
+    <version>LATEST</version>
   </dependency>
 ```
 ```xml
@@ -20,7 +26,8 @@ You will need to add this project as a dependency (either from the latest .jar f
 With gradle:
 ```java
 dependencies {
-    compile 'me.jagrosh:JDA-Utilities:0.9'
+    compile 'me.jagrosh:JDA-Utilities:1.0'
+	compile 'net.dv8tion:JDA:LATEST'
 }
 
 repositories {
@@ -33,4 +40,5 @@ Check out the [Example Bot](https://github.com/jagrosh/ExampleBot)!
 
 ## Projects
 [**Vortex**](https://github.com/jagrosh/Vortex) - Vortex is an easy-to-use moderation bot that utilizes the JDA-Utilities library for the Command Client and some of the menus<br>
-[**JMusicBot**](https://github.com/jagrosh/MusicBot) - This music bot uses the Command Client for its base, and several menus, including the OrderedMenu for search results and the Paginator for the current queue
+[**JMusicBot**](https://github.com/jagrosh/MusicBot) - This music bot uses the Command Client for its base, and several menus, including the OrderedMenu for search results and the Paginator for the current queue<br>
+[**GiveawayBot**](https://github.com/jagrosh/GiveawayBot) - GiveawayBot is a basic bot for hosting quick giveaways!

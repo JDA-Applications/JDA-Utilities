@@ -243,6 +243,33 @@ public class CommandEvent {
     }
     
     /**
+     * Replies prefixed with the success emoji
+     * @param message the message
+     */
+    public void replySuccess(String message)
+    {
+        reply(client.getSuccess()+" "+message);
+    }
+    
+    /**
+     * Replies prefixed with the warning emoji
+     * @param message the message
+     */
+    public void replyWarning(String message)
+    {
+        reply(client.getWarning()+" "+message);
+    }
+    
+    /**
+     * Replies prefixed with the error emoji
+     * @param message the message
+     */
+    public void replyError(String message)
+    {
+        reply(client.getError()+" "+message);
+    }
+    
+    /**
      * Adds a success reaction
      */
     public void reactSuccess()
