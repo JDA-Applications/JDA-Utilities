@@ -8,7 +8,7 @@ You will need to add this project as a dependency (either from the latest .jar f
     <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
     <version>1.0</version>
-	<scope>compile</scope>
+    <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>net.dv8tion</groupId>
