@@ -8,7 +8,7 @@ You will need to add this project as a dependency (either from the latest .jar f
     <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
     <version>1.1</version>
-	<scope>compile</scope>
+    <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>net.dv8tion</groupId>
@@ -27,7 +27,7 @@ With gradle:
 ```java
 dependencies {
     compile 'com.jagrosh:JDA-Utilities:1.1'
-	compile 'net.dv8tion:JDA:LATEST'
+    compile 'net.dv8tion:JDA:LATEST'
 }
 
 repositories {
