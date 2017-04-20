@@ -311,7 +311,11 @@ public class CommandEvent {
     private Emote parseEmote(String text)
     {
         String id = text.replaceAll("<:.+:(\\d+)>", "$1");
-        return event.getJDA().getEmoteById(id);
+        try {
+            return event.getJDA().getEmoteById(id);
+        } catch(Exception e) {
+            return null;
+        }
     }
     
     private static void sendMessage(MessageChannel chan, String message)

@@ -116,7 +116,12 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                                 .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
                                 .append(" - ").append(command.getHelp());
                     }
-                User owner = event.getJDA().getUserById(ownerId);
+                User owner;
+                try {
+                    owner = event.getJDA().getUserById(ownerId);
+                } catch(Exception e) {
+                    owner = null;
+                }
                 if(owner!=null)
                 {
                     builder.append("\n\nFor additional help, contact **").append(owner.getName()).append("**#").append(owner.getDiscriminator());

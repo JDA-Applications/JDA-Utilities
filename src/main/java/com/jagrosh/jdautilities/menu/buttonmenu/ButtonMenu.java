@@ -80,7 +80,12 @@ public class ButtonMenu extends Menu {
         ra.queue(m -> {
             for(int i=0; i<choices.size(); i++)
             {
-                Emote emote = m.getJDA().getEmoteById(choices.get(i));
+                Emote emote;
+                try {
+                    emote = m.getJDA().getEmoteById(choices.get(i));
+                } catch(Exception e) {
+                    emote = null;
+                }
                 RestAction<Void> r = emote==null ? m.addReaction(choices.get(i)) : m.addReaction(emote);
                 if(i+1<choices.size())
                     r.queue();
