@@ -17,130 +17,355 @@ package com.jagrosh.jdautilities.commandclient;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import net.dv8tion.jda.core.requests.RestAction;
 
 /**
- *
+ * A Bot Client interface implemented on objects used to hold bot data.<p>
+ * 
+ * This is implemented in {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl}
+ * alongside inheritance of {@link net.dv8tion.jda.core.hooks.ListenerAdapter} to create a
+ * compounded "ClientListener" which catches specific kinds of events thrown by JDA and processes them
+ * automatically to handle and execute {@link com.jagrosh.jdautilities.commandclient.Command}s
+ * 
  * @author John Grosh (jagrosh)
  */
 public interface CommandClient {
     
     /**
-     * Gets the Client's prefix
-     * @return possibly-null prefix
+     * Gets the Client's prefix.
+     * 
+     * @return A possibly-null prefix
      */
     public String getPrefix();
     
     /**
-     * Returns the visual representation of the bot's prefix. This is the same
-     * as getPrefix unless the prefix is the default, in which case it appears
-     * as @Botname
-     * @return never-null prefix
+     * Returns the visual representation of the bot's prefix. 
+     * 
+     * <p>This is the same as {@link com.jagrosh.jdautilities.commandclient.CommandClient#getPrefix() getPrefix()}
+     * unless the prefix is the default, in which case it appears as {@literal @Botname}.
+     * 
+     * @return A never-null prefix
      */
     public String getTextualPrefix();
     
     /**
-     * Sets the Command Listener to listen for command-related events
-     * @param listener the command listener
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} to catch 
+     * command-related events thrown by this 
+     * {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}.
+     * 
+     * @param  listener
+     *         The CommandListener
      */
     public void setListener(CommandListener listener);
     
     /**
-     * Returns the current CommandListener
-     * @return possibly-null CommandListener
+     * Returns the current {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener}.
+     * 
+     * @return A possibly-null CommandListener
      */
     public CommandListener getListener();
     
     /**
-     * Returns the list of registered commands
-     * @return never-null list
+     * Returns the list of registered {@link com.jagrosh.jdautilities.commandclient.Command Command}s 
+     * during this session.
+     * 
+     * @return A never-null list of Commands registered during this session
      */
     public List<Command> getCommands();
     
     /**
-     * Gets the time this CommandClientImpl was instantiated
-     * @return the start time of this CommandClientImpl
+     * Gets the time this {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} 
+     * implementation was instantiated.
+     * 
+     * @return The start time of this CommandClient implementation
      */
     public OffsetDateTime getStartTime();
     
     /**
-     * Gets the time that the specified cooldown expires
-     * @param name the cooldown name
-     * @return the expiration time, or null if the cooldown does not exist
+     * Gets the {@link java.time.OffsetDateTime} that the specified cooldown expires.
+     * 
+     * @param  name
+     *         The cooldown name
+     *         
+     * @return The expiration time, or null if the cooldown does not exist
      */
     public OffsetDateTime getCooldown(String name);
     
     /**
-     * Gets the remaining time on the specified cooldown
-     * @param name the cooldown name
-     * @return the time remaining
+     * Gets the remaining number of seconds on the specified cooldown.
+     * 
+     * @param  name
+     *         The cooldown name
+     *         
+     * @return The number of seconds remaining
      */
     public int getRemainingCooldown(String name);
     
     /**
-     * Applies the specified cooldown
-     * @param name the cooldown name
-     * @param seconds the time to make the cooldown last
+     * Applies the specified cooldown with the provided name.
+     * 
+     * @param  name
+     *         The cooldown name
+     * @param  seconds
+     *         The time to make the cooldown last
      */
     public void applyCooldown(String name, int seconds);
     
     /**
-     * Cleans up expired cooldowns to reduce memory
+     * Cleans up expired cooldowns to reduce memory.
      */
     public void cleanCooldowns();
     
     /**
-     * Gets the number of uses for the provide command during this session
-     * @param command the command
-     * @return the number of uses for the command
+     * Gets the number of uses for the provide 
+     * {@link com.jagrosh.jdautilities.commandclient.Command Command} during this session.
+     * 
+     * @param  command 
+     *         The Command
+     *         
+     * @return The number of uses for the Command
      */
     public int getCommandUses(Command command);
     
     /**
-     * Gets the number of uses for the provide command during this session
-     * @param name the name of the command
-     * @return the number of uses for the command
+     * Gets the number of uses for a {@link com.jagrosh.jdautilities.commandclient.Command Command} 
+     * during this session matching the provided String name, or {@code 0} if there is no Command 
+     * with the name.
+     * 
+     * @param  name
+     *         The name of the Command
+     *         
+     * @return The number of uses for the Command, or {@code 0} if the name does not match with a 
+     *         Command
      */
     public int getCommandUses(String name);
     
     /**
-     * Gets the ID of the owner of this bot
-     * @return the ID of the owner of the bot
+     * Gets the ID of the owner of this bot as a String.
+     * 
+     * @return The String ID of the owner of the bot
      */
     public String getOwnerId();
     
     /**
-     * Gets the ID(s) of all co-owners of this bot
-     * @return the ID(s) of all co-owners of this bot
+     * Gets the ID of the owner of this bot as a {@code long}.
+     * 
+     * @return The {@code long} ID of the owner of the bot
+     */
+    public long getOwnerIdLong();
+    
+    /**
+     * Gets the ID(s) of any CoOwners of this bot as a String Array.
+     * 
+     * @return The String ID(s) of any CoOwners of this bot
      */
     public String[] getCoOwnerIds();
     
     /**
-     * Gets the success emoji
-     * @return the success emoji
+     * Gets the ID(s) of any CoOwners of this bot as a {@code long} Array.
+     * 
+     * @return The {@code long} ID(s) of any CoOwners of this bot
+     */
+    public long[] getCoOwnerIdsLong();
+    
+    /**
+     * Gets the success emoji.
+     * 
+     * @return The success emoji
      */
     public String getSuccess();
     
     /**
-     * Gets the warning emoji
-     * @return the warning emoji
+     * Gets the warning emoji.
+     * 
+     * @return The warning emoji
      */
     public String getWarning();
     
     /**
-     * Gets the error emoji
-     * @return the error emoji
+     * Gets the error emoji.
+     * 
+     * @return The error emoji
      */
     public String getError();
     
     /**
-     * Gets the invite to the bot's support server
-     * @return possibly-null server invite
+     * Gets the invite to the bot's support server.
+     * 
+     * @return A possibly-null server invite
      */
     public String getServerInvite();
     
     /**
-     * Gets the word used to invoke the help
-     * @return the help word
+     * Gets an a recently updated count of all the {@link net.dv8tion.jda.core.Guild}s 
+     * the bot is connected to on all shards.
+     * 
+     * <p><b>NOTE:</b> This may not always or should not be assumed accurate! Any time
+     * a shard joins or leaves a guild it will update the number retrieved by this method
+     * but will not update when other shards join or leave guilds. This means that shards
+     * will not always retrieve the same value. For instance:
+     * <ul>
+     *     <li>1) Shard A joins 10 Guilds</li>
+     *     <li>2) Shard B invokes this method</li>
+     *     <li>3) Shard A invokes this method</li>
+     * </ul>
+     * The number retrieved by Shard B will be that of the number retrieved by Shard A,
+     * minus 10 guilds because Shard B hasn't updated and accounted for those 10 guilds
+     * on Shard A.
+     * 
+     * <p><b>This feature requires a Discord Bots API Key to be set!</b>
+     * <br>To set your Discord Bots API Key, you'll have to retrieve it from the
+     * <a href="http://bots.discord.pw/">Discord Bots</a> website.
+     * 
+     * @return A recently updated count of all the Guilds the bot is connected to on
+     *         all shards.
+     */
+    public int getTotalGuilds();
+    
+    /**
+     * Gets the word used to invoke a help DM.
+     * 
+     * @return The help word
      */
     public String getHelpWord();
+    
+    /**
+     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction} to occur in a provided delay
+     * of <b>seconds</b>.
+     * 
+     * <p>This is more useful than {@link #schedule(String, int, TimeUnit, RestAction)} when dealing with 
+     * short delays as it is simple, easy, and would not require the operating class to {@code import}
+     * {@link java.util.concurrent.TimeUnit}.
+     * 
+     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * 
+     * @param  name
+     *         The name of the scheduled RestAction (can be used to cancel it later if needed)
+     * @param  delay
+     *         The amount of seconds to delay for
+     * @param  toQueue
+     *         The RestAction to queue after the delay
+     */
+    public void schedule(String name, int delay, RestAction<?> toQueue);
+    
+    /**
+     * Schedules a {@link java.lang.Runnable} to run in a provided delay of <b>seconds</b>.
+     * 
+     * <p>This is more useful than {@link #schedule(String, int, TimeUnit, Runnable)} when dealing with
+     * short delays as it is simple, easy, and would not require the operating class to {@code import}
+     * {@link java.util.concurrent.TimeUnit}.
+     * 
+     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * 
+     * @param  name 
+     *         The name of the scheduled Runnable (can be used to cancel it later if needed)
+     * @param  delay 
+     *         The the amount of seconds to delay for
+     * @param  runnable 
+     *         The Runnable to run after the delay
+     */
+    public void schedule(String name, int delay, Runnable runnable);
+    
+    /**
+     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction} to occur in the provided delay of 
+     * {@link java.util.concurrent.TimeUnit}.
+     * 
+     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * 
+     * @param  name
+     *         The name of the scheduled RestAction (can be used to cancel it later if needed)
+     * @param  delay
+     *         The amount to delay for
+     * @param  unit
+     *         The unit to measure the delay with
+     * @param  toQueue
+     *         The RestAction to queue after the delay
+     */
+    public void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue);
+    
+    /**
+     * Schedules a {@link java.lang.Runnable} to run in a provided delay of
+     * {@link java.util.concurrent.TimeUnit}.
+     * 
+     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * 
+     * @param  name
+     *         The name of the scheduled Runnable (can be used to cancel it later if needed)
+     * @param  delay
+     *         The amount to delay for
+     * @param  unit
+     *         The unit to measure the delay with
+     * @param  runnable
+     *         The Runnable to run after the delay
+     */
+    public void schedule(String name, int delay, TimeUnit unit, Runnable runnable);
+    
+    /**
+     * Saves a {@link java.util.concurrent.ScheduledFuture} to a provided name.
+     * 
+     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * 
+     * @param  name
+     *         The name of the ScheduledFuture (can be used to cancel it later if needed)
+     * @param  future
+     *         The ScheduledFuture to save
+     */
+    public void saveFuture(String name, ScheduledFuture<?> future);
+    
+    /**
+     * Checks if a {@link java.util.concurrent.ScheduledFuture} exists corresponding to the provided name.
+     * 
+     * <p><b>NOTE:</b> This method will <b>NOT</b> take into account whether or not the provided name finds 
+     * a ScheduledFuture that has already occurred or has been cancelled. To detect if the schedule only 
+     * contains a "live" ScheduledFuture going by the name provided, invoking {@link #cleanSchedule()} before 
+     * hand may provide more accurate results.
+     * 
+     * @param  name
+     *         The name of the ScheduledFuture
+     *         
+     * @return {@code true} if there exists a ScheduledFuture corresponding to the provided name 
+     *         (regardless of it's possible cancellation or expiration), otherwise {@code false}.
+     */
+    public boolean scheduleContains(String name);
+    
+    /**
+     * Cancels a {@link java.util.concurrent.ScheduledFuture} corresponding to the provided name.
+     * 
+     * <p>This will not cancel the ScheduledFuture if it is running or has already occurred. To perform a
+     * cancellation even in mid-operation use {@link #cancel(String, boolean)}.
+     * 
+     * @param  name 
+     *         The name of the ScheduledFuture
+     */
+    public void cancel(String name);
+    
+    /**
+     * Cancels a {@link java.util.concurrent.ScheduledFuture} corresponding to the provided name,
+     * possibly in the midst of it running.
+     * 
+     * <p>This will cancel a ScheduledFuture, even if it is currently running, but will not
+     * if the ScheduledFuture has already occurred.
+     * 
+     * @param  name
+     *         The name of the ScheduledFuture to be cancelled immediately
+     */
+    public void cancelImmediately(String name);
+    
+    /**
+     * Gets a {@link java.util.concurrent.ScheduledFuture} corresponding to the provided name.
+     * 
+     * @param  name 
+     *         The name of the ScheduledFuture to get
+     *         
+     * @return The ScheduledFuture corresponding to the provided name
+     */
+    public ScheduledFuture<?> getScheduledFuture(String name);
+    
+    /**
+     * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture}s to reduce memory.
+     */
+    public void cleanSchedule();
 }

@@ -15,14 +15,22 @@
  */
 package com.jagrosh.jdautilities.commandclient;
 
-import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
+import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
+import com.jagrosh.jdautilities.utils.SafeIdUtil;
+
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.utils.SimpleLog;
 
 /**
- *
+ * A simple builder used to create a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
+ * 
+ * <p>Once built, add the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} as a listener to JDA 
+ * and it will automatically handle commands with ease!
+ * 
  * @author John Grosh (jagrosh)
  */
 public class CommandClientBuilder {
@@ -41,45 +49,73 @@ public class CommandClientBuilder {
     private boolean useHelp = true;
     private Function<CommandEvent,String> helpFunction;
     private String helpWord;
+    private ScheduledExecutorService executor;
+    
+    private static final SimpleLog LOG = SimpleLog.getLog("CommandClientBuilder");
     
     /**
-     * Builds a CommandClientImpl with the provided settings
-     * @return the built CommandClient
+     * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
+     * with the provided settings.
+     * <br>Once built, only the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} 
+     * can be changed.
+     * 
+     * @return The CommandClient built. <b>This is unmodifiable.</b>
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor);
         if(listener!=null)
             client.setListener(listener);
         return client;
     }
     
     /**
-     * Sets the owner for the bot
-     * @param ownerId the id of the owner
-     * @return the builder
+     * Sets the owner for the bot.
+     * <br>Make sure to verify that the ID provided is ISnowflake compatible when setting this.
+     * If it is not, this will warn the developer.
+     * 
+     * @param  ownerId
+     *         The ID of the owner.
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setOwnerId(String ownerId)
     {
+        if(!SafeIdUtil.checkId(ownerId))
+            LOG.warn("Owner ID \""+ownerId+"\" is not safe to use!");
+        
         this.ownerId = ownerId;
         return this;
     }
     
     /**
-     * Sets the co-owner(s) of the bot
-     * @param coOwnerIds the id(s) of the co-owner(s)
-     * @return the builder
+     * Sets the one or more CoOwners of the bot.
+     * <br>Make sure to verify that all of the IDs provided are ISnowflake compatible when setting this.
+     * If it is not, this will warn the developer which ones are not.
+     * 
+     * @param  coOwnerIds
+     *         The ID(s) of the CoOwners
+     * 
+     * @return This builder
      */
     public CommandClientBuilder setCoOwnerIds(String... coOwnerIds)
     {
+    	for(String coOwnerId : coOwnerIds)
+    	    if(!SafeIdUtil.checkId(coOwnerId))
+                LOG.warn("Owner ID \""+coOwnerId+"\" is not safe to use!");
+    	
     	this.coOwnerIds = coOwnerIds;
     	return this;
     }
     
     /**
-     * Sets the bot's prefix. If null, the bot will use a mention as a prefix
-     * @param prefix the prefix
-     * @return the builder
+     * Sets the bot's prefix.
+     * <br>If set null, empty, or not set at all, the bot will use a mention {@literal @Botname} as a prefix.
+     * 
+     * @param  prefix
+     *         The prefix for the bot to use
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setPrefix(String prefix)
     {
@@ -88,11 +124,14 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets whether the CommandClient will use the builder to automatically create a
-     * help command or not
-     * @param useHelp false to disable the help command builder, otherwise the CommandClient
-     * will use either the default or one provided via {@linkplain #setHelpFunction(Function)}
-     * @return the builder
+     * Sets whether the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} will use 
+     * the builder to automatically create a help command or not.
+     * 
+     * @param  useHelp
+     *         {@code false} to disable the help command builder, otherwise the CommandClient
+     *         will use either the default or one provided via {@link #setHelpFunction(Function)}.
+     *         
+     * @return This builder
      */
     public CommandClientBuilder useHelpBuilder(boolean useHelp)
     {
@@ -101,10 +140,15 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets the function to build the bot's help command. If null, it will
-     * use the default help function builder
-     * @param helpFunction a function to convert a commandevent to a help message
-     * @return the builder
+     * Sets the function to build the bot's help command.
+     * <br>Setting it to {@code null} or not setting this at all will cause the bot to use 
+     * the default help builder.
+     * 
+     * @param  helpFunction
+     *         A function to convert a {@link com.jagrosh.jdautilities.commandclient.CommandEvent} 
+     *         to a String for a help DM
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setHelpFunction(Function<CommandEvent,String> helpFunction)
     {
@@ -113,9 +157,14 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets the word used to trigger the command list. If null, it will use 'help'
-     * @param helpWord - the word to trigger the command list
-     * @return the builder
+     * Sets the word used to trigger the command list.
+     * <br>Setting this to {@code null} or not setting this at all will set the help word
+     * to {@code "help"}.
+     * 
+     * @param  helpWord
+     *         The word to trigger the help command
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setHelpWord(String helpWord)
     {
@@ -124,9 +173,12 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets the bot's support server invite
-     * @param serverInvite the support server invite
-     * @return the builder
+     * Sets the bot's support server invite.
+     * 
+     * @param  serverInvite
+     *         The support server invite
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setServerInvite(String serverInvite)
     {
@@ -135,11 +187,16 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets the emojis for success, warning, and failure
-     * @param success emoji for success
-     * @param warning emoji for warning
-     * @param error emoji for failure
-     * @return the builder
+     * Sets the emojis for success, warning, and failure.
+     * 
+     * @param  success
+     *         Emoji for success
+     * @param  warning
+     *         Emoji for warning
+     * @param  error
+     *         Emoji for failure
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setEmojis(String success, String warning, String error)
     {
@@ -150,9 +207,13 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets the game to use when the bot is ready. Set to null for no game
-     * @param game the game to use when the bot is ready
-     * @return the builder
+     * Sets the {@link net.dv8tion.jda.core.entities.Game Game} to use when the bot is ready.
+     * <br>Can be set to {@code null} for no game.
+     * 
+     * @param  game
+     *         The Game to use when the bot is ready
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setGame(Game game)
     {
@@ -161,8 +222,54 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Uses the default game, 'Type [prefix]help'
-     * @return the builder
+     * Sets the {@link net.dv8tion.jda.core.entities.Game Game} being played to display when the bot is ready.
+     * 
+     * @param  name
+     *         Non-null/non-empty name of the game
+     *         
+     * @return This builder
+     */
+    public CommandClientBuilder setPlaying(String name)
+    {
+        if(name!=null && !name.isEmpty())
+            this.game = Game.of(name);
+        return this;
+    }
+    
+    /**
+     * Sets the streaming {@link net.dv8tion.jda.core.entities.Game Game} to display when the bot is ready.
+     * <br>This game will be displayed as a stream with the url provided as it's link.
+     * 
+     * <p><b>NOTE:</b> The url must be a valid streaming url from <a href="https://twitch.tv/">Twitch</a>.
+     * <br>If the url is not valid, then it will be set as a normal game with the provided name: 'Playing 
+     * <b>{@literal <name>}</b>'
+     * 
+     * @param  name
+     *         Non-null/non-empty name of the stream
+     * @param  url
+     *         The url of the stream (must be valid for streaming)
+     *         
+     * @return This builder
+     * 
+     * @see {@link net.dv8tion.jda.core.entities.Game#isValidStreamingUrl(String)}
+     */
+    public CommandClientBuilder setStreaming(String name, String url)
+    {
+        if(name!=null && !name.isEmpty())
+        {
+            if(Game.isValidStreamingUrl(url))
+                this.setGame(Game.of(name, url));
+            else
+                this.setGame(Game.of(name));
+        }
+        return this;
+    }
+    
+    /**
+     * Sets the {@link net.dv8tion.jda.core.entities.Game Game} the bot will use as the default: 
+     * 'Playing <b>Type [prefix]help</b>'
+     * 
+     * @return This builder
      */
     public CommandClientBuilder useDefaultGame()
     {
@@ -171,9 +278,13 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Adds a command
-     * @param command the command to add
-     * @return the builder
+     * Adds a {@link com.jagrosh.jdautilities.commandclient.Command Commands} and registers it to the 
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
+     * 
+     * @param  command
+     *         The command to add
+     *         
+     * @return This builder
      */
     public CommandClientBuilder addCommand(Command command)
     {
@@ -182,9 +293,14 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Adds multiple commands. This is the same as calling addCommand multiple times
-     * @param commands the commands to add
-     * @return the builder
+     * Adds and registers multiple {@link com.jagrosh.jdautilities.commandclient.Command Commands} to the 
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
+     * <br>This is the same as calling {@link #addCommand(Command)} multiple times.
+     * 
+     * @param  commands
+     *         The Commands to add
+     *         
+     * @return This builder
      */
     public CommandClientBuilder addCommands(Command... commands)
     {
@@ -194,9 +310,15 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets a key for Carbonitex for updating server count
-     * @param key a Carbonitex key
-     * @return the builder
+     * Sets the <a href="https://www.carbonitex.net/discord/bots">Carbonitex</a> key for this bot's listing.
+     * 
+     * <p>When set, the {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}
+     * will automatically update it's Carbonitex listing with relevant information such as server count.
+     * 
+     * @param  key
+     *         A Carbonitex key
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setCarbonitexKey(String key)
     {
@@ -205,9 +327,15 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets a key for the Discord Bots listing for updating server count
-     * @param key A bots.discord.pw API key
-     * @return the builder
+     * Sets the <a href="http://bots.discord.pw/">Discord Bots</a> API key for this bot's listing.
+     * 
+     * <p>When set, the {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
+     * will automatically update it's Discord Bots listing with relevant information such as server count.
+     * 
+     * @param  key
+     *         A Discord Bots API key
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setDiscordBotsKey(String key)
     {
@@ -216,13 +344,39 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Sets the CommandListener for the CommandClientImpl
-     * @param listener the CommandListener for the CommandClientImpl
-     * @return the builder
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} for the 
+     * {@link com.jagrosh.jdautilities.commandclient.CommandClientImpl CommandClientImpl}.
+     * 
+     * @param  listener
+     *         The CommandListener for the CommandClientImpl
+     *         
+     * @return This builder
      */
     public CommandClientBuilder setListener(CommandListener listener)
     {
         this.listener = listener;
+        return this;
+    }
+    
+    /**
+     * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for this 
+     * {@link com.jagrosh.jdautilities.commandclient.CommandClientImpl CommandClientImpl}.
+     * 
+     * <p><b>NOTE:</b> It <b>MUST</b> be a 
+     * {@link java.util.concurrent.Executors#newSingleThreadScheduledExecutor SingleThreadScheduledExecutor}. 
+     * Providing any other kinds of {@link java.util.concurrent.Executors} will cause unpredictable results.
+     * 
+     * <p>Also note that unless you wish to use the SingleThreadScheduledExecutor provided here in other areas of
+     * your code, this is most likely useless to set.
+     * 
+     * @param  executor
+     *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
+     *         
+     * @return This builder
+     */
+    public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
+    {
+        this.executor = executor;
         return this;
     }
 }

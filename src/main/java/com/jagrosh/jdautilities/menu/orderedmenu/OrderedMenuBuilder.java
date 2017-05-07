@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
 
+import net.dv8tion.jda.core.entities.Emote;
+
 /**
  *
  * @author John Grosh
@@ -55,9 +57,13 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
 
     /**
-     * Sets the color of the embed
-     * @param color the color
-     * @return the builder
+     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * if description of the MessageEmbed is set.
+     * 
+     * @param  color
+     *         The Color of the MessageEmbed
+     *         
+     * @return This builder
      */
     @Override
     public OrderedMenuBuilder setColor(Color color) {
@@ -66,8 +72,11 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Uses letters for ordering and reactions
-     * @return the builder
+     * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu OrderedMenu} 
+     * using letters for ordering and reactions (IE: A, B, C, etc.).
+     * <br>As a note - by default the builder will use <b>numbers</b> not letters.
+     * 
+     * @return This builder
      */
     public OrderedMenuBuilder useLetters() {
         this.useLetters = true;
@@ -75,8 +84,10 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Uses numbers for ordering and reactions
-     * @return the builder
+     * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu OrderedMenu}
+     * using numbers for ordering and reactions (IE: A, B, C, etc.).
+     * 
+     * @return This builder
      */
     public OrderedMenuBuilder useNumbers() {
         this.useLetters = false;
@@ -84,10 +95,13 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * If true, users can type the number or letter of the input to make
-     * their selection, in addition to the reaction option.
-     * @param allow if text input should be allowed
-     * @return the builder
+     * If {@code true}, {@link net.dv8tion.jda.core.entities.User Users} can type the number or 
+     * letter of the input to make their selection, in addition to the reaction option.
+     * 
+     * @param  allow
+     *         {@code true} if raw text input is allowed, {@code false} if it is not
+     *         
+     * @return This builder
      */
     public OrderedMenuBuilder allowTextInput(boolean allow) {
         this.allowTypedInput = allow;
@@ -95,10 +109,12 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * If true, adds a cancel button that performs the timeout action
-     * when selected
-     * @param use if the cancel button should be shown
-     * @return the builder
+     * If {@code true}, adds a cancel button that performs the timeout action when selected.
+     * 
+     * @param  use
+     *         {@code true} if the cancel button should be shown, {@code false} if it should not
+     *         
+     * @return This builder
      */
     public OrderedMenuBuilder useCancelButton(boolean use) {
         this.addCancel = use;
@@ -106,9 +122,15 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text (message content)
-     * @param text the message content
-     * @return the builder
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu} is built.
+     * 
+     * <p>This is displayed directly above the embed.
+     * 
+     * @param  text
+     *         The Message content to be displayed above the embed when the OrderedMenu is built
+     *         
+     * @return This builder
      */
     public OrderedMenuBuilder setText(String text) {
         this.text = text;
@@ -116,9 +138,13 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the description to be placed in the embed, above the choices
-     * @param description the content of the embed above the choices
-     * @return the builder
+     * Sets the description to be placed in an {@link net.dv8tion.jda.core.entities.MessageEmbed}. 
+     * <br>If this is {@code null}, no MessageEmbed will be displayed
+     * 
+     * @param  description
+     *         The content of the MessageEmbed's description
+     *     
+     * @return This builder
      */
     public OrderedMenuBuilder setDescription(String description) {
         this.description = description;
@@ -126,9 +152,12 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the action to perform with the menu result
-     * @param action the action to perform
-     * @return the builder
+     * Sets the {@link java.util.function.Consumer} action to perform upon selecting a option.
+     * 
+     * @param  action
+     *         The Consumer action to perform upon selecting a button
+     * 
+     * @return This builder
      */
     public OrderedMenuBuilder setAction(Consumer<Integer> action) {
         this.action = action;
@@ -136,9 +165,13 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the action to perform if the menu times out
-     * @param cancel the action to perform
-     * @return the builder
+     * Sets the {@link java.lang.Runnable} to perform if the 
+     * {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu} times out.
+     * 
+     * @param  cancel
+     *         The Runnable action to perform if the ButtonMenu times out
+     *         
+     * @return This builder
      */
     public OrderedMenuBuilder setCancel(Runnable cancel) {
         this.cancel = cancel;
@@ -146,9 +179,13 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Adds choices to the ordered menu
-     * @param choices the choices to add
-     * @return the builder
+     * Adds the String choices.
+     * <br>These correspond to the button in order of addition.
+     * 
+     * @param  emojis
+     *         The String choices to add
+     *         
+     * @return This builder
      */
     public OrderedMenuBuilder addChoices(String... choices) {
         this.choices.addAll(Arrays.asList(choices));
@@ -156,9 +193,13 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the choices in the menu
-     * @param choices the choices to use in the menu
-     * @return the builder
+     * Sets the String choices.
+     * <br>These correspond to the button in the order they are set.
+     * 
+     * @param  emojis
+     *         The String choices to set
+     *         
+     * @return This builder
      */
     public OrderedMenuBuilder setChoices(String... choices) {
         this.choices.clear();

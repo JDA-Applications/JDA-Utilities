@@ -51,9 +51,13 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
 
     /**
-     * Sets the color of the embed, if description is set
-     * @param color the color
-     * @return the builder
+     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * if description of the MessageEmbed is set.
+     * 
+     * @param  color
+     *         The Color of the MessageEmbed
+     *         
+     * @return This builder
      */
     @Override
     public ButtonMenuBuilder setColor(Color color) {
@@ -62,9 +66,15 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text (message content)
-     * @param text the message content
-     * @return the builder
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.buttonmenu.ButtonMenu} is built.
+     * 
+     * <p>This is displayed directly above the embed.
+     * 
+     * @param  text
+     *         The Message content to be displayed above the embed when the ButtonMenu is built
+     *         
+     * @return This builder
      */
     public ButtonMenuBuilder setText(String text) {
         this.text = text;
@@ -72,10 +82,13 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the description to be placed in an embed. If this is null, no
-     * embed will be shown
-     * @param description the content of the embed
-     * @return the builder
+     * Sets the description to be placed in an {@link net.dv8tion.jda.core.entities.MessageEmbed}. 
+     * <br>If this is {@code null}, no MessageEmbed will be displayed
+     * 
+     * @param  description
+     *         The content of the MessageEmbed's description
+     *     
+     * @return This builder
      */
     public ButtonMenuBuilder setDescription(String description) {
         this.description = description;
@@ -83,9 +96,12 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the action to perform with the menu result
-     * @param action the action to perform
-     * @return the builder
+     * Sets the {@link java.util.function.Consumer} action to perform upon selecting a button.
+     * 
+     * @param  action
+     *         The Consumer action to perform upon selecting a button
+     * 
+     * @return This builder
      */
     public ButtonMenuBuilder setAction(Consumer<ReactionEmote> action) {
         this.action = action;
@@ -93,9 +109,13 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the action to perform if the menu times out
-     * @param cancel the action to perform
-     * @return the builder
+     * Sets the {@link java.lang.Runnable} to perform if the 
+     * {@link com.jagrosh.jdautilities.menu.buttonmenu.ButtonMenu} times out.
+     * 
+     * @param  cancel
+     *         The Runnable action to perform if the ButtonMenu times out
+     *         
+     * @return This builder
      */
     public ButtonMenuBuilder setCancel(Runnable cancel) {
         this.cancel = cancel;
@@ -103,9 +123,15 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Adds unicode emojis as button choices
-     * @param emojis the unicode strings to add
-     * @return the builder
+     * Adds String unicode emojis as button choices.
+     * 
+     * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote}s should be
+     * added using {@link #addChoices(Emote...)}.
+     * 
+     * @param  emojis
+     *         The String unicode emojis to add
+     *         
+     * @return This builder
      */
     public ButtonMenuBuilder addChoices(String... emojis) {
         this.choices.addAll(Arrays.asList(emojis));
@@ -113,9 +139,14 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Adds custom emotes as button choices
-     * @param emotes the Emote objects to add
-     * @return the builder
+     * Adds custom {@link net.dv8tion.jda.core.entities.Emote}s as button choices.
+     * 
+     * <p>Any regular unicode emojis should be added using {@link #addChoices(String...)}.
+     * 
+     * @param  emotes
+     *         The Emote objects to add
+     *         
+     * @return This builder
      */
     public ButtonMenuBuilder addChoices(Emote... emotes) {
         Arrays.asList(emotes).stream().map(e -> e.getId()).forEach(e -> this.choices.add(e));
@@ -123,9 +154,15 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the choices to a list of unicode emojis
-     * @param emojis the unicode strings
-     * @return the builder
+     * Sets the String unicode emojis as button choices.
+     * 
+     * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote}s should be
+     * set using {@link #setChoices(Emote...)}.
+     * 
+     * @param  emojis
+     *         The String unicode emojis to set
+     *         
+     * @return This builder
      */
     public ButtonMenuBuilder setChoices(String... emojis) {
         this.choices.clear();
@@ -134,9 +171,14 @@ public class ButtonMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the choices to a list of Emotes
-     * @param emotes the Emote objects to add
-     * @return the builder
+     * Sets the {@link net.dv8tion.jda.core.entities.Emote}s as button choices.
+     * 
+     * <p>Any regular unicode emojis should be set using {@link #addChoices(String...)}.
+     * 
+     * @param  emotes
+     *         The Emote objects to set
+     *         
+     * @return This builder
      */
     public ButtonMenuBuilder setChoices(Emote... emotes) {
         this.choices.clear();
