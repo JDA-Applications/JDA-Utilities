@@ -24,6 +24,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +37,8 @@ import com.jagrosh.jdautilities.commandclient.Command.Category;
 import com.jagrosh.jdautilities.commandclient.CommandClient;
 import com.jagrosh.jdautilities.commandclient.CommandEvent;
 import com.jagrosh.jdautilities.commandclient.CommandListener;
+import com.jagrosh.jdautilities.utils.SafeIdUtil;
+
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -40,21 +46,32 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * This represents a command client, to be used by a bot.
+ * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}, 
+ * to be used by a bot.
+ * 
+ * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA}, as it extends 
+ * {@link net.dv8tion.jda.core.hooks.ListenerAdapter ListenerAdapter} in order to 
+ * catch and wrap {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s, 
+ * this CommandClient, and automatically trimmed arguments, then provide them to a command for running
+ * and execution.
  * 
  * @author John Grosh (jagrosh)
  */
 public class CommandClientImpl extends ListenerAdapter implements CommandClient {
+    
+    private static final SimpleLog LOG = SimpleLog.getLog("CommandClient");
     
     private final OffsetDateTime start;
     private final Game game;
@@ -70,9 +87,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String botsKey;
     private final HashMap<String,OffsetDateTime> cooldowns;
     private final HashMap<String,Integer> uses;
+    private final HashMap<String,ScheduledFuture<?>> schedulepool;
     private final boolean useHelp;
     private final Function<CommandEvent,String> helpFunction;
     private final String helpWord;
+    private final ScheduledExecutorService executor;
     
     private String textPrefix;
     private CommandListener listener = null;
@@ -80,9 +99,18 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, Game game, String serverInvite, String success, 
             String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, 
-            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord)
+            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor)
     {
         Objects.nonNull(ownerId);
+        
+        if(!SafeIdUtil.checkId(ownerId))
+            LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
+        
+        for(String coOwnerId : coOwnerIds)
+        {
+            if(SafeIdUtil.checkId(coOwnerId))
+                LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
+        }
         
         this.start = OffsetDateTime.now();
         
@@ -99,8 +127,10 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.commands = commands;
         this.cooldowns = new HashMap<>();
         this.uses = new HashMap<>();
+        this.schedulepool = new HashMap<>();
         this.useHelp = useHelp;
         this.helpWord = helpWord==null ? "help" : helpWord;
+        this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -116,12 +146,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                                 .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
                                 .append(" - ").append(command.getHelp());
                     }
-                User owner;
-                try {
-                    owner = event.getJDA().getUserById(ownerId);
-                } catch(Exception e) {
-                    owner = null;
-                }
+                User owner = event.getJDA().getUserById(ownerId);
                 if(owner!=null)
                 {
                     builder.append("\n\nFor additional help, contact **").append(owner.getName()).append("**#").append(owner.getDiscriminator());
@@ -148,7 +173,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
 
     @Override
-    public List<Command> getCommands() {
+    public List<Command> getCommands()
+    {
         return commands;
     }
     
@@ -163,7 +189,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         return cooldowns.get(name);
     }
-
+    
     @Override
     public int getRemainingCooldown(String name)
     {
@@ -187,7 +213,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
 
     @Override
-    public void cleanCooldowns() {
+    public void cleanCooldowns()
+    {
         OffsetDateTime now = OffsetDateTime.now();
         cooldowns.keySet().stream().filter((str) -> (cooldowns.get(str).isBefore(now))).collect(Collectors.toList()).stream().forEach(str -> cooldowns.remove(str));
     }
@@ -211,9 +238,26 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
     
     @Override
+    public long getOwnerIdLong()
+    {
+        return Long.parseLong(ownerId);
+    }
+    
+    @Override
     public String[] getCoOwnerIds()
     {
     	return coOwnerIds;
+    }
+    
+    @Override
+    public long[] getCoOwnerIdsLong()
+    {
+        long[] ids = new long[coOwnerIds.length-1];
+        for(int i = 0; i<coOwnerIds.length; i++)
+        {
+            ids[i] = Long.parseLong(coOwnerIds[i]);
+        }
+        return ids;
     }
     
     @Override
@@ -252,13 +296,88 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         return textPrefix;
     }
 
-    public int getTotalGuilds() {
+    @Override
+    public int getTotalGuilds()
+    {
         return totalGuilds;
     }
     
     @Override
-    public String getHelpWord() {
+    public String getHelpWord()
+    {
         return helpWord;
+    }
+    
+    @Override
+    public void schedule(String name, int delay, RestAction<?> toQueue)
+    {
+        saveFuture(name, toQueue.queueAfter(delay, TimeUnit.SECONDS, executor));
+    }
+    
+    @Override
+    public void schedule(String name, int delay, Runnable runnable)
+    {
+        saveFuture(name, executor.schedule(runnable, delay, TimeUnit.SECONDS));
+    }
+    
+    @Override
+    public void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue)
+    {
+        saveFuture(name, toQueue.queueAfter(delay, unit, executor));
+    }
+    
+    @Override
+    public void schedule(String name, int delay, TimeUnit unit, Runnable runnable)
+    {
+        saveFuture(name, executor.schedule(runnable, delay, unit));
+    }
+    
+    @Override
+    public void saveFuture(String name, ScheduledFuture<?> future)
+    {
+        synchronized(schedulepool) {
+            schedulepool.put(name, future);
+        }
+    }
+    
+    @Override
+    public boolean scheduleContains(String name)
+    {
+        synchronized(schedulepool) {
+            return schedulepool.containsKey(name);
+        }
+    }
+    
+    @Override
+    public void cancel(String name)
+    {
+        synchronized(schedulepool) {
+            schedulepool.get(name).cancel(false);
+        }
+    }
+    
+    @Override
+    public void cancelImmediately(String name)
+    {
+        synchronized(schedulepool) {
+            schedulepool.get(name).cancel(true);
+        }
+    }
+    
+    @Override
+    public ScheduledFuture<?> getScheduledFuture(String name)
+    {
+        synchronized(schedulepool) {
+            return schedulepool.get(name);
+        }
+    }
+    
+    @Override
+    public void cleanSchedule()
+    {
+        synchronized(schedulepool) {
+            schedulepool.keySet().stream().filter((str) -> (schedulepool.get(str)).isCancelled() || (schedulepool.get(str)).isDone());
+        }
     }
     
     @Override
@@ -271,6 +390,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                     Game.of("Type "+textPrefix+"help") : 
                     game);
         sendStats(event.getJDA());
+    }
+    
+    @Override
+    public void onShutdown(ShutdownEvent event)
+    {
+        executor.shutdown();
+        System.exit(0);
     }
     
     @Override
@@ -362,13 +488,15 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
     
     @Override
-    public void onGuildJoin(GuildJoinEvent event) {
+    public void onGuildJoin(GuildJoinEvent event)
+    {
         if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isAfter(OffsetDateTime.now()));
             sendStats(event.getJDA());
     }
 
     @Override
-    public void onGuildLeave(GuildLeaveEvent event) {
+    public void onGuildLeave(GuildLeaveEvent event)
+    {
         sendStats(event.getJDA());
     }
     

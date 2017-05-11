@@ -40,10 +40,6 @@ public class SelectionDialogBuilder extends MenuBuilder {
     private Consumer<Integer> success;
     private Runnable cancel = () -> {};
     
-    /**
-     * Builds a Selection Dialog with the set attributes
-     * @return a SelectionDialog
-     */
     @Override
     public SelectionDialog build() {
         if(waiter==null)
@@ -57,9 +53,13 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
 
     /**
-     * Sets the color of the selection embed
-     * @param color the color of the selection embed
-     * @return the builder
+     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * if description of the MessageEmbed is set.
+     * 
+     * @param  color
+     *         The Color of the MessageEmbed
+     *         
+     * @return This builder
      */
     @Override
     public SelectionDialogBuilder setColor(Color color) {
@@ -68,9 +68,16 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the color as a function of the selection
-     * @param color the color function
-     * @return the builder
+     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * relative to the current selection number as determined by the provided
+     * {@link java.util.function.Function}.
+     * <br>As the selection changes, the Function will re-process the current selection number, 
+     * allowing for the color of the embed to change depending on the selection number.
+     * 
+     * @param  color
+     *         A Function that uses current selection number to get a Color for the MessageEmbed
+     * 
+     * @return This builder
      */
     public SelectionDialogBuilder setColor(Function<Integer,Color> color) {
         this.color = color;
@@ -78,9 +85,15 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text above the embed
-     * @param text the text
-     * @return the builder
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.selectiondialog.SelectionDialog} is built.
+     * 
+     * <p>This is displayed directly above the embed.
+     * 
+     * @param  text
+     *         The Message content to be displayed above the embed when the SelectionDialog is built
+     *         
+     * @return This builder
      */
     public SelectionDialogBuilder setText(String text) {
         this.text = i -> text;
@@ -88,9 +101,16 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text above the embed as a function of the current selection
-     * @param text the text function
-     * @return the builder
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
+     * relative to the current selection number as determined by the provided
+     * {@link java.util.function.Function}.
+     * <br>As the selection changes, the Function will re-process the current selection number, 
+     * allowing for the displayed text of the Message to change depending on the selection number.
+     * 
+     * @param  color
+     *         A Function that uses current selection number to get a text for the Message
+     * 
+     * @return This builder
      */
     public SelectionDialogBuilder setText(Function<Integer,String> text) {
         this.text = text;
@@ -98,10 +118,15 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text to use on either end of the selected item
-     * @param left the left end
-     * @param right the right end
-     * @return the builder
+     * Sets the text to use on either end of the selected item.
+     * <br>Usage is primarily to mark which item is currently selected.
+     * 
+     * @param  left
+     *         The left selection end
+     * @param  right
+     *         The right selection end
+     *         
+     * @return This builder
      */
     public SelectionDialogBuilder setSelectedEnds(String left, String right) {
         this.leftEnd = left;
@@ -111,10 +136,15 @@ public class SelectionDialogBuilder extends MenuBuilder {
     
     /**
      * Sets the text to use on either side of all unselected items. This will not
-     * be applied to the selected item
-     * @param left the left end
-     * @param right the right end
-     * @return the builder
+     * be applied to the selected item.
+     * <br>Usage is primarily to mark which items are not currently selected.
+     * 
+     * @param  left
+     *         The left non-selection end
+     * @param  right
+     *         The right non-selection end
+     *         
+     * @return This builder
      */
     public SelectionDialogBuilder setDefaultEnds(String left, String right) {
         this.defaultLeft = left;
@@ -123,10 +153,13 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets if moving up when at the top selection jumps to the bottom
-     * @param loop true if pressing up while at the top selection should loop
-     * to the bottom
-     * @return the builder
+     * Sets if moving up when at the top selection jumps to the bottom, and visa-versa.
+     * 
+     * @param  loop
+     *         {@code true} if pressing up while at the top selection should loop
+     *         to the bottom, {@code false} if it should not
+     *         
+     * @return This builder
      */
     public SelectionDialogBuilder useLooping(boolean loop) {
         this.loop = loop;
@@ -134,9 +167,14 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the action to perform once a selection is made
-     * @param selection a consumer of the selection. This is one-based indexing
-     * @return the builder
+     * Sets a {@link java.util.function.Consumer} action to perform once a selection is made.
+     * <br>The {@link java.lang.Integer} provided is that of the selection made by the user,
+     * and selections are in order of addition, 1 being the first String choice.
+     * 
+     * @param  selection
+     *         A Consumer for the selection. This is one-based indexing.
+     *         
+     * @return This builder
      */
     public SelectionDialogBuilder setSelectionConsumer(Consumer<Integer> selection)
     {
@@ -145,10 +183,13 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the action to take if the cancel button is used, or if the dialog
-     * times out
-     * @param cancel the action to take when the dialog is canceled or timed out
-     * @return the builder
+     * Sets a {@link java.lang.Runnable} action to take if the cancel button is used, or if
+     * the SelectionDialog times out.
+     * 
+     * @param  cancel
+     *         The action to take when the SelectionDialog is canceled or times out
+     * 
+     * @return This builder
      */
     public SelectionDialogBuilder setCanceledRunnable(Runnable cancel)
     {
@@ -157,8 +198,9 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Clears the choices to be shown
-     * @return the builder
+     * Clears the choices to be shown.
+     * 
+     * @return This builder
      */
     public SelectionDialogBuilder clearChoices()
     {
@@ -167,8 +209,10 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the choices to be shown as selections
-     * @param choices the choices to show
+     * Sets the String choices to be shown as selections.
+     * 
+     * @param  choices
+     *         The String choices to show
      * @return the builder
      */
     public SelectionDialogBuilder setChoices(String... choices)
@@ -179,9 +223,12 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Adds choices to be shown as selections
-     * @param choices the choices to add
-     * @return the builder
+     * Adds String choices to be shown as selections.
+     * 
+     * @param  choices
+     *         The String choices to add
+     *         
+     * @return This builder
      */
     public SelectionDialogBuilder addChoices(String... choices)
     {

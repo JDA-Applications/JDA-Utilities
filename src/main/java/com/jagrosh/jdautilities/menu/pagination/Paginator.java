@@ -72,8 +72,11 @@ public class Paginator extends Menu {
     }
 
     /**
-     * Begins pagination on page 1, sending a new message to the provided channel
-     * @param channel the channel in which to begin pagination
+     * Begins pagination on page 1 as a new {@link net.dv8tion.jda.core.entities.Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
      */
     @Override
     public void display(MessageChannel channel) {
@@ -81,8 +84,11 @@ public class Paginator extends Menu {
     }
 
     /**
-     * Begins pagination on page 1, editing the menu into the provided message
-     * @param message the message to use for pagination=
+     * Begins pagination on page 1 displaying this Pagination by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message}.
+     * 
+     * @param  message
+     *         The Message to display the Menu in
      */
     @Override
     public void display(Message message) {
@@ -90,9 +96,14 @@ public class Paginator extends Menu {
     }
     
     /**
-     * Begins pagination, sending a new message to the provided channel
-     * @param channel the channel in which to begin pagination
-     * @param pageNum the starting page
+     * Begins pagination as a new {@link net.dv8tion.jda.core.entities.Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}, starting
+     * on whatever page number is provided.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
+     * @param  pageNum
+     *         The page number to begin on
      */
     public void paginate(MessageChannel channel, int pageNum)
     {
@@ -105,9 +116,14 @@ public class Paginator extends Menu {
     }
     
     /**
-     * Begins pagination, editing the menu into the provided message
-     * @param message the message to use for pagination
-     * @param pageNum the starting page
+     * Begins pagination displaying this Pagination by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message}, starting on whatever
+     * page number is provided.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
+     * @param  pageNum
+     *         The page number to begin on
      */
     public void paginate(Message message, int pageNum)
     {
