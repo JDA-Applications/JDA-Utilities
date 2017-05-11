@@ -20,10 +20,8 @@ import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
-import com.jagrosh.jdautilities.utils.SafeIdUtil;
 
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.utils.SimpleLog;
 
 /**
  * A simple builder used to create a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
@@ -50,8 +48,6 @@ public class CommandClientBuilder {
     private Function<CommandEvent,String> helpFunction;
     private String helpWord;
     private ScheduledExecutorService executor;
-    
-    private static final SimpleLog LOG = SimpleLog.getLog("CommandClientBuilder");
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
@@ -81,9 +77,6 @@ public class CommandClientBuilder {
      */
     public CommandClientBuilder setOwnerId(String ownerId)
     {
-        if(!SafeIdUtil.checkId(ownerId))
-            LOG.warn("Owner ID \""+ownerId+"\" is not safe to use!");
-        
         this.ownerId = ownerId;
         return this;
     }
@@ -100,10 +93,6 @@ public class CommandClientBuilder {
      */
     public CommandClientBuilder setCoOwnerIds(String... coOwnerIds)
     {
-    	for(String coOwnerId : coOwnerIds)
-    	    if(!SafeIdUtil.checkId(coOwnerId))
-                LOG.warn("Owner ID \""+coOwnerId+"\" is not safe to use!");
-    	
     	this.coOwnerIds = coOwnerIds;
     	return this;
     }
