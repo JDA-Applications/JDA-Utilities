@@ -106,10 +106,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         if(!SafeIdUtil.checkId(ownerId))
             LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
         
-        for(String coOwnerId : coOwnerIds)
-        {
-            if(SafeIdUtil.checkId(coOwnerId))
-                LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
+        if(coOwnerIds!=null) {
+            for(String coOwnerId : coOwnerIds) {
+                if(SafeIdUtil.checkId(coOwnerId))
+                    LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
+            } 
         }
         
         this.start = OffsetDateTime.now();
@@ -252,6 +253,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     @Override
     public long[] getCoOwnerIdsLong()
     {
+        if(coOwnerIds==null)
+            return null;
         long[] ids = new long[coOwnerIds.length-1];
         for(int i = 0; i<coOwnerIds.length; i++)
         {
