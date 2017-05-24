@@ -71,8 +71,8 @@ public class SelectionDialog extends Menu {
     }
 
     /**
-     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}, starting with
+     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting with
      * the first selection.
      * 
      * @param  channel
@@ -85,7 +85,7 @@ public class SelectionDialog extends Menu {
 
     /**
      * Displays this SelectionDialog by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message}, starting with the first selection.
+     * {@link net.dv8tion.jda.core.entities.Message Message}, starting with the first selection.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -96,8 +96,8 @@ public class SelectionDialog extends Menu {
     }
     
     /**
-     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}, starting with
+     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting with
      * the number selection provided.
      * 
      * @param  channel
@@ -117,7 +117,7 @@ public class SelectionDialog extends Menu {
     
     /**
      * Displays this SelectionDialog by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message}, starting with the number selection
+     * {@link net.dv8tion.jda.core.entities.Message Message}, starting with the number selection
      * provided.
      * 
      * @param  message

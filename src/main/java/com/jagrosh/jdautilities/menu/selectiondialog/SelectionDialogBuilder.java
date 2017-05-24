@@ -53,7 +53,7 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
 
     /**
-     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
      * if description of the MessageEmbed is set.
      * 
      * @param  color
@@ -68,9 +68,9 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
      * relative to the current selection number as determined by the provided
-     * {@link java.util.function.Function}.
+     * {@link java.util.function.Function Function}.
      * <br>As the selection changes, the Function will re-process the current selection number, 
      * allowing for the color of the embed to change depending on the selection number.
      * 
@@ -85,8 +85,8 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
-     * when the {@link com.jagrosh.jdautilities.menu.selectiondialog.SelectionDialog} is built.
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.selectiondialog.SelectionDialog SelectionDialog} is built.
      * 
      * <p>This is displayed directly above the embed.
      * 
@@ -101,9 +101,9 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
      * relative to the current selection number as determined by the provided
-     * {@link java.util.function.Function}.
+     * {@link java.util.function.Function Function}.
      * <br>As the selection changes, the Function will re-process the current selection number, 
      * allowing for the displayed text of the Message to change depending on the selection number.
      * 
@@ -167,8 +167,8 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets a {@link java.util.function.Consumer} action to perform once a selection is made.
-     * <br>The {@link java.lang.Integer} provided is that of the selection made by the user,
+     * Sets a {@link java.util.function.Consumer Consumer} action to perform once a selection is made.
+     * <br>The {@link java.lang.Integer Integer} provided is that of the selection made by the user,
      * and selections are in order of addition, 1 being the first String choice.
      * 
      * @param  selection
@@ -183,7 +183,7 @@ public class SelectionDialogBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets a {@link java.lang.Runnable} action to take if the cancel button is used, or if
+     * Sets a {@link java.lang.Runnable Runnable} action to take if the cancel button is used, or if
      * the SelectionDialog times out.
      * 
      * @param  cancel

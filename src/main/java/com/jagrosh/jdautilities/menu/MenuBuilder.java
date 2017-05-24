@@ -36,8 +36,8 @@ public abstract class MenuBuilder {
     protected TimeUnit unit = TimeUnit.MINUTES;
     
     /**
-     * Builds the {@link com.jagrosh.jdautilities.menu.Menu} corresponding to
-     * this {@link com.jagrosh.jdautilities.menu.MenuBuilder}.
+     * Builds the {@link com.jagrosh.jdautilities.menu.Menu Menu} corresponding to
+     * this {@link com.jagrosh.jdautilities.menu.MenuBuilder MenuBuilder}.
      * <br>After doing this, no modifications of the displayed Menu can be made.
      * 
      * @return The built Menu of Corresponding type to this MenuBuilder.
@@ -45,7 +45,7 @@ public abstract class MenuBuilder {
     public abstract <V extends Menu> V build();
     
     /**
-     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
      * if description of the MessageEmbed is set.
      * 
      * @param  color
@@ -57,7 +57,7 @@ public abstract class MenuBuilder {
         
     /**
      * Sets the {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter} 
-     * that will do {@link com.jagrosh.jdautilities.menu.Menu} operations.
+     * that will do {@link com.jagrosh.jdautilities.menu.Menu Menu} operations.
      * 
      * <p><b>NOTE:</b> All Menus will only work with an EventWaiter set!
      * <br>Not setting an EventWaiter means the Menu will not work.
@@ -76,8 +76,8 @@ public abstract class MenuBuilder {
     }
     
     /**
-     * Adds {@link net.dv8tion.jda.core.entities.User}s that are allowed to use the
-     * {@link com.jagrosh.jdautilities.menu.Menu} that will be built.
+     * Adds {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
+     * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
      * 
      * @param  <T>
      *         The type of MenuBuilder
@@ -93,8 +93,8 @@ public abstract class MenuBuilder {
     }
     
     /**
-     * Sets {@link net.dv8tion.jda.core.entities.User}s that are allowed to use the 
-     * {@link com.jagrosh.jdautilities.menu.Menu} that will be built.
+     * Sets {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the 
+     * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
      * <br>This clears any Users already registered before adding the ones specified.
      * 
      * @param  <T>
@@ -112,8 +112,8 @@ public abstract class MenuBuilder {
     }
     
     /**
-     * Adds {@link net.dv8tion.jda.core.entities.Role}s that are allowed to use the
-     * {@link com.jagrosh.jdautilities.menu.Menu} that will be built.
+     * Adds {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
+     * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
      * 
      * @param  <T>
      *         The type of MenuBuilder
@@ -129,8 +129,8 @@ public abstract class MenuBuilder {
     }
     
     /**
-     * Sets {@link net.dv8tion.jda.core.entities.Role}s that are allowed to use the 
-     * {@link com.jagrosh.jdautilities.menu.Menu} that will be built.
+     * Sets {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the 
+     * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
      * <br>This clears any Roles already registered before adding the ones specified.
      * 
      * @param  <T>
@@ -148,7 +148,7 @@ public abstract class MenuBuilder {
     }
     
     /**
-     * Sets the timeout that the {@link com.jagrosh.jdautilities.menu.Menu} should 
+     * Sets the timeout that the {@link com.jagrosh.jdautilities.menu.Menu Menu} should 
      * stay available.
      * 
      * <p>After this has expired, the a final action in the form of a 
@@ -159,7 +159,7 @@ public abstract class MenuBuilder {
      * @param  timeout
      *         The amount of time for the Menu to stay available
      * @param  unit
-     *         The {@link java.util.concurrent.TimeUnit} for the timeout
+     *         The {@link java.util.concurrent.TimeUnit TimeUnit} for the timeout
      *         
      * @return This builder
      */

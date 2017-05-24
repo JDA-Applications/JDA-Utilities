@@ -63,7 +63,7 @@ public interface CommandListener {
     /**
      * A method that is called whenever a 
      * {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent} is caught by the Client Listener's
-     * {@link net.dv8tion.jda.core.hooks.ListenerAdapter#onMessageReceived(MessageReceivedEvent) onMessageReceived(MessageReceivedEvent)}
+     * {@link net.dv8tion.jda.core.hooks.ListenerAdapter#onMessageReceived(MessageReceivedEvent) ListenerAdapter#onMessageReceived(MessageReceivedEvent)}
      * but doesn't correspond to a {@link com.jagrosh.jdautilities.commandclient.Command Command}.
      * 
      * <p>In other words, this catches all <b>non-command</b> MessageReceivedEvents allowing you to handle them without

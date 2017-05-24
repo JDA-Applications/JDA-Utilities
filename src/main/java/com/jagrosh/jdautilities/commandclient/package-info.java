@@ -15,7 +15,7 @@
  */
 
 /**
- * <h1><b>Command Client Package</b></h1>
+ * <h1><b>CommandClient Package</b></h1>
  * 
  * <p>Items in this package pertain to the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} and
  * {@link com.jagrosh.jdautilities.commandclient.Command Commands}.

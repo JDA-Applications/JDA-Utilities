@@ -57,7 +57,7 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
 
     /**
-     * Sets the {@link java.awt.Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed}, 
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
      * if description of the MessageEmbed is set.
      * 
      * @param  color
@@ -95,7 +95,7 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * If {@code true}, {@link net.dv8tion.jda.core.entities.User Users} can type the number or 
+     * If {@code true}, {@link net.dv8tion.jda.core.entities.User User}s can type the number or 
      * letter of the input to make their selection, in addition to the reaction option.
      * 
      * @param  allow
@@ -122,8 +122,8 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message} to be displayed
-     * when the {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu} is built.
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu OrderedMenu} is built.
      * 
      * <p>This is displayed directly above the embed.
      * 
@@ -138,7 +138,7 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the description to be placed in an {@link net.dv8tion.jda.core.entities.MessageEmbed}. 
+     * Sets the description to be placed in an {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}. 
      * <br>If this is {@code null}, no MessageEmbed will be displayed
      * 
      * @param  description
@@ -152,7 +152,7 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the {@link java.util.function.Consumer} action to perform upon selecting a option.
+     * Sets the {@link java.util.function.Consumer Consumer} action to perform upon selecting a option.
      * 
      * @param  action
      *         The Consumer action to perform upon selecting a button
@@ -165,8 +165,8 @@ public class OrderedMenuBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the {@link java.lang.Runnable} to perform if the 
-     * {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu} times out.
+     * Sets the {@link java.lang.Runnable Runnable} to perform if the 
+     * {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu OrderedMenu} times out.
      * 
      * @param  cancel
      *         The Runnable action to perform if the ButtonMenu times out

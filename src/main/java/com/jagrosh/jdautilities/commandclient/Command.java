@@ -68,7 +68,7 @@ import net.dv8tion.jda.core.utils.PermissionUtil;
 public abstract class Command {
     
     /**
-     * The name of the command.
+     * The name of the command, allows the command to be called the format: {@code [prefix]<command name>}.
      */
     protected String name = "null";
     
@@ -78,7 +78,7 @@ public abstract class Command {
     protected String help = "no help available";
     
     /**
-     * The commands {@link com.jagrosh.jdautilities.commandclient.Command.Category}. 
+     * The {@link com.jagrosh.jdautilities.commandclient.Command.Category Category} of the command. 
      * <br>This can perform any other checks not completed by the default conditional fields.
      */
     protected Category category = null;
@@ -89,7 +89,7 @@ public abstract class Command {
     protected String arguments = null;
     
     /**
-     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.Guild}, 
+     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.Guild Guild}, 
      * {@code false} if it may be used in both a Guild and a DM.
      */
     protected boolean guildOnly = true;
@@ -111,19 +111,20 @@ public abstract class Command {
     protected int cooldown = 0;
     
     /**
-     * Any {@link net.dv8tion.jda.core.Permission}s a Member must have to use this command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.core.Guild} environment.
+     * Any {@link net.dv8tion.jda.core.Permission Permission}s a Member must have to use this command.
+     * <br>These are only checked in a {@link net.dv8tion.jda.core.Guild Guild} environment.
      */
     protected Permission[] userPermissions = new Permission[0];
     
     /**
-     * Any {@link net.dv8tion.jda.core.Permission}s the bot must have to use a command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.core.Guild} environment.
+     * Any {@link net.dv8tion.jda.core.Permission Permission}s the bot must have to use a command.
+     * <br>These are only checked in a {@link net.dv8tion.jda.core.Guild Guild} environment.
      */
     protected Permission[] botPermissions = new Permission[0];
     
     /**
-     * The aliases of the command.
+     * The aliases of the command, when calling a command these function identically to calling the
+     * {@link com.jagrosh.jdautilities.commandclient.Command#name Command.name}.
      */
     protected String[] aliases = new String[0];
     
@@ -135,12 +136,12 @@ public abstract class Command {
     
     /**
      * {@code true} if the command sends a help response in a DM, {@code false} if it sends it
-     * in the {@link net.dv8tion.jda.core.MessageChannel} it's called in.
+     * in the {@link net.dv8tion.jda.core.MessageChannel MessageChannel} it's called in.
      */
     protected boolean helpInDM = true;
     
     /**
-     * The {@link java.util.function.BiFunction} for creating a help response to the format 
+     * The {@link java.util.function.BiFunction BiFunction} for creating a help response to the format 
      * {@code [prefix]<command name> help}.
      */
     protected BiFunction<CommandEvent, Command, String> helpBiFunction = null;
@@ -306,12 +307,12 @@ public abstract class Command {
     }
     
     /**
-     * Checks if the given input represents this command
+     * Checks if the given input represents this Command
      * 
      * @param  input
      *         The input to check
      * 
-     * @return {@code true} if the input is the name or an alias of the command
+     * @return {@code true} if the input is the name or an alias of the Command
      */
     public boolean isCommandFor(String input)
     {
@@ -325,7 +326,7 @@ public abstract class Command {
     
     
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#name} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#name Command.name} for the Command.
      *
      * @return The name for the Command
      */
@@ -334,7 +335,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#help} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#help Command.help} for the Command.
      *
      * @return The help for the Command
      */
@@ -343,7 +344,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#category} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#category Command.category} for the Command.
      *
      * @return The category for the Command
      */
@@ -352,7 +353,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#arguments} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#arguments Command.arguments} for the Command.
      *
      * @return The arguments for the Command
      */
@@ -361,7 +362,7 @@ public abstract class Command {
     }
 
     /**
-     * Checks if this Command can only be used in a {@link net.dv8tion.jda.core.entities.Guild}.
+     * Checks if this Command can only be used in a {@link net.dv8tion.jda.core.entities.Guild Guild}.
      *
      * @return {@code true} if this Command can only be used in a Guild, else {@code false} if it can
      *         be used outside of one
@@ -371,7 +372,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#requiredRole} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#requiredRole Command.requiredRole} for the Command.
      *
      * @return The requiredRole for the Command
      */
@@ -380,7 +381,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#cooldown} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#cooldown Command.cooldown} for the Command.
      *
      * @return The cooldown for the Command
      */
@@ -389,7 +390,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#userPermissions} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#userPermissions Command.userPermissions} for the Command.
      *
      * @return The userPermissions for the Command
      */
@@ -398,7 +399,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#botPermissions} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#botPermissions Command.botPermissions} for the Command.
      *
      * @return The botPermissions for the Command
      */
@@ -407,7 +408,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#aliases} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#aliases Command.aliases} for the Command.
      *
      * @return The aliases for the Command
      */
@@ -416,7 +417,7 @@ public abstract class Command {
     }
 
     /**
-     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#children} for the Command.
+     * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#children Command.children} for the Command.
      *
      * @return The children for the Command
      */
@@ -425,9 +426,10 @@ public abstract class Command {
     }
 
     /**
-     * Checks if this command's help message is sent in a DM or not.
+     * Checks if this command's help message is sent in the calling {@link net.dv8tion.jda.core.entities.User User}'s 
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel} or not.
      *
-     * @return {@code true} if the command-help is sent in a DM, else {@code false} if it is not
+     * @return {@code true} if the command-help is sent in the calling User's PrivateChannel, else {@code false} if it is not
      */
     public boolean isHelpInDM() {
         return helpInDM;

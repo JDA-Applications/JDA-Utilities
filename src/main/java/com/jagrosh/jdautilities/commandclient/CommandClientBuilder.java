@@ -26,8 +26,8 @@ import net.dv8tion.jda.core.entities.Game;
 /**
  * A simple builder used to create a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
  * 
- * <p>Once built, add the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} as a listener to JDA 
- * and it will automatically handle commands with ease!
+ * <p>Once built, add the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} as an EventListener to
+ * {@link net.dv8tion.jda.core.JDA JDA} and it will automatically handle commands with ease!
  * 
  * @author John Grosh (jagrosh)
  */
@@ -134,8 +134,8 @@ public class CommandClientBuilder {
      * the default help builder.
      * 
      * @param  helpFunction
-     *         A function to convert a {@link com.jagrosh.jdautilities.commandclient.CommandEvent} 
-     *         to a String for a help DM
+     *         A function to convert a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} 
+     *         to a String for a help DM.
      *         
      * @return This builder
      */
@@ -267,7 +267,7 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Adds a {@link com.jagrosh.jdautilities.commandclient.Command Commands} and registers it to the 
+     * Adds a {@link com.jagrosh.jdautilities.commandclient.Command Command} and registers it to the 
      * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
      * 
      * @param  command
@@ -282,9 +282,9 @@ public class CommandClientBuilder {
     }
     
     /**
-     * Adds and registers multiple {@link com.jagrosh.jdautilities.commandclient.Command Commands} to the 
+     * Adds and registers multiple {@link com.jagrosh.jdautilities.commandclient.Command Command}s to the 
      * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
-     * <br>This is the same as calling {@link #addCommand(Command)} multiple times.
+     * <br>This is the same as calling {@link CommandClientBuilder#addCommand(Command)} multiple times.
      * 
      * @param  commands
      *         The Commands to add
@@ -353,7 +353,7 @@ public class CommandClientBuilder {
      * 
      * <p><b>NOTE:</b> It <b>MUST</b> be a 
      * {@link java.util.concurrent.Executors#newSingleThreadScheduledExecutor SingleThreadScheduledExecutor}. 
-     * Providing any other kinds of {@link java.util.concurrent.Executors} will cause unpredictable results.
+     * Providing any other kinds of {@link java.util.concurrent.Executors Executors} will cause unpredictable results.
      * 
      * <p>Also note that unless you wish to use the SingleThreadScheduledExecutor provided here in other areas of
      * your code, this is most likely useless to set.

@@ -61,7 +61,7 @@ import org.json.JSONObject;
  * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}, 
  * to be used by a bot.
  * 
- * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA}, as it extends 
+ * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA JDA}, as it extends 
  * {@link net.dv8tion.jda.core.hooks.ListenerAdapter ListenerAdapter} in order to 
  * catch and wrap {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s, 
  * this CommandClient, and automatically trimmed arguments, then provide them to a command for running

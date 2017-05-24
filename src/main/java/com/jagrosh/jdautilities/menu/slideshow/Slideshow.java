@@ -64,8 +64,8 @@ public class Slideshow extends Menu {
     }
 
     /**
-     * Begins pagination on page 1 as a new {@link net.dv8tion.jda.core.entities.Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}.
+     * Begins pagination on page 1 as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
@@ -77,7 +77,7 @@ public class Slideshow extends Menu {
 
     /**
      * Begins pagination on page 1 displaying this Pagination by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message}.
+     * {@link net.dv8tion.jda.core.entities.Message Message}.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -88,8 +88,8 @@ public class Slideshow extends Menu {
     }
     
     /**
-     * Begins pagination as a new {@link net.dv8tion.jda.core.entities.Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}, starting
+     * Begins pagination as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting
      * on whatever page number is provided.
      * 
      * @param  channel
@@ -109,7 +109,7 @@ public class Slideshow extends Menu {
     
     /**
      * Begins pagination displaying this Pagination by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message}, starting on whatever
+     * {@link net.dv8tion.jda.core.entities.Message Message}, starting on whatever
      * page number is provided.
      * 
      * @param  channel

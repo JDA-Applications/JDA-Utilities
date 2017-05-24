@@ -48,7 +48,7 @@ public abstract class Menu {
     }
     
     /**
-     * Displays this Menu in a {@link net.dv8tion.jda.core.entities.MessageChannel}.
+     * Displays this Menu in a {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to display this Menu in
@@ -56,9 +56,9 @@ public abstract class Menu {
     public abstract void display(MessageChannel channel);
     
     /**
-     * Displays this Menu as a designated {@link net.dv8tion.jda.core.entities.Message}.
+     * Displays this Menu as a designated {@link net.dv8tion.jda.core.entities.Message Message}.
      * <br>The Message provided must be one sent by the bot! Trying to provided a Message
-     * authored by another {@link net.dv8tion.jda.core.entities.User} will prevent the
+     * authored by another {@link net.dv8tion.jda.core.entities.User User} will prevent the
      * Menu from being displayed!
      * 
      * @param  message

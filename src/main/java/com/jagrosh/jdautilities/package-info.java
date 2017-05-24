@@ -21,16 +21,16 @@
  * 
  * <p>The contents of this package are summarized as follows:
  * <ul>
- *     <li>{@link com.jagrosh.jdautilities.commandclient Command Client Package}
- *     <br>Contains all classes and interfaces relating to the Command Client - A powerful command handler and register for bots.</li>
+ *     <li>{@link com.jagrosh.jdautilities.commandclient CommandClient Package}
+ *     <br>Contains all classes and interfaces relating to the CommandClient - A powerful command handler and register for bots.</li>
  *     
  *     <li>{@link com.jagrosh.jdautilities.menu Menu Package}
- *     <br>Contains all Menus and Menu Builders, such as the {@code Paginator}, {@code OrderedMenu}, {@code Slideshow}, etc.</li>
+ *     <br>Contains all Menus and MenuBuilders, such as the {@code Paginator}, {@code OrderedMenu}, {@code Slideshow}, etc.</li>
  *     
  *     <li>{@link com.jagrosh.jdautilities.utils Utilities Package}
  *     <br>Contains all utilities, used both internally and available for developer usage outside of the extension library.</li>
  *     
- *     <li>{@link com.jagrosh.jdautilities.waiter Event Waiter Package}
+ *     <li>{@link com.jagrosh.jdautilities.waiter EventWaiter Package}
  *     <br>Contains the EventWaiter, an await-respond entity that is used in all of the Menus found in the {@code Menu Package}</li>
  *     
  *     <li>{@link com.jagrosh.jdautilities.JDAUtilitiesInfo JDA-Utilities Information}

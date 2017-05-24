@@ -29,7 +29,14 @@ import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 /**
- *
+ * A simple object used primarily for entities found in {@link com.jagrosh.jdautilities.menu}.
+ * 
+ * <p>The EventWaiter is capable of handling specialized forms of {@link net.dv8tion.jda.core.events.Event Event}
+ * that must meet criteria not normally specifiable without implementation of an {@link net.dv8tion.jda.core.hooks.EventListener EventListener}.
+ * 
+ * <p>If you intend to use the EventWaiter, it is highly recommended you <b>DO NOT create multiple EventWaiters</b>!
+ * Doing this will cause unnecessary increases in memory usage.
+ * 
  * @author John Grosh (jagrosh)
  */
 public class EventWaiter implements EventListener {
@@ -37,6 +44,9 @@ public class EventWaiter implements EventListener {
     private final HashMap<Class<?>, List<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     
+    /**
+     * Constructs an empty EventWaiter.
+     */
     public EventWaiter()
     {
         waitingEvents = new HashMap<>();
@@ -44,11 +54,20 @@ public class EventWaiter implements EventListener {
     }
     
     /**
-     * Waits an indefinite amount of time for an event
-     * @param <T> the type of event
-     * @param classType the class of the event
-     * @param condition the condition that the waiter will do that action
-     * @param action the action to perform when the condition is met
+     * Waits an indefinite amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that
+     * returns {@code true} when tested with the provided {@link java.util.function.Predicate Predicate}.
+     * 
+     * <p>When this occurs, the provided {@link java.util.function.Consumer Consumer} will accept and 
+     * execute using the same Event.
+     * 
+     * @param  <T>
+     *         The type of Event to wait for
+     * @param  classType
+     *         The {@link java.lang.Class} of the Event to wait for
+     * @param  condition
+     *         The Predicate to test when Events of the provided type are thrown
+     * @param  action
+     *         The Consumer to perform an action when the condition Predicate returns {@code true}
      */
     public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action)
     {
@@ -56,14 +75,31 @@ public class EventWaiter implements EventListener {
     }
     
     /**
-     * Waits for up-to a predetermined amount of time for an event
-     * @param <T> the type of event
-     * @param classType the class of the event
-     * @param condition the condition that the waiter will do that action
-     * @param action the action to perform when the condition is met
-     * @param timeout the maximum time to wait
-     * @param unit the time units of the timeout
-     * @param timeoutAction the action to do when the time runs out
+     * Waits a predetermined amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that
+     * returns {@code true} when tested with the provided {@link java.util.function.Predicate Predicate}.
+     * 
+     * <p>Once started, there are two possible outcomes:
+     * <ul>
+     *     <li>The correct Event occurs within the time alloted, and the provided 
+     *     {@link java.util.function.Consumer Consumer} will accept and execute using the same Event.</li>
+     *     
+     *     <li>The time limit is elapsed and the provided {@link java.lang.Runnable} is executed.</li>
+     * </ul>
+     * 
+     * @param  <T>
+     *         The type of Event to wait for
+     * @param  classType
+     *         The {@link java.lang.Class} of the Event to wait for
+     * @param  condition
+     *         The Predicate to test when Events of the provided type are thrown
+     * @param  action
+     *         The Consumer to perform an action when the condition Predicate returns {@code true}
+     * @param  timeout
+     *         The maximum amount of time to wait for
+     * @param  unit
+     *         The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout
+     * @param  timeoutAction
+     *         The Runnable to run if the time runs out before a correct Event is thrown
      */
     public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit, Runnable timeoutAction)
     {
@@ -105,23 +141,23 @@ public class EventWaiter implements EventListener {
     }
     
     private class WaitingEvent<T extends Event> {
-    final private Predicate<T> condition;
-    final private Consumer<T> action;
-    
-    public WaitingEvent(Predicate<T> condition, Consumer<T> action)
-    {
-        this.condition = condition;
-        this.action = action;
-    }
-    
-    public boolean attempt(T event)
-    {
-        if(condition.test(event))
+        final private Predicate<T> condition;
+        final private Consumer<T> action;
+        
+        public WaitingEvent(Predicate<T> condition, Consumer<T> action)
         {
-            action.accept(event);
-            return true;
+            this.condition = condition;
+            this.action = action;
         }
-        return false;
+        
+        public boolean attempt(T event)
+        {
+            if(condition.test(event))
+            {
+                action.accept(event);
+                return true;
+            }
+            return false;
+        }
     }
-}
 }

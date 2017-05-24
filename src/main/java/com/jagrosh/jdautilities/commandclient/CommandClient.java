@@ -23,12 +23,12 @@ import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
- * A Bot Client interface implemented on objects used to hold bot data.<p>
+ * A Bot Client interface implemented on objects used to hold bot data.
  * 
- * This is implemented in {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl}
- * alongside inheritance of {@link net.dv8tion.jda.core.hooks.ListenerAdapter} to create a
+ * <p>This is implemented in {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}
+ * alongside inheritance of {@link net.dv8tion.jda.core.hooks.ListenerAdapter ListenerAdapter} to create a
  * compounded "ClientListener" which catches specific kinds of events thrown by JDA and processes them
- * automatically to handle and execute {@link com.jagrosh.jdautilities.commandclient.Command}s
+ * automatically to handle and execute {@link com.jagrosh.jdautilities.commandclient.Command Command}s
  * 
  * @author John Grosh (jagrosh)
  */
@@ -44,8 +44,8 @@ public interface CommandClient {
     /**
      * Returns the visual representation of the bot's prefix. 
      * 
-     * <p>This is the same as {@link com.jagrosh.jdautilities.commandclient.CommandClient#getPrefix() getPrefix()}
-     * unless the prefix is the default, in which case it appears as {@literal @Botname}.
+     * <p>This is the same as {@link CommandClient#getPrefix()} unless the prefix is the default,
+     * in which case it appears as {@literal @Botname}.
      * 
      * @return A never-null prefix
      */
@@ -53,8 +53,7 @@ public interface CommandClient {
     
     /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} to catch 
-     * command-related events thrown by this 
-     * {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}.
+     * command-related events thrown by this {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}.
      * 
      * @param  listener
      *         The CommandListener
@@ -78,14 +77,14 @@ public interface CommandClient {
     
     /**
      * Gets the time this {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} 
-     * implementation was instantiated.
+     * implementation was created.
      * 
      * @return The start time of this CommandClient implementation
      */
     public OffsetDateTime getStartTime();
     
     /**
-     * Gets the {@link java.time.OffsetDateTime} that the specified cooldown expires.
+     * Gets the {@link java.time.OffsetDateTime OffsetDateTime} that the specified cooldown expires.
      * 
      * @param  name
      *         The cooldown name
@@ -200,7 +199,7 @@ public interface CommandClient {
     public String getServerInvite();
     
     /**
-     * Gets an a recently updated count of all the {@link net.dv8tion.jda.core.Guild}s 
+     * Gets an a recently updated count of all the {@link net.dv8tion.jda.core.Guild Guild}s 
      * the bot is connected to on all shards.
      * 
      * <p><b>NOTE:</b> This may not always or should not be assumed accurate! Any time
@@ -233,14 +232,14 @@ public interface CommandClient {
     public String getHelpWord();
     
     /**
-     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction} to occur in a provided delay
+     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in a provided delay
      * of <b>seconds</b>.
      * 
-     * <p>This is more useful than {@link #schedule(String, int, TimeUnit, RestAction)} when dealing with 
+     * <p>This is more useful than {@link CommandClient#schedule(String, int, TimeUnit, RestAction)} when dealing with 
      * short delays as it is simple, easy, and would not require the operating class to {@code import}
      * {@link java.util.concurrent.TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the scheduled RestAction (can be used to cancel it later if needed)
@@ -252,13 +251,13 @@ public interface CommandClient {
     public void schedule(String name, int delay, RestAction<?> toQueue);
     
     /**
-     * Schedules a {@link java.lang.Runnable} to run in a provided delay of <b>seconds</b>.
+     * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of <b>seconds</b>.
      * 
-     * <p>This is more useful than {@link #schedule(String, int, TimeUnit, Runnable)} when dealing with
+     * <p>This is more useful than {@link CommandClient#schedule(String, int, TimeUnit, Runnable)} when dealing with
      * short delays as it is simple, easy, and would not require the operating class to {@code import}
-     * {@link java.util.concurrent.TimeUnit}.
+     * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
      * 
      * @param  name 
      *         The name of the scheduled Runnable (can be used to cancel it later if needed)
@@ -270,10 +269,10 @@ public interface CommandClient {
     public void schedule(String name, int delay, Runnable runnable);
     
     /**
-     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction} to occur in the provided delay of 
-     * {@link java.util.concurrent.TimeUnit}.
+     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in the provided delay of 
+     * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the scheduled RestAction (can be used to cancel it later if needed)
@@ -287,10 +286,10 @@ public interface CommandClient {
     public void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue);
     
     /**
-     * Schedules a {@link java.lang.Runnable} to run in a provided delay of
-     * {@link java.util.concurrent.TimeUnit}.
+     * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of
+     * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the scheduled Runnable (can be used to cancel it later if needed)
@@ -304,9 +303,9 @@ public interface CommandClient {
     public void schedule(String name, int delay, TimeUnit unit, Runnable runnable);
     
     /**
-     * Saves a {@link java.util.concurrent.ScheduledFuture} to a provided name.
+     * Saves a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} to a provided name.
      * 
-     * <p>This allows it to be cancelled later using {@link #cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the ScheduledFuture (can be used to cancel it later if needed)
@@ -316,12 +315,13 @@ public interface CommandClient {
     public void saveFuture(String name, ScheduledFuture<?> future);
     
     /**
-     * Checks if a {@link java.util.concurrent.ScheduledFuture} exists corresponding to the provided name.
+     * Checks if a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} exists
+     * corresponding to the provided name.
      * 
      * <p><b>NOTE:</b> This method will <b>NOT</b> take into account whether or not the provided name finds 
      * a ScheduledFuture that has already occurred or has been cancelled. To detect if the schedule only 
-     * contains a "live" ScheduledFuture going by the name provided, invoking {@link #cleanSchedule()} before 
-     * hand may provide more accurate results.
+     * contains a "live" ScheduledFuture going by the name provided, invoking {@link CommandClient#cleanSchedule()} 
+     * beforehand may provide more accurate results.
      * 
      * @param  name
      *         The name of the ScheduledFuture
@@ -332,10 +332,10 @@ public interface CommandClient {
     public boolean scheduleContains(String name);
     
     /**
-     * Cancels a {@link java.util.concurrent.ScheduledFuture} corresponding to the provided name.
+     * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
      * 
      * <p>This will not cancel the ScheduledFuture if it is running or has already occurred. To perform a
-     * cancellation even in mid-operation use {@link #cancel(String, boolean)}.
+     * cancellation even in mid-operation use {@link CommandClient#cancel(String, boolean)}.
      * 
      * @param  name 
      *         The name of the ScheduledFuture
@@ -343,7 +343,7 @@ public interface CommandClient {
     public void cancel(String name);
     
     /**
-     * Cancels a {@link java.util.concurrent.ScheduledFuture} corresponding to the provided name,
+     * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name,
      * possibly in the midst of it running.
      * 
      * <p>This will cancel a ScheduledFuture, even if it is currently running, but will not
@@ -355,7 +355,7 @@ public interface CommandClient {
     public void cancelImmediately(String name);
     
     /**
-     * Gets a {@link java.util.concurrent.ScheduledFuture} corresponding to the provided name.
+     * Gets a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
      * 
      * @param  name 
      *         The name of the ScheduledFuture to get
@@ -365,7 +365,7 @@ public interface CommandClient {
     public ScheduledFuture<?> getScheduledFuture(String name);
     
     /**
-     * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture}s to reduce memory.
+     * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture ScheduledFuture}s to reduce memory.
      */
     public void cleanSchedule();
 }

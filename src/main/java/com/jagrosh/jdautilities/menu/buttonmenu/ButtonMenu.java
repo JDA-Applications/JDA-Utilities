@@ -58,8 +58,8 @@ public class ButtonMenu extends Menu {
     }
 
     /**
-     * Shows the ButtonMenu as a new {@link net.dv8tion.jda.core.entities.Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel}.
+     * Shows the ButtonMenu as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
@@ -70,8 +70,7 @@ public class ButtonMenu extends Menu {
     }
 
     /**
-     * Displays this ButtonMenu by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message}.
+     * Displays this ButtonMenu by editing the provided {@link net.dv8tion.jda.core.entities.Message Message}.
      * 
      * @param  message
      *         The Message to display the Menu in
