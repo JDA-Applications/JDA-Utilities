@@ -202,7 +202,7 @@ public abstract class Command {
             }
         
         // sub-help check
-        if(helpBiConsumer!=null)
+        if(helpBiConsumer!=null && !event.getArgs().isEmpty() && event.getArgs().split("\\s+")[0].equalsIgnoreCase(event.getClient().getHelpWord()))
             helpBiConsumer.accept(event, this);
         
         // availabilty check
