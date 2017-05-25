@@ -17,7 +17,7 @@ package com.jagrosh.jdautilities.commandclient;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -135,16 +135,10 @@ public abstract class Command {
     protected Command[] children = new Command[0];
     
     /**
-     * {@code true} if the command sends a help response in a DM, {@code false} if it sends it
-     * in the {@link net.dv8tion.jda.core.MessageChannel MessageChannel} it's called in.
-     */
-    protected boolean helpInDM = true;
-    
-    /**
-     * The {@link java.util.function.BiFunction BiFunction} for creating a help response to the format 
+     * The {@link java.util.function.BiConsumer BiConsumer} for creating a help response to the format 
      * {@code [prefix]<command name> help}.
      */
-    protected BiFunction<CommandEvent, Command, String> helpBiFunction = null;
+    protected BiConsumer<CommandEvent, Command> helpBiConsumer = null;
     
     private final static String BOT_PERM = "%s I need the %s permission in this %s!";
     private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
@@ -208,17 +202,8 @@ public abstract class Command {
             }
         
         // sub-help check
-        if(helpBiFunction!=null)
-            if(helpInDM)
-            {
-                event.replyInDM(helpBiFunction.apply(event, this));
-                return;
-            }
-            else
-            {
-                event.reply(helpBiFunction.apply(event, this));
-                return;
-            }
+        if(helpBiConsumer!=null)
+            helpBiConsumer.accept(event, this);
         
         // availabilty check
         if(event.getChannelType()==ChannelType.TEXT)
@@ -423,16 +408,6 @@ public abstract class Command {
      */
     public Command[] getChildren() {
         return children;
-    }
-
-    /**
-     * Checks if this command's help message is sent in the calling {@link net.dv8tion.jda.core.entities.User User}'s 
-     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel} or not.
-     *
-     * @return {@code true} if the command-help is sent in the calling User's PrivateChannel, else {@code false} if it is not
-     */
-    public boolean isHelpInDM() {
-        return helpInDM;
     }
 
     /**
