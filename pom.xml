@@ -18,6 +18,7 @@
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
             <version>3.1.0_206</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>
