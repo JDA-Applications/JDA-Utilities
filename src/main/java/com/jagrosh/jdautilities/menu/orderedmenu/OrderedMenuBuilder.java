@@ -182,7 +182,7 @@ public class OrderedMenuBuilder extends MenuBuilder {
      * Adds the String choices.
      * <br>These correspond to the button in order of addition.
      * 
-     * @param  emojis
+     * @param  choices
      *         The String choices to add
      *         
      * @return This builder
@@ -196,7 +196,7 @@ public class OrderedMenuBuilder extends MenuBuilder {
      * Sets the String choices.
      * <br>These correspond to the button in the order they are set.
      * 
-     * @param  emojis
+     * @param  choices
      *         The String choices to set
      *         
      * @return This builder

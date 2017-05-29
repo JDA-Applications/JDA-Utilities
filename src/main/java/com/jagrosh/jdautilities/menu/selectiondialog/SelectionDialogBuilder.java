@@ -107,7 +107,7 @@ public class SelectionDialogBuilder extends MenuBuilder {
      * <br>As the selection changes, the Function will re-process the current selection number, 
      * allowing for the displayed text of the Message to change depending on the selection number.
      * 
-     * @param  color
+     * @param  text
      *         A Function that uses current selection number to get a text for the Message
      * 
      * @return This builder

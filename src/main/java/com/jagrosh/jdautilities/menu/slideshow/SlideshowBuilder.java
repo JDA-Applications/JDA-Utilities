@@ -151,7 +151,10 @@ public class SlideshowBuilder extends MenuBuilder {
      * Sets whether the {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} will instantly
      * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
      * 
-     * @param  {@code true} if the Slideshow will still generate 
+     * @param  wait
+     *         {@code true} if the Slideshow will still generate
+     *         
+     * @return This builder
      */
     public SlideshowBuilder waitOnSinglePage(boolean wait)
     {

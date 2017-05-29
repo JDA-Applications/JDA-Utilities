@@ -34,7 +34,7 @@
  *     <br>Contains the EventWaiter, an await-respond entity that is used in all of the Menus found in the {@code Menu Package}</li>
  *     
  *     <li>{@link com.jagrosh.jdautilities.JDAUtilitiesInfo JDA-Utilities Information}
- *     <br>Contains all the information on this extension library.</br>
+ *     <br>Contains all the information on this extension library.
  * </ul>
  */
 package com.jagrosh.jdautilities;

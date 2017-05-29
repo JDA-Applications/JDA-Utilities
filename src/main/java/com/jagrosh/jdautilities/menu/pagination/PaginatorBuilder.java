@@ -204,7 +204,10 @@ public class PaginatorBuilder extends MenuBuilder {
      * Sets whether the {@link com.jagrosh.jdautilities.menu.pagination.Paginator Paginator} will instantly
      * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
      * 
-     * @param  {@code true} if the Paginator will still generate 
+     * @param  wait
+     *         {@code true} if the Paginator will still generate
+     * 
+     * @return This builder
      */
     public PaginatorBuilder waitOnSinglePage(boolean wait)
     {

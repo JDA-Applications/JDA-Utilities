@@ -112,7 +112,7 @@ public class Slideshow extends Menu {
      * {@link net.dv8tion.jda.core.entities.Message Message}, starting on whatever
      * page number is provided.
      * 
-     * @param  channel
+     * @param  message
      *         The MessageChannel to send the new Message to
      * @param  pageNum
      *         The page number to begin on

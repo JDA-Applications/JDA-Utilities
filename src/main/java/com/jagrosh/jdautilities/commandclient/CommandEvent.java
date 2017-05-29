@@ -35,7 +35,7 @@ import net.dv8tion.jda.core.utils.SimpleLog;
  * <p>From here, developers can invoke several useful and specialized methods to assist in Command function and
  * development. There are also "extension" methods for all methods found in MessageReceivedEvent.
  * 
- * <p>Methods with "reply" in their name can be used to instantly send a {@link net.dv8tion.jda.core.Message Message} 
+ * <p>Methods with "reply" in their name can be used to instantly send a {@link net.dv8tion.jda.core.entities.Message Message} 
  * response to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the MessageReceivedEvent was in.
  * <br>All {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by sending a response using these
  * methods automatically {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}, and no further developer
@@ -236,8 +236,6 @@ public class CommandEvent {
      *         
      * @throws java.io.IOException
      *         If an I/O error occurs while reading the File.
-     * 
-     * @see    {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message)}
      */
     public void reply(File file, String filename) throws IOException
     {
@@ -264,8 +262,6 @@ public class CommandEvent {
      *         
      * @throws java.io.IOException
      *         If an I/O error occurs while reading the File.
-     * 
-     * @see    {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message)}
      */
     public void reply(String message, File file, String filename) throws IOException
     {
@@ -357,7 +353,7 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.User User}'s 
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s 
      * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
      * 
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
@@ -379,16 +375,13 @@ public class CommandEvent {
             reply(message);
         else
         {
-            if(event.getAuthor().hasPrivateChannel())
-                sendMessage(event.getAuthor().getPrivateChannel(), message);
-            else
-                event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
+            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
         }
     }
     
     /**
      * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the 
-     * calling {@link net.dv8tion.jda.core.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
      * 
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -406,16 +399,13 @@ public class CommandEvent {
             reply(embed);
         else
         {
-            if(event.getAuthor().hasPrivateChannel())
-                event.getAuthor().getPrivateChannel().sendMessage(embed).queue();
-            else
-                event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
         }
     }
     
     /**
      * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
-     * name if left null, and sent to the calling {@link net.dv8tion.jda.core.User User}'s 
+     * name if left null, and sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s 
      * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
      * 
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
@@ -446,10 +436,7 @@ public class CommandEvent {
         else
         {
             Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
-            if(event.getAuthor().hasPrivateChannel())
-                event.getAuthor().getPrivateChannel().sendFile(file, filename, msg);
-            else
-                event.getAuthor().openPrivateChannel().queue(pc -> {
+            event.getAuthor().openPrivateChannel().queue(pc -> {
                 try {
                     pc.sendFile(file, filename, msg);
                 } catch (IOException ex) {
@@ -648,7 +635,7 @@ public class CommandEvent {
     }
 
     /**
-     * Tests whether or not the {@link net.dv8tion.jda.core.User User} who triggered this
+     * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
      * event is the Owner of the bot.
      * 
      * @return {@code true} if the User is the Owner, else {@code false}
@@ -659,7 +646,7 @@ public class CommandEvent {
     }
     
     /**
-     * Tests whether or not the {@link net.dv8tion.jda.core.User User} who triggered this
+     * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
      * event is a CoOwner of the bot.
      * 
      * @return {@code true} if the User is the CoOwner, else {@code false}
@@ -678,7 +665,7 @@ public class CommandEvent {
     // shortcuts
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.User User} who triggered this CommandEvent.
+     * Gets the {@link net.dv8tion.jda.core.entities.User User} who triggered this CommandEvent.
      * 
      * @return The User who triggered this CommandEvent
      */

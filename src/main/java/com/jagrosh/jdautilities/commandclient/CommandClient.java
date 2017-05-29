@@ -199,7 +199,7 @@ public interface CommandClient {
     public String getServerInvite();
     
     /**
-     * Gets an a recently updated count of all the {@link net.dv8tion.jda.core.Guild Guild}s 
+     * Gets an a recently updated count of all the {@link net.dv8tion.jda.core.entities.Guild Guild}s 
      * the bot is connected to on all shards.
      * 
      * <p><b>NOTE:</b> This may not always or should not be assumed accurate! Any time
@@ -239,7 +239,7 @@ public interface CommandClient {
      * short delays as it is simple, easy, and would not require the operating class to {@code import}
      * {@link java.util.concurrent.TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the scheduled RestAction (can be used to cancel it later if needed)
@@ -257,7 +257,7 @@ public interface CommandClient {
      * short delays as it is simple, easy, and would not require the operating class to {@code import}
      * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
      * 
      * @param  name 
      *         The name of the scheduled Runnable (can be used to cancel it later if needed)
@@ -272,7 +272,7 @@ public interface CommandClient {
      * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in the provided delay of 
      * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the scheduled RestAction (can be used to cancel it later if needed)
@@ -289,7 +289,7 @@ public interface CommandClient {
      * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of
      * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
-     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the scheduled Runnable (can be used to cancel it later if needed)
@@ -305,7 +305,7 @@ public interface CommandClient {
     /**
      * Saves a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} to a provided name.
      * 
-     * <p>This allows it to be cancelled later using {@link CommandClient#cancel(String)}.
+     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
      * 
      * @param  name
      *         The name of the ScheduledFuture (can be used to cancel it later if needed)
@@ -320,7 +320,8 @@ public interface CommandClient {
      * 
      * <p><b>NOTE:</b> This method will <b>NOT</b> take into account whether or not the provided name finds 
      * a ScheduledFuture that has already occurred or has been cancelled. To detect if the schedule only 
-     * contains a "live" ScheduledFuture going by the name provided, invoking {@link CommandClient#cleanSchedule()} 
+     * contains a "live" ScheduledFuture going by the name provided, invoking 
+     * {@link com.jagrosh.jdautilities.commandclient.CommandClient#cleanSchedule() CommandClient#cleanSchedule()} 
      * beforehand may provide more accurate results.
      * 
      * @param  name
@@ -335,7 +336,7 @@ public interface CommandClient {
      * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
      * 
      * <p>This will not cancel the ScheduledFuture if it is running or has already occurred. To perform a
-     * cancellation even in mid-operation use {@link CommandClient#cancel(String, boolean)}.
+     * cancellation even in mid-operation use {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancelImmediately(String) CommandClient#cancelImmediately(String)}.
      * 
      * @param  name 
      *         The name of the ScheduledFuture

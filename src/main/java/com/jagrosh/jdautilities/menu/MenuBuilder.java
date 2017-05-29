@@ -40,7 +40,10 @@ public abstract class MenuBuilder {
      * this {@link com.jagrosh.jdautilities.menu.MenuBuilder MenuBuilder}.
      * <br>After doing this, no modifications of the displayed Menu can be made.
      * 
-     * @return The built Menu of Corresponding type to this MenuBuilder.
+     * @param  <V>
+     *         The type of Menu corresponding to this MenuBuilder
+     *         
+     * @return The built Menu of corresponding type to this MenuBuilder.
      */
     public abstract <V extends Menu> V build();
     
@@ -48,6 +51,8 @@ public abstract class MenuBuilder {
      * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
      * if description of the MessageEmbed is set.
      * 
+     * @param  <T>
+     *         The type of {@link com.jagrosh.jdautilities.menu.MenuBuilder MenuBuilder} 
      * @param  color
      *         The Color of the MessageEmbed
      *         

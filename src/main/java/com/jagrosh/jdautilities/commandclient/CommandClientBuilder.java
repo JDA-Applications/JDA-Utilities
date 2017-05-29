@@ -239,8 +239,6 @@ public class CommandClientBuilder {
      *         The url of the stream (must be valid for streaming)
      *         
      * @return This builder
-     * 
-     * @see {@link net.dv8tion.jda.core.entities.Game#isValidStreamingUrl(String)}
      */
     public CommandClientBuilder setStreaming(String name, String url)
     {
@@ -334,7 +332,7 @@ public class CommandClientBuilder {
     
     /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} for the 
-     * {@link com.jagrosh.jdautilities.commandclient.CommandClientImpl CommandClientImpl}.
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
      * 
      * @param  listener
      *         The CommandListener for the CommandClientImpl
@@ -349,7 +347,7 @@ public class CommandClientBuilder {
     
     /**
      * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for this 
-     * {@link com.jagrosh.jdautilities.commandclient.CommandClientImpl CommandClientImpl}.
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
      * 
      * <p><b>NOTE:</b> It <b>MUST</b> be a 
      * {@link java.util.concurrent.Executors#newSingleThreadScheduledExecutor SingleThreadScheduledExecutor}. 
