@@ -71,7 +71,8 @@ public class CommandEvent {
     }
     
     /**
-     * Returns the user's String arguments for the command
+     * Returns the user's String arguments for the command.
+     * <br>If no arguments have been supplied, then this will return an empty String.
      * 
      * @return Never-null arguments that a user has supplied to a command
      */
@@ -117,7 +118,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This message can exceed the 2000 character cap, and will be sent
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
      * 
      * @param  message
@@ -136,7 +137,7 @@ public class CommandEvent {
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      * 
-     * <p><b>NOTE:</b>This message can exceed the 2000 character cap, and will be sent in 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent in 
      * two split Messages.
      * <br>The Consumer will be applied to the last message sent if this occurs.
      * 
@@ -256,7 +257,7 @@ public class CommandEvent {
      * @param  message
      *         A String message to reply with
      * @param  file
-     *         The {@code File} to reply with
+     *         The File to reply with
      * @param  filename
      *         The filename that Discord should display (null for default).
      *         
@@ -276,7 +277,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This message can exceed the 2000 character cap, and will be sent
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
      * 
      * @param  format
@@ -297,7 +298,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This alternate String message can exceed the 2000 character cap, and will 
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
      * be sent in two split Messages.
      * 
      * @param  embed
@@ -325,18 +326,18 @@ public class CommandEvent {
      * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
-     * <p><b>NOTE:</b>This alternate String message can exceed the 2000 character cap, and will 
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
      * be sent in two split Messages.
      * 
-     * <p>It is also worth noting that unlike {@link CommandEvent#reply(File, String)}
-     * and {@link CommandEvent#reply(String, File, String)}, this method does not throw a {@link java.io.IOException}. 
-     * This is because the cause of the alternate String message being sent comes directly from a thrown {@link java.lang.Exception},
-     * and thus a thrown IOException is grounds for the sending of the alternate message.
+     * <p>It is also worth noting that unlike {@link com.jagrosh.jdautilities.commandclient.CommandEvent#reply(File,String) CommandEvent#reply(File, String)}
+     * and {@link com.jagrosh.jdautilities.commandclient.CommandEvent#reply(String,File,String) CommandEvent#reply(String, File, String)},
+     * this method does not throw a {@link java.io.IOException}. This is because the cause of the alternate String message being sent comes directly from a 
+     * thrown {@link java.lang.Exception}, and thus a thrown IOException is grounds for the sending of the alternate message.
      * 
      * @param  message
      *         A String message to reply with
      * @param  file
-     *         The {@code File} to reply with
+     *         The File to reply with
      * @param  filename
      *         The filename that Discord should display (null for default). 
      * @param  alternateMessage
@@ -363,7 +364,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This alternate String message can exceed the 2000 character cap, and will 
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
      * be sent in two split Messages.
      * 
      * @param  message
@@ -416,8 +417,7 @@ public class CommandEvent {
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
-     * to send the File. For more information on what a bot may send using this, you may find 
-     * the info in that method.
+     * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
      *         A String message to reply with
@@ -453,7 +453,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This message can exceed the 2000 character cap, and will be sent
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
      * 
      * @param  message
@@ -471,7 +471,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This message can exceed the 2000 character cap, and will be sent
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
      * 
      * @param  message
@@ -489,7 +489,7 @@ public class CommandEvent {
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p><b>NOTE:</b>This message can exceed the 2000 character cap, and will be sent
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
      * 
      * @param  message
