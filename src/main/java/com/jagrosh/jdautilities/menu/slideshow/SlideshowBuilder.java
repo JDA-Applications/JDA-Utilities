@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
+
 import net.dv8tion.jda.core.entities.Message;
 
 /**
@@ -32,6 +33,7 @@ public class SlideshowBuilder extends MenuBuilder {
     
     private BiFunction<Integer,Integer,Color> color = (page, pages) -> null;
     private BiFunction<Integer,Integer,String> text = (page, pages) -> null;
+    private BiFunction<Integer,Integer,String> description = (page, pages) -> null;
     private Consumer<Message> finalAction = m -> m.delete().queue();
     private boolean showPageNumbers = true;
     private boolean waitOnSinglePage = false;
@@ -45,7 +47,7 @@ public class SlideshowBuilder extends MenuBuilder {
             throw new IllegalArgumentException("Must set an EventWaiter");
         if(strings.isEmpty())
             throw new IllegalArgumentException("Must include at least one item to paginate");
-        return new Slideshow(waiter, users, roles, timeout, unit, color, text, finalAction, 
+        return new Slideshow(waiter, users, roles, timeout, unit, color, text, description, finalAction, 
                 showPageNumbers, strings, waitOnSinglePage);
     }
     
@@ -85,12 +87,12 @@ public class SlideshowBuilder extends MenuBuilder {
     
     /**
      * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-     * when the {@link com.jagrosh.jdautilities.menu.pagination.Paginator Paginator} is built.
+     * when the {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} is built.
      * 
      * <p>This is displayed directly above the embed.
      * 
      * @param  text
-     *         The Message content to be displayed above the embed when the Paginator is built
+     *         The Message content to be displayed above the embed when the Slideshow is built
      *         
      * @return This builder
      */
@@ -115,6 +117,40 @@ public class SlideshowBuilder extends MenuBuilder {
     public SlideshowBuilder setText(BiFunction<Integer,Integer,String> textBiFunction)
     {
         this.text = textBiFunction;
+        return this;
+    }
+    
+    /**
+     * Sets the description of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * in the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed when the 
+     * {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} is built.
+     * 
+     * @param  description
+     *         The description of the MessageEmbed
+     *         
+     * @return This builder
+     */
+    public SlideshowBuilder setDescription(String description)
+    {
+        this.description = (i0, i1) -> description;
+        return this;
+    }
+    
+    /**
+     * Sets the description of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * in the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed relative to the
+     * total page number and the current page as determined by the provided {@link java.util.function.BiFunction BiFunction}.
+     * <br>As the page changes, the BiFunction will re-process the current page number and the total
+     * page number, allowing for the displayed description of the MessageEmbed to change depending on the page number.
+     * 
+     * @param  textBiFunction
+     *         The BiFunction that uses both current and total page numbers to get description for the MessageEmbed
+     *         
+     * @return This builder
+     */
+    public SlideshowBuilder setDescription(BiFunction<Integer,Integer,String> description)
+    {
+        this.description = description;
         return this;
     }
     

@@ -41,6 +41,7 @@ public class Slideshow extends Menu {
     
     private final BiFunction<Integer,Integer,Color> color;
     private final BiFunction<Integer,Integer,String> text;
+    private final BiFunction<Integer,Integer,String> description;
     private final boolean showPageNumbers;
     private final List<String> urls;
     private final Consumer<Message> finalAction;
@@ -51,12 +52,13 @@ public class Slideshow extends Menu {
     public static final String RIGHT = "\u25B6";
     
     protected Slideshow(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, Consumer<Message> finalAction,
-            boolean showPageNumbers, List<String> items, boolean waitOnSinglePage)
+            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, BiFunction<Integer,Integer,String> description,
+            Consumer<Message> finalAction, boolean showPageNumbers, List<String> items, boolean waitOnSinglePage)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
         this.text = text;
+        this.description = description;
         this.showPageNumbers = showPageNumbers;
         this.urls = items;
         this.finalAction = finalAction;
@@ -179,6 +181,7 @@ public class Slideshow extends Menu {
         EmbedBuilder ebuilder = new EmbedBuilder();
         ebuilder.setImage(urls.get(pageNum-1));
         ebuilder.setColor(color.apply(pageNum, urls.size()));
+        ebuilder.setDescription(description.apply(pageNum, urls.size()));
         if(showPageNumbers)
             ebuilder.setFooter("Image "+pageNum+"/"+urls.size(), null);
         mbuilder.setEmbed(ebuilder.build());
