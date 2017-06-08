@@ -71,8 +71,12 @@ public class SelectionDialog extends Menu {
     }
 
     /**
-     * Sends the dialog to the provided channel with the first item selected
-     * @param channel the channel to send to
+     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting with
+     * the first selection.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
      */
     @Override
     public void display(MessageChannel channel) {
@@ -80,8 +84,11 @@ public class SelectionDialog extends Menu {
     }
 
     /**
-     * Edits the dialog into the provided message with the first item selected
-     * @param message the message to edit the dialog into
+     * Displays this SelectionDialog by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message Message}, starting with the first selection.
+     * 
+     * @param  message
+     *         The Message to display the Menu in
      */
     @Override
     public void display(Message message) {
@@ -89,9 +96,14 @@ public class SelectionDialog extends Menu {
     }
     
     /**
-     * Sends a dialog to the provided channel with the provided selection
-     * @param channel the channel to send the dialog to
-     * @param selection the selection to start on
+     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting with
+     * the number selection provided.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
+     * @param  selection
+     *         The number selection to start on
      */
     public void showDialog(MessageChannel channel, int selection)
     {
@@ -104,9 +116,14 @@ public class SelectionDialog extends Menu {
     }
     
     /**
-     * Edits the dialog into the provided message with the provided selection
-     * @param message the message to edit the dialog into
-     * @param selection the selection to start on
+     * Displays this SelectionDialog by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message Message}, starting with the number selection
+     * provided.
+     * 
+     * @param  message
+     *         The Message to display the Menu in
+     * @param  selection
+     *         The number selection to start on
      */
     public void showDialog(Message message, int selection)
     {

@@ -41,10 +41,6 @@ public class PaginatorBuilder extends MenuBuilder {
     
     private final List<String> strings = new LinkedList<>();
     
-    /**
-     * Builds a paginator from the provided values
-     * @return a built Paginator
-     */
     @Override
     public Paginator build()
     {
@@ -55,11 +51,15 @@ public class PaginatorBuilder extends MenuBuilder {
         return new Paginator(waiter, users, roles, timeout, unit, color, text, finalAction, 
                 columns, itemsPerPage, showPageNumbers, numberItems, strings, waitOnSinglePage);
     }
-    
+
     /**
-     * Sets the color of the embed, default is no color
-     * @param color the color
-     * @return the builder after the color has been set
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
+     * if description of the MessageEmbed is set.
+     * 
+     * @param  color
+     *         The Color of the MessageEmbed
+     *         
+     * @return This builder
      */
     @Override
     public PaginatorBuilder setColor(Color color)
@@ -69,10 +69,16 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the color of the embed page to be a function of the current page number and
-     * the total number of pages
-     * @param colorBiFunction a function of the page number and total pages to a color
-     * @return the builder after the colors have been set
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
+     * relative to the total page number and the current page as determined by the provided
+     * {@link java.util.function.BiFunction BiFunction}.
+     * <br>As the page changes, the BiFunction will re-process the current page number and the total
+     * page number, allowing for the color of the embed to change depending on the page number.
+     * 
+     * @param  colorBiFunction
+     *         A BiFunction that uses both current and total page numbers to get a Color for the MessageEmbed
+     * 
+     * @return This builder
      */
     public PaginatorBuilder setColor(BiFunction<Integer,Integer,Color> colorBiFunction)
     {
@@ -81,9 +87,15 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text to appear above the embed
-     * @param text the text to appear above the embed
-     * @return the builder after the text has been set
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.pagination.Paginator Paginator} is built.
+     * 
+     * <p>This is displayed directly above the embed.
+     * 
+     * @param  text
+     *         The Message content to be displayed above the embed when the Paginator is built
+     *         
+     * @return This builder
      */
     public PaginatorBuilder setText(String text)
     {
@@ -92,10 +104,16 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text above the embed to be a function of the current page number and
-     * the total number of pages
-     * @param textBiFunction the bifunction to use to determine text
-     * @return the builder after the text bifunction has been set
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+     * relative to the total page number and the current page as determined by the provided
+     * {@link java.util.function.BiFunction BiFunction}.
+     * <br>As the page changes, the BiFunction will re-process the current page number and the total
+     * page number, allowing for the displayed text of the Message to change depending on the page number.
+     * 
+     * @param  textBiFunction
+     *         The BiFunction that uses both current and total page numbers to get text for the Message
+     *         
+     * @return This builder
      */
     public PaginatorBuilder setText(BiFunction<Integer,Integer,String> textBiFunction)
     {
@@ -104,10 +122,13 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the final action to take, either when the paginator stop button is
-     * pressed, or when it times out
-     * @param finalAction the final action to take
-     * @return the builder
+     * Sets the {@link java.util.function.Consumer Consumer} to perform if the 
+     * {@link com.jagrosh.jdautilities.menu.pagination.Paginator Paginator} times out.
+     * 
+     * @param  finalAction
+     *         The Consumer action to perform if the Paginator times out
+     *         
+     * @return This builder
      */
     public PaginatorBuilder setFinalAction(Consumer<Message> finalAction)
     {
@@ -116,9 +137,13 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the number of columns each page will have, default 1
-     * @param columns the number of columns
-     * @return the builder after the number of columns have been set
+     * Sets the number of columns each page will have.
+     * <br>By default this is 1.
+     * 
+     * @param  columns
+     *         The number of columns
+     *         
+     * @return This builder
      */
     public PaginatorBuilder setColumns(int columns)
     {
@@ -129,9 +154,15 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the number of items that will appear on each page
-     * @param num the number of items per page
-     * @return the builder after the number is set
+     * Sets the number of items that will appear on each page.
+     * 
+     * @param  num
+     *         Always positive, never-zero number of items per page
+     *         
+     * @throws java.lang.IllegalArgumentException 
+     *         If the provided number is less than 1
+     *         
+     * @return This builder
      */
     public PaginatorBuilder setItemsPerPage(int num)
     {
@@ -142,9 +173,12 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets whether or not the page number will be shown
-     * @param show true if the page number should be shown
-     * @return the builder when the bool has been set
+     * Sets whether or not the page number will be shown.
+     * 
+     * @param  show
+     *         {@code true} if the page number should be shown, {@code false} if it should not
+     *         
+     * @return This builder
      */
     public PaginatorBuilder showPageNumbers(boolean show)
     {
@@ -153,9 +187,12 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets whether or not the items will be automatically numbered
-     * @param number true if the items should be numbered
-     * @return the builder after the bool has been set
+     * Sets whether or not the items will be automatically numbered.
+     * 
+     * @param  number
+     *         {@code true} if the items should be numbered, {@code false} if it should not
+     * 
+     * @return This builder
      */
     public PaginatorBuilder useNumberedItems(boolean number)
     {
@@ -164,10 +201,13 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets whether or not the paginator should wait for an input when
-     * only one page is visible
-     * @param wait if the paginator should wait
-     * @return the builder
+     * Sets whether the {@link com.jagrosh.jdautilities.menu.pagination.Paginator Paginator} will instantly
+     * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
+     * 
+     * @param  wait
+     *         {@code true} if the Paginator will still generate
+     * 
+     * @return This builder
      */
     public PaginatorBuilder waitOnSinglePage(boolean wait)
     {
@@ -176,8 +216,9 @@ public class PaginatorBuilder extends MenuBuilder {
     }
 
     /**
-     * Clears the list of items to paginate
-     * @return the builder after the list is cleared
+     * Clears the list of String items to paginate.
+     * 
+     * @return This builder
      */
     public PaginatorBuilder clearItems()
     {
@@ -186,9 +227,12 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Adds items to the list of items to paginate
-     * @param items the list of items to add
-     * @return the builder after the items have been added
+     * Adds String items to the list of items to paginate.
+     * 
+     * @param  items
+     *         The String list of items to add
+     *         
+     * @return This builder
      */
     public PaginatorBuilder addItems(String... items)
     {
@@ -197,9 +241,13 @@ public class PaginatorBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the list of items to paginate
-     * @param items the list of items to paginate
-     * @return the builder after the items have been set
+     * Sets the String list of items to paginate.
+     * <br>This method clears all previously set items before setting.
+     * 
+     * @param  items
+     *         The String list of items to paginate
+     *         
+     * @return This builder
      */
     public PaginatorBuilder setItems(String... items)
     {

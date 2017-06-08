@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
+
 import net.dv8tion.jda.core.entities.Message;
 
 /**
@@ -32,16 +33,13 @@ public class SlideshowBuilder extends MenuBuilder {
     
     private BiFunction<Integer,Integer,Color> color = (page, pages) -> null;
     private BiFunction<Integer,Integer,String> text = (page, pages) -> null;
+    private BiFunction<Integer,Integer,String> description = (page, pages) -> null;
     private Consumer<Message> finalAction = m -> m.delete().queue();
     private boolean showPageNumbers = true;
     private boolean waitOnSinglePage = false;
     
     private final List<String> strings = new LinkedList<>();
     
-    /**
-     * Builds a slideshow from the provided values
-     * @return a built Slideshow
-     */
     @Override
     public Slideshow build()
     {
@@ -49,14 +47,18 @@ public class SlideshowBuilder extends MenuBuilder {
             throw new IllegalArgumentException("Must set an EventWaiter");
         if(strings.isEmpty())
             throw new IllegalArgumentException("Must include at least one item to paginate");
-        return new Slideshow(waiter, users, roles, timeout, unit, color, text, finalAction, 
+        return new Slideshow(waiter, users, roles, timeout, unit, color, text, description, finalAction, 
                 showPageNumbers, strings, waitOnSinglePage);
     }
     
     /**
-     * Sets the color of the embed, default is no color
-     * @param color the color
-     * @return the builder after the color has been set
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
+     * if description of the MessageEmbed is set.
+     * 
+     * @param  color
+     *         The Color of the MessageEmbed
+     *         
+     * @return This builder
      */
     @Override
     public SlideshowBuilder setColor(Color color)
@@ -66,10 +68,16 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the color of the embed page to be a function of the current page number and
-     * the total number of pages
-     * @param colorBiFunction a function of the page number and total pages to a color
-     * @return the builder after the colors have been set
+     * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
+     * relative to the total page number and the current page as determined by the provided
+     * {@link java.util.function.BiFunction BiFunction}.
+     * <br>As the page changes, the BiFunction will re-process the current page number and the total
+     * page number, allowing for the color of the embed to change depending on the page number.
+     * 
+     * @param  colorBiFunction
+     *         A BiFunction that uses both current and total page numbers to get a Color for the MessageEmbed
+     * 
+     * @return This builder
      */
     public SlideshowBuilder setColor(BiFunction<Integer,Integer,Color> colorBiFunction)
     {
@@ -78,9 +86,15 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text to appear above the embed
-     * @param text the text to appear above the embed
-     * @return the builder after the text has been set
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+     * when the {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} is built.
+     * 
+     * <p>This is displayed directly above the embed.
+     * 
+     * @param  text
+     *         The Message content to be displayed above the embed when the Slideshow is built
+     *         
+     * @return This builder
      */
     public SlideshowBuilder setText(String text)
     {
@@ -89,10 +103,16 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the text above the embed to be a function of the current page number and
-     * the total number of pages
-     * @param textBiFunction the bifunction to use to determine text
-     * @return the builder after the text bifunction has been set
+     * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+     * relative to the total page number and the current page as determined by the provided
+     * {@link java.util.function.BiFunction BiFunction}.
+     * <br>As the page changes, the BiFunction will re-process the current page number and the total
+     * page number, allowing for the displayed text of the Message to change depending on the page number.
+     * 
+     * @param  textBiFunction
+     *         The BiFunction that uses both current and total page numbers to get text for the Message
+     *         
+     * @return This builder
      */
     public SlideshowBuilder setText(BiFunction<Integer,Integer,String> textBiFunction)
     {
@@ -101,10 +121,47 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the final action to take, either when the slideshow stop button is
-     * pressed, or when it times out
-     * @param finalAction the final action to take
-     * @return the builder
+     * Sets the description of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * in the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed when the 
+     * {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} is built.
+     * 
+     * @param  description
+     *         The description of the MessageEmbed
+     *         
+     * @return This builder
+     */
+    public SlideshowBuilder setDescription(String description)
+    {
+        this.description = (i0, i1) -> description;
+        return this;
+    }
+    
+    /**
+     * Sets the description of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * in the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed relative to the
+     * total page number and the current page as determined by the provided {@link java.util.function.BiFunction BiFunction}.
+     * <br>As the page changes, the BiFunction will re-process the current page number and the total
+     * page number, allowing for the displayed description of the MessageEmbed to change depending on the page number.
+     * 
+     * @param  textBiFunction
+     *         The BiFunction that uses both current and total page numbers to get description for the MessageEmbed
+     *         
+     * @return This builder
+     */
+    public SlideshowBuilder setDescription(BiFunction<Integer,Integer,String> description)
+    {
+        this.description = description;
+        return this;
+    }
+    
+    /**
+     * Sets the {@link java.util.function.Consumer Consumer} to perform if the 
+     * {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} times out.
+     * 
+     * @param  finalAction
+     *         The Consumer action to perform if the Slideshow times out
+     *         
+     * @return This builder
      */
     public SlideshowBuilder setFinalAction(Consumer<Message> finalAction)
     {
@@ -113,9 +170,12 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets whether or not the page number will be shown
-     * @param show true if the page number should be shown
-     * @return the builder when the bool has been set
+     * Sets whether or not the page number will be shown.
+     * 
+     * @param  show
+     *         {@code true} if the page number should be shown, {@code false} if it should not
+     *         
+     * @return This builder
      */
     public SlideshowBuilder showPageNumbers(boolean show)
     {
@@ -124,10 +184,13 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets whether or not the slideshow should wait for an input when
-     * only one page is visible
-     * @param wait if the slideshow should wait
-     * @return the builder
+     * Sets whether the {@link com.jagrosh.jdautilities.menu.slideshow.Slideshow Slideshow} will instantly
+     * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
+     * 
+     * @param  wait
+     *         {@code true} if the Slideshow will still generate
+     *         
+     * @return This builder
      */
     public SlideshowBuilder waitOnSinglePage(boolean wait)
     {
@@ -136,9 +199,12 @@ public class SlideshowBuilder extends MenuBuilder {
     }
 
     /**
-     * Adds items to the list of items to paginate
-     * @param items the list of items to add
-     * @return the builder after the items have been added
+     * Adds String items to the list of items to paginate.
+     * 
+     * @param  items
+     *         The String list of items to add
+     *         
+     * @return This builder
      */
     public SlideshowBuilder addItems(String... items)
     {
@@ -147,9 +213,13 @@ public class SlideshowBuilder extends MenuBuilder {
     }
     
     /**
-     * Sets the list of urls to show
-     * @param items the list of urls to show
-     * @return the builder after the items have been set
+     * Sets the String list of urls to paginate.
+     * <br>This method clears all previously set items before setting.
+     * 
+     * @param  items
+     *         The String list of urls to paginate
+     *         
+     * @return This builder
      */
     public SlideshowBuilder setUrls(String... items)
     {

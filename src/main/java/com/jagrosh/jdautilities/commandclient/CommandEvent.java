@@ -28,7 +28,19 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.utils.SimpleLog;
 
 /**
- *
+ * A wrapper class for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
+ * {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}, and String user arguments
+ * compatible with all {@link com.jagrosh.jdautilities.commandclient.Command Command}s.
+ * 
+ * <p>From here, developers can invoke several useful and specialized methods to assist in Command function and
+ * development. There are also "extension" methods for all methods found in MessageReceivedEvent.
+ * 
+ * <p>Methods with "reply" in their name can be used to instantly send a {@link net.dv8tion.jda.core.entities.Message Message} 
+ * response to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the MessageReceivedEvent was in.
+ * <br>All {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by sending a response using these
+ * methods automatically {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}, and no further developer
+ * input is required.
+ * 
  * @author John Grosh (jagrosh)
  */
 public class CommandEvent {
@@ -39,12 +51,17 @@ public class CommandEvent {
     private final CommandClient client;
     
     /**
-     * Constructor for a CommandEvent. You should not call this! It is a
-     * generated wrapper for a MessageReceivedEvent.
+     * Constructor for a CommandEvent.
      * 
-     * @param event the MRE
-     * @param args the arguments after the command
-     * @param client the commandclient
+     * <p><b>You should not call this!</b>
+     * <br>It is a generated wrapper for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}.
+     * 
+     * @param  event
+     *         The initial MessageReceivedEvent
+     * @param  args
+     *         The String arguments after the command call
+     * @param  client
+     *         The {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}
      */
     public CommandEvent(MessageReceivedEvent event, String args, CommandClient client)
     {
@@ -54,8 +71,10 @@ public class CommandEvent {
     }
     
     /**
-     * Returns the user's text input for the command
-     * @return never-null arguments that a user has supplied to a command
+     * Returns the user's String arguments for the command.
+     * <br>If no arguments have been supplied, then this will return an empty String.
+     * 
+     * @return Never-null arguments that a user has supplied to a command
      */
     public String getArgs()
     {
@@ -68,8 +87,10 @@ public class CommandEvent {
     }
     
     /**
-     * Returns the underlying MessageReceivedEvent for this CommandEvent
-     * @return the underlying MessageReceivedEvent
+     * Returns the underlying {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}
+     * for this CommandEvent.
+     * 
+     * @return The underlying MessageReceivedEvent
      */
     public MessageReceivedEvent getEvent()
     {
@@ -77,8 +98,10 @@ public class CommandEvent {
     }
     
     /**
-     * Returns the CommandClientImpl that initiated this event
-     * @return the initiating CommandClientImpl
+     * Returns the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}
+     * that initiated this CommandEvent.
+     * 
+     * @return The initiating CommandClient
      */
     public CommandClient getClient()
     {
@@ -89,8 +112,17 @@ public class CommandEvent {
     // functional calls
     
     /**
-     * Replies with a String
-     * @param message the message to reply
+     * Replies with a String message.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     * 
+     * @param  message
+     *         A String message to reply with
      */
     public void reply(String message)
     {
@@ -98,9 +130,21 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with a string and then queues a consumer
-     * @param message the message to reply
-     * @param queue the consumer to queue
+     * Replies with a String message and then queues a {@link java.util.function.Consumer}.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     * 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent in 
+     * two split Messages.
+     * <br>The Consumer will be applied to the last message sent if this occurs.
+     * 
+     * @param  message
+     *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
      */
     public void reply(String message, Consumer<Message> queue)
     {
@@ -108,8 +152,14 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with an embed
-     * @param embed the embed to reply
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * @param  embed
+     *         The MessageEmbed to reply with
      */
     public void reply(MessageEmbed embed)
     {
@@ -117,9 +167,18 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with an embed and then queues a consumer
-     * @param embed the embed to reply
-     * @param queue the consumer to queue
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * and then queues a {@link java.util.function.Consumer}.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     * 
+     * @param  embed
+     *         The MessageEmbed to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
      */
     public void reply(MessageEmbed embed, Consumer<Message> queue)
     {
@@ -127,10 +186,57 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with a file
-     * @param file the file to reply with
-     * @param filename the filename that Discord should display (null for default)
-     * @throws java.io.IOException if the file is invalid
+     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message}.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * @param  message
+     *         The Message to reply with
+     */
+    public void reply(Message message)
+    {
+        event.getChannel().sendMessage(message).queue();
+    }
+    
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} and then
+     * queues a {@link java.util.function.Consumer}.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     * 
+     * @param  message
+     *         The Message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void reply(Message message, Consumer<Message> queue)
+    {
+        event.getChannel().sendMessage(message).queue(queue);
+    }
+    
+    /**
+     * Replies with a {@link java.io.File} with the provided name, or a default name
+     * if left null.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * to send the File. For more information on what a bot may send using this, you may find the info in that method.
+     * 
+     * @param  file
+     *         The File to reply with
+     * @param  filename
+     *         The filename that Discord should display (null for default).
+     *         
+     * @throws java.io.IOException
+     *         If an I/O error occurs while reading the File.
      */
     public void reply(File file, String filename) throws IOException
     {
@@ -138,22 +244,67 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with a message and a file
-     * @param message the message
-     * @param file the file
-     * @param filename the filename that Discord should display (null for default)
-     * @throws java.io.IOException if the file is invalid
+     * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
+     * name if left null.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * to send the File. For more information on what a bot may send using this, you may find the info in that method.
+     * 
+     * @param  message
+     *         A String message to reply with
+     * @param  file
+     *         The File to reply with
+     * @param  filename
+     *         The filename that Discord should display (null for default).
+     *         
+     * @throws java.io.IOException
+     *         If an I/O error occurs while reading the File.
      */
     public void reply(String message, File file, String filename) throws IOException
     {
         Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
-        event.getChannel().sendFile(file, filename, msg);
+        event.getChannel().sendFile(file, filename, msg).queue();
     }
     
     /**
-     * Replies with an embed if possible, or just a string if it cannot embed
-     * @param embed the embed to send
-     * @param alternateMessage the message if the embed cannot be sent
+     * Replies with a formatted String message using the provided arguments.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     * 
+     * @param  format
+     *         A formatted String
+     * @param  args
+     *         The arguments to use with the format
+     */
+    public void replyFormatted(String format, Object... args)
+    {
+        sendMessage(event.getChannel(), String.format(format, args));
+    }
+    
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} if possible, 
+     * or just a String message if it cannot send the embed.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
+     * be sent in two split Messages.
+     * 
+     * @param  embed
+     *         The MessageEmbed to reply with
+     * @param  alternateMessage
+     *         A String message to reply with if the provided MessageEmbed cannot be sent
      */
     public void replyOrAlternate(MessageEmbed embed, String alternateMessage)
     {
@@ -165,11 +316,32 @@ public class CommandEvent {
     }
     
     /**
-     * Replies with a file if possible, or a string if it cannot upload
-     * @param message the message to send with the file
-     * @param file the file
-     * @param filename the filename that Discord should display
-     * @param alternateMessage the message if the file cannot be uploaded
+     * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
+     * name if left null.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * to send the File. For more information on what a bot may send using this, you may find the info in that method.
+     * 
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
+     * be sent in two split Messages.
+     * 
+     * <p>It is also worth noting that unlike {@link com.jagrosh.jdautilities.commandclient.CommandEvent#reply(File,String) CommandEvent#reply(File, String)}
+     * and {@link com.jagrosh.jdautilities.commandclient.CommandEvent#reply(String,File,String) CommandEvent#reply(String, File, String)},
+     * this method does not throw a {@link java.io.IOException}. This is because the cause of the alternate String message being sent comes directly from a 
+     * thrown {@link java.lang.Exception}, and thus a thrown IOException is grounds for the sending of the alternate message.
+     * 
+     * @param  message
+     *         A String message to reply with
+     * @param  file
+     *         The File to reply with
+     * @param  filename
+     *         The filename that Discord should display (null for default). 
+     * @param  alternateMessage
+     *         A String message to reply with if the file cannot be uploaded, or an {@link java.io.IOException} is thrown
      */
     public void replyOrAlternate(String message, File file, String filename, String alternateMessage)
     {
@@ -182,8 +354,21 @@ public class CommandEvent {
     }
     
     /**
-     * Replies to a message via Direct Message
-     * @param message the string to send
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s 
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * 
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
+     * be sent in two split Messages.
+     * 
+     * @param  message
+     *         A String message to reply with
      */
     public void replyInDM(String message)
     {
@@ -191,16 +376,23 @@ public class CommandEvent {
             reply(message);
         else
         {
-            if(event.getAuthor().hasPrivateChannel())
-                sendMessage(event.getAuthor().getPrivateChannel(), message);
-            else
-                event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
+            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
         }
     }
     
     /**
-     * Replies to a message via Direct Message
-     * @param embed the embed to send
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the 
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * 
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * @param  embed
+     *         The MessageEmbed to reply with
      */
     public void replyInDM(MessageEmbed embed)
     {
@@ -208,19 +400,34 @@ public class CommandEvent {
             reply(embed);
         else
         {
-            if(event.getAuthor().hasPrivateChannel())
-                event.getAuthor().getPrivateChannel().sendMessage(embed).queue();
-            else
-                event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
         }
     }
     
     /**
-     * Replies to a message via Direct Message
-     * @param message the message to send (can be null)
-     * @param file the file to send
-     * @param filename the file name for Discord to display
-     * @throws java.io.IOException if the file is invalid
+     * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
+     * name if left null, and sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s 
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * 
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * to send the File. For more information on what a bot may send using this, you may find the info in that method.
+     * 
+     * @param  message
+     *         A String message to reply with
+     * @param  file
+     *         The {@code File} to reply with
+     * @param  filename
+     *         The filename that Discord should display (null for default).
+     *         
+     * @throws java.io.IOException
+     *         If an I/O error occurs while reading the File.
      */
     public void replyInDm(String message, File file, String filename) throws IOException
     {
@@ -229,10 +436,7 @@ public class CommandEvent {
         else
         {
             Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
-            if(event.getAuthor().hasPrivateChannel())
-                event.getAuthor().getPrivateChannel().sendFile(file, filename, msg);
-            else
-                event.getAuthor().openPrivateChannel().queue(pc -> {
+            event.getAuthor().openPrivateChannel().queue(pc -> {
                 try {
                     pc.sendFile(file, filename, msg);
                 } catch (IOException ex) {
@@ -243,8 +447,17 @@ public class CommandEvent {
     }
     
     /**
-     * Replies prefixed with the success emoji
-     * @param message the message
+     * Replies with a String message, and a prefixed success emoji.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     * 
+     * @param  message
+     *         A String message to reply with
      */
     public void replySuccess(String message)
     {
@@ -252,8 +465,17 @@ public class CommandEvent {
     }
     
     /**
-     * Replies prefixed with the warning emoji
-     * @param message the message
+     * Replies with a String message, and a prefixed warning emoji.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     * 
+     * @param  message
+     *         A String message to reply with
      */
     public void replyWarning(String message)
     {
@@ -261,8 +483,17 @@ public class CommandEvent {
     }
     
     /**
-     * Replies prefixed with the error emoji
-     * @param message the message
+     * Replies with a String message and a prefixed error emoji.
+     * 
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * 
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     * 
+     * @param  message
+     *         A String message to reply with
      */
     public void replyError(String message)
     {
@@ -270,7 +501,7 @@ public class CommandEvent {
     }
     
     /**
-     * Adds a success reaction
+     * Adds a success reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
      */
     public void reactSuccess()
     {
@@ -278,7 +509,7 @@ public class CommandEvent {
     }
     
     /**
-     * Adds a warning reaction
+     * Adds a warning reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
      */
     public void reactWarning()
     {
@@ -286,7 +517,7 @@ public class CommandEvent {
     }
     
     /**
-     * Adds an error reaction
+     * Adds an error reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
      */
     public void reactError()
     {
@@ -339,6 +570,19 @@ public class CommandEvent {
         }
     }
     
+    /**
+     * Splits a String into one or more Strings who's length does not exceed 2000 characters.
+     * <br>Also nullifies usages of {@code @here} and {@code @everyone} so that they do not mention anyone.
+     * <br>Useful for splitting long messages so that they can be sent in more than one 
+     * {@link net.dv8tion.jda.core.entities.Message Message} at maximum potential length.
+     * 
+     * @param  stringtoSend
+     *         The String to split and send
+     *         
+     * @return An {@link java.util.ArrayList ArrayList} containing one or more Strings, with nullified
+     *         occurrences of {@code @here} and {@code @everyone}, and that do not exceed 2000 characters
+     *         in length
+     */
     public static ArrayList<String> splitMessage(String stringtoSend)
     {
         ArrayList<String> msgs =  new ArrayList<>();
@@ -368,8 +612,10 @@ public class CommandEvent {
     // custom shortcuts
     
     /**
-     * Gets a {@linkplain User} representing the bot
-     * @return a user representing the bot
+     * Gets a {@link net.dv8tion.jda.core.entities.SelfUser SelfUser} representing the bot.
+     * <br>This is the same as invoking {@code event.getJDA().getSelfUser()}.
+     * 
+     * @return A User representing the bot
      */
     public SelfUser getSelfUser()
     {
@@ -377,9 +623,11 @@ public class CommandEvent {
     }
     
     /**
-     * Gets a {@linkplain Member} representing the bot, or null if the event does
-     * not take place on a guild
-     * @return a possibly-null member representing the bot
+     * Gets a {@link net.dv8tion.jda.core.entities.Member Member} representing the bot, or null
+     * if the event does not take place on a {@link net.dv8tion.jda.core.entities.Guild Guild}.
+     * <br>This is the same as invoking {@code event.getGuild().getSelfMember()}.
+     * 
+     * @return A possibly-null Member representing the bot
      */
     public Member getSelfMember()
     {
@@ -387,8 +635,10 @@ public class CommandEvent {
     }
 
     /**
-     * Tests whether or not the user who triggered this event is the owner
-     * @return true if the user is the owner, else false
+     * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
+     * event is the Owner of the bot.
+     * 
+     * @return {@code true} if the User is the Owner, else {@code false}
      */
     public boolean isOwner()
     {
@@ -396,8 +646,10 @@ public class CommandEvent {
     }
     
     /**
-     * Tests whether or not the user who triggered this event is a co-owner
-     * @return true if the user is a co-owner, else false
+     * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
+     * event is a CoOwner of the bot.
+     * 
+     * @return {@code true} if the User is the CoOwner, else {@code false}
      */
     public boolean isCoOwner()
     {
@@ -413,8 +665,9 @@ public class CommandEvent {
     // shortcuts
     
     /**
-     * Gets the {@linkplain User} who triggered this event
-     * @return the user who triggered this event
+     * Gets the {@link net.dv8tion.jda.core.entities.User User} who triggered this CommandEvent.
+     * 
+     * @return The User who triggered this CommandEvent
      */
     public User getAuthor()
     {
@@ -422,8 +675,10 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain MessageChannel} that the event was triggered on
-     * @return the message channel that the event was triggered on
+     * Gets the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} that the CommandEvent
+     * was triggered on.
+     * 
+     * @return The MessageChannel that the CommandEvent was triggered on
      */
     public MessageChannel getChannel()
     {
@@ -431,9 +686,10 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain ChannelType} of the {@linkplain MessageChannel} that
-     * this event was triggered on
-     * @return the ChannelType of the message channel that this event was triggered on
+     * Gets the {@link net.dv8tion.jda.core.entities.ChannelType ChannelType} of the 
+     * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} that the CommandEvent was triggered on.
+     * 
+     * @return The ChannelType of the MessageChannel that this CommandEvent was triggered on
      */
     public ChannelType getChannelType()
     {
@@ -441,8 +697,10 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the Group that this event was triggered in
-     * @return the group that this event was triggered in
+     * Gets the {@link net.dv8tion.jda.client.entities.Group Group} that this CommandEvent
+     * was triggered in.
+     * 
+     * @return The Group that this CommandEvent was triggered in
      */
     public Group getGroup()
     {
@@ -450,8 +708,10 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain Guild} that this event was triggered on
-     * @return the guild that this event was triggered on
+     * Gets the {@link net.dv8tion.jda.core.entities.Guild Guild} that this CommandEvent
+     * was triggered on.
+     * 
+     * @return The Guild that this CommandEvent was triggered on
      */
     public Guild getGuild()
     {
@@ -459,8 +719,10 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the instance of {@linkplain JDA} that this event was caught by
-     * @return the instance of JDA that this event was caught by
+     * Gets the instance of {@link net.dv8tion.jda.core.JDA JDA} that this CommandEvent 
+     * was caught by.
+     * 
+     * @return The instance of JDA that this CommandEvent was caught by
      */
     public JDA getJDA()
     {
@@ -468,8 +730,9 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain Member} that triggered this event
-     * @return the member that triggered this event
+     * Gets the {@link net.dv8tion.jda.core.entities.Member Member} that triggered this CommandEvent.
+     * 
+     * @return The Member that triggered this CommandEvent
      */
     public Member getMember()
     {
@@ -477,8 +740,10 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain Message} responsible for triggering this event
-     * @return the message responsible for the event
+     * Gets the {@link net.dv8tion.jda.core.entities.Message Message} responsible for triggering
+     * this CommandEvent.
+     * 
+     * @return The Message responsible for the CommandEvent
      */
     public Message getMessage()
     {
@@ -486,8 +751,11 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain PrivateChannel} that this event may have taken place in
-     * @return the private channel that this event may have taken place in
+     * Gets the {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel} that this CommandEvent 
+     * may have taken place on, or {@code null} if it didn't happen on a PrivateChannel.
+     * 
+     * @return The PrivateChannel that this CommandEvent may have taken place on, or null
+     *         if it did not happen on a PrivateChannel.
      */
     public PrivateChannel getPrivateChannel()
     {
@@ -495,8 +763,9 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the response number for this event
-     * @return the response number
+     * Gets the response number for the {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}.
+     * 
+     * @return The response number for the MessageReceivedEvent
      */
     public long getResponseNumber()
     {
@@ -504,8 +773,11 @@ public class CommandEvent {
     }
     
     /**
-     * Gets the {@linkplain TextChannel} that this event may have taken place in
-     * @return the text channel this event took place in
+     * Gets the {@link net.dv8tion.jda.core.entities.TextChannel TextChannel} that this CommandEvent 
+     * may have taken place on, or {@code null} if it didn't happen on a TextChannel.
+     * 
+     * @return The TextChannel this CommandEvent may have taken place on, or null
+     *         if it did not happen on a TextChannel.
      */
     public TextChannel getTextChannel()
     {
@@ -513,9 +785,14 @@ public class CommandEvent {
     }
     
     /**
-     * Tests whether or not this event occurred in the provided {@linkplain ChannelType}
-     * @param channelType the ChannelType to be tested
-     * @return true if the event originated from a channel with the provided ChannelType, otherwise false
+     * Compares a provided {@link net.dv8tion.jda.core.entities.ChannelType ChannelType} with the one this
+     * CommandEvent occurred on, returning {@code true} if they are the same ChannelType.
+     * 
+     * @param  channelType
+     *         The ChannelType to compare
+     *         
+     * @return {@code true} if the CommandEvent originated from a {@link net.dv8tion.jda.core.entities.MessageChannel}
+     *         of the provided ChannelType, otherwise {@code false}.
      */
     public boolean isFromType(ChannelType channelType)
     {

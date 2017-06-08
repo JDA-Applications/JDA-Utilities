@@ -41,6 +41,7 @@ public class Slideshow extends Menu {
     
     private final BiFunction<Integer,Integer,Color> color;
     private final BiFunction<Integer,Integer,String> text;
+    private final BiFunction<Integer,Integer,String> description;
     private final boolean showPageNumbers;
     private final List<String> urls;
     private final Consumer<Message> finalAction;
@@ -51,12 +52,13 @@ public class Slideshow extends Menu {
     public static final String RIGHT = "\u25B6";
     
     protected Slideshow(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, Consumer<Message> finalAction,
-            boolean showPageNumbers, List<String> items, boolean waitOnSinglePage)
+            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, BiFunction<Integer,Integer,String> description,
+            Consumer<Message> finalAction, boolean showPageNumbers, List<String> items, boolean waitOnSinglePage)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
         this.text = text;
+        this.description = description;
         this.showPageNumbers = showPageNumbers;
         this.urls = items;
         this.finalAction = finalAction;
@@ -64,8 +66,11 @@ public class Slideshow extends Menu {
     }
 
     /**
-     * Begins pagination on page 1, sending a new message to the provided channel
-     * @param channel the channel in which to begin pagination
+     * Begins pagination on page 1 as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
      */
     @Override
     public void display(MessageChannel channel) {
@@ -73,8 +78,11 @@ public class Slideshow extends Menu {
     }
 
     /**
-     * Begins pagination on page 1, editing the menu into the provided message
-     * @param message the message to use for pagination=
+     * Begins pagination on page 1 displaying this Pagination by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message Message}.
+     * 
+     * @param  message
+     *         The Message to display the Menu in
      */
     @Override
     public void display(Message message) {
@@ -82,9 +90,14 @@ public class Slideshow extends Menu {
     }
     
     /**
-     * Begins pagination, sending a new message to the provided channel
-     * @param channel the channel in which to begin pagination
-     * @param pageNum the starting page
+     * Begins pagination as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting
+     * on whatever page number is provided.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
+     * @param  pageNum
+     *         The page number to begin on
      */
     public void paginate(MessageChannel channel, int pageNum)
     {
@@ -97,9 +110,14 @@ public class Slideshow extends Menu {
     }
     
     /**
-     * Begins pagination, editing the menu into the provided message
-     * @param message the message to use for pagination
-     * @param pageNum the starting page
+     * Begins pagination displaying this Pagination by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message Message}, starting on whatever
+     * page number is provided.
+     * 
+     * @param  message
+     *         The MessageChannel to send the new Message to
+     * @param  pageNum
+     *         The page number to begin on
      */
     public void paginate(Message message, int pageNum)
     {
@@ -163,6 +181,7 @@ public class Slideshow extends Menu {
         EmbedBuilder ebuilder = new EmbedBuilder();
         ebuilder.setImage(urls.get(pageNum-1));
         ebuilder.setColor(color.apply(pageNum, urls.size()));
+        ebuilder.setDescription(description.apply(pageNum, urls.size()));
         if(showPageNumbers)
             ebuilder.setFooter("Image "+pageNum+"/"+urls.size(), null);
         mbuilder.setEmbed(ebuilder.build());

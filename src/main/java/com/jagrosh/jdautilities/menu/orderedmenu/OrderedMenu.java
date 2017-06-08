@@ -76,8 +76,11 @@ public class OrderedMenu extends Menu {
     }
 
     /**
-     * Shows the button menu as a new message in the provided channel
-     * @param channel the channel to send to the message to edit
+     * Shows the OrderedMenu as a new {@link net.dv8tion.jda.core.entities.Message Message} 
+     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+     * 
+     * @param  channel
+     *         The MessageChannel to send the new Message to
      */
     @Override
     public void display(MessageChannel channel) {
@@ -89,8 +92,11 @@ public class OrderedMenu extends Menu {
     }
 
     /**
-     * Shows the button menu edited into the provided message
-     * @param message the message to edit the menu into
+     * Displays this OrderedMenu by editing the provided 
+     * {@link net.dv8tion.jda.core.entities.Message Message}.
+     * 
+     * @param  message
+     *         The Message to display the Menu in
      */
     @Override
     public void display(Message message) {
