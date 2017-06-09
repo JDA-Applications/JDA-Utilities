@@ -7,7 +7,7 @@ You will need to add this project as a dependency (either from the latest .jar f
   <dependency>
     <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -26,7 +26,7 @@ You will need to add this project as a dependency (either from the latest .jar f
 With gradle:
 ```java
 dependencies {
-    compile 'com.jagrosh:JDA-Utilities:1.1'
+    compile 'com.jagrosh:JDA-Utilities:1.2'
     compile 'net.dv8tion:JDA:LATEST'
 }
 
@@ -34,9 +34,6 @@ repositories {
     jcenter()
 }
 ```
-
-## Usage
-Check out the [Example Bot](https://github.com/jagrosh/ExampleBot)!
 
 ## Projects
 [**Vortex**](https://github.com/jagrosh/Vortex) - Vortex is an easy-to-use moderation bot that utilizes the JDA-Utilities library for the Command Client and some of the menus<br>

@@ -80,9 +80,7 @@ public class SafeIdUtil {
     {
         try {
             long l = Long.parseLong(id.trim());
-            if(l<0)
-                return false;
-            return true;
+            return l >= 0;
         } catch (NumberFormatException e) {
             return false;
         }

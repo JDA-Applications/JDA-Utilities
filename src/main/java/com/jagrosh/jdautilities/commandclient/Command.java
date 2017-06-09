@@ -89,7 +89,7 @@ public abstract class Command {
     protected String arguments = null;
     
     /**
-     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.Guild Guild}, 
+     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.entities.Guild Guild}, 
      * {@code false} if it may be used in both a Guild and a DM.
      */
     protected boolean guildOnly = true;
@@ -112,13 +112,13 @@ public abstract class Command {
     
     /**
      * Any {@link net.dv8tion.jda.core.Permission Permission}s a Member must have to use this command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.core.Guild Guild} environment.
+     * <br>These are only checked in a {@link net.dv8tion.jda.core.entities.Guild Guild} environment.
      */
     protected Permission[] userPermissions = new Permission[0];
     
     /**
      * Any {@link net.dv8tion.jda.core.Permission Permission}s the bot must have to use a command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.core.Guild Guild} environment.
+     * <br>These are only checked in a {@link net.dv8tion.jda.core.entities.Guild Guild} environment.
      */
     protected Permission[] botPermissions = new Permission[0];
     

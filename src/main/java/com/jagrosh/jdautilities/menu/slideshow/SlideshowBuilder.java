@@ -143,14 +143,14 @@ public class SlideshowBuilder extends MenuBuilder {
      * <br>As the page changes, the BiFunction will re-process the current page number and the total
      * page number, allowing for the displayed description of the MessageEmbed to change depending on the page number.
      * 
-     * @param  textBiFunction
+     * @param  descriptionBiFunction
      *         The BiFunction that uses both current and total page numbers to get description for the MessageEmbed
      *         
      * @return This builder
      */
-    public SlideshowBuilder setDescription(BiFunction<Integer,Integer,String> description)
+    public SlideshowBuilder setDescription(BiFunction<Integer,Integer,String> descriptionBiFunction)
     {
-        this.description = description;
+        this.description = descriptionBiFunction;
         return this;
     }
     

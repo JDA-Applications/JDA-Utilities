@@ -24,10 +24,7 @@ import com.jagrosh.jdautilities.commandclient.CommandEvent;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,7 +87,7 @@ public class AboutCommand extends Command {
         String descr = "Hello! I am **"+event.getSelfUser().getName()+"**, "+description
                 + "\nI "+(IS_AUTHOR ? "was written in Java" : "am owned")+" by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
                 + "** using "+JDAUtilitiesInfo.AUTHOR+"'s [Commands Extension]("+JDAUtilitiesInfo.GITHUB+") ("+JDAUtilitiesInfo.VERSION+") and the "
-                + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+") <:jda:230988580904763393>"
+                + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+")"
                 + "\nType `"+event.getClient().getTextualPrefix()+event.getClient().getHelpWord()+"` to see my commands!"
                 + (join||inv ? invline : "")
                 + "\n\nSome of my features include: ```css";
@@ -101,20 +98,7 @@ public class AboutCommand extends Command {
         if(event.getJDA().getShardInfo()==null)
         {
             builder.addField("Stats", event.getJDA().getGuilds().size()+" servers\n1 shard", true);
-            int online = 0;
-            for(User u : event.getJDA().getUsers())
-            {
-                for(Guild g : event.getJDA().getGuilds())
-                {
-                    if(g.isMember(u))
-                    {
-                        if(g.getMember(u).getOnlineStatus()!=OnlineStatus.OFFLINE)
-                            online++;
-                        break;
-                    }
-                }
-            }
-            builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"+online+" online", true);
+            builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"+event.getJDA().getGuilds().stream().mapToInt(g -> g.getMembers().size()).sum()+" total", true);
             builder.addField("Channels", event.getJDA().getTextChannels().size()+" Text\n"+event.getJDA().getVoiceChannels().size()+" Voice", true);
         }
         else
