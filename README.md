@@ -35,7 +35,11 @@ repositories {
 }
 ```
 
+## Example
+Check out the [ExampleBot](https://github.com/jagrosh/ExampleBot) for a simple bot example.
+
 ## Projects
 [**Vortex**](https://github.com/jagrosh/Vortex) - Vortex is an easy-to-use moderation bot that utilizes the JDA-Utilities library for the Command Client and some of the menus<br>
 [**JMusicBot**](https://github.com/jagrosh/MusicBot) - This music bot uses the Command Client for its base, and several menus, including the OrderedMenu for search results and the Paginator for the current queue<br>
-[**GiveawayBot**](https://github.com/jagrosh/GiveawayBot) - GiveawayBot is a basic bot for hosting quick giveaways!
+[**GiveawayBot**](https://github.com/jagrosh/GiveawayBot) - GiveawayBot is a basic bot for hosting quick giveaways!<br>
+[**NightFury**](https://github.com/TheMonitorLizard/NightFury) - NightFury is a bot for moderation and utility
