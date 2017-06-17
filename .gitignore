@@ -1,1 +1,7 @@
-/target/
+# Intellij Files
+/.idea/
+*.iml
+
+# Gradle Files
+/.gradle/
+/build/
