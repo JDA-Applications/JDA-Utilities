@@ -39,7 +39,7 @@ public interface CommandClient {
      * 
      * @return A possibly-null prefix
      */
-    public String getPrefix();
+    String getPrefix();
     
     /**
      * Returns the visual representation of the bot's prefix. 
@@ -49,7 +49,7 @@ public interface CommandClient {
      * 
      * @return A never-null prefix
      */
-    public String getTextualPrefix();
+    String getTextualPrefix();
     
     /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} to catch 
@@ -58,14 +58,14 @@ public interface CommandClient {
      * @param  listener
      *         The CommandListener
      */
-    public void setListener(CommandListener listener);
+    void setListener(CommandListener listener);
     
     /**
      * Returns the current {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener}.
      * 
      * @return A possibly-null CommandListener
      */
-    public CommandListener getListener();
+    CommandListener getListener();
     
     /**
      * Returns the list of registered {@link com.jagrosh.jdautilities.commandclient.Command Command}s 
@@ -73,7 +73,7 @@ public interface CommandClient {
      * 
      * @return A never-null list of Commands registered during this session
      */
-    public List<Command> getCommands();
+    List<Command> getCommands();
     
     /**
      * Gets the time this {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} 
@@ -81,7 +81,7 @@ public interface CommandClient {
      * 
      * @return The start time of this CommandClient implementation
      */
-    public OffsetDateTime getStartTime();
+    OffsetDateTime getStartTime();
     
     /**
      * Gets the {@link java.time.OffsetDateTime OffsetDateTime} that the specified cooldown expires.
@@ -91,7 +91,7 @@ public interface CommandClient {
      *         
      * @return The expiration time, or null if the cooldown does not exist
      */
-    public OffsetDateTime getCooldown(String name);
+    OffsetDateTime getCooldown(String name);
     
     /**
      * Gets the remaining number of seconds on the specified cooldown.
@@ -101,7 +101,7 @@ public interface CommandClient {
      *         
      * @return The number of seconds remaining
      */
-    public int getRemainingCooldown(String name);
+    int getRemainingCooldown(String name);
     
     /**
      * Applies the specified cooldown with the provided name.
@@ -111,12 +111,12 @@ public interface CommandClient {
      * @param  seconds
      *         The time to make the cooldown last
      */
-    public void applyCooldown(String name, int seconds);
+    void applyCooldown(String name, int seconds);
     
     /**
      * Cleans up expired cooldowns to reduce memory.
      */
-    public void cleanCooldowns();
+    void cleanCooldowns();
     
     /**
      * Gets the number of uses for the provide 
@@ -127,7 +127,7 @@ public interface CommandClient {
      *         
      * @return The number of uses for the Command
      */
-    public int getCommandUses(Command command);
+    int getCommandUses(Command command);
     
     /**
      * Gets the number of uses for a {@link com.jagrosh.jdautilities.commandclient.Command Command} 
@@ -140,63 +140,63 @@ public interface CommandClient {
      * @return The number of uses for the Command, or {@code 0} if the name does not match with a 
      *         Command
      */
-    public int getCommandUses(String name);
+    int getCommandUses(String name);
     
     /**
      * Gets the ID of the owner of this bot as a String.
      * 
      * @return The String ID of the owner of the bot
      */
-    public String getOwnerId();
+    String getOwnerId();
     
     /**
      * Gets the ID of the owner of this bot as a {@code long}.
      * 
      * @return The {@code long} ID of the owner of the bot
      */
-    public long getOwnerIdLong();
+    long getOwnerIdLong();
     
     /**
      * Gets the ID(s) of any CoOwners of this bot as a String Array.
      * 
      * @return The String ID(s) of any CoOwners of this bot
      */
-    public String[] getCoOwnerIds();
+    String[] getCoOwnerIds();
     
     /**
      * Gets the ID(s) of any CoOwners of this bot as a {@code long} Array.
      * 
      * @return The {@code long} ID(s) of any CoOwners of this bot
      */
-    public long[] getCoOwnerIdsLong();
+    long[] getCoOwnerIdsLong();
     
     /**
      * Gets the success emoji.
      * 
      * @return The success emoji
      */
-    public String getSuccess();
+    String getSuccess();
     
     /**
      * Gets the warning emoji.
      * 
      * @return The warning emoji
      */
-    public String getWarning();
+    String getWarning();
     
     /**
      * Gets the error emoji.
      * 
      * @return The error emoji
      */
-    public String getError();
+    String getError();
     
     /**
      * Gets the invite to the bot's support server.
      * 
      * @return A possibly-null server invite
      */
-    public String getServerInvite();
+    String getServerInvite();
     
     /**
      * Gets an a recently updated count of all the {@link net.dv8tion.jda.core.entities.Guild Guild}s 
@@ -222,14 +222,14 @@ public interface CommandClient {
      * @return A recently updated count of all the Guilds the bot is connected to on
      *         all shards.
      */
-    public int getTotalGuilds();
+    int getTotalGuilds();
     
     /**
      * Gets the word used to invoke a help DM.
      * 
      * @return The help word
      */
-    public String getHelpWord();
+    String getHelpWord();
     
     /**
      * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in a provided delay
@@ -248,7 +248,7 @@ public interface CommandClient {
      * @param  toQueue
      *         The RestAction to queue after the delay
      */
-    public void schedule(String name, int delay, RestAction<?> toQueue);
+    void schedule(String name, int delay, RestAction<?> toQueue);
     
     /**
      * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of <b>seconds</b>.
@@ -266,7 +266,7 @@ public interface CommandClient {
      * @param  runnable 
      *         The Runnable to run after the delay
      */
-    public void schedule(String name, int delay, Runnable runnable);
+    void schedule(String name, int delay, Runnable runnable);
     
     /**
      * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in the provided delay of 
@@ -283,7 +283,7 @@ public interface CommandClient {
      * @param  toQueue
      *         The RestAction to queue after the delay
      */
-    public void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue);
+    void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue);
     
     /**
      * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of
@@ -300,7 +300,7 @@ public interface CommandClient {
      * @param  runnable
      *         The Runnable to run after the delay
      */
-    public void schedule(String name, int delay, TimeUnit unit, Runnable runnable);
+    void schedule(String name, int delay, TimeUnit unit, Runnable runnable);
     
     /**
      * Saves a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} to a provided name.
@@ -312,7 +312,7 @@ public interface CommandClient {
      * @param  future
      *         The ScheduledFuture to save
      */
-    public void saveFuture(String name, ScheduledFuture<?> future);
+    void saveFuture(String name, ScheduledFuture<?> future);
     
     /**
      * Checks if a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} exists
@@ -330,7 +330,7 @@ public interface CommandClient {
      * @return {@code true} if there exists a ScheduledFuture corresponding to the provided name 
      *         (regardless of it's possible cancellation or expiration), otherwise {@code false}.
      */
-    public boolean scheduleContains(String name);
+    boolean scheduleContains(String name);
     
     /**
      * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
@@ -341,7 +341,7 @@ public interface CommandClient {
      * @param  name 
      *         The name of the ScheduledFuture
      */
-    public void cancel(String name);
+    void cancel(String name);
     
     /**
      * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name,
@@ -353,7 +353,7 @@ public interface CommandClient {
      * @param  name
      *         The name of the ScheduledFuture to be cancelled immediately
      */
-    public void cancelImmediately(String name);
+    void cancelImmediately(String name);
     
     /**
      * Gets a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
@@ -363,10 +363,10 @@ public interface CommandClient {
      *         
      * @return The ScheduledFuture corresponding to the provided name
      */
-    public ScheduledFuture<?> getScheduledFuture(String name);
+    ScheduledFuture<?> getScheduledFuture(String name);
     
     /**
      * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture ScheduledFuture}s to reduce memory.
      */
-    public void cleanSchedule();
+    void cleanSchedule();
 }
