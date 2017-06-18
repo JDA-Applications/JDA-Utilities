@@ -52,11 +52,11 @@ import java.util.stream.Collectors;
  */
 public class FinderUtil {
 
-    private final static String DISCORD_ID = "\\d{17,}"; // ID
-    private final static String FULL_USER_REF = "(\\S{2,32})#(\\d{4})"; // $1 -> username, $2 -> discriminator
-    private final static String USER_MENTION = "<@[!](\\d{17,})>"; // $1 -> ID
-    private final static String CHANNEL_MENTION = "<#(\\d{17,})>"; // $1 -> ID
-    private final static String ROLE_MENTION = "<@&(\\d{17,})>"; // $1 -> ID
+    private final static String DISCORD_ID = "\\d{17,20}"; // ID
+    private final static String FULL_USER_REF = "(.{2,32})\\s*#(\\d{4})"; // $1 -> username, $2 -> discriminator
+    private final static String USER_MENTION = "<@!?(\\d{17,20})>"; // $1 -> ID
+    private final static String CHANNEL_MENTION = "<#(\\d{17,20})>"; // $1 -> ID
+    private final static String ROLE_MENTION = "<@&(\\d{17,20})>"; // $1 -> ID
 
     /**
      * Queries a provided instance of {@link net.dv8tion.jda.core.JDA JDA} for {@link net.dv8tion.jda.core.entities.User User}s.
