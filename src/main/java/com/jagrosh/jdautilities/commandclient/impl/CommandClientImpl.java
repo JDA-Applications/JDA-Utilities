@@ -43,7 +43,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
@@ -449,45 +448,16 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
                     isCommand[0] = true;
                     CommandEvent cevent = new CommandEvent(event, args, this);
-                    
-                    if(isAllowed(command, event.getTextChannel()))
-                    {
-                        if(listener!=null)
-                            listener.onCommand(cevent, command);
-                        uses.put(command.getName(), uses.getOrDefault(command.getName(),0)+1);
-                        command.run(cevent);
-                    }
-                    else
-                        cevent.reply(error+" That command cannot be used in this channel!");
+
+                    if(listener!=null)
+                        listener.onCommand(cevent, command);
+                    uses.put(command.getName(), uses.getOrDefault(command.getName(),0)+1);
+                    command.run(cevent);
                 });
             }
         }
         if(!isCommand[0] && listener!=null)
             listener.onNonCommandMessage(event);
-    }
-
-    private boolean isAllowed(Command command, TextChannel channel)
-    {
-        if(channel==null)
-            return true;
-        String topic = channel.getTopic();
-        if(topic==null || topic.isEmpty())
-            return true;
-        topic = topic.toLowerCase();
-        String lowerName = command.getName().toLowerCase();
-        if(topic.contains("{"+lowerName+"}"))
-            return true;
-        if(topic.contains("{-"+lowerName+"}"))
-            return false;
-        String lowerCat = command.getCategory()==null ? null : command.getCategory().getName().toLowerCase();
-        if(lowerCat!=null)
-        {
-            if(topic.contains("{"+lowerCat+"}"))
-                return true;
-            if(topic.contains("{-"+lowerCat+"}"))
-                return false;
-        }
-        return !topic.contains("{-all}");
     }
     
     @Override

@@ -21,6 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 
@@ -91,6 +92,7 @@ public abstract class Command {
     /**
      * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.entities.Guild Guild}, 
      * {@code false} if it may be used in both a Guild and a DM.
+     * <br>Default {@code true}.
      */
     protected boolean guildOnly = true;
     
@@ -102,6 +104,7 @@ public abstract class Command {
     /**
      * {@code true} if the command may only be used by a User with an ID matching the
      * Owners or any of the CoOwners.
+     * <br>Default {@code false}.
      */
     protected boolean ownerCommand = false;
     
@@ -139,6 +142,14 @@ public abstract class Command {
      * {@code [prefix]<command name> help}.
      */
     protected BiConsumer<CommandEvent, Command> helpBiConsumer = null;
+
+    /**
+     * {@code true} if this command checks a channel topic for topic-tags.
+     * <br>This means that putting {@code {-commandname}}, {@code {-command category}}, {@code {-all}} in a channel topic
+     * will cause this command to terminate.
+     * <br>Default {@code false}.
+     */
+    protected boolean usesTopicTags = false;
     
     private final static String BOT_PERM = "%s I need the %s permission in this %s!";
     private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
@@ -192,6 +203,13 @@ public abstract class Command {
             terminate(event, category.getFailureResponse());
             return;
         }
+
+        // is allowed check
+        if(event.isFromType(ChannelType.TEXT) && !isAllowed(event.getTextChannel()))
+        {
+            terminate(event, "That command cannot be used in this channel!");
+            return;
+        }
         
         // required role check
         if(requiredRole!=null)
@@ -203,7 +221,10 @@ public abstract class Command {
         
         // sub-help check
         if(helpBiConsumer!=null && !event.getArgs().isEmpty() && event.getArgs().split("\\s+")[0].equalsIgnoreCase(event.getClient().getHelpWord()))
+        {
             helpBiConsumer.accept(event, this);
+            return;
+        }
         
         // availabilty check
         if(event.getChannelType()==ChannelType.TEXT)
@@ -308,8 +329,52 @@ public abstract class Command {
                 return true;
         return false;
     }
-    
-    
+
+    /**
+     * Checks whether a command is allowed in a {@link net.dv8tion.jda.core.entities.TextChannel TextChannel}
+     * by searching the channel topic for topic tags relating to the command.
+     *
+     * <p>{-{@link com.jagrosh.jdautilities.commandclient.Command#name name}},
+     * {-{@link com.jagrosh.jdautilities.commandclient.Command.Category category name}}, or {-{@code all}}
+     * are valid examples of ways that this method would return {@code false} if placed in a channel topic.
+     *
+     * <p><b>NOTE:</b>Topic tags are <b>case sensitive</b> and proper usage must be in lower case!
+     * <br>Also note that setting {@link com.jagrosh.jdautilities.commandclient.Command#usesTopicTags usesTopicTags}
+     * to {@code false} will cause this method to always return {@code true}, as the feature would not be applicable
+     * in the first place.
+     *
+     * @param  channel
+     *         The TextChannel to test.
+     *
+     * @return {@code true} if the channel topic doesn't specify any topic-tags that would cause this command
+     *         to be cancelled, or if {@code usesTopicTags} has been set to {@code false}.
+     */
+    public boolean isAllowed(TextChannel channel)
+    {
+        if(!usesTopicTags)
+            return true;
+        if(channel==null)
+            return true;
+        String topic = channel.getTopic();
+        if(topic==null || topic.isEmpty())
+            return true;
+        topic = topic.toLowerCase();
+        String lowerName = name.toLowerCase();
+        if(topic.contains("{"+lowerName+"}"))
+            return true;
+        if(topic.contains("{-"+lowerName+"}"))
+            return false;
+        String lowerCat = category==null ? null : category.getName().toLowerCase();
+        if(lowerCat!=null)
+        {
+            if(topic.contains("{"+lowerCat+"}"))
+                return true;
+            if(topic.contains("{-"+lowerCat+"}"))
+                return false;
+        }
+        return !topic.contains("{-all}");
+    }
+
     /**
      * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#name Command.name} for the Command.
      *
