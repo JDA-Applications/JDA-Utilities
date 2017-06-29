@@ -25,7 +25,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 
-
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
  * 
@@ -179,6 +178,11 @@ public abstract class Command {
         if(!event.getArgs().isEmpty())
         {
             String[] parts = Arrays.copyOf(event.getArgs().split("\\s+",2), 2);
+            if(helpBiConsumer!=null && parts[0].equalsIgnoreCase(event.getClient().getHelpWord()))
+            {
+                helpBiConsumer.accept(event, this);
+                return;
+            }
             for(Command cmd: children)
             {
                 if(cmd.isCommandFor(parts[0]))
@@ -213,18 +217,11 @@ public abstract class Command {
         
         // required role check
         if(requiredRole!=null)
-            if(event.getChannelType()!=ChannelType.TEXT || !event.getMember().getRoles().stream().anyMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
+            if(!event.isFromType(ChannelType.TEXT) || !event.getMember().getRoles().stream().anyMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
             {
                 terminate(event, event.getClient().getError()+" You must have a role called `"+requiredRole+"` to use that!");
                 return;
             }
-        
-        // sub-help check
-        if(helpBiConsumer!=null && !event.getArgs().isEmpty() && event.getArgs().split("\\s+")[0].equalsIgnoreCase(event.getClient().getHelpWord()))
-        {
-            helpBiConsumer.accept(event, this);
-            return;
-        }
         
         // availabilty check
         if(event.getChannelType()==ChannelType.TEXT)
@@ -290,7 +287,7 @@ public abstract class Command {
         }
         else if(guildOnly)
         {
-            event.reply(event.getClient().getError()+" This command cannot be used in Direct messages");
+            terminate(event, event.getClient().getError()+" This command cannot be used in Direct messages");
             return;
         }
         
@@ -300,7 +297,7 @@ public abstract class Command {
             int remaining = event.getClient().getRemainingCooldown(name+"|"+event.getAuthor().getId());
             if(remaining>0)
             {
-                event.reply(event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds!");
+                terminate(event, event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds!");
                 return;
             }
             else event.getClient().applyCooldown(name+"|"+event.getAuthor().getId(), cooldown);
@@ -591,7 +588,7 @@ public abstract class Command {
          */
         public boolean test(CommandEvent event)
         {
-            return predicate==null ? true : predicate.test(event);
+            return predicate==null || predicate.test(event);
         }
 
         @Override
