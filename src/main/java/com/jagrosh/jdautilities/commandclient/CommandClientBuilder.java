@@ -48,18 +48,19 @@ public class CommandClientBuilder {
     private Function<CommandEvent,String> helpFunction;
     private String helpWord;
     private ScheduledExecutorService executor;
+    private int linkedCacheSize = 200;
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
      * with the provided settings.
-     * <br>Once built, only the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} 
-     * can be changed.
+     * <br>Once built, only the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener},
+     * and {@link com.jagrosh.jdautilities.commandclient.Command Command}s can be changed.
      * 
-     * @return The CommandClient built. <b>This is unmodifiable.</b>
+     * @return The CommandClient built.
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -364,6 +365,29 @@ public class CommandClientBuilder {
     public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
     {
         this.executor = executor;
+        return this;
+    }
+
+    /**
+     * Sets the internal size of the client's {@link com.jagrosh.jdautilities.entities.FixedSizeCache FixedSizeCache}
+     * used for caching and pairing the bot's response {@link net.dv8tion.jda.core.entities.Message Message}s with
+     * the calling Message's ID.
+     *
+     * <p>Higher cache size means that decay of cache contents will most likely occur later, allowing the deletion of
+     * responses when the call is deleted to last for a longer duration. However this also means larger memory usage.
+     *
+     * <p>Setting {@code 0} or negative will cause the client to not use linked caching <b>at all</b>.
+     *
+     * @param  linkedCacheSize
+     *         The maximum number of paired responses that can be cached, or {@code <1} if the
+     *         built {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}
+     *         will not use linked caching.
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setLinkedCacheSize(int linkedCacheSize)
+    {
+        this.linkedCacheSize = linkedCacheSize;
         return this;
     }
 }
