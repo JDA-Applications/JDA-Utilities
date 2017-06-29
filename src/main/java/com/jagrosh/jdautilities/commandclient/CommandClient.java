@@ -50,7 +50,93 @@ public interface CommandClient {
      * @return A never-null prefix
      */
     String getTextualPrefix();
-    
+
+    /**
+     * Adds a single {@link com.jagrosh.jdautilities.commandclient.Command Command} to this CommandClient's
+     * registered Commands.
+     *
+     * <p>For CommandClient's containing 20 commands or less, command calls by users will have the bot iterate
+     * through the entire {@link java.util.ArrayList ArrayList} to find the command called. As expected, this
+     * can get fairly hefty if a bot has a lot of Commands registered to it.
+     *
+     * <p>To prevent delay a CommandClient that has more that 20 Commands registered to it will begin to use
+     * <b>indexed calls</b>.
+     * <br>Indexed calls use a {@link java.util.HashMap HashMap} which links their
+     * {@link com.jagrosh.jdautilities.commandclient.Command#name name} and their
+     * {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases} to the index that which they
+     * are located at in the ArrayList they are stored.
+     *
+     * <p>This means that all insertion and removal of Commands must reorganize the index maintained by the HashMap.
+     * <br>For this particular insertion, the Command provided is inserted at the end of the index, meaning it will
+     * become the "rightmost" Command in the ArrayList.
+     *
+     * @param  command
+     *         The Command to add
+     *
+     * @throws java.lang.IllegalArgumentException
+     *         If the Command provided has a name or alias that has already been registered
+     */
+    void addCommand(Command command);
+
+    /**
+     * Adds a single {@link com.jagrosh.jdautilities.commandclient.Command Command} to this CommandClient's
+     * registered Commands at the specified index.
+     *
+     * <p>For CommandClient's containing 20 commands or less, command calls by users will have the bot iterate
+     * through the entire {@link java.util.ArrayList ArrayList} to find the command called. As expected, this
+     * can get fairly hefty if a bot has a lot of Commands registered to it.
+     *
+     * <p>To prevent delay a CommandClient that has more that 20 Commands registered to it will begin to use
+     * <b>indexed calls</b>.
+     * <br>Indexed calls use a {@link java.util.HashMap HashMap} which links their
+     * {@link com.jagrosh.jdautilities.commandclient.Command#name name} and their
+     * {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases} to the index that which they
+     * are located at in the ArrayList they are stored.
+     *
+     * <p>This means that all insertion and removal of Commands must reorganize the index maintained by the HashMap.
+     * <br>For this particular insertion, the Command provided is inserted at the index specified, meaning it will
+     * become the Command located at that index in the ArrayList. This will shift the Command previously located at
+     * that index as well as any located at greater indices, right one index ({@code size()+1}).
+     *
+     * @param  command
+     *         The Command to add
+     * @param  index
+     *         The index to add the Command at (must follow the specifications {@code 0<=index<=size()})
+     *
+     * @throws java.lang.ArrayIndexOutOfBoundsException
+     *         If {@code index < 0} or {@code index > size()}
+     * @throws java.lang.IllegalArgumentException
+     *         If the Command provided has a name or alias that has already been registered to an index
+     */
+    void addCommand(Command command, int index);
+
+    /**
+     * Removes a single {@link com.jagrosh.jdautilities.commandclient.Command Command} from this CommandClient's
+     * registered Commands at the index linked to the provided name/alias.
+     *
+     * <p>For CommandClient's containing 20 commands or less, command calls by users will have the bot iterate
+     * through the entire {@link java.util.ArrayList ArrayList} to find the command called. As expected, this
+     * can get fairly hefty if a bot has a lot of Commands registered to it.
+     *
+     * <p>To prevent delay a CommandClient that has more that 20 Commands registered to it will begin to use
+     * <b>indexed calls</b>.
+     * <br>Indexed calls use a {@link java.util.HashMap HashMap} which links their
+     * {@link com.jagrosh.jdautilities.commandclient.Command#name name} and their
+     * {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases} to the index that which they
+     * are located at in the ArrayList they are stored.
+     *
+     * <p>This means that all insertion and removal of Commands must reorganize the index maintained by the HashMap.
+     * <br>For this particular removal, the Command removed is that of the corresponding index retrieved by the name
+     * provided. This will shift any Commands located at greater indices, left one index ({@code size()-1}).
+     *
+     * @param  name
+     *         The name or an alias of the Command to remove
+     *
+     * @throws java.lang.IllegalArgumentException
+     *         If the name provided was not registered to an index
+     */
+    void removeCommand(String name);
+
     /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} to catch 
      * command-related events thrown by this {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}.
@@ -71,10 +157,10 @@ public interface CommandClient {
      * Returns the list of registered {@link com.jagrosh.jdautilities.commandclient.Command Command}s 
      * during this session.
      * 
-     * @return A never-null list of Commands registered during this session
+     * @return A never-null List of Commands registered during this session
      */
     List<Command> getCommands();
-    
+
     /**
      * Gets the time this {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} 
      * implementation was created.
@@ -119,8 +205,8 @@ public interface CommandClient {
     void cleanCooldowns();
     
     /**
-     * Gets the number of uses for the provide 
-     * {@link com.jagrosh.jdautilities.commandclient.Command Command} during this session.
+     * Gets the number of uses for the provide {@link com.jagrosh.jdautilities.commandclient.Command Command}
+     * during this session, or {@code 0} if the command is not registered to this CommandClient.
      * 
      * @param  command 
      *         The Command
@@ -133,6 +219,11 @@ public interface CommandClient {
      * Gets the number of uses for a {@link com.jagrosh.jdautilities.commandclient.Command Command} 
      * during this session matching the provided String name, or {@code 0} if there is no Command 
      * with the name.
+     *
+     * <p><b>NOTE:</b> this method <b>WILL NOT</b> get uses for a command if an
+     * {@link com.jagrosh.jdautilities.commandclient.Command#aliases alias} is provided! Also note that
+     * {@link com.jagrosh.jdautilities.commandclient.Command#children child commands} <b>ARE NOT</b>
+     * tracked and providing names or effective names of child commands will return {@code 0}.
      * 
      * @param  name
      *         The name of the Command
@@ -248,7 +339,7 @@ public interface CommandClient {
      * @param  toQueue
      *         The RestAction to queue after the delay
      */
-    void schedule(String name, int delay, RestAction<?> toQueue);
+    <T> void schedule(String name, int delay, RestAction<T> toQueue);
     
     /**
      * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of <b>seconds</b>.
@@ -283,7 +374,7 @@ public interface CommandClient {
      * @param  toQueue
      *         The RestAction to queue after the delay
      */
-    void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue);
+    <T> void schedule(String name, int delay, TimeUnit unit, RestAction<T> toQueue);
     
     /**
      * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of
@@ -369,4 +460,19 @@ public interface CommandClient {
      * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture ScheduledFuture}s to reduce memory.
      */
     void cleanSchedule();
+
+    /**
+     * Gets whether this CommandClient uses linked deletion.
+     *
+     * <p>Linking calls is the basic principle of pairing bot responses with their calling
+     * {@link net.dv8tion.jda.core.entities.Message Message}s.
+     * <br>Using this with a basic function such as deletion, this causes bots to delete their
+     * Messages as a response to the calling Message being deleted.
+     *
+     * @return {@code true} if the bot uses linked deletion, {@code false} otherwise.
+     *
+     * @see    com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setLinkedCacheSize(int)
+     *         For how to disable or enable linked deletion.
+     */
+    boolean usesLinkedDeletion();
 }
