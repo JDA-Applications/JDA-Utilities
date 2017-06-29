@@ -21,6 +21,8 @@ import net.dv8tion.jda.core.entities.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -52,11 +54,11 @@ import java.util.stream.Collectors;
  */
 public class FinderUtil {
 
-    private final static String DISCORD_ID = "\\d{17,20}"; // ID
-    private final static String FULL_USER_REF = "(.{2,32})\\s*#(\\d{4})"; // $1 -> username, $2 -> discriminator
-    private final static String USER_MENTION = "<@!?(\\d{17,20})>"; // $1 -> ID
-    private final static String CHANNEL_MENTION = "<#(\\d{17,20})>"; // $1 -> ID
-    private final static String ROLE_MENTION = "<@&(\\d{17,20})>"; // $1 -> ID
+    private final static Pattern DISCORD_ID = Pattern.compile("\\d{17,20}"); // ID
+    private final static Pattern FULL_USER_REF = Pattern.compile("(.{2,32})\\s*#(\\d{4})"); // $1 -> username, $2 -> discriminator
+    private final static Pattern USER_MENTION = Pattern.compile("<@!?(\\d{17,20})>"); // $1 -> ID
+    private final static Pattern CHANNEL_MENTION = Pattern.compile("<#(\\d{17,20})>"); // $1 -> ID
+    private final static Pattern ROLE_MENTION = Pattern.compile("<@&(\\d{17,20})>"); // $1 -> ID
 
     /**
      * Queries a provided instance of {@link net.dv8tion.jda.core.JDA JDA} for {@link net.dv8tion.jda.core.entities.User User}s.
@@ -77,16 +79,18 @@ public class FinderUtil {
      */
     public static List<User> findUsers(String query, JDA jda)
     {
-        if(query.matches(USER_MENTION))
+        Matcher userMention = USER_MENTION.matcher(query);
+        Matcher fullRefMatch = FULL_USER_REF.matcher(query);
+        if(userMention.matches())
         {
-            User user = jda.getUserById(query.replaceAll(USER_MENTION, "$1"));
+            User user = jda.getUserById(userMention.replaceAll("$1"));
             if(user!=null)
                 return Collections.singletonList(user);
         }
-        else if(query.matches(FULL_USER_REF))
+        else if(fullRefMatch.matches())
         {
-            String lowerName = query.replaceAll(FULL_USER_REF, "$1").toLowerCase();
-            String discrim = query.replaceAll(FULL_USER_REF, "$2");
+            String lowerName = fullRefMatch.replaceAll("$1").toLowerCase();
+            String discrim = fullRefMatch.replaceAll("$2");
             List<User> users = jda.getUsers().stream()
                     .filter(user -> user.getName().toLowerCase().equals(lowerName)
                             && user.getDiscriminator().equals(discrim))
@@ -94,7 +98,7 @@ public class FinderUtil {
             if(!users.isEmpty())
                 return users;
         }
-        else if(query.matches(DISCORD_ID))
+        else if(DISCORD_ID.matcher(query).matches())
         {
             User user = jda.getUserById(query);
             if(user!=null)
@@ -149,16 +153,18 @@ public class FinderUtil {
      */
     public static List<Member> findMembers(String query, Guild guild)
     {
-        if(query.matches(USER_MENTION))
+        Matcher userMention = USER_MENTION.matcher(query);
+        Matcher fullRefMatch = FULL_USER_REF.matcher(query);
+        if(userMention.matches())
         {
-            Member member = guild.getMemberById(query.replaceAll(USER_MENTION, "$1"));
+            Member member = guild.getMemberById(userMention.replaceAll("$1"));
             if(member!=null)
                 return Collections.singletonList(member);
         }
-        else if(query.matches(FULL_USER_REF))
+        else if(fullRefMatch.matches())
         {
-            String lowerName = query.replaceAll(FULL_USER_REF, "$1").toLowerCase();
-            String discrim = query.replaceAll(FULL_USER_REF, "$2");
+            String lowerName = fullRefMatch.replaceAll("$1").toLowerCase();
+            String discrim = fullRefMatch.replaceAll("$2");
             List<Member> members = guild.getMembers().stream()
                     .filter(member -> member.getUser().getName().toLowerCase().equals(lowerName)
                             && member.getUser().getDiscriminator().equals(discrim))
@@ -166,7 +172,7 @@ public class FinderUtil {
             if(!members.isEmpty())
                 return members;
         }
-        else if(query.matches(DISCORD_ID))
+        else if(DISCORD_ID.matcher(query).matches())
         {
             Member member = guild.getMemberById(query);
             if(member!=null)
@@ -215,13 +221,14 @@ public class FinderUtil {
      */
     public static List<TextChannel> findTextChannels(String query, JDA jda)
     {
-        if(query.matches(CHANNEL_MENTION))
+        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+        if(channelMention.matches())
         {
-            TextChannel tc = jda.getTextChannelById(query.replaceAll(CHANNEL_MENTION, "$1"));
+            TextChannel tc = jda.getTextChannelById(channelMention.replaceAll("$1"));
             if(tc!=null)
                 return Collections.singletonList(tc);
         }
-        else if(query.matches(DISCORD_ID))
+        else if(DISCORD_ID.matcher(query).matches())
         {
             TextChannel tc = jda.getTextChannelById(query);
             if(tc!=null)
@@ -270,13 +277,14 @@ public class FinderUtil {
      */
     public static List<TextChannel> findTextChannels(String query, Guild guild)
     {
-        if(query.matches(CHANNEL_MENTION))
+        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+        if(channelMention.matches())
         {
-            TextChannel tc = guild.getTextChannelById(query.replaceAll(CHANNEL_MENTION, "$1"));
+            TextChannel tc = guild.getTextChannelById(channelMention.replaceAll("$1"));
             if(tc!=null)
                 return Collections.singletonList(tc);
         }
-        else if(query.matches(DISCORD_ID))
+        else if(DISCORD_ID.matcher(query).matches())
         {
             TextChannel tc = guild.getTextChannelById(query);
             if(tc!=null)
@@ -322,7 +330,7 @@ public class FinderUtil {
      */
     public static List<VoiceChannel> findVoiceChannels(String query, JDA jda)
     {
-        if(query.matches(DISCORD_ID))
+        if(DISCORD_ID.matcher(query).matches())
         {
             VoiceChannel vc = jda.getVoiceChannelById(query);
             if(vc!=null)
@@ -368,7 +376,7 @@ public class FinderUtil {
      */
     public static List<VoiceChannel> findVoiceChannels(String query, Guild guild)
     {
-        if(query.matches(DISCORD_ID))
+        if(DISCORD_ID.matcher(query).matches())
         {
             VoiceChannel vc = guild.getVoiceChannelById(query);
             if(vc!=null)
@@ -416,13 +424,14 @@ public class FinderUtil {
      */
     public static List<Role> findRoles(String query, Guild guild)
     {
-        if(query.matches(ROLE_MENTION))
+        Matcher roleMention = ROLE_MENTION.matcher(query);
+        if(roleMention.matches())
         {
-            Role role = guild.getRoleById(query.replaceAll(ROLE_MENTION, "$1"));
+            Role role = guild.getRoleById(roleMention.replaceAll("$1"));
             if(role!=null)
                 return Collections.singletonList(role);
         }
-        else if(query.matches(DISCORD_ID))
+        else if(DISCORD_ID.matcher(query).matches())
         {
             Role role = guild.getRoleById(query);
             if(role!=null)
@@ -452,4 +461,7 @@ public class FinderUtil {
             return startswith;
         return contains;
     }
+
+    // Prevent instantiation
+    private FinderUtil(){}
 }
