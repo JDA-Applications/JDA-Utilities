@@ -19,11 +19,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -32,22 +28,21 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import com.jagrosh.jdautilities.commandclient.Command;
+
+import com.jagrosh.jdautilities.commandclient.*;
 import com.jagrosh.jdautilities.commandclient.Command.Category;
-import com.jagrosh.jdautilities.commandclient.CommandClient;
-import com.jagrosh.jdautilities.commandclient.CommandEvent;
-import com.jagrosh.jdautilities.commandclient.CommandListener;
+import com.jagrosh.jdautilities.entities.FixedSizeCache;
 import com.jagrosh.jdautilities.utils.SafeIdUtil;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -69,15 +64,17 @@ import org.json.JSONObject;
  * @author John Grosh (jagrosh)
  */
 public class CommandClientImpl extends ListenerAdapter implements CommandClient {
-    
+
     private static final SimpleLog LOG = SimpleLog.getLog("CommandClient");
-    
+    private static final int INDEX_LIMIT = 20;
+
     private final OffsetDateTime start;
     private final Game game;
     private final String ownerId;
     private final String[] coOwnerIds;
     private final String prefix;
     private final String serverInvite;
+    private final HashMap<String, Integer> commandIndex;
     private final ArrayList<Command> commands;
     private final String success;
     private final String warning;
@@ -87,33 +84,36 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final HashMap<String,OffsetDateTime> cooldowns;
     private final HashMap<String,Integer> uses;
     private final HashMap<String,ScheduledFuture<?>> schedulepool;
+    private final FixedSizeCache<Long, Set<Message>> linkMap;
     private final boolean useHelp;
     private final Function<CommandEvent,String> helpFunction;
     private final String helpWord;
     private final ScheduledExecutorService executor;
-    
+    private final int linkedCacheSize;
+
     private String textPrefix;
     private CommandListener listener = null;
     private int totalGuilds;
-    
-    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, Game game, String serverInvite, String success, 
-            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands, 
-            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor)
+
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, Game game, String serverInvite, String success,
+            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands,
+            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
+            int linkedCacheSize)
     {
         Objects.nonNull(ownerId);
-        
+
         if(!SafeIdUtil.checkId(ownerId))
             LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
-        
+
         if(coOwnerIds!=null) {
             for(String coOwnerId : coOwnerIds) {
                 if(SafeIdUtil.checkId(coOwnerId))
                     LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
-            } 
+            }
         }
-        
+
         this.start = OffsetDateTime.now();
-        
+
         this.ownerId = ownerId;
         this.coOwnerIds = coOwnerIds;
         this.prefix = prefix;
@@ -124,13 +124,16 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.error = error==null ? "": error;
         this.carbonKey = carbonKey;
         this.botsKey = botsKey;
-        this.commands = commands;
+        this.commandIndex = new HashMap<>();
+        this.commands = new ArrayList<>();
         this.cooldowns = new HashMap<>();
         this.uses = new HashMap<>();
         this.schedulepool = new HashMap<>();
+        this.linkMap = linkedCacheSize>0 ? new FixedSizeCache<>(linkedCacheSize) : null;
         this.useHelp = useHelp;
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
+        this.linkedCacheSize = linkedCacheSize;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -158,14 +161,17 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         {
             Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
         }
+        for(Command command : commands) {
+            addCommand(command);
+        }
     }
-    
+
     @Override
     public void setListener(CommandListener listener)
     {
         this.listener = listener;
     }
-    
+
     @Override
     public CommandListener getListener()
     {
@@ -177,7 +183,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         return commands;
     }
-    
+
     @Override
     public OffsetDateTime getStartTime()
     {
@@ -189,7 +195,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         return cooldowns.get(name);
     }
-    
+
     @Override
     public int getRemainingCooldown(String name)
     {
@@ -205,7 +211,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         }
         return 0;
     }
-    
+
     @Override
     public void applyCooldown(String name, int seconds)
     {
@@ -216,39 +222,98 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     public void cleanCooldowns()
     {
         OffsetDateTime now = OffsetDateTime.now();
-        cooldowns.keySet().stream().filter((str) -> (cooldowns.get(str).isBefore(now))).collect(Collectors.toList()).stream().forEach(str -> cooldowns.remove(str));
+        cooldowns.keySet().stream().filter((str) -> (cooldowns.get(str).isBefore(now)))
+                .collect(Collectors.toList()).stream().forEach(str -> cooldowns.remove(str));
     }
-    
+
     @Override
     public int getCommandUses(Command command)
     {
     	return getCommandUses(command.getName());
     }
-    
+
     @Override
     public int getCommandUses(String name)
     {
     	return uses.getOrDefault(name, 0);
     }
-    
+
+    @Override
+    public void addCommand(Command command)
+    {
+        addCommand(command, commands.size());
+    }
+
+    @Override
+    public void addCommand(Command command, int index)
+    {
+        if(index>commands.size() || index<0)
+            throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
+        String badName = putCommand(command,index);
+        if(badName!=null)
+            throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+badName+"\"!");
+        else
+            commands.add(index,command);
+    }
+
+    private String putCommand(Command command, int index)
+    {
+        int targetIndex = index == -1? commands.size() : index;
+        String name = command.getName();
+        synchronized(commandIndex)
+        {
+            if(commandIndex.containsKey(name))
+                return name;
+            for(String alias : command.getAliases())
+            {
+                if(commandIndex.containsKey(alias))
+                    return alias;
+                commandIndex.put(alias, targetIndex);
+            }
+            commandIndex.put(name, targetIndex);
+            if(targetIndex<commands.size())
+                commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
+                        .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
+
+        }
+        return null;
+    }
+
+    @Override
+    public void removeCommand(String name)
+    {
+        int targetIndex;
+        synchronized (commandIndex) {
+            if(!commandIndex.containsKey(name))
+                throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
+            targetIndex = commandIndex.remove(name);
+            if(commandIndex.containsValue(targetIndex))
+                commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
+                    .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
+            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
+                    .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
+        }
+        commands.remove(targetIndex);
+    }
+
     @Override
     public String getOwnerId()
     {
         return ownerId;
     }
-    
+
     @Override
     public long getOwnerIdLong()
     {
         return Long.parseLong(ownerId);
     }
-    
+
     @Override
     public String[] getCoOwnerIds()
     {
     	return coOwnerIds;
     }
-    
+
     @Override
     public long[] getCoOwnerIdsLong()
     {
@@ -261,19 +326,19 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         }
         return ids;
     }
-    
+
     @Override
     public String getSuccess()
     {
         return success;
     }
-    
+
     @Override
     public String getWarning()
     {
         return warning;
     }
-    
+
     @Override
     public String getError()
     {
@@ -281,7 +346,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     }
 
     @Override
-    public String getServerInvite() 
+    public String getServerInvite()
     {
         return serverInvite;
     }
@@ -303,37 +368,37 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         return totalGuilds;
     }
-    
+
     @Override
     public String getHelpWord()
     {
         return helpWord;
     }
-    
+
     @Override
-    public void schedule(String name, int delay, RestAction<?> toQueue)
+    public <T> void schedule(String name, int delay, RestAction<T> toQueue)
     {
         saveFuture(name, toQueue.queueAfter(delay, TimeUnit.SECONDS, executor));
     }
-    
+
     @Override
     public void schedule(String name, int delay, Runnable runnable)
     {
         saveFuture(name, executor.schedule(runnable, delay, TimeUnit.SECONDS));
     }
-    
+
     @Override
-    public void schedule(String name, int delay, TimeUnit unit, RestAction<?> toQueue)
+    public <T> void schedule(String name, int delay, TimeUnit unit, RestAction<T> toQueue)
     {
         saveFuture(name, toQueue.queueAfter(delay, unit, executor));
     }
-    
+
     @Override
     public void schedule(String name, int delay, TimeUnit unit, Runnable runnable)
     {
         saveFuture(name, executor.schedule(runnable, delay, unit));
     }
-    
+
     @Override
     public void saveFuture(String name, ScheduledFuture<?> future)
     {
@@ -341,7 +406,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             schedulepool.put(name, future);
         }
     }
-    
+
     @Override
     public boolean scheduleContains(String name)
     {
@@ -349,7 +414,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             return schedulepool.containsKey(name);
         }
     }
-    
+
     @Override
     public void cancel(String name)
     {
@@ -357,7 +422,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             schedulepool.get(name).cancel(false);
         }
     }
-    
+
     @Override
     public void cancelImmediately(String name)
     {
@@ -365,7 +430,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             schedulepool.get(name).cancel(true);
         }
     }
-    
+
     @Override
     public ScheduledFuture<?> getScheduledFuture(String name)
     {
@@ -373,34 +438,40 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             return schedulepool.get(name);
         }
     }
-    
+
     @Override
     public void cleanSchedule()
     {
         synchronized(schedulepool) {
-            schedulepool.keySet().stream().filter((str) -> (schedulepool.get(str)).isCancelled() || (schedulepool.get(str)).isDone());
+            schedulepool.keySet().stream().filter((str) -> schedulepool.get(str).isCancelled() || schedulepool.get(str).isDone())
+                    .collect(Collectors.toList()).stream().forEach((str) -> schedulepool.remove(str));
         }
     }
-    
+
+    @Override
+    public boolean usesLinkedDeletion() {
+        return linkedCacheSize>0;
+    }
+
     @Override
     public void onReady(ReadyEvent event)
     {
         textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         event.getJDA().getPresence().setStatus(OnlineStatus.ONLINE);
         if(game!=null)
-            event.getJDA().getPresence().setGame("default".equals(game.getName()) ? 
-                    Game.of("Type "+textPrefix+"help") : 
+            event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
+                    Game.of("Type "+textPrefix+"help") :
                     game);
         sendStats(event.getJDA());
     }
-    
+
     @Override
     public void onShutdown(ShutdownEvent event)
     {
         executor.shutdown();
         System.exit(0);
     }
-    
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event)
     {
@@ -408,16 +479,17 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             return;
         boolean[] isCommand = new boolean[]{false};
         String[] parts = null;
+        String rawContent = event.getMessage().getRawContent();
         if(prefix==null)
         {
-            if(event.getMessage().getRawContent().startsWith("<@"+event.getJDA().getSelfUser().getId()+">") 
-                    || event.getMessage().getRawContent().startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
-                parts = Arrays.copyOf(event.getMessage().getRawContent().substring(event.getMessage().getRawContent().indexOf(">")+1).trim().split("\\s+",2), 2);
+            if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">")
+                    || rawContent.startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
+                parts = Arrays.copyOf(rawContent.substring(rawContent.indexOf(">")+1).trim().split("\\s+",2), 2);
         }
         else
         {
-            if(event.getMessage().getRawContent().toLowerCase().startsWith(prefix.toLowerCase()))
-                parts = Arrays.copyOf(event.getMessage().getRawContent().substring(prefix.length()).trim().split("\\s+",2), 2);
+            if(rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
+                parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
         }
         if(parts!=null) //starts with valid prefix
         {
@@ -430,13 +502,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 List<String> messages = CommandEvent.splitMessage(helpFunction.apply(cevent));
                 event.getAuthor().openPrivateChannel().queue(
                     pc -> {
-                        pc.sendMessage(messages.get(0)).queue( 
+                        pc.sendMessage(messages.get(0)).queue(
                             m-> {
                                 if(event.getGuild()!=null)
                                     cevent.reactSuccess();
                                 for(int i=1; i<messages.size(); i++)
                                     pc.sendMessage(messages.get(i)).queue();
-                            },t-> event.getChannel().sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.").queue());}, 
+                            },t-> event.getChannel().sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.").queue());},
                     t-> event.getChannel().sendMessage(warning+" Help cannot be sent because I could not open a Direct Message with you.").queue());
                 if(listener!=null)
                     listener.onCompletedCommand(cevent, null);
@@ -445,25 +517,42 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             {
                 String name = parts[0];
                 String args = parts[1]==null ? "" : parts[1];
-                commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
-                    isCommand[0] = true;
-                    CommandEvent cevent = new CommandEvent(event, args, this);
+                if(commands.size()<INDEX_LIMIT+1) {
+                    commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
+                        isCommand[0] = true;
+                        CommandEvent cevent = new CommandEvent(event, args, this);
 
-                    if(listener!=null)
-                        listener.onCommand(cevent, command);
-                    uses.put(command.getName(), uses.getOrDefault(command.getName(),0)+1);
-                    command.run(cevent);
-                });
+                        if(listener != null)
+                            listener.onCommand(cevent, command);
+                        uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
+                        command.run(cevent);
+                    });
+                } else {
+                    int i;
+                    synchronized(commandIndex) {
+                        i = commandIndex.getOrDefault(name.toLowerCase(), -1);
+                    }
+                    if(i!=-1)
+                    {
+                        isCommand[0] = true;
+                        Command command = commands.get(i);
+                        CommandEvent cevent = new CommandEvent(event,args,this);
+                        if(listener != null)
+                            listener.onCommand(cevent,command);
+                        uses.put(command.getName(), uses.getOrDefault(command.getName(), 0)+1);
+                        command.run(cevent);
+                    }
+                }
             }
         }
         if(!isCommand[0] && listener!=null)
             listener.onNonCommandMessage(event);
     }
-    
+
     @Override
     public void onGuildJoin(GuildJoinEvent event)
     {
-        if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isAfter(OffsetDateTime.now()));
+        if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isAfter(OffsetDateTime.now()))
             sendStats(event.getJDA());
     }
 
@@ -472,7 +561,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         sendStats(event.getJDA());
     }
-    
+
     private void sendStats(JDA jda)
     {
         if(jda.getShardInfo()==null)
@@ -523,6 +612,52 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 } catch (UnirestException | JSONException ex) {
                     SimpleLog.getLog("BotList").warn("Failed to retrieve bot shard information from bots.discord.pw");
                 }
+            }
+        }
+    }
+
+    @Override
+    public void onMessageDelete(MessageDeleteEvent event)
+    {
+        if(!event.isFromType(ChannelType.TEXT) || !usesLinkedDeletion()) // If it's not from a textchannel
+            return;
+        synchronized (linkMap)
+        {
+            if(linkMap.contains(event.getMessageIdLong()))
+            {
+                Set<Message> messages = linkMap.get(event.getMessageIdLong());
+                if(messages.size()>1 && event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_MANAGE))
+                    event.getTextChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
+                else if(messages.size()>0)
+                    messages.forEach(m -> m.delete().queue(unused -> {}, ignored -> {}));
+            }
+        }
+    }
+
+    /**
+     * <b>DO NOT USE THIS!</b>
+     *
+     * <p>This is a method necessary for linking a bot's response messages
+     * to their corresponding call message ID.
+     * <br><b>Using this anywhere in your code can and will break your bot.</b>
+     *
+     * @param  callId
+     *         The ID of the call Message
+     * @param  message
+     *         The Message to link to the ID
+     */
+    public void linkIds(long callId, Message message)
+    {
+        synchronized (linkMap)
+        {
+            Set<Message> stored = linkMap.get(callId);
+            if(stored != null)
+                stored.add(message);
+            else
+            {
+                stored = new HashSet<>();
+                stored.add(message);
+                linkMap.add(callId, stored);
             }
         }
     }
