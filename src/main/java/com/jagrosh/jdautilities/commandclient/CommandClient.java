@@ -331,7 +331,9 @@ public interface CommandClient {
      * {@link java.util.concurrent.TimeUnit}.
      * 
      * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     * 
+     *
+     * @param  <T>
+     *         The type of RestAction
      * @param  name
      *         The name of the scheduled RestAction (can be used to cancel it later if needed)
      * @param  delay
@@ -364,7 +366,9 @@ public interface CommandClient {
      * {@link java.util.concurrent.TimeUnit TimeUnit}.
      * 
      * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     * 
+     *
+     * @param  <T>
+     *         The type of RestAction
      * @param  name
      *         The name of the scheduled RestAction (can be used to cancel it later if needed)
      * @param  delay

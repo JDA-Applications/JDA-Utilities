@@ -119,10 +119,12 @@ public class CommandEvent {
      *
      * <p>The following conditions must be met when using this method or an {@link java.lang.IllegalArgumentException
      * IllegalArgumentException} will be thrown:
-     * <li>The Message provided is from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}).</li>
-     * <li>The base {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} must be using
-     * linked deletion (IE: {@link com.jagrosh.jdautilities.commandclient.CommandClient#usesLinkedDeletion()
-     * CommandClient#usesLinkedDeletion()} returns {@code true})</li>
+     * <ul>
+     *     <li>The Message provided is from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}).</li>
+     *     <li>The base {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} must be using
+     *     linked deletion (IE: {@link com.jagrosh.jdautilities.commandclient.CommandClient#usesLinkedDeletion()
+     *     CommandClient#usesLinkedDeletion()} returns {@code true})</li>
+     * </ul>
      *
      * @param  message
      *         The Message to add, must be from the SelfUser while linked deletion is being used.
@@ -522,6 +524,8 @@ public class CommandEvent {
      *
      * @param  message
      *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
      */
     public void replySuccess(String message, Consumer<Message> queue)
     {
@@ -560,6 +564,8 @@ public class CommandEvent {
      *
      * @param  message
      *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
      */
     public void replyWarning(String message, Consumer<Message> queue)
     {
@@ -598,6 +604,8 @@ public class CommandEvent {
      *
      * @param  message
      *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
      */
     public void replyError(String message, Consumer<Message> queue)
     {
