@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  *     <li>Direct ID: Query is a number with 17 or more digits, resembling an {@link net.dv8tion.jda.core.entities.ISnowflake
  *     ISnowflake} ID.</li>
  *     <li>Exact Match: Query provided is an exact match (case sensitive and complete) to one or more entities.</li>
+ *     <li>Wrong Case: Query provided is a case-insensitive, but exact, match to the entirety of one or more entities.</li>
  *     <li>Starting With: Query provided is an case-insensitive match to the beginning of one or more entities.</li>
  *     <li>Contains: Query provided is a case-insensitive match to a part of one or more entities.</li>
  * </ul>
