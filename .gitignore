@@ -1,7 +1,16 @@
 # Intellij Files
 /.idea/
 *.iml
+*.ipr
+*.iws
+
+# Netbeans files
+/.nb-gradle/
+*.nb-gradle-properties
 
 # Gradle Files
 /.gradle/
 /build/
+
+# Project Files
+src/test/
