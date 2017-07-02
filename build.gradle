@@ -73,10 +73,6 @@ javadoc {
     options.encoding = 'UTF-8'
     options.author()
     options.memberLevel = JavadocMemberLevel.PROTECTED
-
-    // Not Compiling Docs For:
-    exclude("com/jagrosh/jdautilities/commandclient/impl/")
-    exclude("com/jagrosh/jdautilities/entities/")
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
