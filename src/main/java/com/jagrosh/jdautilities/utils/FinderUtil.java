@@ -133,7 +133,7 @@ public class FinderUtil {
     /**
      * Queries a provided {@link net.dv8tion.jda.core.entities.Guild Guild} for {@link net.dv8tion.jda.core.entities.Member Member}s.
      *
-     * <p>Unlike {@link com.jagrosh.jdautilities.utils.FinderUtil#findUsers(String, JDA) FinderUtil.findUsers(String, JDA}, this method
+     * <p>Unlike {@link com.jagrosh.jdautilities.utils.FinderUtil#findUsers(String, JDA) FinderUtil.findUsers(String, JDA)}, this method
      * queries based on effective name (excluding special cases).
      * <br>Information on effective name can be found in {@link net.dv8tion.jda.core.entities.Member#getEffectiveName()
      * Member#getEffectiveName()}
@@ -210,7 +210,7 @@ public class FinderUtil {
      *
      * <p>The following special case is applied before the standard search is done:
      * <ul>
-     *     <li>Channel Mention: Query provided matches a #channel mention more specifically {@literal <#channelID>})</li>
+     *     <li>Channel Mention: Query provided matches a #channel mention (more specifically {@literal <#channelID>})</li>
      * </ul>
      *
      * @param  query
