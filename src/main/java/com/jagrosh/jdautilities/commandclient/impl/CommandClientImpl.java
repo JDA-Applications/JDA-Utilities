@@ -249,50 +249,34 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         if(index>commands.size() || index<0)
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
-        String badName = putCommand(command,index);
-        if(badName!=null)
-            throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+badName+"\"!");
-        else
-            commands.add(index,command);
-    }
-
-    private String putCommand(Command command, int index)
-    {
         int targetIndex = index == -1? commands.size() : index;
         String name = command.getName();
-        synchronized(commandIndex)
+        if(commandIndex.containsKey(name))
+            throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
+        for(String alias : command.getAliases())
         {
-            if(commandIndex.containsKey(name))
-                return name;
-            for(String alias : command.getAliases())
-            {
-                if(commandIndex.containsKey(alias))
-                    return alias;
-                commandIndex.put(alias, targetIndex);
-            }
-            commandIndex.put(name, targetIndex);
-            if(targetIndex<commands.size())
-                commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
-                        .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
-
+            if(commandIndex.containsKey(alias))
+                throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
+            commandIndex.put(alias, targetIndex);
         }
-        return null;
+        commandIndex.put(name, targetIndex);
+        if(targetIndex<commands.size())
+            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
+                    .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
+        commands.add(index,command);
     }
 
     @Override
     public void removeCommand(String name)
     {
-        int targetIndex;
-        synchronized (commandIndex) {
-            if(!commandIndex.containsKey(name))
-                throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
-            targetIndex = commandIndex.remove(name);
-            if(commandIndex.containsValue(targetIndex))
-                commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
+        if(!commandIndex.containsKey(name))
+            throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
+        int targetIndex = commandIndex.remove(name);
+        if(commandIndex.containsValue(targetIndex))
+            commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
                     .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
-            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
-                    .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
-        }
+        commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
+                .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
         commands.remove(targetIndex);
     }
 
@@ -402,50 +386,39 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     @Override
     public void saveFuture(String name, ScheduledFuture<?> future)
     {
-        synchronized(schedulepool) {
-            schedulepool.put(name, future);
-        }
+        schedulepool.put(name, future);
     }
 
     @Override
     public boolean scheduleContains(String name)
     {
-        synchronized(schedulepool) {
-            return schedulepool.containsKey(name);
-        }
+        return schedulepool.containsKey(name);
     }
 
     @Override
     public void cancel(String name)
     {
-        synchronized(schedulepool) {
-            schedulepool.get(name).cancel(false);
-        }
+        schedulepool.get(name).cancel(false);
     }
 
     @Override
     public void cancelImmediately(String name)
     {
-        synchronized(schedulepool) {
-            schedulepool.get(name).cancel(true);
-        }
+        schedulepool.get(name).cancel(true);
     }
 
     @Override
     public ScheduledFuture<?> getScheduledFuture(String name)
     {
-        synchronized(schedulepool) {
-            return schedulepool.get(name);
-        }
+        return schedulepool.get(name);
     }
 
     @Override
     public void cleanSchedule()
     {
-        synchronized(schedulepool) {
-            schedulepool.keySet().stream().filter((str) -> schedulepool.get(str).isCancelled() || schedulepool.get(str).isDone())
-                    .collect(Collectors.toList()).stream().forEach((str) -> schedulepool.remove(str));
-        }
+        schedulepool.keySet().stream()
+                .filter((str) -> schedulepool.get(str).isCancelled() || schedulepool.get(str).isDone())
+                .collect(Collectors.toList()).stream().forEach((str) -> schedulepool.remove(str));
     }
 
     @Override
@@ -528,10 +501,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                         command.run(cevent);
                     });
                 } else {
-                    int i;
-                    synchronized(commandIndex) {
-                        i = commandIndex.getOrDefault(name.toLowerCase(), -1);
-                    }
+                    int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
                     if(i!=-1)
                     {
                         isCommand[0] = true;
