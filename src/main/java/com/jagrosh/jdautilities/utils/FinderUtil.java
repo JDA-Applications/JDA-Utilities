@@ -110,7 +110,7 @@ public class FinderUtil {
         ArrayList<User> startswith = new ArrayList<>();
         ArrayList<User> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        jda.getUsers().stream().forEach(user -> {
+        jda.getUsers().forEach(user -> {
             String name = user.getName();
             if(name.equals(lowerquery))
                 exact.add(user);
@@ -184,7 +184,7 @@ public class FinderUtil {
         ArrayList<Member> startswith = new ArrayList<>();
         ArrayList<Member> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        guild.getMembers().stream().forEach(member -> {
+        guild.getMembers().forEach(member -> {
             String effName = member.getEffectiveName();
             if(effName.equals(lowerquery))
                 exact.add(member);
@@ -240,7 +240,7 @@ public class FinderUtil {
         ArrayList<TextChannel> startswith = new ArrayList<>();
         ArrayList<TextChannel> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        jda.getTextChannels().stream().forEach((tc) -> {
+        jda.getTextChannels().forEach((tc) -> {
             String name = tc.getName();
             if(name.equals(lowerquery))
                 exact.add(tc);
@@ -296,7 +296,7 @@ public class FinderUtil {
         ArrayList<TextChannel> startswith = new ArrayList<>();
         ArrayList<TextChannel> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        guild.getTextChannels().stream().forEach((tc) -> {
+        guild.getTextChannels().forEach((tc) -> {
             String name = tc.getName();
             if(name.equals(lowerquery))
                 exact.add(tc);
@@ -342,7 +342,7 @@ public class FinderUtil {
         ArrayList<VoiceChannel> startswith = new ArrayList<>();
         ArrayList<VoiceChannel> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        jda.getVoiceChannels().stream().forEach((vc) -> {
+        jda.getVoiceChannels().forEach((vc) -> {
             String name = vc.getName();
             if(name.equals(lowerquery))
                 exact.add(vc);
@@ -388,7 +388,7 @@ public class FinderUtil {
         ArrayList<VoiceChannel> startswith = new ArrayList<>();
         ArrayList<VoiceChannel> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        guild.getVoiceChannels().stream().forEach((vc) -> {
+        guild.getVoiceChannels().forEach((vc) -> {
             String name = vc.getName();
             if(name.equals(lowerquery))
                 exact.add(vc);
@@ -443,7 +443,10 @@ public class FinderUtil {
         ArrayList<Role> startswith = new ArrayList<>();
         ArrayList<Role> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        guild.getRoles().stream().forEach((role) -> {
+        List<Role> guildRoles = new ArrayList<>();
+        guildRoles.addAll(guild.getRoles());
+        guildRoles.add(guild.getPublicRole());
+        guildRoles.forEach((role) -> {
             String name = role.getName();
             if(name.equals(query))
                 exact.add(role);
