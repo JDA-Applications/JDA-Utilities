@@ -80,6 +80,8 @@ public abstract class Menu {
     
     protected boolean isValidUser(MessageReceivedEvent event)
     {
+        if(event.getAuthor().isBot())
+            return false;
         if(users.isEmpty() && roles.isEmpty())
             return true;
         if(users.contains(event.getAuthor()))
