@@ -85,4 +85,7 @@ public class SafeIdUtil {
             return false;
         }
     }
+
+    // Prevent instantiation
+    private SafeIdUtil(){}
 }

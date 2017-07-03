@@ -141,16 +141,16 @@ public class EventWaiter implements EventListener {
     }
     
     private class WaitingEvent<T extends Event> {
-        final private Predicate<T> condition;
-        final private Consumer<T> action;
+        final Predicate<T> condition;
+        final Consumer<T> action;
         
-        public WaitingEvent(Predicate<T> condition, Consumer<T> action)
+        WaitingEvent(Predicate<T> condition, Consumer<T> action)
         {
             this.condition = condition;
             this.action = action;
         }
         
-        public boolean attempt(T event)
+        boolean attempt(T event)
         {
             if(condition.test(event))
             {
