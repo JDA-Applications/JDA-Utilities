@@ -112,9 +112,9 @@ public class FinderUtil {
         String lowerquery = query.toLowerCase();
         jda.getUsers().forEach(user -> {
             String name = user.getName();
-            if(name.equals(lowerquery))
+            if(name.equals(query))
                 exact.add(user);
-            else if (name.equalsIgnoreCase(lowerquery) && exact.isEmpty())
+            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(user);
             else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(user);
@@ -186,9 +186,9 @@ public class FinderUtil {
         String lowerquery = query.toLowerCase();
         guild.getMembers().forEach(member -> {
             String effName = member.getEffectiveName();
-            if(effName.equals(lowerquery))
+            if(effName.equals(query))
                 exact.add(member);
-            else if (effName.equalsIgnoreCase(lowerquery) && exact.isEmpty())
+            else if (effName.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(member);
             else if (effName.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(member);
@@ -242,9 +242,9 @@ public class FinderUtil {
         String lowerquery = query.toLowerCase();
         jda.getTextChannels().forEach((tc) -> {
             String name = tc.getName();
-            if(name.equals(lowerquery))
+            if(name.equals(query))
                 exact.add(tc);
-            else if (name.equalsIgnoreCase(lowerquery) && exact.isEmpty())
+            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(tc);
             else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(tc);
@@ -298,9 +298,9 @@ public class FinderUtil {
         String lowerquery = query.toLowerCase();
         guild.getTextChannels().forEach((tc) -> {
             String name = tc.getName();
-            if(name.equals(lowerquery))
+            if(name.equals(query))
                 exact.add(tc);
-            else if (name.equalsIgnoreCase(lowerquery) && exact.isEmpty())
+            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(tc);
             else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(tc);
@@ -344,9 +344,9 @@ public class FinderUtil {
         String lowerquery = query.toLowerCase();
         jda.getVoiceChannels().forEach((vc) -> {
             String name = vc.getName();
-            if(name.equals(lowerquery))
+            if(name.equals(query))
                 exact.add(vc);
-            else if (name.equalsIgnoreCase(lowerquery) && exact.isEmpty())
+            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(vc);
             else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(vc);
@@ -390,9 +390,9 @@ public class FinderUtil {
         String lowerquery = query.toLowerCase();
         guild.getVoiceChannels().forEach((vc) -> {
             String name = vc.getName();
-            if(name.equals(lowerquery))
+            if(name.equals(query))
                 exact.add(vc);
-            else if (name.equalsIgnoreCase(lowerquery) && exact.isEmpty())
+            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
                 wrongcase.add(vc);
             else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(vc);
