@@ -483,11 +483,7 @@ public class CommandEvent {
         {
             Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
             event.getAuthor().openPrivateChannel().queue(pc -> {
-                try {
-                    pc.sendFile(file, filename, msg).queue();
-                } catch (IOException ex) {
-                    SimpleLog.getLog("Commands").warn(ex);
-                }
+                pc.sendFile(file, filename, msg).queue();
             });
         }
     }

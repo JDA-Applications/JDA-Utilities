@@ -539,7 +539,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             if(carbonKey!=null)
                 Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
                         .field("key", carbonKey)
-                        .field("servercount", jda.getGuilds().size())
+                        .field("servercount", Integer.toString(jda.getGuilds().size()))
                         .asJsonAsync();
             if(botsKey!=null)
                 Unirest.post("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
@@ -554,9 +554,9 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             {
                 Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
                         .field("key", carbonKey)
-                        .field("shard_id", jda.getShardInfo().getShardId())
-                        .field("shard_count", jda.getShardInfo().getShardTotal())
-                        .field("servercount", jda.getGuilds().size())
+                        .field("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
+                        .field("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()))
+                        .field("servercount", Integer.toString(jda.getGuilds().size()))
                         .asJsonAsync();
             }
             if(botsKey!=null)

@@ -23,7 +23,7 @@ plugins {
 }
 
 def versionObj = new Version(major: 1, minor: 3)
-def jdaVersion = '3.1.1_219'
+def jdaVersion = '3.2.0_228'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name
@@ -85,7 +85,7 @@ shadowJar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '3.3'
 }
 
 build {
