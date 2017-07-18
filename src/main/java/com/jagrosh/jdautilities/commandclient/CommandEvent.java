@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -81,7 +82,7 @@ public class CommandEvent {
         return args;
     }
     
-    protected void setArgs(String args)
+    void setArgs(String args)
     {
         this.args = args;
     }
@@ -107,8 +108,39 @@ public class CommandEvent {
     {
         return client;
     }
-    
-    
+
+    /**
+     * Links a {@link net.dv8tion.jda.core.entities.Message Message} with the calling Message
+     * contained by this CommandEvent.
+     *
+     * <p>This method is exposed for those who wish to use linked deletion but may require usage of
+     * {@link net.dv8tion.jda.core.entities.MessageChannel#sendMessage(Message) MessageChannel#sendMessage()}
+     * or for other reasons cannot use the standard {@code reply()} methods.
+     *
+     * <p>The following conditions must be met when using this method or an {@link java.lang.IllegalArgumentException
+     * IllegalArgumentException} will be thrown:
+     * <ul>
+     *     <li>The Message provided is from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}).</li>
+     *     <li>The base {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} must be using
+     *     linked deletion (IE: {@link com.jagrosh.jdautilities.commandclient.CommandClient#usesLinkedDeletion()
+     *     CommandClient#usesLinkedDeletion()} returns {@code true})</li>
+     * </ul>
+     *
+     * @param  message
+     *         The Message to add, must be from the SelfUser while linked deletion is being used.
+     *
+     * @throws java.lang.IllegalArgumentException
+     *         One or more of the criteria to use this method are not met (see above).
+     */
+    public void linkId(Message message)
+    {
+        if(!message.getAuthor().equals(getSelfUser()))
+            throw new IllegalArgumentException("Attempted to link a Message who's author was not the bot!");
+        if(!client.usesLinkedDeletion())
+            throw new IllegalArgumentException("Linked Deletion has been disabled for this CommandClient!");
+        ((CommandClientImpl)client).linkIds(event.getMessageIdLong(), message);
+    }
+
     // functional calls
     
     /**
@@ -163,7 +195,10 @@ public class CommandEvent {
      */
     public void reply(MessageEmbed embed)
     {
-        event.getChannel().sendMessage(embed).queue();
+        event.getChannel().sendMessage(embed).queue(m -> {
+            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                linkId(m);
+        });
     }
     
     /**
@@ -182,7 +217,11 @@ public class CommandEvent {
      */
     public void reply(MessageEmbed embed, Consumer<Message> queue)
     {
-    	event.getChannel().sendMessage(embed).queue(queue);
+    	event.getChannel().sendMessage(embed).queue(m -> {
+    	    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+    	        linkId(m);
+    	    queue.accept(m);
+        });
     }
     
     /**
@@ -197,7 +236,10 @@ public class CommandEvent {
      */
     public void reply(Message message)
     {
-        event.getChannel().sendMessage(message).queue();
+        event.getChannel().sendMessage(message).queue(m -> {
+            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                linkId(m);
+        });
     }
     
     /**
@@ -216,7 +258,11 @@ public class CommandEvent {
      */
     public void reply(Message message, Consumer<Message> queue)
     {
-        event.getChannel().sendMessage(message).queue(queue);
+        event.getChannel().sendMessage(message).queue(m -> {
+            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                linkId(m);
+            queue.accept(m);
+        });
     }
     
     /**
@@ -438,7 +484,7 @@ public class CommandEvent {
             Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
             event.getAuthor().openPrivateChannel().queue(pc -> {
                 try {
-                    pc.sendFile(file, filename, msg);
+                    pc.sendFile(file, filename, msg).queue();
                 } catch (IOException ex) {
                     SimpleLog.getLog("Commands").warn(ex);
                 }
@@ -463,7 +509,29 @@ public class CommandEvent {
     {
         reply(client.getSuccess()+" "+message);
     }
-    
+
+    /**
+     * Replies with a String message and a prefixed success emoji and then
+     * queues a {@link java.util.function.Consumer}.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     *
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void replySuccess(String message, Consumer<Message> queue)
+    {
+        reply(client.getSuccess()+" "+message, queue);
+    }
+
     /**
      * Replies with a String message, and a prefixed warning emoji.
      * 
@@ -481,7 +549,29 @@ public class CommandEvent {
     {
         reply(client.getWarning()+" "+message);
     }
-    
+
+    /**
+     * Replies with a String message and a prefixed warning emoji and then
+     * queues a {@link java.util.function.Consumer}.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     *
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void replyWarning(String message, Consumer<Message> queue)
+    {
+        reply(client.getWarning()+" "+message, queue);
+    }
+
     /**
      * Replies with a String message and a prefixed error emoji.
      * 
@@ -499,7 +589,29 @@ public class CommandEvent {
     {
         reply(client.getError()+" "+message);
     }
-    
+
+    /**
+     * Replies with a String message and a prefixed error emoji and then
+     * queues a {@link java.util.function.Consumer}.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     *
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
+     * in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     * @param  queue
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void replyError(String message, Consumer<Message> queue)
+    {
+        reply(client.getError()+" "+message, queue);
+    }
+
     /**
      * Adds a success reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
      */
@@ -526,6 +638,7 @@ public class CommandEvent {
     
     
     //private methods
+
     private void react(String reaction)
     {
         if(reaction.isEmpty())
@@ -549,27 +662,38 @@ public class CommandEvent {
         }
     }
     
-    private static void sendMessage(MessageChannel chan, String message)
+    private void sendMessage(MessageChannel chan, String message)
     {
         ArrayList<String> messages = splitMessage(message);
         for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
         {
-            chan.sendMessage(messages.get(i)).queue();
+            chan.sendMessage(messages.get(i)).queue(m -> {
+                if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                    linkId(m);
+            });
         }
     }
     
-    private static void sendMessage(MessageChannel chan, String message, Consumer<Message> queue)
+    private void sendMessage(MessageChannel chan, String message, Consumer<Message> queue)
     {
         ArrayList<String> messages = splitMessage(message);
         for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
         {
             if(i+1==MAX_MESSAGES || i+1==messages.size())
-                chan.sendMessage(messages.get(i)).queue(queue);
+                chan.sendMessage(messages.get(i)).queue(m -> {
+                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                        linkId(m);
+                    queue.accept(m);
+                });
             else
-                chan.sendMessage(messages.get(i)).queue();
+                chan.sendMessage(messages.get(i)).queue(m -> {
+                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                        linkId(m);
+                });
         }
     }
-    
+
+
     /**
      * Splits a String into one or more Strings who's length does not exceed 2000 characters.
      * <br>Also nullifies usages of {@code @here} and {@code @everyone} so that they do not mention anyone.
@@ -607,8 +731,8 @@ public class CommandEvent {
         }
         return msgs;
     }
-    
-    
+
+
     // custom shortcuts
     
     /**

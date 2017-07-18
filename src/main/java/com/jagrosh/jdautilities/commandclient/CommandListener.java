@@ -34,7 +34,7 @@ public interface CommandListener {
      * @param  command
      *         The Command that was triggered
      */
-    public void onCommand(CommandEvent event, Command command);
+    void onCommand(CommandEvent event, Command command);
     
     /**
      * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
@@ -46,7 +46,7 @@ public interface CommandListener {
      * @param  command
      *         The Command that was triggered
      */
-    public void onCompletedCommand(CommandEvent event, Command command);
+    void onCompletedCommand(CommandEvent event, Command command);
     
     /**
      * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
@@ -58,7 +58,7 @@ public interface CommandListener {
      * @param  command
      *         The Command that was triggered
      */
-    public void onTerminatedCommand(CommandEvent event, Command command);
+    void onTerminatedCommand(CommandEvent event, Command command);
     
     /**
      * A method that is called whenever a 
@@ -72,5 +72,5 @@ public interface CommandListener {
      * @param  event
      *         A MessageReceivedEvent that wasn't used to call a Command
      */
-    public void onNonCommandMessage(MessageReceivedEvent event);
+    void onNonCommandMessage(MessageReceivedEvent event);
 }

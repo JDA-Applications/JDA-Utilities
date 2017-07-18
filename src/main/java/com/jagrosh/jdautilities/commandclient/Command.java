@@ -21,9 +21,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-
 
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
@@ -91,6 +91,7 @@ public abstract class Command {
     /**
      * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.entities.Guild Guild}, 
      * {@code false} if it may be used in both a Guild and a DM.
+     * <br>Default {@code true}.
      */
     protected boolean guildOnly = true;
     
@@ -102,6 +103,7 @@ public abstract class Command {
     /**
      * {@code true} if the command may only be used by a User with an ID matching the
      * Owners or any of the CoOwners.
+     * <br>Default {@code false}.
      */
     protected boolean ownerCommand = false;
     
@@ -139,6 +141,21 @@ public abstract class Command {
      * {@code [prefix]<command name> help}.
      */
     protected BiConsumer<CommandEvent, Command> helpBiConsumer = null;
+
+    /**
+     * {@code true} if this command checks a channel topic for topic-tags.
+     * <br>This means that putting {@code {-commandname}}, {@code {-command category}}, {@code {-all}} in a channel topic
+     * will cause this command to terminate.
+     * <br>Default {@code true}.
+     */
+    protected boolean usesTopicTags = true;
+
+    /**
+     * The {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope CooldownScope}
+     * of the command. This defines how far of a scope cooldowns have.
+     * <br>Default {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#USER CooldownScope.USER}.
+     */
+    protected CooldownScope cooldownScope = CooldownScope.USER;
     
     private final static String BOT_PERM = "%s I need the %s permission in this %s!";
     private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
@@ -168,6 +185,11 @@ public abstract class Command {
         if(!event.getArgs().isEmpty())
         {
             String[] parts = Arrays.copyOf(event.getArgs().split("\\s+",2), 2);
+            if(helpBiConsumer!=null && parts[0].equalsIgnoreCase(event.getClient().getHelpWord()))
+            {
+                helpBiConsumer.accept(event, this);
+                return;
+            }
             for(Command cmd: children)
             {
                 if(cmd.isCommandFor(parts[0]))
@@ -192,18 +214,21 @@ public abstract class Command {
             terminate(event, category.getFailureResponse());
             return;
         }
+
+        // is allowed check
+        if(event.isFromType(ChannelType.TEXT) && !isAllowed(event.getTextChannel()))
+        {
+            terminate(event, "That command cannot be used in this channel!");
+            return;
+        }
         
         // required role check
         if(requiredRole!=null)
-            if(event.getChannelType()!=ChannelType.TEXT || !event.getMember().getRoles().stream().anyMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
+            if(!event.isFromType(ChannelType.TEXT) || !event.getMember().getRoles().stream().anyMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
             {
                 terminate(event, event.getClient().getError()+" You must have a role called `"+requiredRole+"` to use that!");
                 return;
             }
-        
-        // sub-help check
-        if(helpBiConsumer!=null && !event.getArgs().isEmpty() && event.getArgs().split("\\s+")[0].equalsIgnoreCase(event.getClient().getHelpWord()))
-            helpBiConsumer.accept(event, this);
         
         // availabilty check
         if(event.getChannelType()==ChannelType.TEXT)
@@ -269,20 +294,22 @@ public abstract class Command {
         }
         else if(guildOnly)
         {
-            event.reply(event.getClient().getError()+" This command cannot be used in Direct messages");
+            terminate(event, event.getClient().getError()+" This command cannot be used in Direct messages");
             return;
         }
         
         //cooldown check
         if(cooldown>0)
         {
-            int remaining = event.getClient().getRemainingCooldown(name+"|"+event.getAuthor().getId());
+            String key = getCooldownKey(event);
+            int remaining = event.getClient().getRemainingCooldown(key);
             if(remaining>0)
             {
-                event.reply(event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds!");
+                String errFlair = getErrorFlair(event);
+                terminate(event, event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds"+(errFlair.isEmpty()?"":" "+errFlair)+"!");
                 return;
             }
-            else event.getClient().applyCooldown(name+"|"+event.getAuthor().getId(), cooldown);
+            else event.getClient().applyCooldown(key, cooldown);
         }
         
         // run
@@ -308,8 +335,52 @@ public abstract class Command {
                 return true;
         return false;
     }
-    
-    
+
+    /**
+     * Checks whether a command is allowed in a {@link net.dv8tion.jda.core.entities.TextChannel TextChannel}
+     * by searching the channel topic for topic tags relating to the command.
+     *
+     * <p>{-{@link com.jagrosh.jdautilities.commandclient.Command#name name}},
+     * {-{@link com.jagrosh.jdautilities.commandclient.Command.Category category name}}, or {-{@code all}}
+     * are valid examples of ways that this method would return {@code false} if placed in a channel topic.
+     *
+     * <p><b>NOTE:</b>Topic tags are <b>case sensitive</b> and proper usage must be in lower case!
+     * <br>Also note that setting {@link com.jagrosh.jdautilities.commandclient.Command#usesTopicTags usesTopicTags}
+     * to {@code false} will cause this method to always return {@code true}, as the feature would not be applicable
+     * in the first place.
+     *
+     * @param  channel
+     *         The TextChannel to test.
+     *
+     * @return {@code true} if the channel topic doesn't specify any topic-tags that would cause this command
+     *         to be cancelled, or if {@code usesTopicTags} has been set to {@code false}.
+     */
+    public boolean isAllowed(TextChannel channel)
+    {
+        if(!usesTopicTags)
+            return true;
+        if(channel==null)
+            return true;
+        String topic = channel.getTopic();
+        if(topic==null || topic.isEmpty())
+            return true;
+        topic = topic.toLowerCase();
+        String lowerName = name.toLowerCase();
+        if(topic.contains("{"+lowerName+"}"))
+            return true;
+        if(topic.contains("{-"+lowerName+"}"))
+            return false;
+        String lowerCat = category==null ? null : category.getName().toLowerCase();
+        if(lowerCat!=null)
+        {
+            if(topic.contains("{"+lowerCat+"}"))
+                return true;
+            if(topic.contains("{-"+lowerCat+"}"))
+                return false;
+        }
+        return !topic.contains("{-all}");
+    }
+
     /**
      * Gets the {@link com.jagrosh.jdautilities.commandclient.Command#name Command.name} for the Command.
      *
@@ -427,7 +498,31 @@ public abstract class Command {
         if(event.getClient().getListener()!=null)
             event.getClient().getListener().onTerminatedCommand(event, this);
     }
-    
+
+    private String getCooldownKey(CommandEvent event)
+    {
+        switch (cooldownScope)
+        {
+            case USER:         return cooldownScope.genKey(name,event.getAuthor().getIdLong());
+            case USER_GUILD:   return event.getGuild()!=null ? cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getGuild().getIdLong()) :
+                    CooldownScope.USER_CHANNEL.genKey(name,event.getAuthor().getIdLong(), event.getChannel().getIdLong());
+            case USER_CHANNEL: return cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getChannel().getIdLong());
+            case GUILD:        return event.getGuild()!=null ? cooldownScope.genKey(name,event.getGuild().getIdLong()) :
+                    CooldownScope.CHANNEL.genKey(name,event.getChannel().getIdLong());
+            case CHANNEL:      return cooldownScope.genKey(name,event.getChannel().getIdLong());
+            case GLOBAL:       return cooldownScope.genKey(name, 0);
+            default:           return "";
+        }
+    }
+
+    private String getErrorFlair(CommandEvent event)
+    {
+        if((cooldownScope.equals(CooldownScope.USER_GUILD) || cooldownScope.equals(CooldownScope.GUILD)) && event.getGuild()==null)
+            return CooldownScope.CHANNEL.errorFlair;
+        else
+            return cooldownScope.errorFlair;
+    }
+
     /**
      * To be used in {@link com.jagrosh.jdautilities.commandclient.Command Command}s as a means of 
      * organizing commands into "Categories" as well as terminate command usage when the calling 
@@ -526,7 +621,7 @@ public abstract class Command {
          */
         public boolean test(CommandEvent event)
         {
-            return predicate==null ? true : predicate.test(event);
+            return predicate==null || predicate.test(event);
         }
 
         @Override
@@ -544,6 +639,81 @@ public abstract class Command {
             hash = 17 * hash + Objects.hashCode(this.failResponse);
             hash = 17 * hash + Objects.hashCode(this.predicate);
             return hash;
+        }
+    }
+
+    /**
+     * A series of {@link java.lang.Enum Enum}s used for defining the scope size for cooldowns
+     * of {@link com.jagrosh.jdautilities.commandclient.Command Command}s.
+     *
+     * @since  1.3
+     * @author Kaidan Gustave
+     *
+     * @see    com.jagrosh.jdautilities.commandclient.Command#cooldownScope Command.cooldownScope
+     */
+    public enum CooldownScope {
+        /**
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} globally.
+         */
+        USER("U:%d",""),
+        /**
+         * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the
+         * command is called in.
+         */
+        CHANNEL("C:%d","in this channel"),
+        /**
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
+         * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the command is called in.
+         */
+        USER_CHANNEL("U:%d|C:%d", "in this channel"),
+        /**
+         * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
+         *
+         * <p><b>NOTE:</b> This will automatically default back to
+         * {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#CHANNEL CooldownScope.CHANNEL}
+         * when called in a private channel. This is done in order to prevent internal {@link java.lang.NullPointerException
+         * NullPointerException}s from being thrown while processing cooldown keys!
+         */
+        GUILD("G:%d", "in this server"),
+        /**
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
+         * {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
+         *
+         * <p><b>NOTE:</b> This will automatically default back to
+         * {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#CHANNEL CooldownScope.CHANNEL}
+         * when called in a private channel. This is done in order to prevent internal {@link java.lang.NullPointerException
+         * NullPointerException}s from being thrown while processing cooldown keys!
+         */
+        USER_GUILD("U:%d|G:%d", "in this server"),
+        /**
+         * Applies this cooldown globally.
+         * <br>As this implies: the command that goes on cooldown will be unaccessable on all
+         * {@link net.dv8tion.jda.core.entities.Guild Guild}s and in all {@link net.dv8tion.jda.core.entities.MessageChannel
+         * MessageChannel}s until the cooldown has ended.
+         */
+        GLOBAL("Global", "globally");
+
+        private final String format;
+        final String errorFlair;
+
+        CooldownScope(String format, String errorFlair)
+        {
+            this.format = format;
+            this.errorFlair = errorFlair;
+        }
+
+        String genKey(String name, long id)
+        {
+            return genKey(name, id, -1);
+        }
+
+        String genKey(String name, long idOne, long idTwo)
+        {
+            if(this.equals(GLOBAL))
+                return name+"|"+format;
+            else if(idTwo==-1)
+                return name+"|"+String.format(format,idOne);
+            else return name+"|"+String.format(format,idOne,idTwo);
         }
     }
 }
