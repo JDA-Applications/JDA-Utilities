@@ -36,7 +36,6 @@ repositories {
 
 dependencies {
     compileOnly "net.dv8tion:JDA:${jdaVersion}"
-    compile 'com.mashape.unirest:unirest-java:1.3.1'
 }
 
 task sourcesForRelease(type: Copy) {

@@ -15,19 +15,16 @@
  */
 package com.jagrosh.jdautilities.commandclient.examples;
 
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import java.awt.Color;
 import com.jagrosh.jdautilities.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.commandclient.Command;
 import com.jagrosh.jdautilities.commandclient.CommandEvent;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
+import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.utils.SimpleLog;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  *
@@ -37,11 +34,11 @@ public class AboutCommand extends Command {
     public static boolean IS_AUTHOR = true;
     private final Color color;
     private final String description;
-    private final long perms;
+    private final Permission[] perms;
     private String oauthLink;
     private final String[] features;
     
-    public AboutCommand(Color color, String description, String[] features, Permission... requestedPerms)
+    public AboutCommand(Color color, String description, String[] features, Permission... perms)
     {
         this.color = color;
         this.description = description;
@@ -49,32 +46,19 @@ public class AboutCommand extends Command {
         this.name = "about";
         this.help = "shows info about the bot";
         this.guildOnly = false;
-        if(requestedPerms==null)
-        {
-            this.oauthLink = "";
-            this.perms = 0;
-        }
-        else
-        {
-            long p = 0;
-            for(Permission perm: requestedPerms)
-                p += perm.getRawValue();
-            perms = p;
-        }
+        this.perms = perms;
     }
     
     @Override
     protected void execute(CommandEvent event) {
-        if(oauthLink==null)
-        {
-            try{
-                JSONObject app = Unirest.get("https://discordapp.com/api/oauth2/applications/@me")
-                    .header("Authorization", event.getJDA().getToken())
-                    .asJson().getBody().getObject();
-                boolean isPublic = app.has("bot_public") ? app.getBoolean("bot_public") : true;
-                oauthLink = isPublic ? "https://discordapp.com/oauth2/authorize?client_id="+app.getString("id")+"&permissions="+perms+"&scope=bot" : "";
-            }catch(UnirestException | JSONException e){
-                SimpleLog.getLog("OAuth2").fatal("Could not generate invite link: "+e);
+        if (oauthLink == null) {
+            try {
+                ApplicationInfo info = event.getJDA().asBot().getApplicationInfo().complete();
+                oauthLink = info.isBotPublic() ? info.getInviteUrl(perms) : "";
+            } catch (Exception e) {
+                SimpleLog log = SimpleLog.getLog("OAuth2");
+                log.fatal("Could not generate invite link");
+                log.log(e);
                 oauthLink = "";
             }
         }

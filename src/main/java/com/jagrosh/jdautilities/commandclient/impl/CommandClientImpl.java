@@ -15,8 +15,7 @@
  */
 package com.jagrosh.jdautilities.commandclient.impl;
 
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -38,6 +37,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
@@ -45,11 +45,19 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.requests.Requester;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}, 
@@ -534,54 +542,71 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
     private void sendStats(JDA jda)
     {
-        if(jda.getShardInfo()==null)
-        {
-            if(carbonKey!=null)
-                Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
-                        .field("key", carbonKey)
-                        .field("servercount", Integer.toString(jda.getGuilds().size()))
-                        .asJsonAsync();
-            if(botsKey!=null)
-                Unirest.post("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
-                        .header("Authorization", botsKey)
-                        .header("Content-Type","application/json")
-                        .body(new JSONObject().put("server_count",jda.getGuilds().size()).toString())
-                        .asJsonAsync();
-        }
-        else
-        {
-            if(carbonKey!=null)
-            {
-                Unirest.post("https://www.carbonitex.net/discord/data/botdata.php")
-                        .field("key", carbonKey)
-                        .field("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
-                        .field("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()))
-                        .field("servercount", Integer.toString(jda.getGuilds().size()))
-                        .asJsonAsync();
-            }
-            if(botsKey!=null)
-            {
-                Unirest.post("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
-                        .header("Authorization", botsKey)
-                        .header("Content-Type","application/json")
-                        .body(new JSONObject()
-                                .put("shard_id", jda.getShardInfo().getShardId())
-                                .put("shard_count", jda.getShardInfo().getShardTotal())
-                                .put("server_count",jda.getGuilds().size())
-                                .toString())
-                        .asJsonAsync();
-                try {
-                    JSONArray array = Unirest.get("https://bots.discord.pw/api/bots/"+jda.getSelfUser().getId()+"/stats")
-                            .header("Authorization", botsKey)
-                            .header("Content-Type","application/json")
-                            .asJson().getBody().getObject().getJSONArray("stats");
-                    int total = 0;
-                    for(int i=0; i<array.length(); i++)
-                        total += array.getJSONObject(i).getInt("server_count");
-                    this.totalGuilds = total;
-                } catch (UnirestException | JSONException ex) {
-                    SimpleLog.getLog("BotList").warn("Failed to retrieve bot shard information from bots.discord.pw");
+        SimpleLog log = SimpleLog.getLog("BotList");
+        OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
+
+        if (carbonKey != null) {
+            Request.Builder builder = new Request.Builder()
+                    .post(Requester.EMPTY_BODY).header("key", carbonKey)
+                    .url("https://www.carbonitex.net/discord/data/botdata.php")
+                    .header("servercount", Integer.toString(jda.getGuilds().size()));
+
+            if (jda.getShardInfo() != null)
+                builder.header("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
+                       .header("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    log.info("Successfully send information to carbonitex.com");
                 }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    log.fatal("Failed to send information to carbonitex.com");
+                    log.log(e);
+                }
+            });
+        }
+        if (botsKey != null) {
+            JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
+
+            if (jda.getShardInfo() != null)
+                body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+
+            Request.Builder builder = new Request.Builder()
+                    .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
+                    .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", botsKey)
+                    .header("Content-Type", "application/json");
+
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    log.info("Successfully send information to bots.discord.pw");
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    log.fatal("Failed to send information to bots.discord.pw");
+                    log.log(e);
+                }
+            });
+
+            try {
+                JSONArray array = new JSONArray(new JSONTokener(client.newCall(new Request.Builder()
+                        .get()
+                        .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                        .header("Authorization", botsKey)
+                        .header("Content-Type", "application/json")
+                        .build()).execute().body().charStream()));
+                int total = 0;
+                for (int i = 0; i < array.length(); i++)
+                    total += array.getJSONObject(i).getInt("server_count");
+                this.totalGuilds = total;
+            } catch (Exception e) {
+                log.fatal("Failed to retrieve bot shard information from bots.discord.pw");
+                log.log(e);
             }
         }
     }
