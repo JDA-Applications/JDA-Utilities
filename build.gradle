@@ -143,8 +143,8 @@ build {
 bintrayUpload {
     dependsOn build
 
-    // onlyIf { !getProjectProperty("bintrayUsername").empty }
-    // onlyIf { !getProjectProperty("bintrayApiKey").empty }
+    onlyIf { !getProjectProperty("bintrayUsername").empty }
+    onlyIf { !getProjectProperty("bintrayApiKey").empty }
 }
 
 class Version {
