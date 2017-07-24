@@ -29,7 +29,7 @@ import net.dv8tion.jda.core.entities.Message;
  *
  * @author John Grosh
  */
-public class SlideshowBuilder extends MenuBuilder {
+public class SlideshowBuilder extends MenuBuilder<SlideshowBuilder, Slideshow> {
     
     private BiFunction<Integer,Integer,Color> color = (page, pages) -> null;
     private BiFunction<Integer,Integer,String> text = (page, pages) -> null;

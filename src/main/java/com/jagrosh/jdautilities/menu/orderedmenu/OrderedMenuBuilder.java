@@ -22,13 +22,11 @@ import java.util.List;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
 
-import net.dv8tion.jda.core.entities.Emote;
-
 /**
  *
  * @author John Grosh
  */
-public class OrderedMenuBuilder extends MenuBuilder {
+public class OrderedMenuBuilder extends MenuBuilder<OrderedMenuBuilder, OrderedMenu> {
 
     private Color color;
     private String text;
