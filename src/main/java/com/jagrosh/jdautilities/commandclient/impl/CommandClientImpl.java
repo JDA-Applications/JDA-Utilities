@@ -441,7 +441,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         event.getJDA().getPresence().setStatus(OnlineStatus.ONLINE);
         if(game!=null)
             event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
-                    Game.of("Type "+textPrefix+"help") :
+                    Game.of("Type "+textPrefix+helpWord) :
                     game);
         sendStats(event.getJDA());
     }
