@@ -27,7 +27,7 @@ import com.jagrosh.jdautilities.menu.MenuBuilder;
  *
  * @author John Grosh
  */
-public class SelectionDialogBuilder extends MenuBuilder {
+public class SelectionDialogBuilder extends MenuBuilder<SelectionDialogBuilder, SelectionDialog> {
 
     private final List<String> choices = new LinkedList<>();
     private String leftEnd = "";

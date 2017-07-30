@@ -20,7 +20,6 @@ import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
-
 import net.dv8tion.jda.core.entities.Game;
 
 /**
@@ -30,6 +29,8 @@ import net.dv8tion.jda.core.entities.Game;
  * {@link net.dv8tion.jda.core.JDA JDA} and it will automatically handle commands with ease!
  * 
  * @author John Grosh (jagrosh)
+ *
+ * @see    com.jagrosh.jdautilities.commandclient.CommandClientBuilder
  */
 public class CommandClientBuilder {
     private Game game = Game.of("default");

@@ -305,9 +305,12 @@ public abstract class Command {
             int remaining = event.getClient().getRemainingCooldown(key);
             if(remaining>0)
             {
-                String errFlair = getErrorFlair(event);
-                terminate(event, event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds"+(errFlair.isEmpty()?"":" "+errFlair)+"!");
-                return;
+                String error = getCooldownError(event, remaining);
+                if(error!=null)
+                {
+                    terminate(event, error);
+                    return;
+                }
             }
             else event.getClient().applyCooldown(key, cooldown);
         }
@@ -499,7 +502,16 @@ public abstract class Command {
             event.getClient().getListener().onTerminatedCommand(event, this);
     }
 
-    private String getCooldownKey(CommandEvent event)
+    /**
+     * Gets the proper cooldown key for this Command under the provided
+     * {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommanEvent}.
+     *
+     * @param  event
+     *         The CommandEvent to generate the cooldown for.
+     *
+     * @return A String key to use when applying a cooldown.
+     */
+    public String getCooldownKey(CommandEvent event)
     {
         switch (cooldownScope)
         {
@@ -515,12 +527,31 @@ public abstract class Command {
         }
     }
 
-    private String getErrorFlair(CommandEvent event)
+    /**
+     * Gets an error message for this Command under the provided
+     * {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommanEvent}.
+     *
+     * @param  event
+     *         The CommandEvent to generate the error message for.
+     * @param  remaining
+     *         The remaining number of seconds a command is on cooldown for.
+     *
+     * @return A String error message for this command if {@code remaining > 0},
+     *         else {@code null}.
+     */
+    public String getCooldownError(CommandEvent event, int remaining)
     {
-        if((cooldownScope.equals(CooldownScope.USER_GUILD) || cooldownScope.equals(CooldownScope.GUILD)) && event.getGuild()==null)
-            return CooldownScope.CHANNEL.errorFlair;
+        if(remaining<=0)
+            return null;
+        String front = event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds";
+        if(cooldownScope.equals(CooldownScope.USER))
+            return front+"!";
+        else if(cooldownScope.equals(CooldownScope.USER_GUILD) && event.getGuild()==null)
+            return front+" "+CooldownScope.USER_CHANNEL.errorSpecification+"!";
+        else if(cooldownScope.equals(CooldownScope.GUILD) && event.getGuild()==null)
+            return front+" "+CooldownScope.CHANNEL.errorSpecification+"!";
         else
-            return cooldownScope.errorFlair;
+            return front+" "+cooldownScope.errorSpecification+"!";
     }
 
     /**
@@ -643,63 +674,111 @@ public abstract class Command {
     }
 
     /**
-     * A series of {@link java.lang.Enum Enum}s used for defining the scope size for cooldowns
-     * of {@link com.jagrosh.jdautilities.commandclient.Command Command}s.
+     * A series of {@link java.lang.Enum Enum}s used for defining the scope size for a
+     * {@link com.jagrosh.jdautilities.commandclient.Command Command}'s cooldown.
+     *
+     * <p>The purpose for these values is to allow easy, refined, and generally convenient keys
+     * for cooldown scopes, allowing a command to remain on cooldown for more than just the user
+     * calling it, with no unnecessary abstraction or developer input.
+     *
+     * Cooldown keys are generated via {@link Command#getCooldownKey(CommandEvent)
+     * Command#getCooldownKey(CommandEvent)} using 1-2 Snowflake ID's corresponding to the name
+     * (IE: {@code USER_CHANNEL} uses the ID's of the User and the Channel from the CommandEvent).
+     *
+     * <p>However, the issue with generalizing and generating like this is that the command may
+     * be called in a non-guild environment, causing errors internally.
+     * <br>To prevent this, all of the values that contain "{@code GUILD}" in their name default
+     * to their "{@code CHANNEL}" counterparts when commands using them are called outside of a
+     * {@link net.dv8tion.jda.core.entities.Guild Guild} environment.
+     * <ul>
+     *     <li>{@link #GUILD GUILD} defaults to {@link #CHANNEL CHANNEL}.</li>
+     *     <li>{@link #USER_GUILD USER_GUILD} defaults to {@link #USER_CHANNEL USER_CHANNEL}.</li>
+     * </ul>
      *
      * @since  1.3
      * @author Kaidan Gustave
      *
      * @see    com.jagrosh.jdautilities.commandclient.Command#cooldownScope Command.cooldownScope
+     *
+     * @apiNote
+     *         These are effective across a single instance of JDA, and not multiple ones.
+     *         <br>There is no shard magic, no 100% "global" cooldown, unless via some external system.
      */
     public enum CooldownScope {
         /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} globally.
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} across all
+         * locations on this instance (IE: TextChannels, PrivateChannels, etc).
+         *
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|U:<userID>}
+         * </ul>
          */
         USER("U:%d",""),
         /**
          * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the
          * command is called in.
+         *
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|C:<channelID>}
+         * </ul>
          */
         CHANNEL("C:%d","in this channel"),
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
          * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the command is called in.
+         *
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|U:<userID>|C:<channelID>}
+         * </ul>
          */
         USER_CHANNEL("U:%d|C:%d", "in this channel"),
         /**
          * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
          *
-         * <p><b>NOTE:</b> This will automatically default back to
-         * {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#CHANNEL CooldownScope.CHANNEL}
-         * when called in a private channel. This is done in order to prevent internal {@link java.lang.NullPointerException
-         * NullPointerException}s from being thrown while processing cooldown keys!
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|G:<guildID>}
+         * </ul>
+         *
+         * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#CHANNEL CooldownScope.CHANNEL}
+         * when called in a private channel.  This is done in order to prevent internal
+         * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
          */
         GUILD("G:%d", "in this server"),
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
          * {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
          *
-         * <p><b>NOTE:</b> This will automatically default back to
-         * {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#CHANNEL CooldownScope.CHANNEL}
-         * when called in a private channel. This is done in order to prevent internal {@link java.lang.NullPointerException
-         * NullPointerException}s from being thrown while processing cooldown keys!
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|U:<userID>|G:<guildID>}
+         * </ul>
+         *
+         * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#CHANNEL CooldownScope.CHANNEL}
+         * when called in a private channel. This is done in order to prevent internal
+         * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
          */
         USER_GUILD("U:%d|G:%d", "in this server"),
         /**
          * Applies this cooldown globally.
-         * <br>As this implies: the command that goes on cooldown will be unaccessable on all
-         * {@link net.dv8tion.jda.core.entities.Guild Guild}s and in all {@link net.dv8tion.jda.core.entities.MessageChannel
-         * MessageChannel}s until the cooldown has ended.
+         *
+         * <p>As this implies: the command will be unusable on the instance of JDA in all types of
+         * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}s until the cooldown has ended.
+         *
+         * <p>The key for this is {@code <command-name>|globally}
          */
         GLOBAL("Global", "globally");
 
         private final String format;
-        final String errorFlair;
+        final String errorSpecification;
 
-        CooldownScope(String format, String errorFlair)
+        CooldownScope(String format, String errorSpecification)
         {
             this.format = format;
-            this.errorFlair = errorFlair;
+            this.errorSpecification = errorSpecification;
         }
 
         String genKey(String name, long id)

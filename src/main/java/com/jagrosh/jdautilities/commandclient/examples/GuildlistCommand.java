@@ -72,10 +72,10 @@ public class GuildlistCommand extends Command {
                 return;
             }
         }
-        pbuilder.setItems(new String[0]);
+        pbuilder.clearItems();
         event.getJDA().getGuilds().stream()
                 .map(g -> "**"+g.getName()+"** (ID:"+g.getId()+") ~ "+g.getMembers().size()+" Members")
-                .forEach(s -> pbuilder.addItems(s));
+                .forEach(pbuilder::addItems);
         Paginator p = pbuilder.setColor(event.isFromType(ChannelType.TEXT) ? event.getSelfMember().getColor() : Color.black)
                 .setText(event.getClient().getSuccess()+" Guilds that **"+event.getSelfUser().getName()+"** is connected to"
                         +(event.getJDA().getShardInfo()==null ? ":" : "(Shard ID "+event.getJDA().getShardInfo().getShardId()+"):"))
