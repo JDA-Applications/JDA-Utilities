@@ -28,7 +28,7 @@ import net.dv8tion.jda.core.entities.User;
  * 
  * @author John Grosh
  */
-public abstract class MenuBuilder {
+public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
     protected EventWaiter waiter;
     protected Set<User> users = new HashSet<>();
     protected Set<Role> roles = new HashSet<>();
@@ -45,7 +45,7 @@ public abstract class MenuBuilder {
      *         
      * @return The built Menu of corresponding type to this MenuBuilder.
      */
-    public abstract <V extends Menu> V build();
+    public abstract V build();
     
     /**
      * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
@@ -58,7 +58,7 @@ public abstract class MenuBuilder {
      *         
      * @return This builder
      */
-    public abstract <T extends MenuBuilder> T setColor(Color color);
+    public abstract T setColor(Color color);
         
     /**
      * Sets the {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter} 
@@ -74,10 +74,10 @@ public abstract class MenuBuilder {
      *         
      * @return This builder
      */
-    public final <T extends MenuBuilder> T setEventWaiter(EventWaiter waiter)
+    public final T setEventWaiter(EventWaiter waiter)
     {
         this.waiter = waiter;
-        return (T)this;
+        return (T) this;
     }
     
     /**
@@ -91,7 +91,7 @@ public abstract class MenuBuilder {
      * 
      * @return This builder
      */
-    public final <T extends MenuBuilder> T addUsers(User... users)
+    public final T addUsers(User... users)
     {
         this.users.addAll(Arrays.asList(users));
         return (T)this;
@@ -109,7 +109,7 @@ public abstract class MenuBuilder {
      *         
      * @return This builder
      */
-    public final <T extends MenuBuilder> T setUsers(User... users)
+    public final T setUsers(User... users)
     {
         this.users.clear();
         this.users.addAll(Arrays.asList(users));
@@ -127,7 +127,7 @@ public abstract class MenuBuilder {
      *         
      * @return This builder
      */
-    public final <T extends MenuBuilder> T addRoles(Role... roles)
+    public final T addRoles(Role... roles)
     {
         this.roles.addAll(Arrays.asList(roles));
         return (T)this;
@@ -145,7 +145,7 @@ public abstract class MenuBuilder {
      *         
      * @return This builder
      */
-    public final <T extends MenuBuilder> T setRoles(Role... roles)
+    public final T setRoles(Role... roles)
     {
         this.roles.clear();
         this.roles.addAll(Arrays.asList(roles));
@@ -168,10 +168,10 @@ public abstract class MenuBuilder {
      *         
      * @return This builder
      */
-    public final <T extends MenuBuilder> T setTimeout(long timeout, TimeUnit unit)
+    public final T setTimeout(long timeout, TimeUnit unit)
     {
         this.timeout = timeout;
         this.unit = unit;
-        return (T)this;
+        return (T) this;
     }
 }

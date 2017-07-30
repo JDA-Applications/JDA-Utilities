@@ -28,7 +28,7 @@ import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
  *
  * @author John Grosh
  */
-public class ButtonMenuBuilder extends MenuBuilder {
+public class ButtonMenuBuilder extends MenuBuilder<ButtonMenuBuilder, ButtonMenu> {
 
     private Color color;
     private String text;
@@ -47,7 +47,7 @@ public class ButtonMenuBuilder extends MenuBuilder {
             throw new IllegalArgumentException("Must provide an action consumer");
         if(text==null && description==null)
             throw new IllegalArgumentException("Either text or description must be set");
-        return new ButtonMenu(waiter,users,roles,timeout,unit,color,text,description,choices,action,cancel);
+        return new ButtonMenu(waiter, users, roles, timeout, unit, color, text, description, choices, action, cancel);
     }
 
     /**

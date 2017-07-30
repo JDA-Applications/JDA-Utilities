@@ -26,7 +26,7 @@ import com.jagrosh.jdautilities.menu.MenuBuilder;
  *
  * @author John Grosh
  */
-public class OrderedMenuBuilder extends MenuBuilder {
+public class OrderedMenuBuilder extends MenuBuilder<OrderedMenuBuilder, OrderedMenu> {
 
     private Color color;
     private String text;
