@@ -115,7 +115,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
         if(coOwnerIds!=null) {
             for(String coOwnerId : coOwnerIds) {
-                if(SafeIdUtil.checkId(coOwnerId))
+                if(!SafeIdUtil.checkId(coOwnerId))
                     LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
             }
         }
