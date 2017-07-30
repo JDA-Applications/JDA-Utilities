@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.commandclient.impl;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -556,6 +557,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     log.info("Successfully send information to carbonitex.com");
+                    response.close();
                 }
 
                 @Override
@@ -581,6 +583,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     log.info("Successfully send information to bots.discord.pw");
+                    response.close();
                 }
 
                 @Override
@@ -590,13 +593,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 }
             });
 
-            try {
-                JSONArray array = new JSONArray(new JSONTokener(client.newCall(new Request.Builder()
-                        .get()
-                        .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
-                        .header("Authorization", botsKey)
-                        .header("Content-Type", "application/json")
-                        .build()).execute().body().charStream()));
+            try (Reader reader = client.newCall(new Request.Builder()
+                    .get()
+                    .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", botsKey)
+                    .header("Content-Type", "application/json")
+                    .build()).execute().body().charStream()) {
+                JSONArray array = new JSONArray(new JSONTokener(reader));
                 int total = 0;
                 for (int i = 0; i < array.length(); i++)
                     total += array.getJSONObject(i).getInt("server_count");
