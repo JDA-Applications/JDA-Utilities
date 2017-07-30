@@ -87,7 +87,7 @@ public class AboutCommand extends Command {
         }
         else
         {
-            builder.addField("Stats",((CommandClientImpl)event.getClient()).getTotalGuilds()+" Servers\nShard "
+            builder.addField("Stats",(event.getClient()).getTotalGuilds()+" Servers\nShard "
                     +(event.getJDA().getShardInfo().getShardId()+1)+"/"+event.getJDA().getShardInfo().getShardTotal(), true);
             builder.addField("This shard",event.getJDA().getUsers().size()+" Users\n"+event.getJDA().getGuilds().size()+" Servers", true);
             builder.addField("", event.getJDA().getTextChannels().size()+" Text Channels\n"+event.getJDA().getVoiceChannels().size()+" Voice Channels", true);

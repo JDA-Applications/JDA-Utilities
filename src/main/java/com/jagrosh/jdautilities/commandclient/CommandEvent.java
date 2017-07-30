@@ -16,7 +16,6 @@
 package com.jagrosh.jdautilities.commandclient;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
@@ -26,7 +25,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import net.dv8tion.jda.core.utils.SimpleLog;
 
 /**
  * A wrapper class for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
@@ -280,11 +278,8 @@ public class CommandEvent {
      *         The File to reply with
      * @param  filename
      *         The filename that Discord should display (null for default).
-     *         
-     * @throws java.io.IOException
-     *         If an I/O error occurs while reading the File.
      */
-    public void reply(File file, String filename) throws IOException
+    public void reply(File file, String filename)
     {
         event.getChannel().sendFile(file, filename, null).queue();
     }
@@ -306,11 +301,8 @@ public class CommandEvent {
      *         The File to reply with
      * @param  filename
      *         The filename that Discord should display (null for default).
-     *         
-     * @throws java.io.IOException
-     *         If an I/O error occurs while reading the File.
      */
-    public void reply(String message, File file, String filename) throws IOException
+    public void reply(String message, File file, String filename)
     {
         Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
         event.getChannel().sendFile(file, filename, msg).queue();
@@ -471,20 +463,15 @@ public class CommandEvent {
      *         The {@code File} to reply with
      * @param  filename
      *         The filename that Discord should display (null for default).
-     *         
-     * @throws java.io.IOException
-     *         If an I/O error occurs while reading the File.
      */
-    public void replyInDm(String message, File file, String filename) throws IOException
+    public void replyInDm(String message, File file, String filename)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(message, file, filename);
         else
         {
             Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
-            event.getAuthor().openPrivateChannel().queue(pc -> {
-                pc.sendFile(file, filename, msg).queue();
-            });
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFile(file, filename, msg).queue());
         }
     }
     

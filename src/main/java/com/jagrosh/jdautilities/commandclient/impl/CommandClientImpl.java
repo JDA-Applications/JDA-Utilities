@@ -55,19 +55,16 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 /**
- * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}, 
- * to be used by a bot.
+ * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} to be used by a bot.
  * 
- * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA JDA}, as it extends 
- * {@link net.dv8tion.jda.core.hooks.ListenerAdapter ListenerAdapter} in order to 
- * catch and wrap {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s, 
- * this CommandClient, and automatically trimmed arguments, then provide them to a command for running
- * and execution.
+ * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA JDA}, as it extends {@link net.dv8tion.jda.core.hooks.ListenerAdapter
+ * ListenerAdapter} in order to catch and wrap {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s,
+ * this CommandClient, and automatically processed arguments, then provide them to a {@link com.jagrosh.jdautilities.commandclient.Command
+ * Command} for running and execution.
  * 
  * @author John Grosh (jagrosh)
  */
@@ -108,7 +105,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
             int linkedCacheSize)
     {
-        Objects.nonNull(ownerId);
+        if(ownerId == null)
+            throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
 
         if(!SafeIdUtil.checkId(ownerId))
             LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
@@ -257,7 +255,6 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         if(index>commands.size() || index<0)
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
-        int targetIndex = index == -1? commands.size() : index;
         String name = command.getName();
         if(commandIndex.containsKey(name))
             throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
@@ -265,11 +262,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         {
             if(commandIndex.containsKey(alias))
                 throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
-            commandIndex.put(alias, targetIndex);
+            commandIndex.put(alias, index);
         }
-        commandIndex.put(name, targetIndex);
-        if(targetIndex<commands.size())
-            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
+        commandIndex.put(name, index);
+        if(index<commands.size())
+            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>index).collect(Collectors.toList())
                     .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
         commands.add(index,command);
     }

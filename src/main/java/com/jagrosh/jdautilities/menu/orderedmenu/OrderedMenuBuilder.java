@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
 
-import net.dv8tion.jda.core.entities.Emote;
-
 /**
  *
  * @author John Grosh
