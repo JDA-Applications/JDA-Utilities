@@ -599,7 +599,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                     .header("Authorization", botsKey)
                     .header("Content-Type", "application/json")
                     .build()).execute().body().charStream()) {
-                JSONArray array = new JSONArray(new JSONTokener(reader));
+                JSONArray array = new JSONObject(new JSONTokener(reader)).getJSONArray("stats");
                 int total = 0;
                 for (int i = 0; i < array.length(); i++)
                     total += array.getJSONObject(i).getInt("server_count");
