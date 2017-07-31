@@ -556,13 +556,13 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    log.info("Successfully send information to carbonitex.com");
+                    log.info("Successfully send information to carbonitex.net");
                     response.close();
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    log.fatal("Failed to send information to carbonitex.com");
+                    log.fatal("Failed to send information to carbonitex.net");
                     log.log(e);
                 }
             });
