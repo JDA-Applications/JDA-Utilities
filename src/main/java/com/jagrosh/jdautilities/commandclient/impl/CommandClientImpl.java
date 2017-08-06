@@ -51,6 +51,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -544,14 +545,17 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
 
         if (carbonKey != null) {
-            Request.Builder builder = new Request.Builder()
-                    .post(Requester.EMPTY_BODY).header("key", carbonKey)
-                    .url("https://www.carbonitex.net/discord/data/botdata.php")
-                    .header("servercount", Integer.toString(jda.getGuilds().size()));
-
+            FormBody.Builder bodyBuilder = new FormBody.Builder()
+                    .add("key", carbonKey)
+                    .add("servercount", Integer.toString(jda.getGuilds().size()));
+            
             if (jda.getShardInfo() != null)
-                builder.header("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
-                       .header("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+                bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
+                           .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+                
+            Request.Builder builder = new Request.Builder()
+                    .post(bodyBuilder.build())
+                    .url("https://www.carbonitex.net/discord/data/botdata.php");
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
