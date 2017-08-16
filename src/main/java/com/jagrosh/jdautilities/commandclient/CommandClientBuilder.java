@@ -37,6 +37,7 @@ public class CommandClientBuilder {
     private String ownerId;
     private String[] coOwnerIds;
     private String prefix;
+    private String altprefix;
     private String serverInvite;
     private String success;
     private String warning;
@@ -61,7 +62,7 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -111,6 +112,21 @@ public class CommandClientBuilder {
     public CommandClientBuilder setPrefix(String prefix)
     {
         this.prefix = prefix;
+        return this;
+    }
+    
+    /**
+     * Sets the bot's alternative prefix.
+     * <br>If set null, the bot will only use its primary prefix prefix.
+     * 
+     * @param  prefix
+     *         The alternative prefix for the bot to use
+     *         
+     * @return This builder
+     */
+    public CommandClientBuilder setAlternativePrefix(String prefix)
+    {
+        this.altprefix = prefix;
         return this;
     }
     

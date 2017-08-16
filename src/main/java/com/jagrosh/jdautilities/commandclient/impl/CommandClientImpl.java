@@ -80,6 +80,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String ownerId;
     private final String[] coOwnerIds;
     private final String prefix;
+    private final String altprefix;
     private final String serverInvite;
     private final HashMap<String, Integer> commandIndex;
     private final ArrayList<Command> commands;
@@ -102,7 +103,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private CommandListener listener = null;
     private int totalGuilds;
 
-    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, Game game, String serverInvite, String success,
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, String serverInvite, String success,
             String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands,
             boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
             int linkedCacheSize)
@@ -125,6 +126,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.ownerId = ownerId;
         this.coOwnerIds = coOwnerIds;
         this.prefix = prefix;
+        this.altprefix = altprefix;
         this.game = game;
         this.serverInvite = serverInvite;
         this.success = success==null ? "": success;
@@ -470,6 +472,11 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         {
             if(rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
                 parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
+        }
+        if(parts==null && altprefix!=null)
+        {
+            if(rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
+                parts = Arrays.copyOf(rawContent.substring(altprefix.length()).trim().split("\\s+",2), 2);
         }
         if(parts!=null) //starts with valid prefix
         {
