@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.commandclient.impl;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -50,6 +51,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -543,24 +545,28 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
 
         if (carbonKey != null) {
-            Request.Builder builder = new Request.Builder()
-                    .post(Requester.EMPTY_BODY).header("key", carbonKey)
-                    .url("https://www.carbonitex.net/discord/data/botdata.php")
-                    .header("servercount", Integer.toString(jda.getGuilds().size()));
-
+            FormBody.Builder bodyBuilder = new FormBody.Builder()
+                    .add("key", carbonKey)
+                    .add("servercount", Integer.toString(jda.getGuilds().size()));
+            
             if (jda.getShardInfo() != null)
-                builder.header("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
-                       .header("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+                bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
+                           .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+                
+            Request.Builder builder = new Request.Builder()
+                    .post(bodyBuilder.build())
+                    .url("https://www.carbonitex.net/discord/data/botdata.php");
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    log.info("Successfully send information to carbonitex.com");
+                    log.info("Successfully send information to carbonitex.net");
+                    response.close();
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    log.fatal("Failed to send information to carbonitex.com");
+                    log.fatal("Failed to send information to carbonitex.net");
                     log.log(e);
                 }
             });
@@ -581,6 +587,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     log.info("Successfully send information to bots.discord.pw");
+                    response.close();
                 }
 
                 @Override
@@ -590,20 +597,25 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 }
             });
 
-            try {
-                JSONArray array = new JSONArray(new JSONTokener(client.newCall(new Request.Builder()
+            if(jda.getShardInfo()==null)
+                this.totalGuilds = jda.getGuilds().size();
+            else
+            {
+                try (Reader reader = client.newCall(new Request.Builder()
                         .get()
                         .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
                         .header("Authorization", botsKey)
                         .header("Content-Type", "application/json")
-                        .build()).execute().body().charStream()));
-                int total = 0;
-                for (int i = 0; i < array.length(); i++)
-                    total += array.getJSONObject(i).getInt("server_count");
-                this.totalGuilds = total;
-            } catch (Exception e) {
-                log.fatal("Failed to retrieve bot shard information from bots.discord.pw");
-                log.log(e);
+                        .build()).execute().body().charStream()) {
+                    JSONArray array = new JSONObject(new JSONTokener(reader)).getJSONArray("stats");
+                    int total = 0;
+                    for (int i = 0; i < array.length(); i++)
+                        total += array.getJSONObject(i).getInt("server_count");
+                    this.totalGuilds = total;
+                } catch (Exception e) {
+                    log.fatal("Failed to retrieve bot shard information from bots.discord.pw");
+                    log.log(e);
+                }
             }
         }
     }

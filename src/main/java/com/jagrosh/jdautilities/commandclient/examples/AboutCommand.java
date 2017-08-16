@@ -19,7 +19,6 @@ import java.awt.Color;
 import com.jagrosh.jdautilities.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.commandclient.Command;
 import com.jagrosh.jdautilities.commandclient.CommandEvent;
-import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
@@ -32,6 +31,7 @@ import net.dv8tion.jda.core.utils.SimpleLog;
  */
 public class AboutCommand extends Command {
     public static boolean IS_AUTHOR = true;
+    public static String REPLACEMENT_ICON = "+";
     private final Color color;
     private final String description;
     private final Permission[] perms;
@@ -54,7 +54,7 @@ public class AboutCommand extends Command {
         if (oauthLink == null) {
             try {
                 ApplicationInfo info = event.getJDA().asBot().getApplicationInfo().complete();
-                oauthLink = info.isBotPublic() ? info.getInviteUrl(perms) : "";
+                oauthLink = info.isBotPublic() ? info.getInviteUrl(0L, perms) : "";
             } catch (Exception e) {
                 SimpleLog log = SimpleLog.getLog("OAuth2");
                 log.fatal("Could not generate invite link");
@@ -76,7 +76,7 @@ public class AboutCommand extends Command {
                 + (join||inv ? invline : "")
                 + "\n\nSome of my features include: ```css";
         for(String feature: features)
-            descr+="\n"+event.getClient().getSuccess()+" "+feature;
+            descr+="\n"+(event.getClient().getSuccess().startsWith("<") ? REPLACEMENT_ICON : event.getClient().getSuccess())+" "+feature;
         descr+=" ```";
         builder.setDescription(descr);
         if(event.getJDA().getShardInfo()==null)
