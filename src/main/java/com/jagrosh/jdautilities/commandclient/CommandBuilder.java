@@ -19,12 +19,22 @@ import com.jagrosh.jdautilities.commandclient.Command.*;
 
 import net.dv8tion.jda.core.Permission;
 
+import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-// TODO documentation for class and methods
 /**
- * @since  1.5
+ * A chain-setter based builder for {@link com.jagrosh.jdautilities.commandclient.Command Commands}.
+ *
+ * <p>This is more useful for creation of commands "mid-runtime".
+ * <br>A good usage would be to create a Command via eval and register it via
+ * {@link com.jagrosh.jdautilities.commandclient.CommandClient#addCommand(Command)
+ * CommandClient#addCommand(Command)}.
+ * 
+ * <p>While useful during runtime, this is completely inferior to extending Command as a superclass
+ * before compilation, and shouldn't be used in place of the ladder.
+ *
+ * @since  1.6
  * @author Kaidan Gustave
  */
 public class CommandBuilder
@@ -45,6 +55,15 @@ public class CommandBuilder
     private boolean usesTopicTags = true;
     private CooldownScope cooldownScope = CooldownScope.USER;
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#name name}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  name
+     *         The name of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setName(String name)
     {
         if(name == null)
@@ -54,6 +73,15 @@ public class CommandBuilder
         return this;
     }
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#help help}
+     * snippet of the Command built from this CommandBuilder.
+     *
+     * @param  help
+     *         The help snippet of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setHelp(String help)
     {
         if(help == null)
@@ -63,43 +91,106 @@ public class CommandBuilder
         return this;
     }
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#category category}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  category
+     *         The category of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setCategory(Category category)
     {
         this.category = category;
         return this;
     }
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#arguments arguments}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  arguments
+     *         The arguments of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setArguments(String arguments)
     {
         this.arguments = arguments;
         return this;
     }
 
+    /**
+     * Sets the Command built to be {@link com.jagrosh.jdautilities.commandclient.Command#guildOnly
+     * guild only}.
+     *
+     * @param  guildOnly
+     *         {@code true} if the Command built is guild only, {@code false} if it is not.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setGuildOnly(boolean guildOnly)
     {
         this.guildOnly = guildOnly;
         return this;
     }
 
+    /**
+     * Sets the name of a {@link com.jagrosh.jdautilities.commandclient.Command#requiredRole
+     * required role} to use the Command built from this CommandBuilder.
+     *
+     * @param  requiredRole
+     *         The name of a role required to use the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setRequiredRole(String requiredRole)
     {
         this.requiredRole = requiredRole;
         return this;
     }
 
+    /**
+     * Sets the Command built to be {@link com.jagrosh.jdautilities.commandclient.Command#ownerCommand
+     * owner only}.
+     *
+     * @param  ownerCommand
+     *         {@code true} if the Command built is owner only, {@code false} if it is not.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setOwnerCommand(boolean ownerCommand)
     {
         this.ownerCommand = ownerCommand;
         return this;
     }
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#cooldown cooldown}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  cooldown
+     *         The number of seconds the built Command will be on cooldown.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setCooldown(int cooldown)
     {
         this.cooldown = cooldown;
         return this;
     }
 
-    public CommandBuilder setUserPermissions(Permission[] userPermissions)
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#userPermissions
+     * required user permissions} of the Command built from this CommandBuilder.
+     *
+     * @param  userPermissions
+     *         The required Permissions a User must have when using the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setUserPermissions(Permission... userPermissions)
     {
         if(userPermissions == null)
             this.userPermissions = new Permission[0];
@@ -108,7 +199,34 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder setBotPermissions(Permission[] botPermissions)
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#userPermissions
+     * required user permissions} of the Command built from this CommandBuilder.
+     *
+     * @param  userPermissions
+     *         The required Permissions a User must have when using the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setUserPermissions(Collection<Permission> userPermissions)
+    {
+        if(userPermissions == null)
+            this.userPermissions = new Permission[0];
+        else
+            this.userPermissions = (Permission[]) userPermissions.toArray();
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#botPermissions
+     * required bot permissions} of the Command built from this CommandBuilder.
+     *
+     * @param  botPermissions
+     *         The required Permissions the bot must have when using the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setBotPermissions(Permission... botPermissions)
     {
         if(botPermissions == null)
             this.botPermissions = new Permission[0];
@@ -117,7 +235,34 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder setAliases(String[] aliases)
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#botPermissions
+     * required bot permissions} of the Command built from this CommandBuilder.
+     *
+     * @param  botPermissions
+     *         The required Permissions the bot must have when using the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setBotPermissions(Collection<Permission> botPermissions)
+    {
+        if(botPermissions == null)
+            this.botPermissions = new Permission[0];
+        else
+            this.botPermissions = (Permission[]) botPermissions.toArray();
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  aliases
+     *         The aliases of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setAliases(String... aliases)
     {
         if(aliases == null)
             this.aliases = new String[0];
@@ -126,7 +271,34 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder setChildren(Command[] children)
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  aliases
+     *         The aliases of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setAliases(Collection<String> aliases)
+    {
+        if(aliases == null)
+            this.aliases = new String[0];
+        else
+            this.aliases = (String[]) aliases.toArray();
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#children children}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  children
+     *         The children of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setChildren(Command... children)
     {
         if(children == null)
             this.children = new Command[0];
@@ -135,18 +307,63 @@ public class CommandBuilder
         return this;
     }
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#children children}
+     * of the Command built from this CommandBuilder.
+     *
+     * @param  children
+     *         The children of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setChildren(Collection<Command> children)
+    {
+        if(children == null)
+            this.children = new Command[0];
+        else
+            this.children = (Command[]) children.toArray();
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#helpBiConsumer
+     * help BiConsumer} of the Command built from this CommandBuilder.
+     *
+     * @param  helpBiConsumer
+     *         The help BiConsumer of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setHelpBiConsumer(BiConsumer<CommandEvent, Command> helpBiConsumer)
     {
         this.helpBiConsumer = helpBiConsumer;
         return this;
     }
 
+    /**
+     * Sets the Command built to {@link com.jagrosh.jdautilities.commandclient.Command#usesTopicTags
+     * use TopicTags}.
+     *
+     * @param  usesTopicTags
+     *         {@code true} if the Command built is uses topic tags, {@code false} if it does not.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setUsesTopicTags(boolean usesTopicTags)
     {
         this.usesTopicTags = usesTopicTags;
         return this;
     }
 
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#cooldownScope
+     * cooldown scope} of the Command built from this CommandBuilder.
+     *
+     * @param  cooldownScope
+     *         The CooldownScope of the Command to be built.
+     *
+     * @return This CommandBuilder
+     */
     public CommandBuilder setCooldownScope(CooldownScope cooldownScope)
     {
         if(cooldownScope == null)
@@ -156,18 +373,49 @@ public class CommandBuilder
         return this;
     }
 
+    /**
+     * Builds the {@link com.jagrosh.jdautilities.commandclient.Command Command}
+     * using the previously provided information.
+     *
+     * <p>This uses the only the {@link com.jagrosh.jdautilities.commandclient.CommandEvent
+     * CommandEvent} parameter that would be provided during
+     * {@link com.jagrosh.jdautilities.commandclient.Command#execute(CommandEvent) #execute(CommandEvent)},
+     * and no information about the Command can be retrieved using this.
+     *
+     * <p>An alternate method {@link #build(BiConsumer)} exists if you wish to retrieve information
+     * about the Command built during execution.
+     *
+     * @param  execution
+     *         The {@link Consumer} that runs on Command#execute(CommandEvent).
+     *
+     * @return The Command built
+     */
     public Command build(Consumer<CommandEvent> execution)
     {
         return build((c, e) -> { execution.accept(e); });
     }
 
+    /**
+     * Builds the {@link com.jagrosh.jdautilities.commandclient.Command Command}
+     * using the previously provided information.
+     *
+     * <p>This uses the both the {@link com.jagrosh.jdautilities.commandclient.CommandEvent
+     * CommandEvent} parameter that would be provided during
+     * {@link com.jagrosh.jdautilities.commandclient.Command#execute(CommandEvent) #execute(CommandEvent)},
+     * and the Command built when, allowing info on the Command to be retrieved during execution.
+     *
+     * @param  execution
+     *         The {@link BiConsumer} that runs on Command#execute(CommandEvent).
+     *
+     * @return The Command built
+     */
     public Command build(BiConsumer<Command,CommandEvent> execution)
     {
         return new BlankCommand(name, help, category, arguments,
                 guildOnly, requiredRole, ownerCommand, cooldown,
                 userPermissions, botPermissions, aliases, children,
-                helpBiConsumer, usesTopicTags, cooldownScope) {
-
+                helpBiConsumer, usesTopicTags, cooldownScope)
+        {
             @Override
             protected void execute(CommandEvent event)
             {
