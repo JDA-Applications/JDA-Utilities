@@ -20,6 +20,7 @@ import com.jagrosh.jdautilities.commandclient.Command.*;
 import net.dv8tion.jda.core.Permission;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -49,8 +50,8 @@ public class CommandBuilder
     private int cooldown = 0;
     private Permission[] userPermissions = new Permission[0];
     private Permission[] botPermissions = new Permission[0];
-    private String[] aliases = new String[0];
-    private Command[] children = new Command[0];
+    private final LinkedList<String> aliases = new LinkedList<>();
+    private final LinkedList<Command> children = new LinkedList<>();
     private BiConsumer<CommandEvent, Command> helpBiConsumer = null;
     private boolean usesTopicTags = true;
     private CooldownScope cooldownScope = CooldownScope.USER;
@@ -254,6 +255,37 @@ public class CommandBuilder
     }
 
     /**
+     * Adds a {@link com.jagrosh.jdautilities.commandclient.Command#aliases alias}
+     * for the Command built from this CommandBuilder.
+     *
+     * @param  alias
+     *         The Command alias to add.
+     *
+     * @return This CommandBuilder.
+     */
+    public CommandBuilder addAlias(String alias)
+    {
+        aliases.add(alias);
+        return this;
+    }
+
+    /**
+     * Adds {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases}
+     * for the Command built from this CommandBuilder.
+     *
+     * @param  aliases
+     *         The Command aliases to add.
+     *
+     * @return This CommandBuilder.
+     */
+    public CommandBuilder addAliases(String... aliases)
+    {
+        for(String alias : aliases)
+            addAlias(alias);
+        return this;
+    }
+
+    /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#aliases aliases}
      * of the Command built from this CommandBuilder.
      *
@@ -264,10 +296,10 @@ public class CommandBuilder
      */
     public CommandBuilder setAliases(String... aliases)
     {
-        if(aliases == null)
-            this.aliases = new String[0];
-        else
-            this.aliases = aliases;
+        this.aliases.clear();
+        if(aliases!=null)
+            for(String alias : aliases)
+                addAlias(alias);
         return this;
     }
 
@@ -282,10 +314,40 @@ public class CommandBuilder
      */
     public CommandBuilder setAliases(Collection<String> aliases)
     {
-        if(aliases == null)
-            this.aliases = new String[0];
-        else
-            this.aliases = (String[]) aliases.toArray();
+        this.aliases.clear();
+        if(aliases != null)
+            this.aliases.addAll(aliases);
+        return this;
+    }
+
+    /**
+     * Adds a {@link com.jagrosh.jdautilities.commandclient.Command#children child}
+     * Command to the Command built from this CommandBuilder.
+     *
+     * @param  child
+     *         The child Command to add.
+     *
+     * @return This CommandBuilder.
+     */
+    public CommandBuilder addChild(Command child)
+    {
+        children.add(child);
+        return this;
+    }
+
+    /**
+     * Adds {@link com.jagrosh.jdautilities.commandclient.Command#children child}
+     * Commands to the Command built from this CommandBuilder.
+     *
+     * @param  children
+     *         The child Commands to add.
+     *
+     * @return This CommandBuilder.
+     */
+    public CommandBuilder addChildren(Command... children)
+    {
+        for(Command child : children)
+            addChild(child);
         return this;
     }
 
@@ -300,10 +362,10 @@ public class CommandBuilder
      */
     public CommandBuilder setChildren(Command... children)
     {
-        if(children == null)
-            this.children = new Command[0];
-        else
-            this.children = children;
+        this.children.clear();
+        if(children!=null)
+            for(Command child : children)
+                addChild(child);
         return this;
     }
 
@@ -318,10 +380,9 @@ public class CommandBuilder
      */
     public CommandBuilder setChildren(Collection<Command> children)
     {
-        if(children == null)
-            this.children = new Command[0];
-        else
-            this.children = (Command[]) children.toArray();
+        this.children.clear();
+        if(children != null)
+            this.children.addAll(children);
         return this;
     }
 
@@ -413,8 +474,9 @@ public class CommandBuilder
     {
         return new BlankCommand(name, help, category, arguments,
                 guildOnly, requiredRole, ownerCommand, cooldown,
-                userPermissions, botPermissions, aliases, children,
-                helpBiConsumer, usesTopicTags, cooldownScope)
+                userPermissions, botPermissions, (String[]) aliases.toArray(),
+                (Command[]) children.toArray(), helpBiConsumer, usesTopicTags,
+                cooldownScope)
         {
             @Override
             protected void execute(CommandEvent event)
