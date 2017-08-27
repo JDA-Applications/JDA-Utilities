@@ -90,6 +90,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String error;
     private final String carbonKey;
     private final String botsKey;
+    private final String botsOrgKey;
     private final HashMap<String,OffsetDateTime> cooldowns;
     private final HashMap<String,Integer> uses;
     private final HashMap<String,ScheduledFuture<?>> schedulepool;
@@ -105,7 +106,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private int totalGuilds;
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
-            String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands,
+            String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
             int linkedCacheSize)
     {
@@ -136,6 +137,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.error = error==null ? "": error;
         this.carbonKey = carbonKey;
         this.botsKey = botsKey;
+        this.botsOrgKey = botsOrgKey;
         this.commandIndex = new HashMap<>();
         this.commands = new ArrayList<>();
         this.cooldowns = new HashMap<>();
@@ -580,6 +582,33 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 }
             });
         }
+        
+        if (botsOrgKey != null) {
+            JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
+            if (jda.getShardInfo() != null)
+                body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+            
+            Request.Builder builder = new Request.Builder()
+                    .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
+                    .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", botsOrgKey)
+                    .header("Content-Type", "application/json");
+            
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    log.info("Successfully send information to discordbots.org");
+                    response.close();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    log.fatal("Failed to send information to discordbots.org");
+                    log.log(e);
+                }
+            });
+        }
+        
         if (botsKey != null) {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
 

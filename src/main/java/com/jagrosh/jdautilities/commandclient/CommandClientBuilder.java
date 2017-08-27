@@ -46,6 +46,7 @@ public class CommandClientBuilder {
     private String error;
     private String carbonKey;
     private String botsKey;
+    private String botsOrgKey;
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
     private boolean useHelp = true;
@@ -64,7 +65,7 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite, success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -359,6 +360,23 @@ public class CommandClientBuilder {
     public CommandClientBuilder setDiscordBotsKey(String key)
     {
         this.botsKey = key;
+        return this;
+    }
+    
+    /**
+     * Sets the <a href="https://discordbots.org/">Discord Bot List</a> API key for this bot's listing.
+     * 
+     * <p>When set, the {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
+     * will automatically update it's Discord Bot List listing with relevant information such as server count.
+     * 
+     * @param  key
+     *         A Discord Bot List API key
+     *         
+     * @return This builder
+     */
+    public CommandClientBuilder setDiscordBotListKey(String key)
+    {
+        this.botsOrgKey = key;
         return this;
     }
     
