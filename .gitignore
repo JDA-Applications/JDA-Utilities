@@ -1,6 +1,7 @@
 # gradle
 /build/
 /.gradle/
+/gradle.properties
 
 # eclipse files
 .classpath
