@@ -7,7 +7,7 @@ You will need to add this project as a dependency (either from the latest .jar f
   <dependency>
     <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -26,7 +26,7 @@ You will need to add this project as a dependency (either from the latest .jar f
 With gradle:
 ```java
 dependencies {
-    compile 'com.jagrosh:JDA-Utilities:1.5'
+    compile 'com.jagrosh:JDA-Utilities:1.6'
     compile 'net.dv8tion:JDA:LATEST'
 }
 
