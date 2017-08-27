@@ -131,12 +131,106 @@ public class FinderUtil {
     }
 
     /**
-     * Queries a provided {@link net.dv8tion.jda.core.entities.Guild Guild} for {@link net.dv8tion.jda.core.entities.Member Member}s.
+     * Queries a provided {@link net.dv8tion.jda.core.entities.Guild Guild} for a banned {@link net.dv8tion.jda.core.entities.User
+     * User}.
      *
-     * <p>Unlike {@link com.jagrosh.jdautilities.utils.FinderUtil#findUsers(String, JDA) FinderUtil.findUsers(String, JDA)}, this method
-     * queries based on effective name (excluding special cases).
-     * <br>Information on effective name can be found in {@link net.dv8tion.jda.core.entities.Member#getEffectiveName()
-     * Member#getEffectiveName()}
+     * <p>The following special cases are applied in order of listing before the standard search is done:
+     * <ul>
+     *     <li>User Mention: Query provided matches an @user mention (more specifically {@literal <@userID>}).</li>
+     *     <li>Full User Reference: Query provided matches a full Username#XXXX reference.
+     *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
+     * </ul>
+     *
+     * <h4>WARNING</h4>
+     *
+     * Unlike the other finder methods, this one has two very unique features that set it apart from the rest:
+     * <ul>
+     *     <li><b>1)</b> In order to get a list of bans that is usable, this method initial retrieves it by usage of
+     *     {@link net.dv8tion.jda.core.requests.RestAction#complete() Guild#getBans().complete()}. Because of this,
+     *     as would be the same expected effect from the other utility methods, this will block the thread it is called
+     *     in. The difference, however, comes in that this method may have slight variations in return speed, especially
+     *     when put under higher usage over a shorter period of time.</li>
+     *     <li><b>2) This method can return {@code null}</b> if and only if an {@link java.lang.Exception Exception} is
+     *     thrown while initially getting banned Users via {@link net.dv8tion.jda.core.entities.Guild#getBans()
+     *     Guild#getBans()}.</li>
+     * </ul>
+     *
+     * @param  query
+     *         The String query to search by
+     * @param  guild
+     *         The Guild to search for banned Users from
+     *
+     * @return A possibly-empty {@link java.util.List List} of Users found by the query from the provided JDA instance,
+     *         or {@code null} if an {@link java.lang.Exception Exception} is thrown while initially getting banned Users.
+     *
+     * @see    net.dv8tion.jda.core.entities.Guild#getBans() Guild#getBans()
+     */
+    public static List<User> findBannedUsers(String query, Guild guild)
+    {
+        List<User> bans;
+        try {
+            bans = guild.getBans().complete();
+        } catch(Exception e) {
+            return null;
+        }
+        String discrim = null;
+        Matcher userMention = USER_MENTION.matcher(query);
+        Matcher fullRefMatch = FULL_USER_REF.matcher(query);
+        if(userMention.matches())
+        {
+            String id = userMention.replaceAll("$1");
+            User user = guild.getJDA().getUserById(id);
+            if(user != null && bans.contains(user))
+                return Collections.singletonList(user);
+            for(User u : bans)
+                if(u.getId().equals(id))
+                    return Collections.singletonList(u);
+        }
+        else if(fullRefMatch.matches())
+        {
+            discrim = query.substring(query.length()-4);
+            query = query.substring(0,query.length()-5).trim();
+        }
+        else if(DISCORD_ID.matcher(query).matches())
+        {
+            User user = guild.getJDA().getUserById(query);
+            if(user != null && bans.contains(user))
+                return Collections.singletonList(user);
+            for(User u : bans)
+                if(u.getId().equals(query))
+                    return Collections.singletonList(u);
+        }
+        ArrayList<User> exact = new ArrayList<>();
+        ArrayList<User> wrongcase = new ArrayList<>();
+        ArrayList<User> startswith = new ArrayList<>();
+        ArrayList<User> contains = new ArrayList<>();
+        String lowerQuery = query.toLowerCase();
+        for(User u: bans)
+        {
+            // If a discrim is specified then we skip all users without it.
+            if(discrim!=null && !u.getDiscriminator().equals(discrim))
+                continue;
+
+            if(u.getName().equals(query))
+                exact.add(u);
+            else if (exact.isEmpty() && u.getName().equalsIgnoreCase(query))
+                wrongcase.add(u);
+            else if (wrongcase.isEmpty() && u.getName().toLowerCase().startsWith(lowerQuery))
+                startswith.add(u);
+            else if (startswith.isEmpty() && u.getName().toLowerCase().contains(lowerQuery))
+                contains.add(u);
+        }
+        if(!exact.isEmpty())
+            return exact;
+        if(!wrongcase.isEmpty())
+            return wrongcase;
+        if(!startswith.isEmpty())
+            return startswith;
+        return contains;
+    }
+
+    /**
+     * Queries a provided {@link net.dv8tion.jda.core.entities.Guild Guild} for {@link net.dv8tion.jda.core.entities.Member Member}s.
      *
      * <p>The following special cases are applied in order of listing before the standard search is done:
      * <ul>
@@ -144,6 +238,16 @@ public class FinderUtil {
      *     <li>Full User Reference: Query provided matches a full Username#XXXX reference.
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
+     *
+     * <p>Unlike {@link com.jagrosh.jdautilities.utils.FinderUtil#findUsers(String, JDA) FinderUtil.findUsers(String, JDA)},
+     * this method queries based on two different names: user name and effective name (excluding special cases in which it
+     * queries solely based on user name).
+     * <br>Each standard check looks at the user name, then the member name, and if either one's criteria is met the Member
+     * is added to the returned list. This is important to note, because the returned list may contain exact matches for
+     * User's name as well as exact matches for a Member's effective name, with nothing guaranteeing the returns will be
+     * exclusively containing matches for one or the other.
+     * <br>Information on effective name can be found in {@link net.dv8tion.jda.core.entities.Member#getEffectiveName()
+     * Member#getEffectiveName()}.
      *
      * @param  query
      *         The String query to search by
@@ -185,14 +289,15 @@ public class FinderUtil {
         ArrayList<Member> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
         guild.getMembers().forEach(member -> {
+            String name = member.getUser().getName();
             String effName = member.getEffectiveName();
-            if(effName.equals(query))
+            if(name.equals(query) || effName.equals(query))
                 exact.add(member);
-            else if (effName.equalsIgnoreCase(query) && exact.isEmpty())
+            else if ((name.equalsIgnoreCase(query) || effName.equalsIgnoreCase(query)) && exact.isEmpty())
                 wrongcase.add(member);
-            else if (effName.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            else if ((name.toLowerCase().startsWith(lowerquery) || effName.toLowerCase().startsWith(lowerquery)) && wrongcase.isEmpty())
                 startswith.add(member);
-            else if (effName.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            else if ((name.toLowerCase().contains(lowerquery) || effName.toLowerCase().contains(lowerquery)) && startswith.isEmpty())
                 contains.add(member);
         });
         if(!exact.isEmpty())
