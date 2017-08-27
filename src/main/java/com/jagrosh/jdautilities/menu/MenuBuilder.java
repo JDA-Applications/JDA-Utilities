@@ -39,9 +39,6 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      * Builds the {@link com.jagrosh.jdautilities.menu.Menu Menu} corresponding to
      * this {@link com.jagrosh.jdautilities.menu.MenuBuilder MenuBuilder}.
      * <br>After doing this, no modifications of the displayed Menu can be made.
-     * 
-     * @param  <V>
-     *         The type of Menu corresponding to this MenuBuilder
      *         
      * @return The built Menu of corresponding type to this MenuBuilder.
      */
@@ -50,9 +47,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
     /**
      * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}, 
      * if description of the MessageEmbed is set.
-     * 
-     * @param  <T>
-     *         The type of {@link com.jagrosh.jdautilities.menu.MenuBuilder MenuBuilder} 
+     *
      * @param  color
      *         The Color of the MessageEmbed
      *         
@@ -66,9 +61,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      * 
      * <p><b>NOTE:</b> All Menus will only work with an EventWaiter set!
      * <br>Not setting an EventWaiter means the Menu will not work.
-     * 
-     * @param  <T>
-     *         The type of MenuBuilder
+     *
      * @param  waiter
      *         The EventWaiter
      *         
@@ -83,9 +76,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
     /**
      * Adds {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
      * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
-     * 
-     * @param  <T>
-     *         The type of MenuBuilder
+     *
      * @param  users
      *         The Users allowed to use the Menu
      * 
@@ -101,9 +92,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      * Sets {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the 
      * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
      * <br>This clears any Users already registered before adding the ones specified.
-     * 
-     * @param  <T>
-     *         The type of MenuBuilder
+     *
      * @param  users
      *         The Users allowed to use the Menu
      *         
@@ -119,9 +108,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
     /**
      * Adds {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
      * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
-     * 
-     * @param  <T>
-     *         The type of MenuBuilder
+     *
      * @param  roles
      *         The Roles allowed to use the Menu
      *         
@@ -137,9 +124,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      * Sets {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the 
      * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
      * <br>This clears any Roles already registered before adding the ones specified.
-     * 
-     * @param  <T>
-     *         The type of MenuBuilder
+     *
      * @param  roles
      *         The Roles allowed to use the Menu
      *         
@@ -158,9 +143,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      * 
      * <p>After this has expired, the a final action in the form of a 
      * {@link java.lang.Runnable} may execute.
-     * 
-     * @param  <T>
-     *         The type of MenuBuilder
+     *
      * @param  timeout
      *         The amount of time for the Menu to stay available
      * @param  unit

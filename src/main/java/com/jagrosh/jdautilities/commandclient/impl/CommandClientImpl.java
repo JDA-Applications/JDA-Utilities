@@ -436,6 +436,12 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     @Override
     public void onReady(ReadyEvent event)
     {
+        if(!event.getJDA().getSelfUser().isBot())
+        {
+            LOG.fatal("JDA-Utilities does not support CLIENT accounts.");
+            event.getJDA().shutdown();
+            return;
+        }
         textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         event.getJDA().getPresence().setStatus(OnlineStatus.ONLINE);
         if(game!=null)
@@ -449,7 +455,6 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     public void onShutdown(ShutdownEvent event)
     {
         executor.shutdown();
-        System.exit(0);
     }
 
     @Override
