@@ -72,7 +72,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 javadoc {
     failOnError = false
-    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.memberLevel = JavadocMemberLevel.PROTECTED
     options.author()
     options.encoding = 'UTF-8'
 
