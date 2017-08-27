@@ -30,8 +30,8 @@ import net.dv8tion.jda.core.utils.SimpleLog;
  * @author John Grosh (jagrosh)
  */
 public class AboutCommand extends Command {
-    public static boolean IS_AUTHOR = true;
-    public static String REPLACEMENT_ICON = "+";
+    private boolean IS_AUTHOR = true;
+    private String REPLACEMENT_ICON = "+";
     private final Color color;
     private final String description;
     private final Permission[] perms;
@@ -47,6 +47,17 @@ public class AboutCommand extends Command {
         this.help = "shows info about the bot";
         this.guildOnly = false;
         this.perms = perms;
+        this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
+    }
+    
+    public void setIsAuthor(boolean value)
+    {
+        this.IS_AUTHOR = value;
+    }
+    
+    public void setReplacementCharacter(String value)
+    {
+        this.REPLACEMENT_ICON = value;
     }
     
     @Override

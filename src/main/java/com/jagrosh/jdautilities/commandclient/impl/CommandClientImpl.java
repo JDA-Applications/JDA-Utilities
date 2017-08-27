@@ -77,6 +77,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
     private final OffsetDateTime start;
     private final Game game;
+    private final OnlineStatus status;
     private final String ownerId;
     private final String[] coOwnerIds;
     private final String prefix;
@@ -103,8 +104,8 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private CommandListener listener = null;
     private int totalGuilds;
 
-    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, String serverInvite, String success,
-            String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands,
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
+            String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands,
             boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
             int linkedCacheSize)
     {
@@ -128,6 +129,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.prefix = prefix;
         this.altprefix = altprefix;
         this.game = game;
+        this.status = status;
         this.serverInvite = serverInvite;
         this.success = success==null ? "": success;
         this.warning = warning==null ? "": warning;
@@ -439,7 +441,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     public void onReady(ReadyEvent event)
     {
         textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
-        event.getJDA().getPresence().setStatus(OnlineStatus.ONLINE);
+        event.getJDA().getPresence().setStatus(status==null ? OnlineStatus.ONLINE : status);
         if(game!=null)
             event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
                     Game.of("Type "+textPrefix+helpWord) :

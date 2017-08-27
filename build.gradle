@@ -25,8 +25,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
-def versionObj = new Version(major: 1, minor: 5)
-def jdaVersion = '3.2.0_242'
+def versionObj = new Version(major: 1, minor: 6)
+def jdaVersion = '3.2.0_251'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 
 /**
@@ -34,6 +35,7 @@ import net.dv8tion.jda.core.entities.Game;
  */
 public class CommandClientBuilder {
     private Game game = Game.of("default");
+    private OnlineStatus status = OnlineStatus.ONLINE;
     private String ownerId;
     private String[] coOwnerIds;
     private String prefix;
@@ -62,7 +64,7 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite, success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -279,6 +281,18 @@ public class CommandClientBuilder {
     public CommandClientBuilder useDefaultGame()
     {
         this.game = Game.of("default");
+        return this;
+    }
+    
+    /**
+     * Sets the {@link net.dv8tion.jda.core.OnlineStatus OnlineStatus} the bot will use once Ready
+     * This defaults to ONLINE
+     * @param status the status to set
+     * @return This builder
+     */
+    public CommandClientBuilder setStatus(OnlineStatus status)
+    {
+        this.status = status;
         return this;
     }
     
