@@ -32,6 +32,14 @@ group = 'com.jagrosh'
 archivesBaseName = project.name
 version = versionObj.toString()
 
+sourceSets {
+    main.java.srcDirs += 'src/main/java'
+    test {
+        compileClasspath = main.compileClasspath
+        runtimeClasspath = main.runtimeClasspath
+    }
+}
+
 repositories {
     jcenter()
     maven { url 'https://mvnrepository.com/artifact/' }
@@ -39,6 +47,8 @@ repositories {
 
 dependencies {
     compileOnly "net.dv8tion:JDA:${jdaVersion}"
+
+    testCompileOnly group: 'junit', name: 'junit', version: '4.12'
 }
 
 task sourcesForRelease(type: Copy) {
