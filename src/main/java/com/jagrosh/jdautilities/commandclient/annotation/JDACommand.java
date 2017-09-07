@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.commandclient.annotation;
 
+import com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler;
 import com.jagrosh.jdautilities.commandclient.Command;
 import net.dv8tion.jda.core.Permission;
 
@@ -32,7 +33,7 @@ import java.lang.annotation.*;
  * than most other types systems.
  *
  * To circumvent this, classes annotated with this are put through an {@link
- * com.jagrosh.jdautilities.commandclient.AnnotatedCommandCompiler AnnotatedCommandCompiler}.
+ * AnnotatedModuleCompiler AnnotatedModuleCompiler}.
  * where they will be converted to Commands using {@link com.jagrosh.jdautilities.commandclient.CommandBuilder
  * CommandBuilder}.
  *
@@ -40,7 +41,20 @@ import java.lang.annotation.*;
  * {@link com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module @Module}.
  * <br>Following that, any methods of said class annotated with this annotation (whose names
  * are also given as parameters of the {@code @Module} annotation) will be registered to the
- * module and "compiled" through the AnnotatedCommandCompiler provided in CommandClientBuilder.
+ * module and "compiled" through the AnnotatedModuleCompiler provided in CommandClientBuilder.
+ *
+ * <pre><code>   {@link JDACommand.Module @JDACommand.Module}({@link Module#value() value} = "example")
+ * public class AnnotatedModuleCmd {
+ *
+ *     {@literal @JDACommand(}
+ *          {@link JDACommand#name() name} = {"example", "test", "demo"},
+ *          {@link JDACommand#help() help} = "gives an example of what commands do"
+ *      )
+ *      public void example(CommandEvent) {
+ *          event.reply("Hey look! This would be the bot's reply if this was a command!");
+ *      }
+ *
+ * }</code></pre>
  *
  * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module
  *
@@ -100,8 +114,7 @@ public @interface JDACommand
     String arguments() default "";
 
     /**
-     * The {@link com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Cooldown
-     * JDACommand.Cooldown} for the command.
+     * The {@link JDACommand.Cooldown JDACommand.Cooldown} for the command.
      *
      * <p>This holds both metadata for both the
      * {@link com.jagrosh.jdautilities.commandclient.Command#cooldown Command#cooldown}
@@ -148,9 +161,24 @@ public @interface JDACommand
     String[] children() default {};
 
     /**
-     * A helper annotation to assist in location of methods that will
-     * generate into {@link com.jagrosh.jdautilities.commandclient.Command
-     * Command}s.
+     * The {@link JDACommand.Category JDACommand.Category} for this command.
+     * <br>This holds data to properly locate a <b>static field</b> representing
+     * this command's {@link com.jagrosh.jdautilities.commandclient.Command.Category
+     * Category}.
+     *
+     * @return The {@code @Category} for this command.
+     */
+    Category category() default @Category(name = "null", location = Category.class);
+
+    /**
+     * A helper annotation to assist in location of methods that will generate
+     * into {@link com.jagrosh.jdautilities.commandclient.Command Command}s.
+     *
+     * <p>Method names provided to this annotation must have one or two parameters.
+     * Either a single parameter {@link com.jagrosh.jdautilities.commandclient.CommandEvent
+     * CommandEvent}, or a double parameter {@code CommandEvent} and {@code Command}.
+     * <br>The arrangement of the double parameters is not important, so methods
+     * may do it as {@code (CommandEvent, Command)} or {@code (Command, CommandEvent)}.
      *
      * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
      */
@@ -159,9 +187,12 @@ public @interface JDACommand
     @interface Module
     {
         /**
-         * The names of any methods that will be targeted when compiling this object using the
-         * {@link com.jagrosh.jdautilities.commandclient.AnnotatedCommandCompiler
-         * AnnotatedCommandCompiler}.
+         * The names of any methods that will be targeted when compiling this object
+         * using the {@link AnnotatedModuleCompiler
+         * AnnotatedModuleCompiler}.
+         *
+         * <p><b>This is not the same thing as the name of the commands!</b> These are
+         * the names of the methods representing execution of the commands!
          *
          * @return An array of method names used when creating commands.
          */
@@ -175,13 +206,63 @@ public @interface JDACommand
      *
      * The default {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope CooldownScope}
      * is {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#USER CooldownScope.USER}.
+     *
+     * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand#cooldown()
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Cooldown
     {
+        /**
+         * The number of seconds the annotated Command will be on cooldown.
+         *
+         * @return The number of seconds the annotated Command will be on cooldown.
+         */
         int value();
 
+        /**
+         * The {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope CooldownScope}
+         * for the annotated Command.
+         *
+         * <p>By default this is {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope#USER
+         * CooldownScope.USER}.
+         *
+         * @return The CooldownScope for this annotated Command.
+         */
         Command.CooldownScope scope() default Command.CooldownScope.USER;
     }
+
+    /**
+     * A helper annotation to assist in location of Category instance.
+     *
+     * <p>This will target a <b>static field</b> in the specified class
+     * {@link Category#location() location} using reflections, with a
+     * matching {@link Category#name() name}.
+     *
+     * <p>It is important to remember the target must be a <b>static field</b>
+     * and any other attempted inputs will result in errors from the
+     * {@link AnnotatedModuleCompiler compiler}.
+     *
+     * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand#category()
+     */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Category
+    {
+        /**
+         * The name of the <b>static field</b> in the {@link Category#location()
+         * target class} that will be the category for the annotated command.
+         *
+         * @return The name of the <b>static field</b> in the target class.
+         */
+        String name();
+
+        /**
+         * The target class where the <b>static field</b> is located.
+         *
+         * @return The target class where the <b>static field</b> is located.
+         */
+        Class<?> location();
+    }
+
 }

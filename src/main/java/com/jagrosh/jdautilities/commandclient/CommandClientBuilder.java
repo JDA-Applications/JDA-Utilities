@@ -54,7 +54,7 @@ public class CommandClientBuilder {
     private String helpWord;
     private ScheduledExecutorService executor;
     private int linkedCacheSize = 200;
-    private AnnotatedCommandCompiler compiler = null;
+    private AnnotatedModuleCompiler compiler = null;
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
@@ -342,15 +342,15 @@ public class CommandClientBuilder {
      *
      * @return This builder
      *
-     * @see    com.jagrosh.jdautilities.commandclient.AnnotatedCommandCompiler
+     * @see    AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
      */
     public CommandClientBuilder addAnnotatedModule(Object module)
     {
         if(compiler == null)
-            compiler = new AnnotatedCommandCompiler();
+            compiler = new AnnotatedModuleCompiler();
 
-        this.commands.addAll(compiler.compileModule(module));
+        this.commands.addAll(compiler.compile(module));
 
         return this;
     }
@@ -368,7 +368,7 @@ public class CommandClientBuilder {
      *
      * @return This builder
      *
-     * @see    com.jagrosh.jdautilities.commandclient.AnnotatedCommandCompiler
+     * @see    AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
      */
     public CommandClientBuilder addAnnotatedModules(Object... modules)
