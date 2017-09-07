@@ -18,9 +18,7 @@ package com.jagrosh.jdautilities.commandclient;
 import com.jagrosh.jdautilities.commandclient.annotation.JDACommand;
 import net.dv8tion.jda.core.utils.SimpleLog;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.MalformedParametersException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -42,17 +40,29 @@ import java.util.function.Predicate;
  * @since  1.7
  * @author Kaidan Gustave
  */
-public class AnnotatedCommandCompiler
+public class AnnotatedModuleCompiler
 {
     private static final SimpleLog LOG = SimpleLog.getLog("Annotated Compiler");
 
-    public List<Command> compileModule(Object o)
+    /**
+     * Compiles one or more {@link com.jagrosh.jdautilities.commandclient.Command Command}s
+     * using method annotations as for properties from the specified {@link java.lang.Object
+     * Object}.
+     *
+     * <p><b>This Object must be annotated with {@link
+     * com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module @JDACommand.Module}!</b>
+     *
+     * @param  o The Object, annotated with {@code @JDACommand.Module}.
+     *
+     * @return A {@link java.util.List} of Commands generated from the provided Object
+     */
+    public List<Command> compile(Object o)
     {
         JDACommand.Module module = o.getClass().getAnnotation(JDACommand.Module.class);
-        if(module == null) // TODO
-            throw new IllegalArgumentException("");
-        if(module.value().length<1) // TODO
-            throw new IllegalArgumentException("");
+        if(module == null)
+            throw new IllegalArgumentException("Object provided is not annotated with JDACommand.Module!");
+        if(module.value().length<1)
+            throw new IllegalArgumentException("Object provided is annotated with an empty command module!");
 
         List<Method> commands = collect((Method method) -> {
             for(String name : module.value())
@@ -66,7 +76,7 @@ public class AnnotatedCommandCompiler
         List<Command> list = new ArrayList<>();
         commands.forEach(method -> {
             try {
-                list.add(compile(o, method));
+                list.add(compileMethod(o, method));
             } catch(MalformedParametersException e) {
                 LOG.fatal(e.getMessage());
             }
@@ -74,11 +84,11 @@ public class AnnotatedCommandCompiler
         return list;
     }
 
-    private Command compile(Object o, Method method) throws MalformedParametersException
+    private Command compileMethod(Object o, Method method) throws MalformedParametersException
     {
         JDACommand properties = method.getAnnotation(JDACommand.class);
-        if(properties == null) // TODO
-            throw new IllegalArgumentException("");
+        if(properties == null)
+            throw new IllegalArgumentException("Method named "+method.getName()+" is not annotated with JDACommand!");
         CommandBuilder builder = new CommandBuilder();
 
         // Name
@@ -95,6 +105,26 @@ public class AnnotatedCommandCompiler
 
         // Arguments
         builder.setArguments(properties.arguments().trim().isEmpty()? null : properties.arguments().trim());
+
+        // Category
+        if(!properties.category().location().equals(JDACommand.Category.class))
+        {
+            JDACommand.Category category = properties.category();
+            for(Field field : category.location().getDeclaredFields())
+            {
+                if(Modifier.isStatic(field.getModifiers()) && field.getType().equals(Command.Category.class))
+                {
+                    if(category.name().equalsIgnoreCase(field.getName()))
+                    {
+                        try {
+                            builder.setCategory((Command.Category) field.get(null));
+                        } catch(IllegalAccessException e) {
+                            LOG.log(e);
+                        }
+                    }
+                }
+            }
+        }
 
         // Guild Only
         builder.setGuildOnly(properties.guildOnly());
@@ -132,13 +162,14 @@ public class AnnotatedCommandCompiler
                 return false;
             }, o.getClass().getMethods()).forEach(cm -> {
                 try {
-                    builder.addChild(compile(o, cm));
+                    builder.addChild(compileMethod(o, cm));
                 } catch(MalformedParametersException e) {
-                    LOG.fatal(e.getMessage());
+                    LOG.log(e);
                 }
             });
         }
 
+        // Analyze parameter types as a final check.
 
         Class<?>[] parameters = method.getParameterTypes();
         // Dual Parameter Command, CommandEvent
@@ -156,6 +187,7 @@ public class AnnotatedCommandCompiler
         {
             // Single parameter CommandEvent
             if(parameters.length == 1)
+            {
                 return builder.build(event -> {
                     try {
                         method.invoke(o, event);
@@ -163,8 +195,10 @@ public class AnnotatedCommandCompiler
                         LOG.log(e);
                     }
                 });
+            }
             // Dual Parameter CommandEvent, Command
             else if(parameters[1] == Command.class)
+            {
                 return builder.build((command, event) -> {
                     try {
                         method.invoke(o, event, command);
@@ -172,11 +206,11 @@ public class AnnotatedCommandCompiler
                         LOG.log(e);
                     }
                 });
+            }
         }
 
         // If we reach this point there is a malformed method and we shouldn't finish the compilation.
-        throw new MalformedParametersException(
-                "Method named "+method.getName()+" was not compiled due to improper parameter types!");
+        throw new MalformedParametersException("Method named "+method.getName()+" was not compiled due to improper parameter types!");
     }
 
     @SafeVarargs
