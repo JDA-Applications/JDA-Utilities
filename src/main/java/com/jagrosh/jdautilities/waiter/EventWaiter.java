@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
 /**
  * A simple object used primarily for entities found in {@link com.jagrosh.jdautilities.menu}.
@@ -122,6 +123,7 @@ public class EventWaiter implements EventListener {
     
     @Override
     @SuppressWarnings("unchecked")
+    @SubscribeEvent
     public final void onEvent(Event event)
     {
         Class c = event.getClass();
