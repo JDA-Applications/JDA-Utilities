@@ -74,6 +74,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
     private static final SimpleLog LOG = SimpleLog.getLog("CommandClient");
     private static final int INDEX_LIMIT = 20;
+    private static final String DEFAULT_PREFIX = "@mention";
 
     private final OffsetDateTime start;
     private final Game game;
@@ -127,8 +128,9 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
         this.ownerId = ownerId;
         this.coOwnerIds = coOwnerIds;
-        this.prefix = prefix;
-        this.altprefix = altprefix;
+        this.prefix = prefix==null || prefix.isEmpty() ? DEFAULT_PREFIX : prefix;
+        this.altprefix = altprefix==null || altprefix.isEmpty() ? null : altprefix;
+        this.textPrefix = prefix;
         this.game = game;
         this.status = status;
         this.serverInvite = serverInvite;
@@ -448,7 +450,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
             event.getJDA().shutdown();
             return;
         }
-        textPrefix = prefix==null ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
+        textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         event.getJDA().getPresence().setStatus(status==null ? OnlineStatus.ONLINE : status);
         if(game!=null)
             event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
@@ -471,22 +473,16 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         boolean[] isCommand = new boolean[]{false};
         String[] parts = null;
         String rawContent = event.getMessage().getRawContent();
-        if(prefix==null)
+        if(prefix.equals(DEFAULT_PREFIX) || (altprefix!=null && altprefix.equals(DEFAULT_PREFIX)))
         {
             if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">")
                     || rawContent.startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
                 parts = Arrays.copyOf(rawContent.substring(rawContent.indexOf(">")+1).trim().split("\\s+",2), 2);
         }
-        else
-        {
-            if(rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
-                parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
-        }
-        if(parts==null && altprefix!=null)
-        {
-            if(rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
-                parts = Arrays.copyOf(rawContent.substring(altprefix.length()).trim().split("\\s+",2), 2);
-        }
+        if(parts==null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
+            parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
+        if(parts==null && altprefix!=null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
+            parts = Arrays.copyOf(rawContent.substring(altprefix.length()).trim().split("\\s+",2), 2);
         if(parts!=null) //starts with valid prefix
         {
             if(useHelp && parts[0].equalsIgnoreCase(helpWord))
