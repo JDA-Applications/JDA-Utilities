@@ -84,14 +84,14 @@ public class FinderUtil {
         Matcher fullRefMatch = FULL_USER_REF.matcher(query);
         if(userMention.matches())
         {
-            User user = jda.getUserById(userMention.replaceAll("$1"));
+            User user = jda.getUserById(userMention.group(1));
             if(user!=null)
                 return Collections.singletonList(user);
         }
         else if(fullRefMatch.matches())
         {
-            String lowerName = fullRefMatch.replaceAll("$1").toLowerCase();
-            String discrim = fullRefMatch.replaceAll("$2");
+            String lowerName = fullRefMatch.group(1).toLowerCase();
+            String discrim = fullRefMatch.group(2);
             List<User> users = jda.getUsers().stream()
                     .filter(user -> user.getName().toLowerCase().equals(lowerName)
                             && user.getDiscriminator().equals(discrim))
@@ -175,10 +175,9 @@ public class FinderUtil {
         }
         String discrim = null;
         Matcher userMention = USER_MENTION.matcher(query);
-        Matcher fullRefMatch = FULL_USER_REF.matcher(query);
         if(userMention.matches())
         {
-            String id = userMention.replaceAll("$1");
+            String id = userMention.group(1);
             User user = guild.getJDA().getUserById(id);
             if(user != null && bans.contains(user))
                 return Collections.singletonList(user);
@@ -186,7 +185,7 @@ public class FinderUtil {
                 if(u.getId().equals(id))
                     return Collections.singletonList(u);
         }
-        else if(fullRefMatch.matches())
+        else if(FULL_USER_REF.matcher(query).matches())
         {
             discrim = query.substring(query.length()-4);
             query = query.substring(0,query.length()-5).trim();
@@ -262,14 +261,14 @@ public class FinderUtil {
         Matcher fullRefMatch = FULL_USER_REF.matcher(query);
         if(userMention.matches())
         {
-            Member member = guild.getMemberById(userMention.replaceAll("$1"));
+            Member member = guild.getMemberById(userMention.group(1));
             if(member!=null)
                 return Collections.singletonList(member);
         }
         else if(fullRefMatch.matches())
         {
-            String lowerName = fullRefMatch.replaceAll("$1").toLowerCase();
-            String discrim = fullRefMatch.replaceAll("$2");
+            String lowerName = fullRefMatch.group(1).toLowerCase();
+            String discrim = fullRefMatch.group(2);
             List<Member> members = guild.getMembers().stream()
                     .filter(member -> member.getUser().getName().toLowerCase().equals(lowerName)
                             && member.getUser().getDiscriminator().equals(discrim))
@@ -330,7 +329,7 @@ public class FinderUtil {
         Matcher channelMention = CHANNEL_MENTION.matcher(query);
         if(channelMention.matches())
         {
-            TextChannel tc = jda.getTextChannelById(channelMention.replaceAll("$1"));
+            TextChannel tc = jda.getTextChannelById(channelMention.group(1));
             if(tc!=null)
                 return Collections.singletonList(tc);
         }
@@ -386,7 +385,7 @@ public class FinderUtil {
         Matcher channelMention = CHANNEL_MENTION.matcher(query);
         if(channelMention.matches())
         {
-            TextChannel tc = guild.getTextChannelById(channelMention.replaceAll("$1"));
+            TextChannel tc = guild.getTextChannelById(channelMention.group(1));
             if(tc!=null)
                 return Collections.singletonList(tc);
         }
@@ -533,7 +532,7 @@ public class FinderUtil {
         Matcher roleMention = ROLE_MENTION.matcher(query);
         if(roleMention.matches())
         {
-            Role role = guild.getRoleById(roleMention.replaceAll("$1"));
+            Role role = guild.getRoleById(roleMention.group(1));
             if(role!=null)
                 return Collections.singletonList(role);
         }

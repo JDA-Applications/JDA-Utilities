@@ -19,3 +19,7 @@
 /target/
 /.nb-gradle/
 *.nb-gradle-properties
+
+# project files
+/src/test
+tokens.json

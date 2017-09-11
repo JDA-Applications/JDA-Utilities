@@ -474,8 +474,8 @@ public class CommandBuilder
     {
         return new BlankCommand(name, help, category, arguments,
                 guildOnly, requiredRole, ownerCommand, cooldown,
-                userPermissions, botPermissions, (String[]) aliases.toArray(),
-                (Command[]) children.toArray(), helpBiConsumer, usesTopicTags,
+                userPermissions, botPermissions, aliases.toArray(new String[aliases.size()]),
+                children.toArray(new Command[children.size()]), helpBiConsumer, usesTopicTags,
                 cooldownScope)
         {
             @Override

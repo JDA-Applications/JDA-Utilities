@@ -25,12 +25,20 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
-def versionObj = new Version(major: 1, minor: 6)
-def jdaVersion = '3.2.0_251'
+def versionObj = new Version(major: 1, minor: 7)
+def jdaVersion = '3.2.0_265'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name
 version = versionObj.toString()
+
+sourceSets {
+    main.java.srcDirs += 'src/main/java'
+    test {
+        compileClasspath = main.compileClasspath
+        runtimeClasspath = main.runtimeClasspath
+    }
+}
 
 repositories {
     jcenter()
@@ -39,6 +47,8 @@ repositories {
 
 dependencies {
     compileOnly "net.dv8tion:JDA:${jdaVersion}"
+
+    testCompileOnly group: 'junit', name: 'junit', version: '4.12'
 }
 
 task sourcesForRelease(type: Copy) {
@@ -134,6 +144,7 @@ String getProjectProperty(String propertyName)
 }
 
 build {
+    dependsOn clean
     dependsOn jar
     dependsOn javadocJar
     dependsOn sourcesJar

@@ -54,6 +54,7 @@ public class CommandClientBuilder {
     private String helpWord;
     private ScheduledExecutorService executor;
     private int linkedCacheSize = 200;
+    private AnnotatedModuleCompiler compiler = null;
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
@@ -328,7 +329,55 @@ public class CommandClientBuilder {
             this.addCommand(command);
         return this;
     }
-    
+
+    /**
+     * Adds an annotated command module to the
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
+     *
+     * <p>For more information on annotated command modules, see
+     * {@link com.jagrosh.jdautilities.commandclient.annotation the annotation package} documentation.
+     *
+     * @param  module
+     *         The annotated command module to add
+     *
+     * @return This builder
+     *
+     * @see    AnnotatedModuleCompiler
+     * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
+     */
+    public CommandClientBuilder addAnnotatedModule(Object module)
+    {
+        if(compiler == null)
+            compiler = new AnnotatedModuleCompiler();
+
+        this.commands.addAll(compiler.compile(module));
+
+        return this;
+    }
+
+    /**
+     * Adds multiple annotated command modules to the
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
+     * <br>This is the same as calling {@link CommandClientBuilder#addAnnotatedModule(Object)} multiple times.
+     *
+     * <p>For more information on annotated command modules, see
+     * {@link com.jagrosh.jdautilities.commandclient.annotation the annotation package} documentation.
+     *
+     * @param  modules
+     *         The annotated command modules to add
+     *
+     * @return This builder
+     *
+     * @see    AnnotatedModuleCompiler
+     * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
+     */
+    public CommandClientBuilder addAnnotatedModules(Object... modules)
+    {
+        for(Object command : modules)
+            addAnnotatedModule(command);
+        return this;
+    }
+
     /**
      * Sets the <a href="https://www.carbonitex.net/discord/bots">Carbonitex</a> key for this bot's listing.
      * 
