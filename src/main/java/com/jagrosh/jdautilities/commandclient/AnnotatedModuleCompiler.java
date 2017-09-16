@@ -16,7 +16,8 @@
 package com.jagrosh.jdautilities.commandclient;
 
 import com.jagrosh.jdautilities.commandclient.annotation.JDACommand;
-import net.dv8tion.jda.core.utils.SimpleLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ import java.util.function.Predicate;
  */
 public class AnnotatedModuleCompiler
 {
-    private static final SimpleLog LOG = SimpleLog.getLog("Annotated Compiler");
+    private static final Logger LOG = LoggerFactory.getLogger(AnnotatedModuleCompiler.class);
 
     /**
      * Compiles one or more {@link com.jagrosh.jdautilities.commandclient.Command Command}s
@@ -78,7 +79,7 @@ public class AnnotatedModuleCompiler
             try {
                 list.add(compileMethod(o, method));
             } catch(MalformedParametersException e) {
-                LOG.fatal(e.getMessage());
+                LOG.error(e.getMessage());
             }
         });
         return list;
@@ -119,7 +120,7 @@ public class AnnotatedModuleCompiler
                         try {
                             builder.setCategory((Command.Category) field.get(null));
                         } catch(IllegalAccessException e) {
-                            LOG.log(e);
+                            LOG.error("Encountered Exception ", e);
                         }
                     }
                 }
@@ -164,7 +165,7 @@ public class AnnotatedModuleCompiler
                 try {
                     builder.addChild(compileMethod(o, cm));
                 } catch(MalformedParametersException e) {
-                    LOG.log(e);
+                    LOG.error("Encountered Exception ", e);
                 }
             });
         }
@@ -179,7 +180,7 @@ public class AnnotatedModuleCompiler
                 try {
                     method.invoke(o, command, event);
                 } catch(IllegalAccessException | InvocationTargetException e) {
-                    LOG.log(e);
+                    LOG.error("Encountered Exception ", e);
                 }
             });
         }
@@ -192,7 +193,7 @@ public class AnnotatedModuleCompiler
                     try {
                         method.invoke(o, event);
                     } catch(IllegalAccessException | InvocationTargetException e) {
-                        LOG.log(e);
+                        LOG.error("Encountered Exception ", e);
                     }
                 });
             }
@@ -203,7 +204,7 @@ public class AnnotatedModuleCompiler
                     try {
                         method.invoke(o, event, command);
                     } catch(IllegalAccessException | InvocationTargetException e) {
-                        LOG.log(e);
+                        LOG.error("Encountered Exception ", e);
                     }
                 });
             }

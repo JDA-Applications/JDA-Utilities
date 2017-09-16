@@ -15,7 +15,6 @@
  */
 package com.jagrosh.jdautilities.commandclient.examples;
 
-import java.awt.Color;
 import com.jagrosh.jdautilities.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.commandclient.Command;
 import com.jagrosh.jdautilities.commandclient.CommandEvent;
@@ -23,7 +22,10 @@ import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.utils.SimpleLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.Color;
 
 /**
  *
@@ -67,9 +69,8 @@ public class AboutCommand extends Command {
                 ApplicationInfo info = event.getJDA().asBot().getApplicationInfo().complete();
                 oauthLink = info.isBotPublic() ? info.getInviteUrl(0L, perms) : "";
             } catch (Exception e) {
-                SimpleLog log = SimpleLog.getLog("OAuth2");
-                log.fatal("Could not generate invite link");
-                log.log(e);
+                Logger log = LoggerFactory.getLogger("OAuth2");
+                log.error("Could not generate invite link ", e);
                 oauthLink = "";
             }
         }
