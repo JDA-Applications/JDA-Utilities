@@ -47,6 +47,7 @@ repositories {
 
 dependencies {
     compileOnly "net.dv8tion:JDA:${jdaVersion}"
+    compile 'org.slf4j:slf4j-api:1.7.25'
 
     testCompileOnly group: 'junit', name: 'junit', version: '4.12'
 }
