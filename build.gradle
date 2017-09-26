@@ -150,6 +150,11 @@ build {
     dependsOn javadocJar
     dependsOn sourcesJar
     dependsOn shadowJar
+
+    sourcesJar.mustRunAfter clean
+    javadocJar.mustRunAfter sourcesJar
+    shadowJar.mustRunAfter javadocJar
+    jar.mustRunAfter shadowJar
 }
 
 bintrayUpload {
