@@ -15,6 +15,9 @@
  */
 package com.jagrosh.jdautilities.menu;
 
+import java.awt.*;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
@@ -31,7 +34,8 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
  *
  * @author John Grosh
  */
-public abstract class Menu {
+public abstract class Menu
+{
     protected final EventWaiter waiter;
     protected final Set<User> users;
     protected final Set<Role> roles;
@@ -91,5 +95,139 @@ public abstract class Menu {
         if(!(event.getChannel() instanceof TextChannel))
             return false;
         return event.getMember().getRoles().stream().anyMatch(r -> roles.contains(r));
+    }
+
+    /**
+     *
+     * @author John Grosh
+     */
+    public abstract static class Builder<T extends Builder<T, V>, V extends Menu> {
+        protected EventWaiter waiter;
+        protected Set<User> users = new HashSet<>();
+        protected Set<Role> roles = new HashSet<>();
+        protected long timeout = 1;
+        protected TimeUnit unit = TimeUnit.MINUTES;
+
+        /**
+         * Builds the {@link com.jagrosh.jdautilities.menu.Menu Menu} corresponding to
+         * this {@link com.jagrosh.jdautilities.menu.Menu.Builder MenuBuilder}.
+         * <br>After doing this, no modifications of the displayed Menu can be made.
+         *
+         * @return The built Menu of corresponding type to this MenuBuilder.
+         */
+        public abstract V build();
+
+        /**
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         *
+         * @param  color
+         *         The Color of the MessageEmbed
+         *
+         * @return This builder
+         */
+        public abstract T setColor(Color color);
+
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter}
+         * that will do {@link com.jagrosh.jdautilities.menu.Menu Menu} operations.
+         *
+         * <p><b>NOTE:</b> All Menus will only work with an EventWaiter set!
+         * <br>Not setting an EventWaiter means the Menu will not work.
+         *
+         * @param  waiter
+         *         The EventWaiter
+         *
+         * @return This builder
+         */
+        public final T setEventWaiter(EventWaiter waiter)
+        {
+            this.waiter = waiter;
+            return (T) this;
+        }
+
+        /**
+         * Adds {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
+         *
+         * @param  users
+         *         The Users allowed to use the Menu
+         *
+         * @return This builder
+         */
+        public final T addUsers(User... users)
+        {
+            this.users.addAll(Arrays.asList(users));
+            return (T)this;
+        }
+
+        /**
+         * Sets {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
+         * <br>This clears any Users already registered before adding the ones specified.
+         *
+         * @param  users
+         *         The Users allowed to use the Menu
+         *
+         * @return This builder
+         */
+        public final T setUsers(User... users)
+        {
+            this.users.clear();
+            this.users.addAll(Arrays.asList(users));
+            return (T)this;
+        }
+
+        /**
+         * Adds {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
+         *
+         * @param  roles
+         *         The Roles allowed to use the Menu
+         *
+         * @return This builder
+         */
+        public final T addRoles(Role... roles)
+        {
+            this.roles.addAll(Arrays.asList(roles));
+            return (T)this;
+        }
+
+        /**
+         * Sets {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
+         * <br>This clears any Roles already registered before adding the ones specified.
+         *
+         * @param  roles
+         *         The Roles allowed to use the Menu
+         *
+         * @return This builder
+         */
+        public final T setRoles(Role... roles)
+        {
+            this.roles.clear();
+            this.roles.addAll(Arrays.asList(roles));
+            return (T)this;
+        }
+
+        /**
+         * Sets the timeout that the {@link com.jagrosh.jdautilities.menu.Menu Menu} should
+         * stay available.
+         *
+         * <p>After this has expired, the a final action in the form of a
+         * {@link java.lang.Runnable Runnable} may execute.
+         *
+         * @param  timeout
+         *         The amount of time for the Menu to stay available
+         * @param  unit
+         *         The {@link java.util.concurrent.TimeUnit TimeUnit} for the timeout
+         *
+         * @return This builder
+         */
+        public final T setTimeout(long timeout, TimeUnit unit)
+        {
+            this.timeout = timeout;
+            this.unit = unit;
+            return (T) this;
+        }
     }
 }

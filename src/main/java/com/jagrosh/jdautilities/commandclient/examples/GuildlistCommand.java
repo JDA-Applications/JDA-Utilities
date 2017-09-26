@@ -19,8 +19,7 @@ import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.commandclient.Command;
 import com.jagrosh.jdautilities.commandclient.CommandEvent;
-import com.jagrosh.jdautilities.menu.pagination.Paginator;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -32,7 +31,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
  */
 public class GuildlistCommand extends Command {
 
-    private final PaginatorBuilder pbuilder;
+    private final Paginator.Builder pbuilder;
     public GuildlistCommand(EventWaiter waiter)
     {
         this.name = "guildlist";
@@ -41,7 +40,7 @@ public class GuildlistCommand extends Command {
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION};
         this.guildOnly = false;
         this.ownerCommand = true;
-        pbuilder = new PaginatorBuilder().setColumns(1)
+        pbuilder = new Paginator.Builder().setColumns(1)
                 .setItemsPerPage(10)
                 .showPageNumbers(true)
                 .waitOnSinglePage(false)

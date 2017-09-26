@@ -141,9 +141,9 @@ public class FinderUtil {
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
      *
-     * <h4>WARNING</h4>
+     * <p><b>WARNING</b>
      *
-     * Unlike the other finder methods, this one has two very unique features that set it apart from the rest:
+     * <p>Unlike the other finder methods, this one has two very unique features that set it apart from the rest:
      * <ul>
      *     <li><b>1)</b> In order to get a list of bans that is usable, this method initial retrieves it by usage of
      *     {@link net.dv8tion.jda.core.requests.RestAction#complete() Guild#getBans().complete()}. Because of this,

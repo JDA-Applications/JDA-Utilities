@@ -467,7 +467,7 @@ public class CommandClientBuilder {
     }
 
     /**
-     * Sets the internal size of the client's {@link com.jagrosh.jdautilities.entities.FixedSizeCache FixedSizeCache}
+     * Sets the internal size of the client's {@link resources.FixedSizeCache FixedSizeCache}
      * used for caching and pairing the bot's response {@link net.dv8tion.jda.core.entities.Message Message}s with
      * the calling Message's ID.
      *

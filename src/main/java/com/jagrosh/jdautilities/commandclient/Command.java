@@ -695,14 +695,13 @@ public abstract class Command {
      *     <li>{@link #USER_GUILD USER_GUILD} defaults to {@link #USER_CHANNEL USER_CHANNEL}.</li>
      * </ul>
      *
+     * <p>These are effective across a single instance of JDA, and not multiple ones.
+     * <br>There is no shard magic, no 100% "global" cooldown, unless via some external system.
+     *
      * @since  1.3
      * @author Kaidan Gustave
      *
      * @see    com.jagrosh.jdautilities.commandclient.Command#cooldownScope Command.cooldownScope
-     *
-     * @apiNote
-     *         These are effective across a single instance of JDA, and not multiple ones.
-     *         <br>There is no shard magic, no 100% "global" cooldown, unless via some external system.
      */
     public enum CooldownScope {
         /**

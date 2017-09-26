@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.entities;
+package resources;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class FixedSizeCache<K, V> {
     private int currIndex = 0;
 
     /**
-     * Constructs a new {@link com.jagrosh.jdautilities.entities.FixedSizeCache FixedSizeCache}
+     * Constructs a new {@link FixedSizeCache FixedSizeCache}
      * with a set maximum capacity.
      *
      * <p>This entity runs on the basis of "first-in-first-out", meaning that elements inserted
@@ -60,7 +60,7 @@ public class FixedSizeCache<K, V> {
     /**
      * Adds a key and pairs it with a value.
      *
-     * <p>If this {@link com.jagrosh.jdautilities.entities.FixedSizeCache FixedSizeCache}
+     * <p>If this {@link FixedSizeCache FixedSizeCache}
      * is already at maximum occupation, this will remove the oldest element.
      *
      * <p><b>NOTE:</b> Any inner workings of {@link java.util.HashMap#put(Object, Object)
@@ -86,7 +86,7 @@ public class FixedSizeCache<K, V> {
     }
 
     /**
-     * Checks if this {@link com.jagrosh.jdautilities.entities.FixedSizeCache FixedSizeCache}
+     * Checks if this {@link FixedSizeCache FixedSizeCache}
      * contains a key.
      *
      * <p><b>NOTE:</b> Any inner workings of {@link java.util.HashMap#containsKey(Object)
@@ -106,7 +106,7 @@ public class FixedSizeCache<K, V> {
     }
 
     /**
-     * Retrieves a value from this {@link com.jagrosh.jdautilities.entities.FixedSizeCache
+     * Retrieves a value from this {@link FixedSizeCache
      * FixedSizeCache} corresponding to the specified key, or {@code null} if there is no
      * corresponding value to be retrieved.
      *

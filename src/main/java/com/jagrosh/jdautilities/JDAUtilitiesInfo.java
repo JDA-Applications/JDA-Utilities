@@ -19,7 +19,8 @@ package com.jagrosh.jdautilities;
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public class JDAUtilitiesInfo {
+public class JDAUtilitiesInfo
+{
     public static final String VERSION_MAJOR = "1";
     public static final String VERSION_MINOR = "7";
     public static final String VERSION = VERSION_MAJOR+"."+VERSION_MINOR;

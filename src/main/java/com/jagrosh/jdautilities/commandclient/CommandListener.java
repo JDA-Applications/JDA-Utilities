@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  * 
  * @author John Grosh (jagrosh)
  */
+@SuppressWarnings("unused")
 public interface CommandListener {
     
     /**
@@ -34,7 +35,7 @@ public interface CommandListener {
      * @param  command
      *         The Command that was triggered
      */
-    void onCommand(CommandEvent event, Command command);
+    default void onCommand(CommandEvent event, Command command) {}
     
     /**
      * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
@@ -46,7 +47,7 @@ public interface CommandListener {
      * @param  command
      *         The Command that was triggered
      */
-    void onCompletedCommand(CommandEvent event, Command command);
+    default void onCompletedCommand(CommandEvent event, Command command) {}
     
     /**
      * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
@@ -58,7 +59,7 @@ public interface CommandListener {
      * @param  command
      *         The Command that was triggered
      */
-    void onTerminatedCommand(CommandEvent event, Command command);
+    default void onTerminatedCommand(CommandEvent event, Command command) {}
     
     /**
      * A method that is called whenever a 
@@ -72,5 +73,5 @@ public interface CommandListener {
      * @param  event
      *         A MessageReceivedEvent that wasn't used to call a Command
      */
-    void onNonCommandMessage(MessageReceivedEvent event);
+    default void onNonCommandMessage(MessageReceivedEvent event) {}
 }
