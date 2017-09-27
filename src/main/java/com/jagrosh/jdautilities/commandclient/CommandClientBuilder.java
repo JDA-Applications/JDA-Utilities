@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
+
+import com.jagrosh.jdautilities.commandclient.impl.AnnotatedModuleCompilerImpl;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
@@ -33,7 +35,8 @@ import net.dv8tion.jda.core.entities.Game;
  *
  * @see    com.jagrosh.jdautilities.commandclient.CommandClientBuilder
  */
-public class CommandClientBuilder {
+public class CommandClientBuilder
+{
     private Game game = Game.of("default");
     private OnlineStatus status = OnlineStatus.ONLINE;
     private String ownerId;
@@ -54,7 +57,13 @@ public class CommandClientBuilder {
     private String helpWord;
     private ScheduledExecutorService executor;
     private int linkedCacheSize = 200;
-    private AnnotatedModuleCompiler compiler = null;
+    private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
+    private CommandClientLogger logger = (isError, msg) -> {
+        if(isError)
+            System.err.println(msg);
+        else
+            System.out.println(msg);
+    };
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
@@ -66,7 +75,9 @@ public class CommandClientBuilder {
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite, success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp, helpFunction, helpWord, executor, linkedCacheSize);
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
+                success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
+                helpFunction, helpWord, executor, linkedCacheSize, compiler, logger);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -289,7 +300,10 @@ public class CommandClientBuilder {
     /**
      * Sets the {@link net.dv8tion.jda.core.OnlineStatus OnlineStatus} the bot will use once Ready
      * This defaults to ONLINE
-     * @param status the status to set
+     *
+     * @param  status
+     *         The status to set
+     *
      * @return This builder
      */
     public CommandClientBuilder setStatus(OnlineStatus status)
@@ -342,14 +356,11 @@ public class CommandClientBuilder {
      *
      * @return This builder
      *
-     * @see    AnnotatedModuleCompiler
+     * @see    com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
      */
     public CommandClientBuilder addAnnotatedModule(Object module)
     {
-        if(compiler == null)
-            compiler = new AnnotatedModuleCompiler();
-
         this.commands.addAll(compiler.compile(module));
 
         return this;
@@ -368,13 +379,34 @@ public class CommandClientBuilder {
      *
      * @return This builder
      *
-     * @see    AnnotatedModuleCompiler
+     * @see    com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
      */
     public CommandClientBuilder addAnnotatedModules(Object... modules)
     {
         for(Object command : modules)
             addAnnotatedModule(command);
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler AnnotatedModuleCompiler}
+     * for this CommandClientBuilder.
+     *
+     * <p>If not set this will be the default implementation found {@link
+     * com.jagrosh.jdautilities.commandclient.impl.AnnotatedModuleCompilerImpl here}.
+     *
+     * @param  compiler
+     *         The AnnotatedModuleCompiler to use
+     *
+     * @return This builder
+     *
+     * @see    com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
+     * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand
+     */
+    public CommandClientBuilder setAnnotatedCompiler(AnnotatedModuleCompiler compiler)
+    {
+        this.compiler = compiler;
         return this;
     }
 
@@ -486,6 +518,24 @@ public class CommandClientBuilder {
     public CommandClientBuilder setLinkedCacheSize(int linkedCacheSize)
     {
         this.linkedCacheSize = linkedCacheSize;
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandClientLogger CommandClientLogger}
+     * for the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} built using
+     * this builder.
+     *
+     * <p>This logger is purely internal usage, and should not be implemented anywhere but here.
+     *
+     * @param  logger
+     *         The CommandClientLogger to set
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setClientLogger(CommandClientLogger logger)
+    {
+        this.logger = logger;
         return this;
     }
 }

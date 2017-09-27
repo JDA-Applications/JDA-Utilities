@@ -65,8 +65,8 @@ import net.dv8tion.jda.core.utils.PermissionUtil;
  * 
  * @author John Grosh (jagrosh)
  */
-public abstract class Command {
-    
+public abstract class Command
+{
     /**
      * The name of the command, allows the command to be called the format: {@code [prefix]<command name>}.
      */
@@ -389,7 +389,8 @@ public abstract class Command {
      *
      * @return The name for the Command
      */
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
@@ -398,7 +399,8 @@ public abstract class Command {
      *
      * @return The help for the Command
      */
-    public String getHelp() {
+    public String getHelp()
+    {
         return help;
     }
 
@@ -407,7 +409,8 @@ public abstract class Command {
      *
      * @return The category for the Command
      */
-    public Category getCategory() {
+    public Category getCategory()
+    {
         return category;
     }
 
@@ -416,7 +419,8 @@ public abstract class Command {
      *
      * @return The arguments for the Command
      */
-    public String getArguments() {
+    public String getArguments()
+    {
         return arguments;
     }
 
@@ -426,7 +430,8 @@ public abstract class Command {
      * @return {@code true} if this Command can only be used in a Guild, else {@code false} if it can
      *         be used outside of one
      */
-    public boolean isGuildOnly() {
+    public boolean isGuildOnly()
+    {
         return guildOnly;
     }
 
@@ -435,7 +440,8 @@ public abstract class Command {
      *
      * @return The requiredRole for the Command
      */
-    public String getRequiredRole() {
+    public String getRequiredRole()
+    {
         return requiredRole;
     }
 
@@ -444,7 +450,8 @@ public abstract class Command {
      *
      * @return The cooldown for the Command
      */
-    public int getCooldown() {
+    public int getCooldown()
+    {
         return cooldown;
     }
 
@@ -453,7 +460,8 @@ public abstract class Command {
      *
      * @return The userPermissions for the Command
      */
-    public Permission[] getUserPermissions() {
+    public Permission[] getUserPermissions()
+    {
         return userPermissions;
     }
 
@@ -462,7 +470,8 @@ public abstract class Command {
      *
      * @return The botPermissions for the Command
      */
-    public Permission[] getBotPermissions() {
+    public Permission[] getBotPermissions()
+    {
         return botPermissions;
     }
 
@@ -471,7 +480,8 @@ public abstract class Command {
      *
      * @return The aliases for the Command
      */
-    public String[] getAliases() {
+    public String[] getAliases()
+    {
         return aliases;
     }
 
@@ -480,7 +490,8 @@ public abstract class Command {
      *
      * @return The children for the Command
      */
-    public Command[] getChildren() {
+    public Command[] getChildren()
+    {
         return children;
     }
 
@@ -703,7 +714,8 @@ public abstract class Command {
      *
      * @see    com.jagrosh.jdautilities.commandclient.Command#cooldownScope Command.cooldownScope
      */
-    public enum CooldownScope {
+    public enum CooldownScope
+    {
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} across all
          * locations on this instance (IE: TextChannels, PrivateChannels, etc).

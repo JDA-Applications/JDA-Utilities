@@ -22,8 +22,6 @@ import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.Permission;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 
@@ -69,8 +67,7 @@ public class AboutCommand extends Command {
                 ApplicationInfo info = event.getJDA().asBot().getApplicationInfo().complete();
                 oauthLink = info.isBotPublic() ? info.getInviteUrl(0L, perms) : "";
             } catch (Exception e) {
-                Logger log = LoggerFactory.getLogger("OAuth2");
-                log.error("Could not generate invite link ", e);
+                System.err.println("Could not generate invite link "+e);
                 oauthLink = "";
             }
         }

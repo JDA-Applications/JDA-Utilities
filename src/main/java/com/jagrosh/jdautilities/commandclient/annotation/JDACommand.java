@@ -15,7 +15,6 @@
  */
 package com.jagrosh.jdautilities.commandclient.annotation;
 
-import com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler;
 import com.jagrosh.jdautilities.commandclient.Command;
 import net.dv8tion.jda.core.Permission;
 
@@ -33,7 +32,7 @@ import java.lang.annotation.*;
  * than most other types systems.
  *
  * To circumvent this, classes annotated with this are put through an {@link
- * AnnotatedModuleCompiler AnnotatedModuleCompiler}.
+ * com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler AnnotatedModuleCompiler}.
  * where they will be converted to Commands using {@link com.jagrosh.jdautilities.commandclient.CommandBuilder
  * CommandBuilder}.
  *
@@ -188,7 +187,7 @@ public @interface JDACommand
     {
         /**
          * The names of any methods that will be targeted when compiling this object
-         * using the {@link AnnotatedModuleCompiler
+         * using the {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
          * AnnotatedModuleCompiler}.
          *
          * <p><b>This is not the same thing as the name of the commands!</b> These are
@@ -241,7 +240,7 @@ public @interface JDACommand
      *
      * <p>It is important to remember the target must be a <b>static field</b>
      * and any other attempted inputs will result in errors from the
-     * {@link AnnotatedModuleCompiler compiler}.
+     * {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler compiler}.
      *
      * @see    com.jagrosh.jdautilities.commandclient.annotation.JDACommand#category()
      */

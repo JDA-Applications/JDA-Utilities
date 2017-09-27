@@ -35,8 +35,8 @@ version = versionObj.toString()
 sourceSets {
     main.java.srcDirs += 'src/main/java'
     test {
-        compileClasspath += main.compileClasspath
-        runtimeClasspath += main.runtimeClasspath
+        compileClasspath = main.compileClasspath
+        runtimeClasspath = main.runtimeClasspath
     }
 }
 
@@ -47,7 +47,6 @@ repositories {
 
 dependencies {
     compileOnly "net.dv8tion:JDA:${jdaVersion}"
-    compile 'org.slf4j:slf4j-api:1.7.25'
 
     testCompileOnly group: 'junit', name: 'junit', version: '4.12'
 }
@@ -148,14 +147,16 @@ String getProjectProperty(String propertyName)
 }
 
 build {
-    dependsOn sourcesJar
-    dependsOn javadocJar
+    dependsOn clean
     dependsOn jar
+    dependsOn javadocJar
+    dependsOn sourcesJar
     dependsOn shadowJar
 
+    jar.mustRunAfter clean
+    sourcesJar.mustRunAfter jar
     javadocJar.mustRunAfter sourcesJar
-    jar.mustRunAfter javadocJar
-    shadowJar.mustRunAfter jar
+    shadowJar.mustRunAfter javadocJar
 }
 
 bintrayUpload {

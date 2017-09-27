@@ -23,9 +23,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  * 
  * @author John Grosh (jagrosh)
  */
-@SuppressWarnings("unused")
-public interface CommandListener {
-    
+public interface CommandListener
+{
     /**
      * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
      * is triggered by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent}.
