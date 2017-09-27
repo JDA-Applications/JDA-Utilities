@@ -42,7 +42,8 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
  * 
  * @author John Grosh (jagrosh)
  */
-public class CommandEvent {
+public class CommandEvent
+{
     public static int MAX_MESSAGES = 2;
     
     private final MessageReceivedEvent event;

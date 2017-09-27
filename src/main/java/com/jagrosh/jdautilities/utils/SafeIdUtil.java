@@ -32,8 +32,8 @@ package com.jagrosh.jdautilities.utils;
  * @since  1.2
  * @author Kaidan Gustave
  */
-public class SafeIdUtil {
-    
+public class SafeIdUtil
+{
     /**
      * Safely convert the provided String ID to a {@code long} usable with 
      * {@link net.dv8tion.jda.core.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}.

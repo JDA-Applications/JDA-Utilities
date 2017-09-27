@@ -40,8 +40,8 @@ import net.dv8tion.jda.core.hooks.SubscribeEvent;
  * 
  * @author John Grosh (jagrosh)
  */
-public class EventWaiter implements EventListener {
-    
+public class EventWaiter implements EventListener
+{
     private final HashMap<Class<?>, List<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     
@@ -142,7 +142,8 @@ public class EventWaiter implements EventListener {
         }
     }
     
-    private class WaitingEvent<T extends Event> {
+    private class WaitingEvent<T extends Event>
+    {
         final Predicate<T> condition;
         final Consumer<T> action;
         

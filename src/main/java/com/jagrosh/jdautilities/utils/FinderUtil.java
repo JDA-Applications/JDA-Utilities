@@ -53,8 +53,8 @@ import java.util.stream.Collectors;
  * @since  1.3
  * @author Kaidan Gustave
  */
-public class FinderUtil {
-
+public class FinderUtil
+{
     private final static Pattern DISCORD_ID = Pattern.compile("\\d{17,20}"); // ID
     private final static Pattern FULL_USER_REF = Pattern.compile("(.{2,32})\\s*#(\\d{4})"); // $1 -> username, $2 -> discriminator
     private final static Pattern USER_MENTION = Pattern.compile("<@!?(\\d{17,20})>"); // $1 -> ID

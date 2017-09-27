@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import net.dv8tion.jda.core.requests.RestAction;
 
@@ -63,8 +64,8 @@ import net.dv8tion.jda.core.requests.RestAction;
  *         <p><b>5)</b> Avoid using {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl#linkIds(long, net.dv8tion.jda.core.entities.Message)}.
  *                      This will create errors and has no real purpose outside of it's current usage.
  */
-public interface CommandClient {
-    
+public interface CommandClient
+{
     /**
      * Gets the Client's prefix.
      * 
@@ -167,6 +168,49 @@ public interface CommandClient {
      *         If the name provided was not registered to an index
      */
     void removeCommand(String name);
+
+    /**
+     * Compiles the provided {@link java.lang.Object Object} annotated with {@link
+     * com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module JDACommand.Module} into a {@link java.util.List
+     * List} of {@link com.jagrosh.jdautilities.commandclient.Command Command}s and adds them to this CommandClient in
+     * the order they are listed.
+     *
+     * <p>This is done through the {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
+     * AnnotatedModuleCompiler} provided when building this CommandClient.
+     *
+     * @param  module
+     *         An object annotated with JDACommand.Module to compile into commands to be added.
+     *
+     * @throws java.lang.IllegalArgumentException
+     *         If the Command provided has a name or alias that has already been registered
+     */
+    void addAnnotatedModule(Object module);
+
+    /**
+     * Compiles the provided {@link java.lang.Object Object} annotated with {@link
+     * com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module JDACommand.Module} into a {@link java.util.List
+     * List} of {@link com.jagrosh.jdautilities.commandclient.Command Command}s and adds them to this CommandClient via
+     * the {@link java.util.function.Function Function} provided.
+     *
+     * <p>This is done through the {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
+     * AnnotatedModuleCompiler} provided when building this CommandClient.
+     *
+     * <p>The IntFunction will {@link java.util.function.Function#apply(Object) apply} each {@link
+     * com.jagrosh.jdautilities.commandclient.Command Command} in the compiled list and request an {@code int} in return.
+     * <br>Using this {@code int}, the command provided will be applied to the CommandClient via {@link
+     * com.jagrosh.jdautilities.commandclient.CommandClient#addCommand(Command, int) CommandClient#addCommand(Command, int)}.
+     *
+     * @param  module
+     *         An object annotated with JDACommand.Module to compile into commands to be added.
+     * @param  mapFunction
+     *         The Function to get indexes for each compiled Command with when adding them to the CommandClient.
+     *
+     * @throws java.lang.ArrayIndexOutOfBoundsException
+     *         If {@code index < 0} or {@code index > size()}
+     * @throws java.lang.IllegalArgumentException
+     *         If the Command provided has a name or alias that has already been registered to an index
+     */
+    void addAnnotatedModule(Object module, Function<Command, Integer> mapFunction);
 
     /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} to catch 

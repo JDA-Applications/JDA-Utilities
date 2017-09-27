@@ -25,8 +25,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
-def versionObj = new Version(major: 1, minor: 7)
-def jdaVersion = '3.3.0_265'
+def versionObj = new Version(major: 1, minor: 8)
+def jdaVersion = '3.3.1_281'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name
@@ -47,7 +47,6 @@ repositories {
 
 dependencies {
     compileOnly "net.dv8tion:JDA:${jdaVersion}"
-    compile 'org.slf4j:slf4j-api:1.7.25'
 
     testCompileOnly group: 'junit', name: 'junit', version: '4.12'
 }
@@ -151,10 +150,10 @@ build {
     dependsOn sourcesJar
     dependsOn shadowJar
 
-    sourcesJar.mustRunAfter clean
+    jar.mustRunAfter clean
+    sourcesJar.mustRunAfter jar
     javadocJar.mustRunAfter sourcesJar
     shadowJar.mustRunAfter javadocJar
-    jar.mustRunAfter shadowJar
 }
 
 bintrayUpload {
