@@ -195,7 +195,7 @@ public interface CommandClient
      * <p>This is done through the {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
      * AnnotatedModuleCompiler} provided when building this CommandClient.
      *
-     * <p>The IntFunction will {@link java.util.function.Function#apply(Object) apply} each {@link
+     * <p>The Function will {@link java.util.function.Function#apply(Object) apply} each {@link
      * com.jagrosh.jdautilities.commandclient.Command Command} in the compiled list and request an {@code int} in return.
      * <br>Using this {@code int}, the command provided will be applied to the CommandClient via {@link
      * com.jagrosh.jdautilities.commandclient.CommandClient#addCommand(Command, int) CommandClient#addCommand(Command, int)}.

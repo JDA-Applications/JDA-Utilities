@@ -58,12 +58,7 @@ public class CommandClientBuilder
     private ScheduledExecutorService executor;
     private int linkedCacheSize = 200;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
-    private CommandClientLogger logger = (isError, msg) -> {
-        if(isError)
-            System.err.println(msg);
-        else
-            System.out.println(msg);
-    };
+    private CommandClientLogger logger = new CommandClientLogger.Default();
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
