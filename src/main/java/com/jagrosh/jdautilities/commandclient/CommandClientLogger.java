@@ -41,10 +41,7 @@ public interface CommandClientLogger
      * @param  msg
      *         The message that should be logged as a non-error.
      */
-    default void info(Object msg)
-    {
-        System.out.println(Level.simpleFormat(Level.INFO, msg));
-    }
+    void info(Object msg);
 
     /**
      * Called whenever the CommandClient logs at a WARN level.
@@ -53,10 +50,7 @@ public interface CommandClientLogger
      * @param  msg
      *         The message that should be logged as a error.
      */
-    default void warn(Object msg)
-    {
-        System.err.println(Level.simpleFormat(Level.WARN, msg));
-    }
+    void warn(Object msg);
 
     /**
      * Called whenever the CommandClient logs at a FATAL level.
@@ -66,10 +60,7 @@ public interface CommandClientLogger
      * @param  msg
      *         The message that should be logged as a error.
      */
-    default void error(Object msg)
-    {
-        System.err.println(Level.simpleFormat(Level.ERROR, msg));
-    }
+    void error(Object msg);
 
     /**
      * Called whenever the CommandClient logs an {@link java.lang.Exception Exception}
@@ -123,20 +114,14 @@ public interface CommandClientLogger
          * Fatal level: Indicates a failure or other form of error that should be logged
          * to inform the developer that there is a possibly-serious internal issue.
          */
-        ERROR;
+        ERROR
+    }
 
-        /**
-         * Gets whether this Level is indicative of an error.
-         * <br>Only returns {@code true} for {@link Level#WARN WARN}
-         * or {@link Level#ERROR FATAL} LogLevels.
-         *
-         * @return {@code true} if this Level is indicative of an error
-         */
-        public boolean isError()
-        {
-            return this != INFO;
-        }
-
+    /**
+     * The default logger for a CommandClient.
+     */
+    class Default implements CommandClientLogger
+    {
         // Private members of this enum are internal implementation for the default methods
         // of CommandClientLogger.
         private static final String FORMAT = "[%time%][%type%][CommandClient] %msg%";
@@ -153,41 +138,22 @@ public interface CommandClientLogger
                         .replace("%type%", level.toString())
                         .replace("%msg%", String.valueOf(msg));
         }
-    }
-
-    /**
-     * The default logger for a CommandClient.
-     */
-    class Default implements CommandClientLogger
-    {
         @Override
         public void info(Object msg)
         {
-            System.out.println(Level.simpleFormat(Level.INFO, msg));
+            System.out.println(simpleFormat(Level.INFO, msg));
         }
 
         @Override
         public void warn(Object msg)
         {
-            System.err.println(Level.simpleFormat(Level.WARN, msg));
+            System.err.println(simpleFormat(Level.WARN, msg));
         }
 
         @Override
         public void error(Object msg)
         {
-            System.err.println(Level.simpleFormat(Level.ERROR, msg));
-        }
-
-        @Override
-        public void exception(Object msg, Throwable ex)
-        {
-            error(String.valueOf(msg)+"\n"+Helpers.getStackTrace(ex));
-        }
-
-        @Override
-        public void exception(Throwable ex)
-        {
-            error(ex);
+            System.err.println(simpleFormat(Level.ERROR, msg));
         }
     }
 }
