@@ -15,12 +15,9 @@
  */
 package com.jagrosh.jdautilities.commandclient.impl;
 
+import com.jagrosh.jdautilities.commandclient.*;
 import resources.FixedSizeCache;
-import com.jagrosh.jdautilities.commandclient.Command;
 import com.jagrosh.jdautilities.commandclient.Command.Category;
-import com.jagrosh.jdautilities.commandclient.CommandClient;
-import com.jagrosh.jdautilities.commandclient.CommandEvent;
-import com.jagrosh.jdautilities.commandclient.CommandListener;
 import com.jagrosh.jdautilities.utils.SafeIdUtil;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
