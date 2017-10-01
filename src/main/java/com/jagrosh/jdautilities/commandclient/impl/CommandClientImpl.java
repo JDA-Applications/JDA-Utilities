@@ -40,6 +40,8 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -66,6 +68,7 @@ import java.util.stream.Collectors;
  */
 public class CommandClientImpl extends ListenerAdapter implements CommandClient
 {
+    private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;
     private static final String DEFAULT_PREFIX = "@mention";
 
@@ -94,8 +97,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     private final String helpWord;
     private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
-    private final AnnotatedModuleCompiler annotatedCompiler;
-    private final CommandClientLogger logger;
+    private final AnnotatedModuleCompiler compiler;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -104,20 +106,18 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
-            int linkedCacheSize, AnnotatedModuleCompiler annotatedCompiler, CommandClientLogger logger)
+            int linkedCacheSize, AnnotatedModuleCompiler compiler)
     {
         if(ownerId == null)
             throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
 
         if(!SafeIdUtil.checkId(ownerId))
-            logger.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
+            LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
 
-        if(coOwnerIds!=null)
-        {
-            for(String coOwnerId : coOwnerIds)
-            {
+        if(coOwnerIds!=null) {
+            for(String coOwnerId : coOwnerIds) {
                 if(!SafeIdUtil.checkId(coOwnerId))
-                    logger.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
+                    LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
             }
         }
 
@@ -147,8 +147,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.linkedCacheSize = linkedCacheSize;
-        this.annotatedCompiler = annotatedCompiler;
-        this.logger = logger;
+        this.compiler = compiler;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -176,8 +175,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         {
             java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
         }
-        for(Command command : commands)
-        {
+        for(Command command : commands) {
             addCommand(command);
         }
     }
@@ -255,18 +253,6 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     }
 
     @Override
-    public void addAnnotatedModule(Object module)
-    {
-        annotatedCompiler.compile(module).forEach(c -> addCommand(c));
-    }
-
-    @Override
-    public void addAnnotatedModule(Object module, Function<Command, Integer> mapFunction)
-    {
-        annotatedCompiler.compile(module).forEach(c -> addCommand(c, mapFunction.apply(c)));
-    }
-
-    @Override
     public void addCommand(Command command)
     {
         addCommand(command, commands.size());
@@ -276,7 +262,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     public void addCommand(Command command, int index)
     {
         if(index>commands.size() || index<0)
-            throw new IndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
+            throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
         String name = command.getName();
         synchronized(commandIndex)
         {
@@ -299,19 +285,27 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     @Override
     public void removeCommand(String name)
     {
-        final int targetIndex;
-        synchronized(commandIndex)
-        {
-            if(!commandIndex.containsKey(name))
-                throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
-            targetIndex = commandIndex.remove(name);
-            if(commandIndex.containsValue(targetIndex))
-                commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
-                        .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
-            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
-                    .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
-        }
+        if(!commandIndex.containsKey(name))
+            throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
+        int targetIndex = commandIndex.remove(name);
+        if(commandIndex.containsValue(targetIndex))
+            commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
+                    .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
+        commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
+                .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
         commands.remove(targetIndex);
+    }
+
+    @Override
+    public void addAnnotatedModule(Object module)
+    {
+        compiler.compile(module).forEach(command -> addCommand(command));
+    }
+
+    @Override
+    public void addAnnotatedModule(Object module, Function<Command, Integer> mapFunction)
+    {
+        compiler.compile(module).forEach(command -> addCommand(command, mapFunction.apply(command)));
     }
 
     @Override
@@ -465,7 +459,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     {
         if(!event.getJDA().getSelfUser().isBot())
         {
-            logger.error("JDA-Utilities does not support CLIENT accounts.");
+            LOG.error("JDA-Utilities does not support CLIENT accounts.");
             event.getJDA().shutdown();
             return;
         }
@@ -539,11 +533,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
                         command.run(cevent);
                     });
                 } else {
-                    final int i;
-                    synchronized(commandIndex)
-                    {
-                        i = commandIndex.getOrDefault(name.toLowerCase(), -1);
-                    }
+                    int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
                     if(i!=-1)
                     {
                         isCommand[0] = true;
@@ -576,43 +566,39 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
     private void sendStats(JDA jda)
     {
+        Logger log = LoggerFactory.getLogger("BotList");
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
 
-        if(carbonKey != null)
-        {
+        if (carbonKey != null) {
             FormBody.Builder bodyBuilder = new FormBody.Builder()
                     .add("key", carbonKey)
                     .add("servercount", Integer.toString(jda.getGuilds().size()));
             
-            if(jda.getShardInfo() != null)
+            if (jda.getShardInfo() != null)
                 bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
                            .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
-
+                
             Request.Builder builder = new Request.Builder()
                     .post(bodyBuilder.build())
                     .url("https://www.carbonitex.net/discord/data/botdata.php");
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException
-                {
-                    logger.info("Successfully send information to carbonitex.net");
+                public void onResponse(Call call, Response response) throws IOException {
+                    log.info("Successfully send information to carbonitex.net");
                     response.close();
                 }
 
                 @Override
-                public void onFailure(Call call, IOException e)
-                {
-                    logger.exception("Failed to send information to carbonitex.net ", e);
+                public void onFailure(Call call, IOException e) {
+                    log.error("Failed to send information to carbonitex.net ", e);
                 }
             });
         }
         
-        if(botsOrgKey != null)
-        {
+        if (botsOrgKey != null) {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
-
-            if(jda.getShardInfo() != null)
+            if (jda.getShardInfo() != null)
                 body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
             
             Request.Builder builder = new Request.Builder()
@@ -623,25 +609,22 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
             
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException
-                {
-                    logger.info("Successfully send information to discordbots.org");
+                public void onResponse(Call call, Response response) throws IOException {
+                    log.info("Successfully send information to discordbots.org");
                     response.close();
                 }
 
                 @Override
-                public void onFailure(Call call, IOException e)
-                {
-                    logger.exception("Failed to send information to discordbots.org ", e);
+                public void onFailure(Call call, IOException e) {
+                    log.error("Failed to send information to discordbots.org ", e);
                 }
             });
         }
         
-        if(botsKey != null)
-        {
+        if (botsKey != null) {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
 
-            if(jda.getShardInfo() != null)
+            if (jda.getShardInfo() != null)
                 body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
 
             Request.Builder builder = new Request.Builder()
@@ -652,16 +635,14 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException
-                {
-                    logger.info("Successfully send information to bots.discord.pw");
+                public void onResponse(Call call, Response response) throws IOException {
+                    log.info("Successfully send information to bots.discord.pw");
                     response.close();
                 }
 
                 @Override
-                public void onFailure(Call call, IOException e)
-                {
-                    logger.exception("Failed to send information to bots.discord.pw ", e);
+                public void onFailure(Call call, IOException e) {
+                    log.error("Failed to send information to bots.discord.pw ", e);
                 }
             });
 
@@ -681,7 +662,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
                         total += array.getJSONObject(i).getInt("server_count");
                     this.totalGuilds = total;
                 } catch (Exception e) {
-                    logger.exception("Failed to retrieve bot shard information from bots.discord.pw ", e);
+                    log.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
                 }
             }
         }

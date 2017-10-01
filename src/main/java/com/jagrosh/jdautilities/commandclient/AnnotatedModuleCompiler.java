@@ -16,7 +16,6 @@
 package com.jagrosh.jdautilities.commandclient;
 
 import com.jagrosh.jdautilities.commandclient.annotation.JDACommand;
-
 import java.util.List;
 
 /**
@@ -36,7 +35,6 @@ import java.util.List;
  * @since  1.7
  * @author Kaidan Gustave
  */
-@FunctionalInterface
 public interface AnnotatedModuleCompiler
 {
     /**
@@ -47,8 +45,7 @@ public interface AnnotatedModuleCompiler
      * <p><b>This Object must be annotated with {@link
      * com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module @JDACommand.Module}!</b>
      *
-     * @param  o
-     *         The Object, annotated with {@code @JDACommand.Module}.
+     * @param  o The Object, annotated with {@code @JDACommand.Module}.
      *
      * @return A {@link java.util.List} of Commands generated from the provided Object
      */

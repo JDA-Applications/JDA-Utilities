@@ -26,7 +26,7 @@ plugins {
 }
 
 def versionObj = new Version(major: 2, minor: 0)
-def jdaVersion = '3.3.0_265'
+def jdaVersion = '3.3.1_284'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name
@@ -154,9 +154,9 @@ build {
     dependsOn shadowJar
 
     jar.mustRunAfter clean
-    sourcesJar.mustRunAfter jar
-    javadocJar.mustRunAfter sourcesJar
-    shadowJar.mustRunAfter javadocJar
+    javadocJar.mustRunAfter jar
+    sourcesJar.mustRunAfter javadocJar
+    shadowJar.mustRunAfter sourcesJar
 }
 
 bintrayUpload {
