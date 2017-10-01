@@ -20,6 +20,8 @@ import com.jagrosh.jdautilities.commandclient.Command;
 import com.jagrosh.jdautilities.commandclient.CommandBuilder;
 import com.jagrosh.jdautilities.commandclient.CommandEvent;
 import com.jagrosh.jdautilities.commandclient.annotation.JDACommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -27,13 +29,17 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * The default implementation of {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
+ * Default implementation for {@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler
  * AnnotatedModuleCompiler}.
  *
+ * @since  1.8
  * @author Kaidan Gustave
  */
 public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
 {
+    private static final Logger LOG = LoggerFactory.getLogger(AnnotatedModuleCompiler.class);
+
+    @Override
     public List<Command> compile(Object o)
     {
         JDACommand.Module module = o.getClass().getAnnotation(JDACommand.Module.class);
@@ -56,7 +62,7 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
             try {
                 list.add(compileMethod(o, method));
             } catch(MalformedParametersException e) {
-                System.err.println("The annotated command compiler encountered an exception: "+e);
+                LOG.error(e.getMessage());
             }
         });
         return list;
@@ -97,7 +103,7 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
                         try {
                             builder.setCategory((Command.Category) field.get(null));
                         } catch(IllegalAccessException e) {
-                            System.err.println("The annotated command compiler encountered an exception: "+e);
+                            LOG.error("Encountered Exception ", e);
                         }
                     }
                 }
@@ -142,7 +148,7 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
                 try {
                     builder.addChild(compileMethod(o, cm));
                 } catch(MalformedParametersException e) {
-                    System.err.println("The annotated command compiler encountered an exception: "+e);
+                    LOG.error("Encountered Exception ", e);
                 }
             });
         }
@@ -157,7 +163,7 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
                 try {
                     method.invoke(o, command, event);
                 } catch(IllegalAccessException | InvocationTargetException e) {
-                    System.err.println("The annotated command compiler encountered an exception: "+e);
+                    LOG.error("Encountered Exception ", e);
                 }
             });
         }
@@ -170,7 +176,7 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
                     try {
                         method.invoke(o, event);
                     } catch(IllegalAccessException | InvocationTargetException e) {
-                        System.err.println("The annotated command compiler encountered an exception: "+e);
+                        LOG.error("Encountered Exception ", e);
                     }
                 });
             }
@@ -181,7 +187,7 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
                     try {
                         method.invoke(o, event, command);
                     } catch(IllegalAccessException | InvocationTargetException e) {
-                        System.err.println("The annotated command compiler encountered an exception: "+e);
+                        LOG.error("Encountered Exception ", e);
                     }
                 });
             }

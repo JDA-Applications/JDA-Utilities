@@ -58,7 +58,6 @@ public class CommandClientBuilder
     private ScheduledExecutorService executor;
     private int linkedCacheSize = 200;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
-    private CommandClientLogger logger = new CommandClientLogger.Default();
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
@@ -72,7 +71,7 @@ public class CommandClientBuilder
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                 success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                helpFunction, helpWord, executor, linkedCacheSize, compiler, logger);
+                helpFunction, helpWord, executor, linkedCacheSize, compiler);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -513,24 +512,6 @@ public class CommandClientBuilder
     public CommandClientBuilder setLinkedCacheSize(int linkedCacheSize)
     {
         this.linkedCacheSize = linkedCacheSize;
-        return this;
-    }
-
-    /**
-     * Sets the {@link com.jagrosh.jdautilities.commandclient.CommandClientLogger CommandClientLogger}
-     * for the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} built using
-     * this builder.
-     *
-     * <p>This logger is purely internal usage, and should not be implemented anywhere but here.
-     *
-     * @param  logger
-     *         The CommandClientLogger to set
-     *
-     * @return This builder
-     */
-    public CommandClientBuilder setClientLogger(CommandClientLogger logger)
-    {
-        this.logger = logger;
         return this;
     }
 }
