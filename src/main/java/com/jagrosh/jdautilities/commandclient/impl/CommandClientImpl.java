@@ -15,6 +15,34 @@
  */
 package com.jagrosh.jdautilities.commandclient.impl;
 
+import com.jagrosh.jdautilities.commandclient.*;
+import com.jagrosh.jdautilities.commandclient.Command.Category;
+import com.jagrosh.jdautilities.entities.FixedSizeCache;
+import com.jagrosh.jdautilities.utils.SafeIdUtil;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.requests.Requester;
+import net.dv8tion.jda.core.requests.RestAction;
+import okhttp3.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.time.OffsetDateTime;
@@ -26,39 +54,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import com.jagrosh.jdautilities.commandclient.*;
-import com.jagrosh.jdautilities.commandclient.Command.Category;
-import com.jagrosh.jdautilities.entities.FixedSizeCache;
-import com.jagrosh.jdautilities.utils.SafeIdUtil;
-
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.ShutdownEvent;
-import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import net.dv8tion.jda.core.requests.Requester;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.SimpleLog;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 /**
  * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} to be used by a bot.
@@ -70,9 +66,9 @@ import org.json.JSONTokener;
  * 
  * @author John Grosh (jagrosh)
  */
-public class CommandClientImpl extends ListenerAdapter implements CommandClient {
-
-    private static final SimpleLog LOG = SimpleLog.getLog("CommandClient");
+public class CommandClientImpl extends ListenerAdapter implements CommandClient
+{
+    private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;
     private static final String DEFAULT_PREFIX = "@mention";
 
@@ -101,6 +97,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     private final String helpWord;
     private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
+    private final AnnotatedModuleCompiler compiler;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -109,7 +106,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
-            int linkedCacheSize)
+            int linkedCacheSize, AnnotatedModuleCompiler compiler)
     {
         if(ownerId == null)
             throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
@@ -150,6 +147,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.linkedCacheSize = linkedCacheSize;
+        this.compiler = compiler;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -175,7 +173,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                 return builder.toString();} : helpFunction;
         if(carbonKey!=null || botsKey!=null)
         {
-            Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
+            java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
         }
         for(Command command : commands) {
             addCommand(command);
@@ -266,18 +264,21 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         if(index>commands.size() || index<0)
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
         String name = command.getName();
-        if(commandIndex.containsKey(name))
-            throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
-        for(String alias : command.getAliases())
+        synchronized(commandIndex)
         {
-            if(commandIndex.containsKey(alias))
-                throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
-            commandIndex.put(alias, index);
+            if(commandIndex.containsKey(name))
+                throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
+            for(String alias : command.getAliases())
+            {
+                if(commandIndex.containsKey(alias))
+                    throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
+                commandIndex.put(alias, index);
+            }
+            commandIndex.put(name, index);
+            if(index<commands.size())
+                commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>index).collect(Collectors.toList())
+                        .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
         }
-        commandIndex.put(name, index);
-        if(index<commands.size())
-            commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>index).collect(Collectors.toList())
-                    .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
         commands.add(index,command);
     }
 
@@ -293,6 +294,18 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
         commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
                 .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
         commands.remove(targetIndex);
+    }
+
+    @Override
+    public void addAnnotatedModule(Object module)
+    {
+        compiler.compile(module).forEach(command -> addCommand(command));
+    }
+
+    @Override
+    public void addAnnotatedModule(Object module, Function<Command, Integer> mapFunction)
+    {
+        compiler.compile(module).forEach(command -> addCommand(command, mapFunction.apply(command)));
     }
 
     @Override
@@ -446,7 +459,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
     {
         if(!event.getJDA().getSelfUser().isBot())
         {
-            LOG.fatal("JDA-Utilities does not support CLIENT accounts.");
+            LOG.error("JDA-Utilities does not support CLIENT accounts.");
             event.getJDA().shutdown();
             return;
         }
@@ -553,7 +566,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
     private void sendStats(JDA jda)
     {
-        SimpleLog log = SimpleLog.getLog("BotList");
+        Logger log = LoggerFactory.getLogger("BotList");
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
 
         if (carbonKey != null) {
@@ -578,8 +591,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    log.fatal("Failed to send information to carbonitex.net");
-                    log.log(e);
+                    log.error("Failed to send information to carbonitex.net ", e);
                 }
             });
         }
@@ -604,8 +616,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    log.fatal("Failed to send information to discordbots.org");
-                    log.log(e);
+                    log.error("Failed to send information to discordbots.org ", e);
                 }
             });
         }
@@ -631,8 +642,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    log.fatal("Failed to send information to bots.discord.pw");
-                    log.log(e);
+                    log.error("Failed to send information to bots.discord.pw ", e);
                 }
             });
 
@@ -652,8 +662,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient 
                         total += array.getJSONObject(i).getInt("server_count");
                     this.totalGuilds = total;
                 } catch (Exception e) {
-                    log.fatal("Failed to retrieve bot shard information from bots.discord.pw");
-                    log.log(e);
+                    log.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
                 }
             }
         }

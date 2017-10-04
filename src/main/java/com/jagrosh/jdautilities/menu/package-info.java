@@ -15,8 +15,6 @@
  */
 
 /**
- * <h1><b>Menus Package</b></h1>
- * 
  * <p>Items and sub-packages in this pertain to the {@link com.jagrosh.jdautilities.menu.Menu Menus}
  * and {@link com.jagrosh.jdautilities.menu.MenuBuilder MenuBuilders}.
  * 
