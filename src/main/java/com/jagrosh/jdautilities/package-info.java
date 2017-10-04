@@ -15,8 +15,6 @@
  */
 
 /**
- * <h1><b>JDA-Utilities Package</b></h1>
- * 
  * <p>Base package for the entirety of this extension library! From here you can navigate to one of the child packages inside.
  * 
  * <p>The contents of this package are summarized as follows:
