@@ -15,8 +15,8 @@
  */
 
 /**
- * Base package for the entirety of this extension library! From here you can navigate to one of the child packages inside.
- * 
+ * <p>Base package for the entirety of this extension library! From here you can navigate to one of the child packages inside.
+ *
  * <p>The contents of this package are summarized as follows:
  * <ul>
  *     <li>{@link com.jagrosh.jdautilities.commandclient CommandClient Package}

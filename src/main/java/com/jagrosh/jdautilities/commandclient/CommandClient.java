@@ -15,13 +15,13 @@
  */
 package com.jagrosh.jdautilities.commandclient;
 
-import net.dv8tion.jda.core.requests.RestAction;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
+import net.dv8tion.jda.core.requests.RestAction;
 
 /**
  * A Bot Client interface implemented on objects used to hold bot data.
@@ -41,29 +41,28 @@ import java.util.function.Function;
  *     <li>The {@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener} may be set.</li>
  * </ul>
  *
- * <p><b>Usage Notes</b>
- *
- * <p>While typically safe, there are a few ways to misuse the standard implementation of this interface: the CommandClientImpl.
- * <br>Because of this the following should <b>ALWAYS</b> be followed to avoid such errors:
- *
- * <p><b>1)</b> Do not build and add more than one CommandClient to an instance JDA, <b>EVER</b>.
- *
- * <p><b>2)</b> Always create and add the CommandClientImpl to JDA <b>BEFORE</b> you build it, or there is a chance some minor errors
- *              will occur, <b>especially</b> if JDA has already fired a {@link net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
- *
- * <p><b>3)</b> Do not provide anything other than a String representing a long (and furthermore a User ID) as an Owner ID or a CoOwner ID.
- *              This will generate errors, but not stop the creation of the CommandClientImpl which will cause several errors to occur
- *              very quickly after startup (except if you provide {@code null} for the Owner ID, that'll just flat out throw an
- *              {@link java.lang.IllegalArgumentException IllegalArgumentException}).
- *
- * <p><b>4)</b> Do not provide strings when using {@link com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setEmojis(String, String, String)
- *              CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that do not match the custom emote format
- *              specified in {@link net.dv8tion.jda.core.entities.Emote#getAsMention() Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
- *
- * <p><b>5)</b> Avoid using {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl#linkIds(long, net.dv8tion.jda.core.entities.Message)}.
- *              This will create errors and has no real purpose outside of it's current usage.
- * 
  * @author John Grosh (jagrosh)
+ *
+ * @implNote
+ *         While typically safe, there are a few ways to misuse the standard implementation of this interface: the CommandClientImpl.
+ *         <br>Because of this the following should <b>ALWAYS</b> be followed to avoid such errors:
+ *
+ *         <p><b>1)</b> Do not build and add more than one CommandClient to an instance JDA, <b>EVER</b>.
+ *
+ *         <p><b>2)</b> Always create and add the CommandClientImpl to JDA <b>BEFORE</b> you build it, or there is a chance some minor errors
+ *                      will occur, <b>especially</b> if JDA has already fired a {@link net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
+ *
+ *         <p><b>3)</b> Do not provide anything other than a String representing a long (and furthermore a User ID) as an Owner ID or a CoOwner ID.
+ *                      This will generate errors, but not stop the creation of the CommandClientImpl which will cause several errors to occur
+ *                      very quickly after startup (except if you provide {@code null} for the Owner ID, that'll just flat out throw an
+ *                      {@link java.lang.IllegalArgumentException IllegalArgumentException}).
+ *
+ *         <p><b>4)</b> Do not provide strings when using {@link com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setEmojis(String, String, String)
+ *                      CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that do not match the custom emote format
+ *                      specified in {@link net.dv8tion.jda.core.entities.Emote#getAsMention() Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
+ *
+ *         <p><b>5)</b> Avoid using {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl#linkIds(long, net.dv8tion.jda.core.entities.Message)}.
+ *                      This will create errors and has no real purpose outside of it's current usage.
  */
 public interface CommandClient
 {
