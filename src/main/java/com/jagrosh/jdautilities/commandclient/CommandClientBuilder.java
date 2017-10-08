@@ -485,7 +485,11 @@ public class CommandClientBuilder
      *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
      */
+    @Deprecated
     public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
     {
         this.executor = executor;

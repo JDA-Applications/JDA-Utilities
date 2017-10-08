@@ -202,7 +202,7 @@ public abstract class Command
         }
         
         // owner check
-        if(ownerCommand && !(event.isOwner() || event.isCoOwner()))
+        if(ownerCommand && !(event.isOwner()))
         {
             terminate(event,null);
             return;
@@ -230,7 +230,7 @@ public abstract class Command
                 return;
             }
         
-        // availabilty check
+        // availability check
         if(event.getChannelType()==ChannelType.TEXT)
         {
             // bot perms
