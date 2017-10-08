@@ -415,7 +415,14 @@ public interface CommandClient
      *         The amount of seconds to delay for
      * @param  toQueue
      *         The RestAction to queue after the delay
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     <T> void schedule(String name, int delay, RestAction<T> toQueue);
     
     /**
@@ -433,7 +440,11 @@ public interface CommandClient
      *         The the amount of seconds to delay for
      * @param  runnable 
      *         The Runnable to run after the delay
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
      */
+    @Deprecated
     void schedule(String name, int delay, Runnable runnable);
     
     /**
@@ -452,7 +463,14 @@ public interface CommandClient
      *         The unit to measure the delay with
      * @param  toQueue
      *         The RestAction to queue after the delay
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     <T> void schedule(String name, int delay, TimeUnit unit, RestAction<T> toQueue);
     
     /**
@@ -469,7 +487,14 @@ public interface CommandClient
      *         The unit to measure the delay with
      * @param  runnable
      *         The Runnable to run after the delay
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     void schedule(String name, int delay, TimeUnit unit, Runnable runnable);
     
     /**
@@ -481,7 +506,14 @@ public interface CommandClient
      *         The name of the ScheduledFuture (can be used to cancel it later if needed)
      * @param  future
      *         The ScheduledFuture to save
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     void saveFuture(String name, ScheduledFuture<?> future);
     
     /**
@@ -499,7 +531,14 @@ public interface CommandClient
      *         
      * @return {@code true} if there exists a ScheduledFuture corresponding to the provided name 
      *         (regardless of it's possible cancellation or expiration), otherwise {@code false}.
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     boolean scheduleContains(String name);
     
     /**
@@ -510,7 +549,14 @@ public interface CommandClient
      * 
      * @param  name 
      *         The name of the ScheduledFuture
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     void cancel(String name);
     
     /**
@@ -522,7 +568,14 @@ public interface CommandClient
      * 
      * @param  name
      *         The name of the ScheduledFuture to be cancelled immediately
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     void cancelImmediately(String name);
     
     /**
@@ -532,12 +585,26 @@ public interface CommandClient
      *         The name of the ScheduledFuture to get
      *         
      * @return The ScheduledFuture corresponding to the provided name
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     ScheduledFuture<?> getScheduledFuture(String name);
     
     /**
      * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture ScheduledFuture}s to reduce memory.
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     void cleanSchedule();
 
     /**

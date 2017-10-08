@@ -29,6 +29,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
  *
  * @author John Grosh (jagrosh)
  */
+@SuppressWarnings("deprecation")
 public class GuildlistCommand extends Command {
 
     private final Paginator.Builder pbuilder;

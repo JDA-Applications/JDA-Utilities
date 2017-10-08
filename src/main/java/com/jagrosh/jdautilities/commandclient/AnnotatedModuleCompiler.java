@@ -45,7 +45,8 @@ public interface AnnotatedModuleCompiler
      * <p><b>This Object must be annotated with {@link
      * com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module @JDACommand.Module}!</b>
      *
-     * @param  o The Object, annotated with {@code @JDACommand.Module}.
+     * @param  o
+     *         The Object, annotated with {@code @JDACommand.Module}.
      *
      * @return A {@link java.util.List} of Commands generated from the provided Object
      */
