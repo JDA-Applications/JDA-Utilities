@@ -16,6 +16,8 @@
 package com.jagrosh.jdautilities.commandclient.impl;
 
 import com.jagrosh.jdautilities.commandclient.*;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import resources.FixedSizeCache;
 import com.jagrosh.jdautilities.commandclient.Command.Category;
 import com.jagrosh.jdautilities.utils.SafeIdUtil;
@@ -28,14 +30,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.requests.Requester;
-import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,12 +47,7 @@ import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +60,7 @@ import java.util.stream.Collectors;
  * 
  * @author John Grosh (jagrosh)
  */
-public class CommandClientImpl extends ListenerAdapter implements CommandClient
+public class CommandClientImpl implements CommandClient
 {
     private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;
@@ -90,12 +84,10 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     private final String botsOrgKey;
     private final HashMap<String,OffsetDateTime> cooldowns;
     private final HashMap<String,Integer> uses;
-    private final HashMap<String,ScheduledFuture<?>> schedulepool;
     private final FixedSizeCache<Long, Set<Message>> linkMap;
     private final boolean useHelp;
     private final Function<CommandEvent,String> helpFunction;
     private final String helpWord;
-    private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
 
@@ -105,8 +97,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
-            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, ScheduledExecutorService executor,
-            int linkedCacheSize, AnnotatedModuleCompiler compiler)
+            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler)
     {
         if(ownerId == null)
             throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
@@ -114,8 +105,10 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         if(!SafeIdUtil.checkId(ownerId))
             LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
 
-        if(coOwnerIds!=null) {
-            for(String coOwnerId : coOwnerIds) {
+        if(coOwnerIds!=null)
+        {
+            for(String coOwnerId : coOwnerIds)
+            {
                 if(!SafeIdUtil.checkId(coOwnerId))
                     LOG.warn(String.format("The provided CoOwner ID (%s) was found unsafe! Make sure ID is a non-negative long!", coOwnerId));
             }
@@ -141,11 +134,9 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         this.commands = new ArrayList<>();
         this.cooldowns = new HashMap<>();
         this.uses = new HashMap<>();
-        this.schedulepool = new HashMap<>();
         this.linkMap = linkedCacheSize>0 ? new FixedSizeCache<>(linkedCacheSize) : null;
         this.useHelp = useHelp;
         this.helpWord = helpWord==null ? "help" : helpWord;
-        this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.linkedCacheSize = linkedCacheSize;
         this.compiler = compiler;
         this.helpFunction = helpFunction==null ? (event) -> {
@@ -171,10 +162,6 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
                         builder.append(" or join ").append(serverInvite);
                 }
                 return builder.toString();} : helpFunction;
-        if(carbonKey!=null || botsKey!=null)
-        {
-            java.util.logging.Logger.getLogger("org.apache.http.client.protocol.ResponseProcessCookies").setLevel(Level.OFF);
-        }
         for(Command command : commands) {
             addCommand(command);
         }
@@ -329,13 +316,14 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     @Override
     public long[] getCoOwnerIdsLong()
     {
+        // Thought about using java.util.Arrays#setAll(T[], IntFunction<T>)
+        // here, but as it turns out it's actually the same thing as this but
+        // it throws an error if null. Go figure.
         if(coOwnerIds==null)
             return null;
         long[] ids = new long[coOwnerIds.length];
-        for(int i = 0; i<coOwnerIds.length; i++)
-        {
+        for(int i = 0; i<ids.length; i++)
             ids[i] = Long.parseLong(coOwnerIds[i]);
-        }
         return ids;
     }
 
@@ -368,6 +356,12 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     {
         return prefix;
     }
+    
+    @Override
+    public String getAltPrefix()
+    {
+        return altprefix;
+    }
 
     @Override
     public String getTextualPrefix()
@@ -388,74 +382,30 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     }
 
     @Override
-    public <T> void schedule(String name, int delay, RestAction<T> toQueue)
-    {
-        saveFuture(name, toQueue.queueAfter(delay, TimeUnit.SECONDS, executor));
-    }
-
-    @Override
-    public void schedule(String name, int delay, Runnable runnable)
-    {
-        saveFuture(name, executor.schedule(runnable, delay, TimeUnit.SECONDS));
-    }
-
-    @Override
-    public <T> void schedule(String name, int delay, TimeUnit unit, RestAction<T> toQueue)
-    {
-        saveFuture(name, toQueue.queueAfter(delay, unit, executor));
-    }
-
-    @Override
-    public void schedule(String name, int delay, TimeUnit unit, Runnable runnable)
-    {
-        saveFuture(name, executor.schedule(runnable, delay, unit));
-    }
-
-    @Override
-    public void saveFuture(String name, ScheduledFuture<?> future)
-    {
-        schedulepool.put(name, future);
-    }
-
-    @Override
-    public boolean scheduleContains(String name)
-    {
-        return schedulepool.containsKey(name);
-    }
-
-    @Override
-    public void cancel(String name)
-    {
-        schedulepool.get(name).cancel(false);
-    }
-
-    @Override
-    public void cancelImmediately(String name)
-    {
-        schedulepool.get(name).cancel(true);
-    }
-
-    @Override
-    public ScheduledFuture<?> getScheduledFuture(String name)
-    {
-        return schedulepool.get(name);
-    }
-
-    @Override
-    public void cleanSchedule()
-    {
-        schedulepool.keySet().stream()
-                .filter((str) -> schedulepool.get(str).isCancelled() || schedulepool.get(str).isDone())
-                .collect(Collectors.toList()).stream().forEach((str) -> schedulepool.remove(str));
-    }
-
-    @Override
     public boolean usesLinkedDeletion() {
         return linkedCacheSize>0;
     }
 
     @Override
-    public void onReady(ReadyEvent event)
+    public void onEvent(Event event)
+    {
+        if(event instanceof MessageReceivedEvent)
+            onMessageReceived((MessageReceivedEvent)event);
+        else if(event instanceof MessageDeleteEvent)
+            onMessageDelete((GuildMessageDeleteEvent) event);
+        else if(event instanceof GuildJoinEvent)
+        {
+            if(((GuildJoinEvent)event).getGuild().getSelfMember().getJoinDate()
+                    .plusMinutes(10).isAfter(OffsetDateTime.now()))
+                sendStats(event.getJDA());
+        }
+        else if(event instanceof GuildLeaveEvent)
+            sendStats(event.getJDA());
+        else if(event instanceof ReadyEvent)
+            onReady((ReadyEvent)event);
+    }
+
+    private void onReady(ReadyEvent event)
     {
         if(!event.getJDA().getSelfUser().isBot())
         {
@@ -472,14 +422,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         sendStats(event.getJDA());
     }
 
-    @Override
-    public void onShutdown(ShutdownEvent event)
-    {
-        executor.shutdown();
-    }
-
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event)
+    private void onMessageReceived(MessageReceivedEvent event)
     {
         if(event.getAuthor().isBot())
             return;
@@ -549,19 +492,6 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         }
         if(!isCommand[0] && listener!=null)
             listener.onNonCommandMessage(event);
-    }
-
-    @Override
-    public void onGuildJoin(GuildJoinEvent event)
-    {
-        if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isAfter(OffsetDateTime.now()))
-            sendStats(event.getJDA());
-    }
-
-    @Override
-    public void onGuildLeave(GuildLeaveEvent event)
-    {
-        sendStats(event.getJDA());
     }
 
     private void sendStats(JDA jda)
@@ -668,18 +598,18 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         }
     }
 
-    @Override
-    public void onMessageDelete(MessageDeleteEvent event)
+    private void onMessageDelete(GuildMessageDeleteEvent event)
     {
-        if(!event.isFromType(ChannelType.TEXT) || !usesLinkedDeletion()) // If it's not from a textchannel
+        if(!usesLinkedDeletion())
             return;
-        synchronized (linkMap)
+        synchronized(linkMap)
         {
             if(linkMap.contains(event.getMessageIdLong()))
             {
                 Set<Message> messages = linkMap.get(event.getMessageIdLong());
-                if(messages.size()>1 && event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_MANAGE))
-                    event.getTextChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
+                if(messages.size()>1 && event.getGuild().getSelfMember()
+                        .hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE))
+                    event.getChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
                 else if(messages.size()>0)
                     messages.forEach(m -> m.delete().queue(unused -> {}, ignored -> {}));
             }

@@ -17,7 +17,6 @@ package com.jagrosh.jdautilities.commandclient;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
 import com.jagrosh.jdautilities.commandclient.impl.AnnotatedModuleCompilerImpl;
@@ -55,7 +54,6 @@ public class CommandClientBuilder
     private boolean useHelp = true;
     private Function<CommandEvent,String> helpFunction;
     private String helpWord;
-    private ScheduledExecutorService executor;
     private int linkedCacheSize = 200;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
     
@@ -71,7 +69,7 @@ public class CommandClientBuilder
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                 success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                helpFunction, helpWord, executor, linkedCacheSize, compiler);
+                helpFunction, helpWord, linkedCacheSize, compiler);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -356,7 +354,6 @@ public class CommandClientBuilder
     public CommandClientBuilder addAnnotatedModule(Object module)
     {
         this.commands.addAll(compiler.compile(module));
-
         return this;
     }
 
@@ -467,32 +464,6 @@ public class CommandClientBuilder
     public CommandClientBuilder setListener(CommandListener listener)
     {
         this.listener = listener;
-        return this;
-    }
-    
-    /**
-     * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for this 
-     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
-     * 
-     * <p><b>NOTE:</b> It <b>MUST</b> be a 
-     * {@link java.util.concurrent.Executors#newSingleThreadScheduledExecutor SingleThreadScheduledExecutor}. 
-     * Providing any other kinds of {@link java.util.concurrent.Executors Executors} will cause unpredictable results.
-     * 
-     * <p>Also note that unless you wish to use the SingleThreadScheduledExecutor provided here in other areas of
-     * your code, this is most likely useless to set.
-     * 
-     * @param  executor
-     *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
-     *         
-     * @return This builder
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     */
-    @Deprecated
-    public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
-    {
-        this.executor = executor;
         return this;
     }
 

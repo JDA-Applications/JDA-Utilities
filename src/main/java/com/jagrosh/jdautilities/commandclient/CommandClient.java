@@ -15,13 +15,11 @@
  */
 package com.jagrosh.jdautilities.commandclient;
 
+import net.dv8tion.jda.core.hooks.EventListener;
+
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
-import net.dv8tion.jda.core.requests.RestAction;
 
 /**
  * A Bot Client interface implemented on objects used to hold bot data.
@@ -44,27 +42,32 @@ import net.dv8tion.jda.core.requests.RestAction;
  * @author John Grosh (jagrosh)
  *
  * @implNote
- *         While typically safe, there are a few ways to misuse the standard implementation of this interface: the CommandClientImpl.
+ *         While typically safe, there are a few ways to misuse the standard implementation of this interface:
+ *         the CommandClientImpl.
  *         <br>Because of this the following should <b>ALWAYS</b> be followed to avoid such errors:
  *
  *         <p><b>1)</b> Do not build and add more than one CommandClient to an instance JDA, <b>EVER</b>.
  *
- *         <p><b>2)</b> Always create and add the CommandClientImpl to JDA <b>BEFORE</b> you build it, or there is a chance some minor errors
- *                      will occur, <b>especially</b> if JDA has already fired a {@link net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
+ *         <p><b>2)</b> Always create and add the CommandClientImpl to JDA <b>BEFORE</b> you build it, or there is a
+ *                      chance some minor errors will occur, <b>especially</b> if JDA has already fired a {@link
+ *                      net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
  *
- *         <p><b>3)</b> Do not provide anything other than a String representing a long (and furthermore a User ID) as an Owner ID or a CoOwner ID.
- *                      This will generate errors, but not stop the creation of the CommandClientImpl which will cause several errors to occur
- *                      very quickly after startup (except if you provide {@code null} for the Owner ID, that'll just flat out throw an
- *                      {@link java.lang.IllegalArgumentException IllegalArgumentException}).
+ *         <p><b>3)</b> Do not provide anything other than a String representing a long (and furthermore a User ID) as
+ *                      an Owner ID or a CoOwner ID.  This will generate errors, but not stop the creation of the
+ *                      CommandClientImpl which will cause several errors to occur very quickly after startup (except
+ *                      if you provide {@code null} for the Owner ID, that'll just flat out throw an {@link
+ *                      java.lang.IllegalArgumentException IllegalArgumentException}).
  *
- *         <p><b>4)</b> Do not provide strings when using {@link com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setEmojis(String, String, String)
- *                      CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that do not match the custom emote format
- *                      specified in {@link net.dv8tion.jda.core.entities.Emote#getAsMention() Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
+ *         <p><b>4)</b> Do not provide strings when using {@link CommandClientBuilder#setEmojis(String, String, String)
+ *                      CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that do
+ *                      not match the custom emote format specified in {@link net.dv8tion.jda.core.entities.Emote#getAsMention()
+ *                      Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
  *
- *         <p><b>5)</b> Avoid using {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl#linkIds(long, net.dv8tion.jda.core.entities.Message)}.
- *                      This will create errors and has no real purpose outside of it's current usage.
+ *         <p><b>5)</b> Avoid using {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl#linkIds(long,
+ *                      net.dv8tion.jda.core.entities.Message)}. This will create errors and has no real purpose outside
+ *                      of it's current usage.
  */
-public interface CommandClient
+public interface CommandClient extends EventListener
 {
     /**
      * Gets the Client's prefix.
@@ -72,6 +75,13 @@ public interface CommandClient
      * @return A possibly-null prefix
      */
     String getPrefix();
+
+    /**
+     * Gets the Client's alternate prefix.
+     *
+     * @return A possibly-null alternate prefix
+     */
+    String getAltPrefix();
     
     /**
      * Returns the visual representation of the bot's prefix. 
@@ -396,216 +406,6 @@ public interface CommandClient
      * @return The help word
      */
     String getHelpWord();
-    
-    /**
-     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in a provided delay
-     * of <b>seconds</b>.
-     * 
-     * <p>This is more useful than {@link CommandClient#schedule(String, int, TimeUnit, RestAction)} when dealing with 
-     * short delays as it is simple, easy, and would not require the operating class to {@code import}
-     * {@link java.util.concurrent.TimeUnit}.
-     * 
-     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     *
-     * @param  <T>
-     *         The type of RestAction
-     * @param  name
-     *         The name of the scheduled RestAction (can be used to cancel it later if needed)
-     * @param  delay
-     *         The amount of seconds to delay for
-     * @param  toQueue
-     *         The RestAction to queue after the delay
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    <T> void schedule(String name, int delay, RestAction<T> toQueue);
-    
-    /**
-     * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of <b>seconds</b>.
-     * 
-     * <p>This is more useful than {@link CommandClient#schedule(String, int, TimeUnit, Runnable)} when dealing with
-     * short delays as it is simple, easy, and would not require the operating class to {@code import}
-     * {@link java.util.concurrent.TimeUnit TimeUnit}.
-     * 
-     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     * 
-     * @param  name 
-     *         The name of the scheduled Runnable (can be used to cancel it later if needed)
-     * @param  delay 
-     *         The the amount of seconds to delay for
-     * @param  runnable 
-     *         The Runnable to run after the delay
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     */
-    @Deprecated
-    void schedule(String name, int delay, Runnable runnable);
-    
-    /**
-     * Schedules a {@link net.dv8tion.jda.core.requests.RestAction RestAction} to occur in the provided delay of 
-     * {@link java.util.concurrent.TimeUnit TimeUnit}.
-     * 
-     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     *
-     * @param  <T>
-     *         The type of RestAction
-     * @param  name
-     *         The name of the scheduled RestAction (can be used to cancel it later if needed)
-     * @param  delay
-     *         The amount to delay for
-     * @param  unit
-     *         The unit to measure the delay with
-     * @param  toQueue
-     *         The RestAction to queue after the delay
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    <T> void schedule(String name, int delay, TimeUnit unit, RestAction<T> toQueue);
-    
-    /**
-     * Schedules a {@link java.lang.Runnable Runnable} to run in a provided delay of
-     * {@link java.util.concurrent.TimeUnit TimeUnit}.
-     * 
-     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     * 
-     * @param  name
-     *         The name of the scheduled Runnable (can be used to cancel it later if needed)
-     * @param  delay
-     *         The amount to delay for
-     * @param  unit
-     *         The unit to measure the delay with
-     * @param  runnable
-     *         The Runnable to run after the delay
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    void schedule(String name, int delay, TimeUnit unit, Runnable runnable);
-    
-    /**
-     * Saves a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} to a provided name.
-     * 
-     * <p>This allows it to be cancelled later using {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancel(String) CommandClient#cancel(String)}.
-     * 
-     * @param  name
-     *         The name of the ScheduledFuture (can be used to cancel it later if needed)
-     * @param  future
-     *         The ScheduledFuture to save
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    void saveFuture(String name, ScheduledFuture<?> future);
-    
-    /**
-     * Checks if a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} exists
-     * corresponding to the provided name.
-     * 
-     * <p><b>NOTE:</b> This method will <b>NOT</b> take into account whether or not the provided name finds 
-     * a ScheduledFuture that has already occurred or has been cancelled. To detect if the schedule only 
-     * contains a "live" ScheduledFuture going by the name provided, invoking 
-     * {@link com.jagrosh.jdautilities.commandclient.CommandClient#cleanSchedule() CommandClient#cleanSchedule()} 
-     * beforehand may provide more accurate results.
-     * 
-     * @param  name
-     *         The name of the ScheduledFuture
-     *         
-     * @return {@code true} if there exists a ScheduledFuture corresponding to the provided name 
-     *         (regardless of it's possible cancellation or expiration), otherwise {@code false}.
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    boolean scheduleContains(String name);
-    
-    /**
-     * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
-     * 
-     * <p>This will not cancel the ScheduledFuture if it is running or has already occurred. To perform a
-     * cancellation even in mid-operation use {@link com.jagrosh.jdautilities.commandclient.CommandClient#cancelImmediately(String) CommandClient#cancelImmediately(String)}.
-     * 
-     * @param  name 
-     *         The name of the ScheduledFuture
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    void cancel(String name);
-    
-    /**
-     * Cancels a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name,
-     * possibly in the midst of it running.
-     * 
-     * <p>This will cancel a ScheduledFuture, even if it is currently running, but will not
-     * if the ScheduledFuture has already occurred.
-     * 
-     * @param  name
-     *         The name of the ScheduledFuture to be cancelled immediately
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    void cancelImmediately(String name);
-    
-    /**
-     * Gets a {@link java.util.concurrent.ScheduledFuture ScheduledFuture} corresponding to the provided name.
-     * 
-     * @param  name 
-     *         The name of the ScheduledFuture to get
-     *         
-     * @return The ScheduledFuture corresponding to the provided name
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    ScheduledFuture<?> getScheduledFuture(String name);
-    
-    /**
-     * Cleans up cancelled and expired {@link java.util.concurrent.ScheduledFuture ScheduledFuture}s to reduce memory.
-     *
-     * @deprecated
-     *         Scheduled for removal in 2.0
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    void cleanSchedule();
 
     /**
      * Gets whether this CommandClient uses linked deletion.
@@ -618,7 +418,7 @@ public interface CommandClient
      * @return {@code true} if the bot uses linked deletion, {@code false} otherwise.
      *
      * @see    com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setLinkedCacheSize(int)
-     *         For how to disable or enable linked deletion.
+     *         CommandClientBuilder#setLinkedCacheSize(int)
      */
     boolean usesLinkedDeletion();
 }

@@ -759,37 +759,7 @@ public class CommandEvent
                 return true;
         return false;
     }
-    
-    /**
-     * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
-     * event is a CoOwner of the bot.
-     * 
-     * @return {@code true} if the User is the CoOwner, else {@code false}
-     *
-     * @deprecated
-     *         Set for removal in 2.0.
-     *         <br>The idea of "co-owner" has undergone a revision.
-     *         It is a principle that trying to discriminate between an owner
-     *         and co-owner is a hindrance that idea.
-     *         <br>You should optimally try to implement your own system,
-     *         either through {@link com.jagrosh.jdautilities.commandclient.Command.Category
-     *         Categories} or through some other means.
-     *         <br>This function is now supported in one call to {@link #isOwner()}.
-     *
-     *         <p>Full information on these and other 2.0 deprecations and changes can be found
-     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
-     */
-    @Deprecated
-    public boolean isCoOwner()
-    {
-    	if(this.getClient().getCoOwnerIds()==null)
-    		return false;
-    	for(String id : this.getClient().getCoOwnerIds())
-    		if(id.equals(event.getAuthor().getId()))
-    			return true;
-    	return false;
-    }
-    
+
     
     // shortcuts
     
