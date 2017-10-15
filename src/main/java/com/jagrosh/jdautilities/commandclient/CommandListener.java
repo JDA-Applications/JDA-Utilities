@@ -26,8 +26,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public interface CommandListener
 {
     /**
-     * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
-     * is triggered by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent}.
+     * Called when a {@link com.jagrosh.jdautilities.commandclient.Command Command} is triggered
+     * by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent}.
      * 
      * @param  event
      *         The CommandEvent that triggered the Command
@@ -37,9 +37,9 @@ public interface CommandListener
     default void onCommand(CommandEvent event, Command command) {}
     
     /**
-     * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
-     * is triggered by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent}
-     * after it's completed successfully.
+     * Called when a {@link com.jagrosh.jdautilities.commandclient.Command Command} is triggered
+     * by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} after it's
+     * completed successfully.
      * 
      * @param  event
      *         The CommandEvent that triggered the Command
@@ -49,9 +49,9 @@ public interface CommandListener
     default void onCompletedCommand(CommandEvent event, Command command) {}
     
     /**
-     * A method that is called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
-     * is triggered by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} but
-     * is terminated before completion.
+     * Called when a {@link com.jagrosh.jdautilities.commandclient.Command Command} is triggered
+     * by a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} but is
+     * terminated before completion.
      * 
      * @param  event
      *         The CommandEvent that triggered the Command
@@ -61,16 +61,53 @@ public interface CommandListener
     default void onTerminatedCommand(CommandEvent event, Command command) {}
     
     /**
-     * A method that is called whenever a 
-     * {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent} is caught by the Client Listener's
-     * {@link net.dv8tion.jda.core.hooks.ListenerAdapter#onMessageReceived(MessageReceivedEvent) ListenerAdapter#onMessageReceived(MessageReceivedEvent)}
-     * but doesn't correspond to a {@link com.jagrosh.jdautilities.commandclient.Command Command}.
+     * Called when a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}
+     * is caught by the Client Listener's but doesn't correspond to a
+     * {@link com.jagrosh.jdautilities.commandclient.Command Command}.
      * 
-     * <p>In other words, this catches all <b>non-command</b> MessageReceivedEvents allowing you to handle them without
-     * implementation of another listener.
+     * <p>In other words, this catches all <b>non-command</b> MessageReceivedEvents allowing
+     * you to handle them without implementation of another listener.
      * 
      * @param  event
      *         A MessageReceivedEvent that wasn't used to call a Command
      */
     default void onNonCommandMessage(MessageReceivedEvent event) {}
+
+    /**
+     * Called when a {@link com.jagrosh.jdautilities.commandclient.Command Command} catches a
+     * {@link java.lang.Throwable Throwable} <b>during execution</b>.
+     *
+     * <p>This doesn't account for exceptions thrown during other pre-checks, and should not be
+     * treated as such!
+     *
+     * <p>An example of this misconception is via a {@link com.jagrosh.jdautilities.commandclient.Command.Category
+     * Category} test:
+     *
+     * <pre><code> public class BadCommand extends Command {
+     *
+     *      public BadCommand() {
+     *          this.name = "bad";
+     *          this.category = new Category("bad category", event -> {
+     *              // This will throw a NullPointerException if it's not from a Guild!
+     *              return event.getGuild().getIdLong() == 12345678910111213;
+     *          });
+     *      }
+     *
+     *      {@literal @Override}
+     *      protected void execute(CommandEvent) {
+     *          event.reply("This is a bad command!");
+     *      }
+     *
+     * }</code></pre>
+     *
+     * The {@link java.lang.NullPointerException NullPointerException} thrown will not be caught by this method!
+     *
+     * @param  event
+     *         The CommandEvent that triggered the Command
+     * @param  command
+     *         The Command that was triggered
+     * @param  throwable
+     *         The Throwable thrown during Command execution
+     */
+    default void onCommandException(CommandEvent event, Command command, Throwable throwable) {}
 }

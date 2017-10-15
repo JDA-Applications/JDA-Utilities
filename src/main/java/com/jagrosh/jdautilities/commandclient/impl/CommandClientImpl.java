@@ -16,18 +16,16 @@
 package com.jagrosh.jdautilities.commandclient.impl;
 
 import com.jagrosh.jdautilities.commandclient.*;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 import resources.FixedSizeCache;
 import com.jagrosh.jdautilities.commandclient.Command.Category;
 import com.jagrosh.jdautilities.utils.SafeIdUtil;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
@@ -53,14 +51,16 @@ import java.util.stream.Collectors;
 /**
  * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} to be used by a bot.
  * 
- * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA JDA}, as it extends {@link net.dv8tion.jda.core.hooks.ListenerAdapter
- * ListenerAdapter} in order to catch and wrap {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s,
- * this CommandClient, and automatically processed arguments, then provide them to a {@link com.jagrosh.jdautilities.commandclient.Command
- * Command} for running and execution.
+ * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA JDA}, as it implements
+ * {@link net.dv8tion.jda.core.hooks.EventListener EventListener} in order to catch and use different kinds of
+ * {@link net.dv8tion.jda.core.events.Event Event}s. The primary usage of this is where the CommandClient implementation
+ * takes {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s, and automatically
+ * processes arguments, and provide them to a {@link com.jagrosh.jdautilities.commandclient.Command Command} for
+ * running and execution.
  * 
  * @author John Grosh (jagrosh)
  */
-public class CommandClientImpl implements CommandClient
+public class CommandClientImpl implements CommandClient, EventListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;
@@ -90,6 +90,7 @@ public class CommandClientImpl implements CommandClient
     private final String helpWord;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
+    private final GuildSettingsManager manager;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -97,7 +98,8 @@ public class CommandClientImpl implements CommandClient
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
-            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler)
+            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler,
+            GuildSettingsManager manager)
     {
         if(ownerId == null)
             throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
@@ -139,6 +141,7 @@ public class CommandClientImpl implements CommandClient
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.linkedCacheSize = linkedCacheSize;
         this.compiler = compiler;
+        this.manager = manager;
         this.helpFunction = helpFunction==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -387,12 +390,30 @@ public class CommandClientImpl implements CommandClient
     }
 
     @Override
+    public <S> S getSettingsFor(Guild guild)
+    {
+        if(manager == null)
+            return null;
+        return manager.getSettings(guild);
+    }
+
+    @Override
+    public <M extends GuildSettingsManager> M getSettingsManager()
+    {
+        if(manager == null)
+            return null;
+        return (M)manager;
+    }
+
+    @Override
     public void onEvent(Event event)
     {
         if(event instanceof MessageReceivedEvent)
             onMessageReceived((MessageReceivedEvent)event);
-        else if(event instanceof MessageDeleteEvent)
+
+        else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
             onMessageDelete((GuildMessageDeleteEvent) event);
+
         else if(event instanceof GuildJoinEvent)
         {
             if(((GuildJoinEvent)event).getGuild().getSelfMember().getJoinDate()
@@ -424,74 +445,100 @@ public class CommandClientImpl implements CommandClient
 
     private void onMessageReceived(MessageReceivedEvent event)
     {
+        // Return if it's a bot
         if(event.getAuthor().isBot())
             return;
-        boolean[] isCommand = new boolean[]{false};
+
         String[] parts = null;
         String rawContent = event.getMessage().getRawContent();
-        if(prefix.equals(DEFAULT_PREFIX) || (altprefix!=null && altprefix.equals(DEFAULT_PREFIX)))
+
+        GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()): null;
+
+        // Check for prefix or alternate prefix (@mention cases)
+        if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX)))
         {
             if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">")
                     || rawContent.startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
                 parts = Arrays.copyOf(rawContent.substring(rawContent.indexOf(">")+1).trim().split("\\s+",2), 2);
         }
-        if(parts==null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
+        // Check for prefix
+        if(parts == null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
             parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
-        if(parts==null && altprefix!=null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
+        // Check for alternate prefix
+        if(parts == null && altprefix!=null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
             parts = Arrays.copyOf(rawContent.substring(altprefix.length()).trim().split("\\s+",2), 2);
+        // Check for guild specific prefixes
+        if(parts == null && settings != null)
+        {
+            Collection<String> prefixes = settings.getPrefixes();
+            if(prefixes != null)
+            {
+                for(String prefix : prefixes)
+                {
+                    if(parts == null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
+                        parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
+                }
+            }
+        }
+
         if(parts!=null) //starts with valid prefix
         {
             if(useHelp && parts[0].equalsIgnoreCase(helpWord))
             {
-                isCommand[0] = true;
                 CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
                 List<String> messages = CommandEvent.splitMessage(helpFunction.apply(cevent));
-                event.getAuthor().openPrivateChannel().queue(
-                    pc -> {
-                        pc.sendMessage(messages.get(0)).queue(
-                            m-> {
-                                if(event.getGuild()!=null)
-                                    cevent.reactSuccess();
-                                for(int i=1; i<messages.size(); i++)
-                                    pc.sendMessage(messages.get(i)).queue();
-                            },t-> event.getChannel().sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.").queue());},
-                    t-> event.getChannel().sendMessage(warning+" Help cannot be sent because I could not open a Direct Message with you.").queue());
+                event.getAuthor().openPrivateChannel().queue(pc -> {
+                    pc.sendMessage(messages.get(0)).queue(m-> {
+                        if(event.getGuild()!=null)
+                            cevent.reactSuccess();
+                        for(int i=1; i<messages.size(); i++)
+                            pc.sendMessage(messages.get(i)).queue();
+                    }, t-> {
+                        event.getChannel()
+                                .sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.")
+                                .queue(m -> linkIds(event.getMessageIdLong(), m), ignored -> {});
+                    });
+                }, t-> {
+                    event.getChannel()
+                            .sendMessage(warning+" Help cannot be sent because I could not open a Direct Message with you.")
+                            .queue(m -> linkIds(event.getMessageIdLong(), m), ignored -> {});
+                });
                 if(listener!=null)
                     listener.onCompletedCommand(cevent, null);
+                return; // Help Consumer is done
             }
             else if(event.isFromType(ChannelType.PRIVATE) || event.getTextChannel().canTalk())
             {
                 String name = parts[0];
                 String args = parts[1]==null ? "" : parts[1];
-                if(commands.size()<INDEX_LIMIT+1) {
-                    commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().ifPresent(command -> {
-                        isCommand[0] = true;
-                        CommandEvent cevent = new CommandEvent(event, args, this);
-
-                        if(listener != null)
-                            listener.onCommand(cevent, command);
-                        uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
-                        command.run(cevent);
-                    });
-                } else {
-                    int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
-                    if(i!=-1)
+                final Command command; // this will be null if it's not a command
+                if(commands.size() < INDEX_LIMIT + 1)
+                    command = commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().orElse(null);
+                else
+                {
+                    synchronized(commandIndex)
                     {
-                        isCommand[0] = true;
-                        Command command = commands.get(i);
-                        CommandEvent cevent = new CommandEvent(event,args,this);
-                        if(listener != null)
-                            listener.onCommand(cevent,command);
-                        uses.put(command.getName(), uses.getOrDefault(command.getName(), 0)+1);
-                        command.run(cevent);
+                        int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
+                        command = i != -1? commands.get(i) : null;
                     }
+                }
+
+                if(command != null)
+                {
+                    CommandEvent cevent = new CommandEvent(event, args, this);
+
+                    if(listener != null)
+                        listener.onCommand(cevent, command);
+                    uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
+                    command.run(cevent);
+                    return; // Command is done
                 }
             }
         }
-        if(!isCommand[0] && listener!=null)
-            listener.onNonCommandMessage(event);
+
+        listener.onNonCommandMessage(event);
     }
 
     private void sendStats(JDA jda)
@@ -600,8 +647,6 @@ public class CommandClientImpl implements CommandClient
 
     private void onMessageDelete(GuildMessageDeleteEvent event)
     {
-        if(!usesLinkedDeletion())
-            return;
         synchronized(linkMap)
         {
             if(linkMap.contains(event.getMessageIdLong()))
@@ -614,6 +659,15 @@ public class CommandClientImpl implements CommandClient
                     messages.forEach(m -> m.delete().queue(unused -> {}, ignored -> {}));
             }
         }
+    }
+
+    private GuildSettingsProvider provideSettings(Guild guild)
+    {
+        Object settings = getSettingsFor(guild);
+        if(settings != null && settings instanceof GuildSettingsProvider)
+            return (GuildSettingsProvider)settings;
+        else
+            return null;
     }
 
     /**

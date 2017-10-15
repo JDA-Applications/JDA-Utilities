@@ -32,7 +32,7 @@ package com.jagrosh.jdautilities.utils;
  * @since  1.2
  * @author Kaidan Gustave
  */
-public class SafeIdUtil
+public final class SafeIdUtil
 {
     /**
      * Safely convert the provided String ID to a {@code long} usable with 

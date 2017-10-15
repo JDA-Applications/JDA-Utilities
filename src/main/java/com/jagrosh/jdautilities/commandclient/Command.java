@@ -159,7 +159,7 @@ public abstract class Command
     
     private final static String BOT_PERM = "%s I need the %s permission in this %s!";
     private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
-    
+
     /**
      * The main body method of a {@link com.jagrosh.jdautilities.commandclient.Command Command}. 
      * <br>This is the "response" for a successful 
@@ -316,7 +316,12 @@ public abstract class Command
         }
         
         // run
-        execute(event);
+        try {
+            execute(event);
+        } catch(Throwable e) {
+
+        }
+
         if(event.getClient().getListener()!=null)
             event.getClient().getListener().onCompletedCommand(event, this);
     }

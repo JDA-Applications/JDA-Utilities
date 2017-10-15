@@ -15,7 +15,7 @@
  */
 package com.jagrosh.jdautilities.commandclient;
 
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.entities.Guild;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -25,12 +25,12 @@ import java.util.function.Function;
  * A Bot Client interface implemented on objects used to hold bot data.
  * 
  * <p>This is implemented in {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}
- * alongside inheritance of {@link net.dv8tion.jda.core.hooks.ListenerAdapter ListenerAdapter} to create a
- * compounded "ClientListener" which catches specific kinds of events thrown by JDA and processes them
+ * alongside implementation of {@link net.dv8tion.jda.core.hooks.EventListener EventListener} to create a
+ * compounded "Client Listener" which catches specific kinds of events thrown by JDA and processes them
  * automatically to handle and execute {@link com.jagrosh.jdautilities.commandclient.Command Command}s.
  *
  * <p>Implementations also serve as a useful platforms, carrying reference info such as the bot's
- * {@linkplain #getOwnerId() Owner ID}, {@linkplain #getPrefix() prefix}, and {@linkplain #getServerInvite()
+ * {@linkplain #getOwnerId() Owner ID}, {@linkplain #getPrefix() prefix}, and a {@linkplain #getServerInvite()
  * support server invite}.
  *
  * <p>For the CommandClientImpl, once initialized, only the following can be modified:
@@ -67,7 +67,7 @@ import java.util.function.Function;
  *                      net.dv8tion.jda.core.entities.Message)}. This will create errors and has no real purpose outside
  *                      of it's current usage.
  */
-public interface CommandClient extends EventListener
+public interface CommandClient
 {
     /**
      * Gets the Client's prefix.
@@ -421,4 +421,39 @@ public interface CommandClient extends EventListener
      *         CommandClientBuilder#setLinkedCacheSize(int)
      */
     boolean usesLinkedDeletion();
+
+    /**
+     * Returns an Object of the type parameter that should contain settings relating to the specified
+     * {@link net.dv8tion.jda.core.entities.Guild Guild}.
+     *
+     * <p>The returning object for this is specified via provision of a
+     * {@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager GuildSettingsManager} to
+     * {@link com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)
+     * CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)}, more specifically {@link
+     * com.jagrosh.jdautilities.commandclient.GuildSettingsManager#getSettings(Guild) GuildSettingsManager#getSettings(Guild)}.
+     *
+     * @param  <S>
+     *         The type of Object to get
+     * @param  guild
+     *         The Guild to get Settings for
+     *
+     * @return The settings object for the Guild, specified in
+     *         {@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager#getSettings(Guild)
+     *         GuildSettingsManager#getSettings(Guild)}, can be {@link null} if the implementation
+     *         allows it.
+     */
+    <S> S getSettingsFor(Guild guild);
+
+    /**
+     * Returns the type of {@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager GuildSettingsManager},
+     * the same type of one provided when building this CommandClient, or {@code null} if one was not provided there.
+     *
+     * <p>This is good if you want to use non-abstract methods specific to your implementation.
+     *
+     * @param  <M>
+     *         The type of GuildSettingsManager to get
+     *
+     * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.
+     */
+    <M extends GuildSettingsManager> M getSettingsManager();
 }

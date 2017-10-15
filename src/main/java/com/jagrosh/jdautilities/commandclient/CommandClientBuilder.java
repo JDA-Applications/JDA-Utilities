@@ -56,6 +56,7 @@ public class CommandClientBuilder
     private String helpWord;
     private int linkedCacheSize = 200;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
+    private GuildSettingsManager manager = null;
     
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
@@ -69,7 +70,7 @@ public class CommandClientBuilder
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                 success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                helpFunction, helpWord, linkedCacheSize, compiler);
+                helpFunction, helpWord, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -487,6 +488,21 @@ public class CommandClientBuilder
     public CommandClientBuilder setLinkedCacheSize(int linkedCacheSize)
     {
         this.linkedCacheSize = linkedCacheSize;
+        return this;
+    }
+
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager GuildSettingsManager}
+     * for the CommandClientImpl built using this builder.
+     *
+     * @param  manager
+     *         The GuildSettingsManager to set.
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setGuildSettingsManager(GuildSettingsManager manager)
+    {
+        this.manager = manager;
         return this;
     }
 }
