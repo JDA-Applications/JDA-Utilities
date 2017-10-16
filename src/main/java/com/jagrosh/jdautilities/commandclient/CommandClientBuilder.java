@@ -163,9 +163,14 @@ public class CommandClientBuilder
      * @param  helpFunction
      *         A function to convert a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} 
      *         to a String for a help DM.
-     *         
+     *
      * @return This builder
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0, will be replaced with a Consumer instead.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed") // Suppress the link in docs
+    @Deprecated
     public CommandClientBuilder setHelpFunction(Function<CommandEvent,String> helpFunction)
     {
         this.helpFunction = helpFunction;
