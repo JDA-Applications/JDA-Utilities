@@ -17,7 +17,7 @@ package com.jagrosh.jdautilities.commandclient;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commandclient.impl.AnnotatedModuleCompilerImpl;
 import com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl;
@@ -31,8 +31,6 @@ import net.dv8tion.jda.core.entities.Game;
  * {@link net.dv8tion.jda.core.JDA JDA} and it will automatically handle commands with ease!
  * 
  * @author John Grosh (jagrosh)
- *
- * @see    com.jagrosh.jdautilities.commandclient.CommandClientBuilder
  */
 public class CommandClientBuilder
 {
@@ -52,7 +50,7 @@ public class CommandClientBuilder
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
     private boolean useHelp = true;
-    private Function<CommandEvent,String> helpFunction;
+    private Consumer<CommandEvent> helpConsumer;
     private String helpWord;
     private int linkedCacheSize = 200;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
@@ -70,7 +68,7 @@ public class CommandClientBuilder
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                 success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                helpFunction, helpWord, linkedCacheSize, compiler, manager);
+                helpConsumer, helpWord, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -144,7 +142,7 @@ public class CommandClientBuilder
      * 
      * @param  useHelp
      *         {@code false} to disable the help command builder, otherwise the CommandClient
-     *         will use either the default or one provided via {@link #setHelpFunction(Function)}.
+     *         will use either the default or one provided via {@link #setHelpConsumer(Consumer)}}.
      *         
      * @return This builder
      */
@@ -155,19 +153,19 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the function to build the bot's help command.
+     * Sets the consumer to run as the bot's help command.
      * <br>Setting it to {@code null} or not setting this at all will cause the bot to use 
      * the default help builder.
      * 
-     * @param  helpFunction
-     *         A function to convert a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} 
-     *         to a String for a help DM.
+     * @param  helpConsumer
+     *         A consumer to accept a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent}
+     *         when a help command is called.
      *         
      * @return This builder
      */
-    public CommandClientBuilder setHelpFunction(Function<CommandEvent,String> helpFunction)
+    public CommandClientBuilder setHelpConsumer(Consumer<CommandEvent> helpConsumer)
     {
-        this.helpFunction = helpFunction;
+        this.helpConsumer = helpConsumer;
         return this;
     }
     

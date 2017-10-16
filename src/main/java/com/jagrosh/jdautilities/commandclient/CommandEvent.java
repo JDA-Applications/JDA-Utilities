@@ -141,7 +141,7 @@ public class CommandEvent
     }
 
     // functional calls
-    
+
     /**
      * Replies with a String message.
      * 
@@ -174,14 +174,38 @@ public class CommandEvent
      * 
      * @param  message
      *         A String message to reply with
-     * @param  queue
+     * @param  success
      *         The Consumer to queue after sending the Message is sent.
      */
-    public void reply(String message, Consumer<Message> queue)
+    public void reply(String message, Consumer<Message> success)
     {
-    	sendMessage(event.getChannel(), message, queue);
+    	sendMessage(event.getChannel(), message, success);
     }
-    
+
+    /**
+     * Replies with a String message and then queues a {@link java.util.function.Consumer}.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the first Consumer as it's success callback and the second Consumer as the failure callback.
+     *
+     * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent in
+     * two split Messages.
+     * <br>Either Consumer will be applied to the last message sent if this occurs.
+     *
+     * @param  message
+     *         A String message to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     * @param  failure
+     *         The Consumer to run if an error occurs when sending the Message.
+     */
+    public void reply(String message, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        sendMessage(event.getChannel(), message, success, failure);
+    }
+
     /**
      * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
      * 
@@ -211,16 +235,41 @@ public class CommandEvent
      * 
      * @param  embed
      *         The MessageEmbed to reply with
-     * @param  queue
+     * @param  success
      *         The Consumer to queue after sending the Message is sent.
      */
-    public void reply(MessageEmbed embed, Consumer<Message> queue)
+    public void reply(MessageEmbed embed, Consumer<Message> success)
     {
     	event.getChannel().sendMessage(embed).queue(m -> {
     	    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
     	        linkId(m);
-    	    queue.accept(m);
+    	    success.accept(m);
         });
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * and then queues a {@link java.util.function.Consumer}.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the first Consumer as it's success callback and the second Consumer as the failure callback.
+     *
+     * @param  embed
+     *         The MessageEmbed to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     * @param  failure
+     *         The Consumer to run if an error occurs when sending the Message.
+     */
+    public void reply(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        event.getChannel().sendMessage(embed).queue(m -> {
+            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                linkId(m);
+            success.accept(m);
+        }, failure);
     }
     
     /**
@@ -247,21 +296,46 @@ public class CommandEvent
      * 
      * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
      * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#success()}
      * with the provided Consumer as it's success callback.
      * 
      * @param  message
      *         The Message to reply with
-     * @param  queue
-     *         The Consumer to queue after sending the Message is sent.
+     * @param  success
+     *         The Consumer to success after sending the Message is sent.
      */
-    public void reply(Message message, Consumer<Message> queue)
+    public void reply(Message message, Consumer<Message> success)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
                 linkId(m);
-            queue.accept(m);
+            success.accept(m);
         });
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} and then
+     * queues a {@link java.util.function.Consumer}.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the first Consumer as it's success callback and the second Consumer as the failure callback.
+     *
+     * @param  message
+     *         The Message to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     * @param  failure
+     *         The Consumer to run if an error occurs when sending the Message.
+     */
+    public void reply(Message message, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        event.getChannel().sendMessage(message).queue(m -> {
+            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                linkId(m);
+            success.accept(m);
+        }, failure);
     }
     
     /**
@@ -418,6 +492,68 @@ public class CommandEvent
             event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
         }
     }
+
+    /**
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     *
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
+     * be sent in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void replyInDm(String message, Consumer<Message> success)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            reply(message, success);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message, success));
+        }
+    }
+
+    /**
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the first Consumer as it's success callback and the second Consumer as the failure callback.
+     *
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
+     * be sent in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     * @param  failure
+     *         The Consumer to run if an error occurs when sending the Message.
+     */
+    public void replyInDm(String message, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            reply(message, success, failure);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message, success, failure), failure);
+        }
+    }
     
     /**
      * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the 
@@ -425,9 +561,9 @@ public class CommandEvent
      * 
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
-     * 
+     *
      * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
      * 
      * @param  embed
@@ -440,6 +576,142 @@ public class CommandEvent
         else
         {
             event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
+        }
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     *
+     * @param  embed
+     *         The MessageEmbed to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void replyInDm(MessageEmbed embed, Consumer<Message> success)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            getPrivateChannel().sendMessage(embed).queue(success);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success));
+        }
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the first Consumer as it's success callback and the second Consumer as the failure callback.
+     *
+     * @param  embed
+     *         The MessageEmbed to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     * @param  failure
+     *         The Consumer to run if an error occurs when sending the Message.
+     */
+    public void replyInDm(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            getPrivateChannel().sendMessage(embed).queue(success, failure);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success, failure), failure);
+        }
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     *
+     * @param  message
+     *         The Message to reply with
+     */
+    public void replyInDM(Message message)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            reply(message);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue());
+        }
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the provided Consumer as it's success callback.
+     *
+     * @param  message
+     *         The Message to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     */
+    public void replyInDm(Message message, Consumer<Message> success)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            getPrivateChannel().sendMessage(message).queue(success);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(success));
+        }
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * with the first Consumer as it's success callback and the second Consumer as the failure callback.
+     *
+     * @param  message
+     *         The Message to reply with
+     * @param  success
+     *         The Consumer to queue after sending the Message is sent.
+     * @param  failure
+     *         The Consumer to run if an error occurs when sending the Message.
+     */
+    public void replyInDm(Message message, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        if(event.isFromType(ChannelType.PRIVATE))
+            getPrivateChannel().sendMessage(message).queue(success, failure);
+        else
+        {
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(success, failure), failure);
         }
     }
     
@@ -658,25 +930,51 @@ public class CommandEvent
         }
     }
     
-    private void sendMessage(MessageChannel chan, String message, Consumer<Message> queue)
+    private void sendMessage(MessageChannel chan, String message, Consumer<Message> success)
     {
         ArrayList<String> messages = splitMessage(message);
         for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
         {
             if(i+1==MAX_MESSAGES || i+1==messages.size())
+            {
                 chan.sendMessage(messages.get(i)).queue(m -> {
                     if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
                         linkId(m);
-                    queue.accept(m);
+                    success.accept(m);
                 });
+            }
             else
+            {
                 chan.sendMessage(messages.get(i)).queue(m -> {
                     if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
                         linkId(m);
                 });
+            }
         }
     }
 
+    private void sendMessage(MessageChannel chan, String message, Consumer<Message> success, Consumer<Throwable> failure)
+    {
+        ArrayList<String> messages = splitMessage(message);
+        for(int i = 0; i < MAX_MESSAGES && i < messages.size(); i++)
+        {
+            if(i + 1 == MAX_MESSAGES || i + 1 == messages.size())
+            {
+                chan.sendMessage(messages.get(i)).queue(m -> {
+                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                        linkId(m);
+                    success.accept(m);
+                }, failure);
+            }
+            else
+            {
+                chan.sendMessage(messages.get(i)).queue(m -> {
+                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                        linkId(m);
+                });
+            }
+        }
+    }
 
     /**
      * Splits a String into one or more Strings who's length does not exceed 2000 characters.

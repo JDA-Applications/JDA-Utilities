@@ -45,6 +45,7 @@ import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -86,7 +87,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final HashMap<String,Integer> uses;
     private final FixedSizeCache<Long, Set<Message>> linkMap;
     private final boolean useHelp;
-    private final Function<CommandEvent,String> helpFunction;
+    private final Consumer<CommandEvent> helpConsumer;
     private final String helpWord;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
@@ -98,7 +99,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
-            boolean useHelp, Function<CommandEvent,String> helpFunction, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler,
+            boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler,
             GuildSettingsManager manager)
     {
         if(ownerId == null)
@@ -142,7 +143,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.linkedCacheSize = linkedCacheSize;
         this.compiler = compiler;
         this.manager = manager;
-        this.helpFunction = helpFunction==null ? (event) -> {
+        this.helpConsumer = helpConsumer==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
                 for(Command command : commands)
@@ -164,7 +165,12 @@ public class CommandClientImpl implements CommandClient, EventListener
                     if(serverInvite!=null)
                         builder.append(" or join ").append(serverInvite);
                 }
-                return builder.toString();} : helpFunction;
+                if(event.isFromType(ChannelType.TEXT))
+                    event.reactSuccess();
+                event.reply(builder.toString(), unused -> {}, t -> {
+                    event.replyWarning("Help cannot be sent because you are blocking Direct Messages.");
+                });
+        } : helpConsumer;
         for(Command command : commands) {
             addCommand(command);
         }
@@ -452,22 +458,23 @@ public class CommandClientImpl implements CommandClient, EventListener
         String[] parts = null;
         String rawContent = event.getMessage().getRawContent();
 
-        GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()): null;
+        GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()) : null;
 
         // Check for prefix or alternate prefix (@mention cases)
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix != null && altprefix.equals(DEFAULT_PREFIX)))
         {
-            if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">")
-                    || rawContent.startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
-                parts = Arrays.copyOf(rawContent.substring(rawContent.indexOf(">")+1).trim().split("\\s+",2), 2);
+            if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">") ||
+                    rawContent.startsWith("<@!"+event.getJDA().getSelfUser().getId()+">"))
+            {
+                parts = splitOnPrefixLength(rawContent, rawContent.indexOf(">") + 1);
+            }
         }
         // Check for prefix
         if(parts == null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
-            parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
+            parts = splitOnPrefixLength(rawContent, prefix.length());
         // Check for alternate prefix
-        if(parts == null && altprefix!=null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
-            parts = Arrays.copyOf(rawContent.substring(altprefix.length()).trim().split("\\s+",2), 2);
-        // Check for guild specific prefixes
+        if(parts == null && altprefix != null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
+            parts = splitOnPrefixLength(rawContent, altprefix.length());
         if(parts == null && settings != null)
         {
             Collection<String> prefixes = settings.getPrefixes();
@@ -476,7 +483,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 for(String prefix : prefixes)
                 {
                     if(parts == null && rawContent.toLowerCase().startsWith(prefix.toLowerCase()))
-                        parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+",2), 2);
+                        parts = splitOnPrefixLength(rawContent, prefix.length());
                 }
             }
         }
@@ -488,23 +495,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 CommandEvent cevent = new CommandEvent(event, parts[1]==null ? "" : parts[1], this);
                 if(listener!=null)
                     listener.onCommand(cevent, null);
-                List<String> messages = CommandEvent.splitMessage(helpFunction.apply(cevent));
-                event.getAuthor().openPrivateChannel().queue(pc -> {
-                    pc.sendMessage(messages.get(0)).queue(m-> {
-                        if(event.getGuild()!=null)
-                            cevent.reactSuccess();
-                        for(int i=1; i<messages.size(); i++)
-                            pc.sendMessage(messages.get(i)).queue();
-                    }, t-> {
-                        event.getChannel()
-                                .sendMessage(warning+" Help cannot be sent because you are blocking Direct Messages.")
-                                .queue(m -> linkIds(event.getMessageIdLong(), m), ignored -> {});
-                    });
-                }, t-> {
-                    event.getChannel()
-                            .sendMessage(warning+" Help cannot be sent because I could not open a Direct Message with you.")
-                            .queue(m -> linkIds(event.getMessageIdLong(), m), ignored -> {});
-                });
+                helpConsumer.accept(cevent); // Fire help consumer
                 if(listener!=null)
                     listener.onCompletedCommand(cevent, null);
                 return; // Help Consumer is done
@@ -546,12 +537,13 @@ public class CommandClientImpl implements CommandClient, EventListener
         Logger log = LoggerFactory.getLogger("BotList");
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
 
-        if (carbonKey != null) {
+        if(carbonKey != null)
+        {
             FormBody.Builder bodyBuilder = new FormBody.Builder()
                     .add("key", carbonKey)
                     .add("servercount", Integer.toString(jda.getGuilds().size()));
             
-            if (jda.getShardInfo() != null)
+            if(jda.getShardInfo() != null)
                 bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
                            .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
                 
@@ -573,9 +565,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             });
         }
         
-        if (botsOrgKey != null) {
+        if(botsOrgKey != null)
+        {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
-            if (jda.getShardInfo() != null)
+            if(jda.getShardInfo() != null)
                 body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
             
             Request.Builder builder = new Request.Builder()
@@ -598,10 +591,11 @@ public class CommandClientImpl implements CommandClient, EventListener
             });
         }
         
-        if (botsKey != null) {
+        if(botsKey != null)
+        {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
 
-            if (jda.getShardInfo() != null)
+            if(jda.getShardInfo() != null)
                 body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
 
             Request.Builder builder = new Request.Builder()
@@ -668,6 +662,11 @@ public class CommandClientImpl implements CommandClient, EventListener
             return (GuildSettingsProvider)settings;
         else
             return null;
+    }
+
+    private static String[] splitOnPrefixLength(String rawContent, int length)
+    {
+        return Arrays.copyOf(rawContent.substring(length).trim().split("\\s+", 2), 2);
     }
 
     /**
