@@ -482,8 +482,34 @@ public class CommandEvent
      * 
      * @param  message
      *         A String message to reply with
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0, replaced with {@link #replyInDm(String)}
      */
+    @Deprecated
     public void replyInDM(String message)
+    {
+        replyInDm(message);
+    }
+
+    /**
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     *
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
+     * be sent in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     */
+    public void replyInDm(String message)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(message);
@@ -568,8 +594,31 @@ public class CommandEvent
      * 
      * @param  embed
      *         The MessageEmbed to reply with
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0, replaced with {@link #replyInDm(MessageEmbed)}
      */
+    @Deprecated
     public void replyInDM(MessageEmbed embed)
+    {
+        replyInDm(embed);
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     *
+     * @param  embed
+     *         The MessageEmbed to reply with
+     */
+    public void replyInDm(MessageEmbed embed)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(embed);
