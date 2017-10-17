@@ -542,19 +542,27 @@ public class FinderUtil
             if(role!=null)
                 return Collections.singletonList(role);
         }
+        else if(query.equalsIgnoreCase("@everyone") || query.equalsIgnoreCase("everyone"))
+        {
+            return Collections.singletonList(guild.getPublicRole());
+        }
         ArrayList<Role> exact = new ArrayList<>();
         ArrayList<Role> wrongcase = new ArrayList<>();
         ArrayList<Role> startswith = new ArrayList<>();
         ArrayList<Role> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        if(query.startsWith("@")) {
+            query = query.replaceFirst("@", "");
+        }
+        String finalQuery = query; // So it's effectively final
+        String lowerquery = finalQuery.toLowerCase();
         List<Role> guildRoles = new ArrayList<>();
         guildRoles.addAll(guild.getRoles());
         guildRoles.add(guild.getPublicRole());
         guildRoles.forEach((role) -> {
             String name = role.getName();
-            if(name.equals(query))
+            if(name.equals(finalQuery))
                 exact.add(role);
-            else if(name.equalsIgnoreCase(query) && exact.isEmpty())
+            else if(name.equalsIgnoreCase(finalQuery) && exact.isEmpty())
                 wrongcase.add(role);
             else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
                 startswith.add(role);
