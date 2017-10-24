@@ -21,10 +21,13 @@ import com.jagrosh.jdautilities.doc.standard.RequiredPermissions;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * An instance based documentation engine for bot commands written in {@link net.dv8tion.jda JDA}.
@@ -71,7 +74,7 @@ public class DocGenerator
      * <p>This is the simplest way to get a prebuilt working CommandDoc
      * generator with standard annotations.
      *
-     * <p>Additional annotations can be added using {@link #register(Class)}.
+     * <p>Additional annotations can be added using {@link #register(Class, Object...)}.
      *
      * @return The default DocGenerator with standard conversions loaded.
      */
@@ -173,6 +176,10 @@ public class DocGenerator
      *         The type of annotation
      * @param  type
      *         The annotation Class type.
+     * @param  converterParams
+     *         The parameters necessary to instantiate the proper DocConverter.
+     *         <br>DocConverters can have multiple constructors, although it's
+     *         discouraged.
      *
      * @throws IllegalArgumentException
      *         The annotation class provided is not annotated with
@@ -184,7 +191,8 @@ public class DocGenerator
      *
      * @return This DocGenerator
      */
-    public <T extends Annotation> DocGenerator register(Class<T> type)
+    @SuppressWarnings("JavaReflectionMemberAccess")
+    public <T extends Annotation> DocGenerator register(Class<T> type, Object... converterParams)
     {
         ConvertedBy convertedBy = type.getAnnotation(ConvertedBy.class);
 
@@ -193,8 +201,20 @@ public class DocGenerator
 
         final DocConverter<T> instance;
         try {
-            instance = convertedBy.value().newInstance();
-        } catch(InstantiationException | IllegalAccessException e) {
+            // If parameters are specified
+            if(converterParams.length > 0)
+            {
+                Class<?>[] tArray = Arrays.asList(converterParams)
+                    .stream().map(o -> o.getClass())
+                    .collect(Collectors.toList())
+                    .toArray(new Class[converterParams.length]);
+                instance = convertedBy.value().getDeclaredConstructor(tArray).newInstance(converterParams);
+            }
+            else
+            {
+                instance = convertedBy.value().newInstance();
+            }
+        } catch(InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalArgumentException("Instance of "+convertedBy.value()+" could not be instantiated!",e);
         }
 

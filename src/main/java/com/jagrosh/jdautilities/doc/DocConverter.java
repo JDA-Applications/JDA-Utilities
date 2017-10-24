@@ -51,8 +51,8 @@ import java.lang.annotation.Annotation;
  *     <li>2) When possible and practical, DocConverter implementations should be
  *            classes nested within the {@code @interface} they are used to convert
  *            (the example above demonstrates this).</li>
- *     <li>3) Should not require any additional variables to instantiate (IE:
- *            no-constructor).</li>
+ *     <li>3) If at all possible, developers should avoid any variables to instantiate
+ *            (IE: no-constructor).</li>
  * </ul>
  *
  * @see    com.jagrosh.jdautilities.doc.ConvertedBy
