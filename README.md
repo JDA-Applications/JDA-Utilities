@@ -1,3 +1,12 @@
+[version]: https://api.bintray.com/packages/jagrosh/maven/JDA-Utilities/images/download.svg
+[download]: https://bintray.com/jagrosh/maven/JDA-Utilities/_latestVersion
+[license]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg
+[issues]: https://img.shields.io/github/issues/JDA-Applications/JDA-Utilities.svg 
+
+[ ![version][] ][download]
+[ ![license][] ](https://github.com/DV8FromTheWorld/JDA/tree/master/LICENSE)
+[ ![issues][] ]()
+
 ## JDA-Utilities
 JDA-Utilities is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) to assist in bot creation.
 
