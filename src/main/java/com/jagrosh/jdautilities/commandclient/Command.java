@@ -149,6 +149,12 @@ public abstract class Command
      * <br>Default {@code true}.
      */
     protected boolean usesTopicTags = true;
+    
+    /**
+     * {@code true} if this command should be hidden from the help.
+     * <br>Default {@code false}
+     */
+    protected boolean hidden = false;
 
     /**
      * The {@link com.jagrosh.jdautilities.commandclient.Command.CooldownScope CooldownScope}
@@ -503,6 +509,16 @@ public abstract class Command
     public boolean isOwnerCommand()
     {
         return ownerCommand;
+    }
+    
+    /**
+     * Checks whether or not this command should be hidden from the help
+     * 
+     * @return {@code true} if the command should be hidden, otherwise {@code false}
+     */
+    public boolean isHidden()
+    {
+        return hidden;
     }
     
     private void terminate(CommandEvent event, String message)
