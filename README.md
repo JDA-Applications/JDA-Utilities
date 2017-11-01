@@ -11,6 +11,17 @@
 ## JDA-Utilities
 JDA-Utilities is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) to assist in bot creation.
 
+## Version 2.0 Notice
+Version 2.0 will be a come with a lot of big (some breaking) changes to the library.
+
+If you use this library for anything, it is **STRONGLY** recommended you read [this gist](https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee)
+which documents all of the changes that will be made, as to better prepare yourself for moving to 2.0.
+
+Note that the gist is in no way final, and will be modified possibly until the day that we release 2.0,
+so it's a good idea to keep up-to-date with it in the coming weeks.
+
+If you have questions or concerns about any of these changes, please contact **Shengaero**#9090.
+
 ## Getting Started
 You will need to add this project as a dependency (either from the latest .jar from the releases page, or via maven or gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). With maven, you can use the snippets below:
 ```xml
