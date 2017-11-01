@@ -5,7 +5,7 @@
 [issueslink]: https://github.com/JDA-Applications/JDA-Utilities/issues
 
 [ ![version][] ][download]
-[ ![license][] ](https://github.com/DV8FromTheWorld/JDA/tree/master/LICENSE)
+[ ![license][] ](https://github.com/JDA-Applications/JDA-Utilities/tree/master/LICENSE)
 [ ![issues][] ][issueslink]
 
 ## JDA-Utilities
