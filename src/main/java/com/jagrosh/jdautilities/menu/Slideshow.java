@@ -234,7 +234,14 @@ public class Slideshow extends Menu
                     showPageNumbers, strings, waitOnSinglePage);
         }
 
-        @Override
+        /**
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         *
+         * @param  color
+         *         The Color of the MessageEmbed
+         *
+         * @return This builder
+         */
         public Builder setColor(Color color)
         {
             this.color = (i0, i1) -> color;

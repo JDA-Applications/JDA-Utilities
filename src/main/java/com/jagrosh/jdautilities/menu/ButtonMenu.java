@@ -45,10 +45,10 @@ public class ButtonMenu extends Menu
     private final String description;
     private final List<String> choices;
     private final Consumer<ReactionEmote> action;
-    private final Runnable cancel;
+    private final Consumer<Message> finalAction;
     
     ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Runnable cancel)
+            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -56,7 +56,7 @@ public class ButtonMenu extends Menu
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.cancel = cancel;
+        this.finalAction = finalAction;
     }
 
     /**
@@ -132,12 +132,10 @@ public class ButtonMenu extends Menu
                             // What happens next is after a valid event
                             // is fired and processed above.
 
-                            // Delete the message
-                            m.delete().queue();
-
                             // Preform the specified action with the ReactionEmote
                             action.accept(event.getReaction().getEmote());
-                        }, timeout, unit, cancel);
+                            finalAction.accept(m);
+                        }, timeout, unit, () -> finalAction.accept(m));
                     });
             }
         });
@@ -167,7 +165,7 @@ public class ButtonMenu extends Menu
         private String description;
         private final List<String> choices = new LinkedList<>();
         private Consumer<ReactionEmote> action;
-        private Runnable cancel = () -> {};
+        private Consumer<Message> finalAction = (m) -> {};
 
         /**
          * Builds the {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu}
@@ -195,10 +193,17 @@ public class ButtonMenu extends Menu
                 throw new IllegalArgumentException("Must provide an action consumer");
             if(text==null && description==null)
                 throw new IllegalArgumentException("Either text or description must be set");
-            return new ButtonMenu(waiter, users, roles, timeout, unit, color, text, description, choices, action, cancel);
+            return new ButtonMenu(waiter, users, roles, timeout, unit, color, text, description, choices, action, finalAction);
         }
 
-        @Override
+        /**
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         *
+         * @param  color
+         *         The Color of the MessageEmbed
+         *
+         * @return This builder
+         */
         public Builder setColor(Color color)
         {
             this.color = color;
@@ -252,17 +257,20 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Sets the {@link java.lang.Runnable Runnable} to perform if the
-         * {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} times out.
+         * Sets the {@link java.util.function.Consumer Consumer} to perform if the
+         * {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} is done,
+         * either via cancellation, a timeout, or a selection being made.<p>
          *
-         * @param  cancel
-         *         The Runnable action to perform if the ButtonMenu times out
+         * This accepts the message used to display the menu when called.
+         *
+         * @param  finalAction
+         *         The Runnable action to perform if the ButtonMenu is done
          *
          * @return This builder
          */
-        public Builder setCancel(Runnable cancel)
+        public Builder setFinalAction(Consumer<Message> finalAction)
         {
-            this.cancel = cancel;
+            this.finalAction = finalAction;
             return this;
         }
 

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.waiter.EventWaiter;
@@ -49,8 +50,8 @@ public class OrderedMenu extends Menu
     private final String text;
     private final String description;
     private final List<String> choices;
-    private final Consumer<Integer> action;
-    private final Runnable cancel;
+    private final BiConsumer<Message, Integer> action;
+    private final Consumer<Message> cancel;
     private final boolean useLetters;
     private final boolean allowTypedInput;
     private final boolean useCancel;
@@ -64,8 +65,8 @@ public class OrderedMenu extends Menu
     public final static String CANCEL = "\u274C";
     
     OrderedMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, Consumer<Integer> action, Runnable cancel,
-            boolean useLetters, boolean allowTypedInput, boolean useCancel)
+            Color color, String text, String description, List<String> choices, BiConsumer<Message,Integer> action,
+            Consumer<Message> cancel, boolean useLetters, boolean allowTypedInput, boolean useCancel)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -214,12 +215,12 @@ public class OrderedMenu extends Menu
                 MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                 // Process which reaction it is
                 if(event.getReaction().getEmote().getName().equals(CANCEL))
-                    cancel.run();
+                    cancel.accept(m);
                 else
                     // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                     // but from 1 to number of choices. So the first choice will correspond to 1, the second
                     // choice to 2, etc.
-                    action.accept(getNumber(event.getReaction().getEmote().getName()));
+                    action.accept(m, getNumber(event.getReaction().getEmote().getName()));
             }
             // If it's a valid MessageReceivedEvent
             else if (e instanceof MessageReceivedEvent)
@@ -228,11 +229,11 @@ public class OrderedMenu extends Menu
                 // Get the number in the message and process
                 int num = getMessageNumber(event.getMessage().getRawContent());
                 if(num<0 || num>choices.size())
-                    cancel.run();
+                    cancel.accept(m);
                 else
-                    action.accept(num);
+                    action.accept(m, num);
             }
-        }, timeout, unit, cancel);
+        }, timeout, unit, () -> cancel.accept(m));
     }
 
     // Waits only for reaction input
@@ -244,13 +245,13 @@ public class OrderedMenu extends Menu
         }, e -> {
             m.delete().queue();
             if(e.getReaction().getEmote().getName().equals(CANCEL))
-                cancel.run();
+                cancel.accept(m);
             else
                 // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                 // but from 1 to number of choices. So the first choice will correspond to 1, the second
                 // choice to 2, etc.
-                action.accept(getNumber(e.getReaction().getEmote().getName()));
-        }, timeout, unit, cancel);
+                action.accept(m, getNumber(e.getReaction().getEmote().getName()));
+        }, timeout, unit, () -> cancel.accept(m));
     }
 
     // This is where the displayed message for the OrderedMenu is built.
@@ -300,7 +301,7 @@ public class OrderedMenu extends Menu
     // Gets the number emoji by the name.
     // This is kinda the opposite of the getEmoji method
     // except it's implementation is to provide the number
-    // to the action consumer when a choice is made.
+    // to the selection consumer when a choice is made.
     private int getNumber(String emoji)
     {
         String[] array = useLetters ? LETTERS : NUMBERS;
@@ -340,8 +341,8 @@ public class OrderedMenu extends Menu
         private String text;
         private String description;
         private final List<String> choices = new LinkedList<>();
-        private Consumer<Integer> action;
-        private Runnable cancel = () -> {};
+        private BiConsumer<Message, Integer> selection;
+        private Consumer<Message> cancel = (m) -> {};
         private boolean useLetters = false;
         private boolean allowTypedInput = true;
         private boolean addCancel = false;
@@ -371,15 +372,22 @@ public class OrderedMenu extends Menu
                 throw new IllegalArgumentException("Must have at least one choice");
             if(choices.size()>10)
                 throw new IllegalArgumentException("Must have no more than ten choices");
-            if(action==null)
-                throw new IllegalArgumentException("Must provide an action consumer");
+            if(selection == null)
+                throw new IllegalArgumentException("Must provide an selection consumer");
             if(text==null && description==null)
                 throw new IllegalArgumentException("Either text or description must be set");
             return new OrderedMenu(waiter,users,roles,timeout,unit,color,text,description,choices,
-                    action,cancel,useLetters,allowTypedInput,addCancel);
+                selection,cancel,useLetters,allowTypedInput,addCancel);
         }
 
-        @Override
+        /**
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         *
+         * @param  color
+         *         The Color of the MessageEmbed
+         *
+         * @return This builder
+         */
         public Builder setColor(Color color)
         {
             this.color = color;
@@ -473,29 +481,29 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the {@link java.util.function.Consumer Consumer} action to perform upon selecting a option.
+         * Sets the {@link java.util.function.BiConsumer BiConsumer} action to perform upon selecting a option.
          *
-         * @param  action
-         *         The Consumer action to perform upon selecting a button
+         * @param  selection
+         *         The BiConsumer action to perform upon selecting a button
          *
          * @return This builder
          */
-        public Builder setAction(Consumer<Integer> action)
+        public Builder setSelection(BiConsumer<Message, Integer> selection)
         {
-            this.action = action;
+            this.selection = selection;
             return this;
         }
 
         /**
-         * Sets the {@link java.lang.Runnable Runnable} to perform if the
-         * {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} times out.
+         * Sets the {@link java.util.function.Consumer Consumer} to perform if the
+         * {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} is cancelled.
          *
          * @param  cancel
-         *         The Runnable action to perform if the ButtonMenu times out
+         *         The Consumer action to perform if the ButtonMenu is cancelled
          *
          * @return This builder
          */
-        public Builder setCancel(Runnable cancel)
+        public Builder setCancel(Consumer<Message> cancel)
         {
             this.cancel = cancel;
             return this;

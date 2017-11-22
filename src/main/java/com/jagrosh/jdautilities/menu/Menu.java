@@ -15,7 +15,6 @@
  */
 package com.jagrosh.jdautilities.menu;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -116,16 +115,6 @@ public abstract class Menu
          * @return The built Menu of corresponding type to this MenuBuilder.
          */
         public abstract V build();
-
-        /**
-         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
-         *
-         * @param  color
-         *         The Color of the MessageEmbed
-         *
-         * @return This builder
-         */
-        public abstract T setColor(Color color);
 
         /**
          * Sets the {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter}

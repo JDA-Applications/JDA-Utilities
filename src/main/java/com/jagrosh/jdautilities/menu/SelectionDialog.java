@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -47,8 +48,8 @@ public class SelectionDialog extends Menu
     private final Function<Integer,Color> color;
     private final boolean loop;
     private final Function<Integer,String> text;
-    private final Consumer<Integer> success;
-    private final Runnable cancel;
+    private final BiConsumer<Message, Integer> success;
+    private final Consumer<Message> cancel;
     
     public static final String UP = "\uD83D\uDD3C";
     public static final String DOWN = "\uD83D\uDD3D";
@@ -56,8 +57,9 @@ public class SelectionDialog extends Menu
     public static final String CANCEL = "\u274E";
     
     SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight, 
-            Function<Integer,Color> color, boolean loop, Consumer<Integer> success, Runnable cancel, Function<Integer,String> text)
+                    List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
+                    Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
+                    Consumer<Message> cancel, Function<Integer,String> text)
     {
         super(waiter, users, roles, timeout, unit);
         this.choices = choices;
@@ -184,21 +186,20 @@ public class SelectionDialog extends Menu
                     else if(loop)
                         newSelection = 1;
                     break;
-                case CANCEL:
-                    message.delete().queue();
-                    cancel.run();
-                    return;
                 case SELECT:
-                    message.delete().queue();
-                    success.accept(selection);
+                    success.accept(message, selection);
+                    break;
+                case CANCEL:
+                    cancel.accept(message);
                     return;
+
             }
-            try{event.getReaction().removeReaction(event.getUser()).queue();}catch(PermissionException e){}
+            try {
+                event.getReaction().removeReaction(event.getUser()).queue();
+            } catch (PermissionException ignored) {}
             int n = newSelection;
-            message.editMessage(render(n)).queue(m -> {
-                selectionDialog(m, n);
-            });
-        }, timeout, unit, () -> {message.delete().queue(); cancel.run();});
+            message.editMessage(render(n)).queue(m -> selectionDialog(m, n));
+        }, timeout, unit, () -> cancel.accept(message));
     }
     
     private Message render(int selection)
@@ -235,8 +236,8 @@ public class SelectionDialog extends Menu
         private Function<Integer,Color> color = i -> null;
         private boolean loop = true;
         private Function<Integer,String> text = i -> null;
-        private Consumer<Integer> success;
-        private Runnable cancel = () -> {};
+        private BiConsumer<Message, Integer> selection;
+        private Consumer<Message> cancel = (m) -> {};
 
         /**
          * Builds the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog}
@@ -259,13 +260,20 @@ public class SelectionDialog extends Menu
                 throw new IllegalArgumentException("Must set an EventWaiter");
             if(choices.isEmpty())
                 throw new IllegalArgumentException("Must have at least one choice");
-            if(success==null)
+            if(selection == null)
                 throw new IllegalArgumentException("Must provide a selection consumer");
             return new SelectionDialog(waiter,users,roles,timeout,unit,choices,leftEnd,rightEnd,
-                    defaultLeft,defaultRight,color,loop,success,cancel,text);
+                    defaultLeft,defaultRight,color,loop, selection, cancel,text);
         }
 
-        @Override
+        /**
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         *
+         * @param  color
+         *         The Color of the MessageEmbed
+         *
+         * @return This builder
+         */
         public Builder setColor(Color color)
         {
             this.color = i -> color;
@@ -378,8 +386,9 @@ public class SelectionDialog extends Menu
         }
 
         /**
-         * Sets a {@link java.util.function.Consumer Consumer} action to perform once a selection is made.
-         * <br>The {@link java.lang.Integer Integer} provided is that of the selection made by the user,
+         * Sets a {@link java.util.function.BiConsumer BiConsumer} action to perform once a selection is made.
+         * <br>The {@link net.dv8tion.jda.core.entities.Message Message} provided is the one used to display
+         * the menu and the {@link java.lang.Integer Integer} is that of the selection made by the user,
          * and selections are in order of addition, 1 being the first String choice.
          *
          * @param  selection
@@ -387,22 +396,22 @@ public class SelectionDialog extends Menu
          *
          * @return This builder
          */
-        public Builder setSelectionConsumer(Consumer<Integer> selection)
+        public Builder setSelectionConsumer(BiConsumer<Message, Integer> selection)
         {
-            this.success = selection;
+            this.selection = selection;
             return this;
         }
 
         /**
-         * Sets a {@link java.lang.Runnable Runnable} action to take if the cancel button is used, or if
-         * the SelectionDialog times out.
+         * Sets a {@link java.util.function.Consumer Consumer} action to take if the menu is cancelled, either
+         * via the cancel button being used, or if the SelectionDialog times out.
          *
          * @param  cancel
-         *         The action to take when the SelectionDialog is canceled or times out
+         *         The action to take when the SelectionDialog is cancelled
          *
          * @return This builder
          */
-        public Builder setCanceledRunnable(Runnable cancel)
+        public Builder setCanceled(Consumer<Message> cancel)
         {
             this.cancel = cancel;
             return this;
