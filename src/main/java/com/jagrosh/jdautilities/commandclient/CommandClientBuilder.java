@@ -55,7 +55,7 @@ public class CommandClientBuilder
     private int linkedCacheSize = 200;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
     private GuildSettingsManager manager = null;
-    
+
     /**
      * Builds a {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} 
      * with the provided settings.
