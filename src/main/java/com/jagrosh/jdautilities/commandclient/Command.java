@@ -732,8 +732,12 @@ public abstract class Command
      * @see    com.jagrosh.jdautilities.commandclient.Command#cooldownScope Command.cooldownScope
      *
      * @apiNote
-     *         These are effective across a single instance of JDA, and not multiple ones.
-     *         <br>There is no shard magic, no 100% "global" cooldown, unless via some external system.
+     *         These are effective across a single instance of JDA, and not multiple
+     *         ones, save when multiple shards run on a single JVM and under a
+     *         {@link net.dv8tion.jda.bot.sharding.ShardManager ShardManager}.
+     *         <br>There is no shard magic, and no guarantees for a 100% "global"
+     *         cooldown, unless all shards of the bot run under the same ShardManager,
+     *         and/or via some external system unrelated to JDA-Utilities.
      */
     public enum CooldownScope
     {
