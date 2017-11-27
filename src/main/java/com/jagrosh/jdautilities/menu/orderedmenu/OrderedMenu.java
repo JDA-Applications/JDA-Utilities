@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.Menu;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
@@ -51,8 +52,8 @@ public class OrderedMenu extends Menu {
     private final String text;
     private final String description;
     private final List<String> choices;
-    private final Consumer<Integer> action;
-    private final Runnable cancel;
+    private final BiConsumer<Message, Integer> action;
+    private final Consumer<Message> cancel;
     private final boolean useLetters;
     private final boolean allowTypedInput;
     private final boolean useCancel;
@@ -64,7 +65,7 @@ public class OrderedMenu extends Menu {
     public final static String CANCEL = "\u274C";
     
     protected OrderedMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, Consumer<Integer> action, Runnable cancel,
+            Color color, String text, String description, List<String> choices, BiConsumer<Message, Integer> action, Consumer<Message> cancel,
             boolean useLetters, boolean allowTypedInput, boolean useCancel)
     {
         super(waiter, users, roles, timeout, unit);
@@ -159,20 +160,20 @@ public class OrderedMenu extends Menu {
                 {
                     MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                     if(event.getReaction().getEmote().getName().equals(CANCEL))
-                        cancel.run();
+                        cancel.accept(m);
                     else
-                        action.accept(getNumber(event.getReaction().getEmote().getName()));
+                        action.accept(m, getNumber(event.getReaction().getEmote().getName()));
                 }
                 else if (e instanceof MessageReceivedEvent)
                 {
                     MessageReceivedEvent event = (MessageReceivedEvent)e;
                     int num = getMessageNumber(event.getMessage().getRawContent());
                     if(num<0 || num>choices.size())
-                        cancel.run();
+                        cancel.accept(m);
                     else
-                        action.accept(num);
+                        action.accept(m, num);
                 }
-            }, timeout, unit, cancel);
+            }, timeout, unit, () -> cancel.accept(m));
     }
     
     private void waitReactionOnly(Message m)
@@ -182,10 +183,10 @@ public class OrderedMenu extends Menu {
             }, e -> {
                 m.delete().queue();
                 if(e.getReaction().getEmote().getName().equals(CANCEL))
-                    cancel.run();
+                    cancel.accept(m);
                 else
-                    action.accept(getNumber(e.getReaction().getEmote().getName()));
-            }, timeout, unit, cancel);
+                    action.accept(m, getNumber(e.getReaction().getEmote().getName()));
+            }, timeout, unit, () -> cancel.accept(m));
     }
     
     private Message getMessage()
@@ -204,7 +205,7 @@ public class OrderedMenu extends Menu {
     {
         if(!e.getMessageId().equals(m.getId()))
             return false;
-        if(!isValidUser(e))
+        if(!isValidUser(e.getUser(), e.getGuild()))
             return false;
         if(e.getReaction().getEmote().getName().equals(CANCEL))
             return true;
@@ -216,7 +217,7 @@ public class OrderedMenu extends Menu {
     {
         if(!e.getChannel().equals(m.getChannel()))
             return false;
-        return isValidUser(e);
+        return isValidUser(e.getAuthor(), e.getGuild());
     }
     
     private String getEmoji(int number)
