@@ -25,8 +25,10 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
+// TODO Revert changes to JDA-Version once message-rw is merged, then commit this as the version number bump
+
 def versionObj = new Version(major: 1, minor: 9)
-def jdaVersion = '3.3.1_284'
+def jdaVersion = 'f51e621'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name
@@ -42,11 +44,12 @@ sourceSets {
 
 repositories {
     jcenter()
+    maven { url 'https://jitpack.io/' }
     maven { url 'https://mvnrepository.com/artifact/' }
 }
 
 dependencies {
-    compileOnly "net.dv8tion:JDA:${jdaVersion}"
+    compileOnly "com.github.DV8FromTheWorld:JDA:${jdaVersion}"
 
     testCompileOnly group: 'junit', name: 'junit', version: '4.12'
 }

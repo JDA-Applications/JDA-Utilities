@@ -103,15 +103,15 @@ public class ButtonMenu extends Menu {
                         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
                             if(!event.getMessageId().equals(m.getId()))
                                 return false;
-                            String re = event.getReaction().getEmote().isEmote() 
-                                    ? event.getReaction().getEmote().getId() 
-                                    : event.getReaction().getEmote().getName();
+                            String re = event.getReactionEmote().isEmote()
+                                    ? event.getReactionEmote().getId()
+                                    : event.getReactionEmote().getName();
                             if(!choices.contains(re))
                                 return false;
                             return isValidUser(event);
                         }, (MessageReactionAddEvent event) -> {
                             m.delete().queue();
-                            action.accept(event.getReaction().getEmote());
+                            action.accept(event.getReactionEmote());
                         }, timeout, unit, cancel);
                     });
             }

@@ -164,14 +164,14 @@ public class Paginator extends Menu {
         waiter.waitForEvent(MessageReactionAddEvent.class, (MessageReactionAddEvent event) -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(LEFT.equals(event.getReaction().getEmote().getName()) 
-                    || STOP.equals(event.getReaction().getEmote().getName())
-                    || RIGHT.equals(event.getReaction().getEmote().getName())))
+            if(!(LEFT.equals(event.getReactionEmote().getName())
+                    || STOP.equals(event.getReactionEmote().getName())
+                    || RIGHT.equals(event.getReactionEmote().getName())))
                 return false;
             return isValidUser(event);
         }, event -> {
             int newPageNum = pageNum;
-            switch(event.getReaction().getEmote().getName())
+            switch(event.getReactionEmote().getName())
             {
                 case LEFT:  if(newPageNum>1) newPageNum--; break;
                 case RIGHT: if(newPageNum<pages) newPageNum++; break;
