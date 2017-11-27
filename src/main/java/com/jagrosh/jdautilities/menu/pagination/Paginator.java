@@ -168,7 +168,7 @@ public class Paginator extends Menu {
                     || STOP.equals(event.getReactionEmote().getName())
                     || RIGHT.equals(event.getReactionEmote().getName())))
                 return false;
-            return isValidUser(event);
+            return isValidUser(event.getUser(), event.getGuild());
         }, event -> {
             int newPageNum = pageNum;
             switch(event.getReactionEmote().getName())

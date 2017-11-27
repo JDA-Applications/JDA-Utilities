@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
 import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
 
 /**
@@ -39,7 +40,7 @@ public class ButtonMenuBuilder extends MenuBuilder<ButtonMenuBuilder, ButtonMenu
     private String description;
     private final List<String> choices = new LinkedList<>();
     private Consumer<ReactionEmote> action;
-    private Runnable cancel = () -> {};
+    private Consumer<Message> finalAction = (m) -> {};
     
     @Override
     public ButtonMenu build() {
@@ -51,7 +52,7 @@ public class ButtonMenuBuilder extends MenuBuilder<ButtonMenuBuilder, ButtonMenu
             throw new IllegalArgumentException("Must provide an action consumer");
         if(text==null && description==null)
             throw new IllegalArgumentException("Either text or description must be set");
-        return new ButtonMenu(waiter, users, roles, timeout, unit, color, text, description, choices, action, cancel);
+        return new ButtonMenu(waiter, users, roles, timeout, unit, color, text, description, choices, action, finalAction);
     }
 
     /**
@@ -111,6 +112,24 @@ public class ButtonMenuBuilder extends MenuBuilder<ButtonMenuBuilder, ButtonMenu
         this.action = action;
         return this;
     }
+
+    /**
+     * Sets the {@link java.util.function.Consumer Consumer} to perform if the
+     * {@link com.jagrosh.jdautilities.menu.buttonmenu.ButtonMenu ButtonMenu} is done,
+     * either via cancellation, a timeout, or a selection being made.<p>
+     *
+     * This accepts the message used to display the menu when called.
+     *
+     * @param  finalAction
+     *         The Runnable action to perform if the ButtonMenu is done
+     *
+     * @return This builder
+     */
+    public ButtonMenuBuilder setFinalAction(Consumer<Message> finalAction)
+    {
+        this.finalAction = finalAction;
+        return this;
+    }
     
     /**
      * Sets the {@link java.lang.Runnable Runnable} to perform if the 
@@ -120,9 +139,13 @@ public class ButtonMenuBuilder extends MenuBuilder<ButtonMenuBuilder, ButtonMenu
      *         The Runnable action to perform if the ButtonMenu times out
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         Replace with {@link ButtonMenuBuilder#setFinalAction(Consumer)}.
      */
+    @Deprecated
     public ButtonMenuBuilder setCancel(Runnable cancel) {
-        this.cancel = cancel;
+        this.finalAction = (m) -> cancel.run();
         return this;
     }
     

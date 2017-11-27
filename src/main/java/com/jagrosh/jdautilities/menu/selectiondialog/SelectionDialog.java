@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import com.jagrosh.jdautilities.menu.Menu;
@@ -49,8 +50,8 @@ public class SelectionDialog extends Menu {
     private final Function<Integer,Color> color;
     private final boolean loop;
     private final Function<Integer,String> text;
-    private final Consumer<Integer> success;
-    private final Runnable cancel;
+    private final BiConsumer<Message, Integer> success;
+    private final Consumer<Message> cancel;
     
     public static final String UP = "\uD83D\uDD3C";
     public static final String DOWN = "\uD83D\uDD3D";
@@ -59,7 +60,7 @@ public class SelectionDialog extends Menu {
     
     protected SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
             List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight, 
-            Function<Integer,Color> color, boolean loop, Consumer<Integer> success, Runnable cancel, Function<Integer,String> text)
+            Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success, Consumer<Message> cancel, Function<Integer,String> text)
     {
         super(waiter, users, roles, timeout, unit);
         this.choices = choices;
@@ -167,7 +168,7 @@ public class SelectionDialog extends Menu {
                     || CANCEL.equals(event.getReactionEmote().getName())
                     || SELECT.equals(event.getReactionEmote().getName())))
                 return false;
-            return isValidUser(event);
+            return isValidUser(event.getUser(), event.getGuild());
         }, event -> {
             int newSelection = selection;
             switch(event.getReactionEmote().getName())
@@ -185,12 +186,14 @@ public class SelectionDialog extends Menu {
                         newSelection = 1;
                     break;
                 case CANCEL:
+                    // Temporary readjustment to support function while maintaining the delete
+                    cancel.accept(message);
                     message.delete().queue();
-                    cancel.run();
                     return;
                 case SELECT:
+                    // Temporary readjustment to support function while maintaining the delete
+                    success.accept(message, selection);
                     message.delete().queue();
-                    success.accept(selection);
                     return;
             }
             try{event.getReaction().removeReaction(event.getUser()).queue();}catch(PermissionException e){}
@@ -198,7 +201,10 @@ public class SelectionDialog extends Menu {
             message.editMessage(render(n)).queue(m -> {
                 selectionDialog(m, n);
             });
-        }, timeout, unit, () -> {message.delete().queue(); cancel.run();});
+        }, timeout, unit, () -> {
+            cancel.accept(message);
+            message.delete().queue();
+        });
     }
     
     private Message render(int selection)

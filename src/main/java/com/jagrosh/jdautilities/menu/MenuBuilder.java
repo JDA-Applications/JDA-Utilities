@@ -61,7 +61,13 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      *         The Color of the MessageEmbed
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         This will be removed in 2.0 due to the bias it posses towards non-embed menus.<br>
+     *         If you wish to continue using it for your own custom Menu implementations in 2.0,
+     *         you simply have to remove the @Override annotation.
      */
+    @Deprecated
     public abstract T setColor(Color color);
         
     /**
@@ -79,7 +85,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
     public final T setEventWaiter(EventWaiter waiter)
     {
         this.waiter = waiter;
-        return (T) this;
+        return (T)this;
     }
     
     /**
