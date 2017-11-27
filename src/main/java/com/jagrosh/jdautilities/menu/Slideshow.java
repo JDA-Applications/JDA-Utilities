@@ -35,6 +35,13 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
+ * A {@link com.jagrosh.jdautilities.menu.Menu} implementation, nearly identical
+ * to {@link com.jagrosh.jdautilities.menu.Paginator Paginator}, that displays an
+ * individual image on each page instead of a list of text items.<p>
+ *
+ * Like Paginator, reaction functions allow the user to traverse to the last page using
+ * the left arrow, the next page using the right arrow, and to stop the Slideshow prematurely
+ * using the stop reaction.
  *
  * @author John Grosh
  */
@@ -47,14 +54,20 @@ public class Slideshow extends Menu
     private final List<String> urls;
     private final Consumer<Message> finalAction;
     private final boolean waitOnSinglePage;
-    
+    private final int bulkSkipNumber;
+    private final boolean wrapPageEnds;
+
+    public static final String BIG_LEFT = "\u23EA";
     public static final String LEFT = "\u25C0";
     public static final String STOP = "\u23F9";
     public static final String RIGHT = "\u25B6";
+    public static final String BIG_RIGHT = "\u23E9";
     
     Slideshow(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, BiFunction<Integer,Integer,String> description,
-            Consumer<Message> finalAction, boolean showPageNumbers, List<String> items, boolean waitOnSinglePage)
+              BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text,
+              BiFunction<Integer,Integer,String> description, Consumer<Message> finalAction,
+              boolean showPageNumbers, List<String> items, boolean waitOnSinglePage,
+              int bulkSkipNumber, boolean wrapPageEnds)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -64,6 +77,8 @@ public class Slideshow extends Menu
         this.urls = items;
         this.finalAction = finalAction;
         this.waitOnSinglePage = waitOnSinglePage;
+        this.bulkSkipNumber = bulkSkipNumber;
+        this.wrapPageEnds = wrapPageEnds;
     }
 
     /**
@@ -137,9 +152,14 @@ public class Slideshow extends Menu
         action.queue(m->{
             if(urls.size()>1)
             {
+                if(bulkSkipNumber > 1)
+                    m.addReaction(BIG_LEFT).queue();
                 m.addReaction(LEFT).queue();
                 m.addReaction(STOP).queue();
-                m.addReaction(RIGHT).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                if(bulkSkipNumber > 1)
+                    m.addReaction(RIGHT).queue();
+                m.addReaction(bulkSkipNumber > 1? BIG_RIGHT : RIGHT)
+                 .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else if(waitOnSinglePage)
             {
@@ -157,24 +177,71 @@ public class Slideshow extends Menu
         waiter.waitForEvent(MessageReactionAddEvent.class, (MessageReactionAddEvent event) -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(LEFT.equals(event.getReaction().getEmote().getName()) 
-                    || STOP.equals(event.getReaction().getEmote().getName())
-                    || RIGHT.equals(event.getReaction().getEmote().getName())))
-                return false;
-            return isValidUser(event.getUser(), event.getGuild());
+            switch(event.getReactionEmote().getName())
+            {
+                // LEFT, STOP, RIGHT, BIG_LEFT, BIG_RIGHT all fall-through to
+                // return if the User is valid or not. If none trip, this defaults
+                // and returns false.
+                case LEFT:
+                case STOP:
+                case RIGHT:
+                    return isValidUser(event.getUser(), event.getGuild());
+                case BIG_LEFT:
+                case BIG_RIGHT:
+                    return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.getGuild());
+                default:
+                    return false;
+            }
         }, event -> {
             int newPageNum = pageNum;
+            int pages = urls.size();
             switch(event.getReaction().getEmote().getName())
             {
-                case LEFT:  if(newPageNum>1) newPageNum--; break;
-                case RIGHT: if(newPageNum<urls.size()) newPageNum++; break;
-                case STOP: finalAction.accept(message); return;
+                case LEFT:
+                    if(newPageNum == 1 && wrapPageEnds)
+                        newPageNum = pages + 1;
+                    if(newPageNum > 1)
+                        newPageNum--;
+                    break;
+                case RIGHT:
+                    if(newPageNum == pages && wrapPageEnds)
+                        newPageNum = 0;
+                    if(newPageNum < pages)
+                        newPageNum++;
+                    break;
+                case BIG_LEFT:
+                    if(newPageNum > 1 || wrapPageEnds)
+                    {
+                        for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
+                        {
+                            if(newPageNum == 1 && wrapPageEnds)
+                                newPageNum = pages + 1;
+                            newPageNum--;
+                        }
+                    }
+                    break;
+                case BIG_RIGHT:
+                    if(newPageNum < pages || wrapPageEnds)
+                    {
+                        for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
+                        {
+                            if(newPageNum == pages && wrapPageEnds)
+                                newPageNum = 0;
+                            newPageNum++;
+                        }
+                    }
+                    break;
+                case STOP:
+                    finalAction.accept(message);
+                    return;
             }
-            try{event.getReaction().removeReaction(event.getUser()).queue();}catch(PermissionException e){}
+
+            try {
+                event.getReaction().removeReaction(event.getUser()).queue();
+            } catch(PermissionException e) {}
+
             int n = newPageNum;
-            message.editMessage(renderPage(newPageNum)).queue(m -> {
-                pagination(m, n);
-            });
+            message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
         }, timeout, unit, () -> finalAction.accept(message));
     }
     
@@ -207,6 +274,8 @@ public class Slideshow extends Menu
         private Consumer<Message> finalAction = m -> m.delete().queue();
         private boolean showPageNumbers = true;
         private boolean waitOnSinglePage = false;
+        private int bulkSkipNumber = 1;
+        private boolean wrapPageEnds = false;
 
         private final List<String> strings = new LinkedList<>();
 
@@ -231,7 +300,7 @@ public class Slideshow extends Menu
             if(strings.isEmpty())
                 throw new IllegalArgumentException("Must include at least one item to paginate");
             return new Slideshow(waiter, users, roles, timeout, unit, color, text, description, finalAction,
-                    showPageNumbers, strings, waitOnSinglePage);
+                    showPageNumbers, strings, waitOnSinglePage, bulkSkipNumber, wrapPageEnds);
         }
 
         /**
@@ -406,6 +475,36 @@ public class Slideshow extends Menu
         {
             strings.clear();
             strings.addAll(Arrays.asList(items));
+            return this;
+        }
+
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow}'s bulk-skip
+         * function to skip multiple pages using alternate forward and backwards
+         *
+         * @param  bulkSkipNumber
+         *         The number of pages to skip when the bulk-skip reactions are used.
+         *
+         * @return This builder
+         */
+        public Builder setBulkSkipNumber(int bulkSkipNumber)
+        {
+            this.bulkSkipNumber = Math.max(bulkSkipNumber, 1);
+            return this;
+        }
+
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} to wrap
+         * from the last page to the first when traversing right and visa versa from the left.
+         *
+         * @param  wrapPageEnds
+         *         {@code true} to enable wrapping.
+         *
+         * @return This builder
+         */
+        public Builder wrapPageEnds(boolean wrapPageEnds)
+        {
+            this.wrapPageEnds = wrapPageEnds;
             return this;
         }
     }

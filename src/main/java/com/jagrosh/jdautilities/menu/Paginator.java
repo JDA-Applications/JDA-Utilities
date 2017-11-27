@@ -35,6 +35,15 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
+ * A {@link com.jagrosh.jdautilities.menu.Menu} implementation that paginates a
+ * set of one or more text items across one or more pages.<p>
+ *
+ * When displayed, a Paginator will add three reactions in the following order:
+ * <ul>
+ *     <li><b>Left Arrow</b> - Causes the Paginator to traverse one page backwards.</li>
+ *     <li><b>Stop</b> - Stops the Paginator.</li>
+ *     <li><b>Right Arrow</b> - Causes the Paginator to traverse one page forwards.</li>
+ * </ul>
  *
  * @author John Grosh
  */
@@ -50,14 +59,20 @@ public class Paginator extends Menu
     private final int pages;
     private final Consumer<Message> finalAction;
     private final boolean waitOnSinglePage;
-    
+    private final int bulkSkipNumber;
+    private final boolean wrapPageEnds;
+
+    public static final String BIG_LEFT = "\u23EA";
     public static final String LEFT = "\u25C0";
     public static final String STOP = "\u23F9";
     public static final String RIGHT = "\u25B6";
+    public static final String BIG_RIGHT = "\u23E9";
     
     Paginator(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text, Consumer<Message> finalAction,
-            int columns, int itemsPerPage, boolean showPageNumbers, boolean numberItems, List<String> items, boolean waitOnSinglePage)
+              BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text,
+              Consumer<Message> finalAction, int columns, int itemsPerPage, boolean showPageNumbers,
+              boolean numberItems, List<String> items, boolean waitOnSinglePage, int bulkSkipNumber,
+              boolean wrapPageEnds)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -70,6 +85,8 @@ public class Paginator extends Menu
         this.pages = (int)Math.ceil((double)strings.size()/itemsPerPage);
         this.finalAction = finalAction;
         this.waitOnSinglePage = waitOnSinglePage;
+        this.bulkSkipNumber = bulkSkipNumber;
+        this.wrapPageEnds = wrapPageEnds;
     }
 
     /**
@@ -93,9 +110,8 @@ public class Paginator extends Menu
      * Begins pagination on page 1 displaying this Pagination by editing the provided 
      * {@link net.dv8tion.jda.core.entities.Message Message}.
      *
-     * <p>Starting on another page is available via {@link
-     * Paginator#paginate(Message, int)
-     * Paginator#paginate(Message, int)}.
+     * <p>Starting on another page is available via
+     * {@link Paginator#paginate(Message, int) Paginator#paginate(Message, int)}.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -148,12 +164,17 @@ public class Paginator extends Menu
     
     private void initialize(RestAction<Message> action, int pageNum)
     {
-        action.queue(m->{
+        action.queue(m -> {
             if(pages>1)
             {
+                if(bulkSkipNumber > 1)
+                    m.addReaction(BIG_LEFT).queue();
                 m.addReaction(LEFT).queue();
                 m.addReaction(STOP).queue();
-                m.addReaction(RIGHT).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                if(bulkSkipNumber > 1)
+                    m.addReaction(RIGHT).queue();
+                m.addReaction(bulkSkipNumber > 1? BIG_RIGHT : RIGHT)
+                 .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else if(waitOnSinglePage)
             {
@@ -171,24 +192,70 @@ public class Paginator extends Menu
         waiter.waitForEvent(MessageReactionAddEvent.class, (MessageReactionAddEvent event) -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(LEFT.equals(event.getReaction().getEmote().getName()) 
-                    || STOP.equals(event.getReaction().getEmote().getName())
-                    || RIGHT.equals(event.getReaction().getEmote().getName())))
-                return false;
-            return isValidUser(event.getUser(), event.getGuild());
+            switch(event.getReactionEmote().getName())
+            {
+                // LEFT, STOP, RIGHT, BIG_LEFT, BIG_RIGHT all fall-through to
+                // return if the User is valid or not. If none trip, this defaults
+                // and returns false.
+                case LEFT:
+                case STOP:
+                case RIGHT:
+                    return isValidUser(event.getUser(), event.getGuild());
+                case BIG_LEFT:
+                case BIG_RIGHT:
+                    return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.getGuild());
+                default:
+                    return false;
+            }
         }, event -> {
             int newPageNum = pageNum;
             switch(event.getReaction().getEmote().getName())
             {
-                case LEFT:  if(newPageNum>1) newPageNum--; break;
-                case RIGHT: if(newPageNum<pages) newPageNum++; break;
-                case STOP: finalAction.accept(message); return;
+                case LEFT:
+                    if(newPageNum == 1 && wrapPageEnds)
+                        newPageNum = pages + 1;
+                    if(newPageNum > 1)
+                        newPageNum--;
+                    break;
+                case RIGHT:
+                    if(newPageNum == pages && wrapPageEnds)
+                        newPageNum = 0;
+                    if(newPageNum < pages)
+                        newPageNum++;
+                    break;
+                case BIG_LEFT:
+                    if(newPageNum > 1 || wrapPageEnds)
+                    {
+                        for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
+                        {
+                            if(newPageNum == 1 && wrapPageEnds)
+                                newPageNum = pages + 1;
+                            newPageNum--;
+                        }
+                    }
+                    break;
+                case BIG_RIGHT:
+                    if(newPageNum < pages || wrapPageEnds)
+                    {
+                        for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
+                        {
+                            if(newPageNum == pages && wrapPageEnds)
+                                newPageNum = 0;
+                            newPageNum++;
+                        }
+                    }
+                    break;
+                case STOP:
+                    finalAction.accept(message);
+                    return;
             }
-            try{event.getReaction().removeReaction(event.getUser()).queue();}catch(PermissionException e){}
+
+            try {
+                event.getReaction().removeReaction(event.getUser()).queue();
+            } catch(PermissionException e) {}
+
             int n = newPageNum;
-            message.editMessage(renderPage(newPageNum)).queue(m -> {
-                pagination(m, n);
-            });
+            message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
         }, timeout, unit, () -> finalAction.accept(message));
     }
     
@@ -198,23 +265,23 @@ public class Paginator extends Menu
         EmbedBuilder ebuilder = new EmbedBuilder();
         int start = (pageNum-1)*itemsPerPage;
         int end = strings.size() < pageNum*itemsPerPage ? strings.size() : pageNum*itemsPerPage;
-        switch(columns)
+        if(columns == 1)
         {
-            case 1:
-                StringBuilder sbuilder = new StringBuilder();
-                for(int i=start; i<end; i++)
-                    sbuilder.append("\n").append(numberItems ? "`"+(i+1)+".` " : "").append(strings.get(i));
-                ebuilder.setDescription(sbuilder.toString());
-                break;
-            default:
-                int per = (int)Math.ceil((double)(end-start)/columns);
-                for(int k=0; k<columns; k++)
-                {
-                    StringBuilder strbuilder = new StringBuilder();
-                    for(int i=start+k*per; i<end && i<start+(k+1)*per; i++)
-                        strbuilder.append("\n").append(numberItems ? (i+1)+". " : "").append(strings.get(i));
-                    ebuilder.addField("", strbuilder.toString(), true);
-                }
+            StringBuilder sbuilder = new StringBuilder();
+            for(int i=start; i<end; i++)
+                sbuilder.append("\n").append(numberItems ? "`"+(i+1)+".` " : "").append(strings.get(i));
+            ebuilder.setDescription(sbuilder.toString());
+        }
+        else
+        {
+            int per = (int)Math.ceil((double)(end-start)/columns);
+            for(int k=0; k<columns; k++)
+            {
+                StringBuilder strbuilder = new StringBuilder();
+                for(int i=start+k*per; i<end && i<start+(k+1)*per; i++)
+                    strbuilder.append("\n").append(numberItems ? (i+1)+". " : "").append(strings.get(i));
+                ebuilder.addField("", strbuilder.toString(), true);
+            }
         }
         
         ebuilder.setColor(color.apply(pageNum, pages));
@@ -242,6 +309,8 @@ public class Paginator extends Menu
         private boolean showPageNumbers = true;
         private boolean numberItems = false;
         private boolean waitOnSinglePage = false;
+        private int bulkSkipNumber = 1;
+        private boolean wrapPageEnds = false;
 
         private final List<String> strings = new LinkedList<>();
 
@@ -266,7 +335,8 @@ public class Paginator extends Menu
             if(strings.isEmpty())
                 throw new IllegalArgumentException("Must include at least one item to paginate");
             return new Paginator(waiter, users, roles, timeout, unit, color, text, finalAction,
-                    columns, itemsPerPage, showPageNumbers, numberItems, strings, waitOnSinglePage);
+                columns, itemsPerPage, showPageNumbers, numberItems, strings, waitOnSinglePage,
+                bulkSkipNumber, wrapPageEnds);
         }
 
         /**
@@ -468,6 +538,36 @@ public class Paginator extends Menu
         {
             strings.clear();
             strings.addAll(Arrays.asList(items));
+            return this;
+        }
+
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator}'s bulk-skip
+         * function to skip multiple pages using alternate forward and backwards
+         *
+         * @param  bulkSkipNumber
+         *         The number of pages to skip when the bulk-skip reactions are used.
+         *
+         * @return This builder
+         */
+        public Builder setBulkSkipNumber(int bulkSkipNumber)
+        {
+            this.bulkSkipNumber = Math.max(bulkSkipNumber, 1);
+            return this;
+        }
+
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to wrap
+         * from the last page to the first when traversing right and visa versa from the left.
+         *
+         * @param  wrapPageEnds
+         *         {@code true} to enable wrapping.
+         *
+         * @return This builder
+         */
+        public Builder wrapPageEnds(boolean wrapPageEnds)
+        {
+            this.wrapPageEnds = wrapPageEnds;
             return this;
         }
     }
