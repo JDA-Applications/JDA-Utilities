@@ -549,6 +549,10 @@ public abstract class Command
             case GUILD:        return event.getGuild()!=null ? cooldownScope.genKey(name,event.getGuild().getIdLong()) :
                     CooldownScope.CHANNEL.genKey(name,event.getChannel().getIdLong());
             case CHANNEL:      return cooldownScope.genKey(name,event.getChannel().getIdLong());
+            case SHARD:        return event.getJDA().getShardInfo()!=null ? cooldownScope.genKey(name, event.getJDA().getShardInfo().getShardId()) :
+                    CooldownScope.GLOBAL.genKey(name, 0);
+            case USER_SHARD:   return event.getJDA().getShardInfo()!=null ? cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getJDA().getShardInfo().getShardId()) :
+                    CooldownScope.USER.genKey(name, event.getAuthor().getIdLong());
             case GLOBAL:       return cooldownScope.genKey(name, 0);
             default:           return "";
         }
@@ -743,6 +747,7 @@ public abstract class Command
          * </ul>
          */
         USER("U:%d",""),
+
         /**
          * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the
          * command is called in.
@@ -753,6 +758,7 @@ public abstract class Command
          * </ul>
          */
         CHANNEL("C:%d","in this channel"),
+
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
          * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the command is called in.
@@ -763,6 +769,7 @@ public abstract class Command
          * </ul>
          */
         USER_CHANNEL("U:%d|C:%d", "in this channel"),
+
         /**
          * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
          *
@@ -776,6 +783,7 @@ public abstract class Command
          * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
          */
         GUILD("G:%d", "in this server"),
+
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
          * {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
@@ -790,6 +798,38 @@ public abstract class Command
          * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
          */
         USER_GUILD("U:%d|G:%d", "in this server"),
+
+        /**
+         * Applies the cooldown to the calling Shard the command is called on.
+         *
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|S:<shardID>}
+         * </ul>
+         *
+         * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#GLOBAL CooldownScope.GLOBAL}
+         * when {@link net.dv8tion.jda.core.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
+         * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
+         * from being thrown while generating cooldown keys!
+         */
+        SHARD("S:%d", "on this shard"),
+
+        /**
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} on the Shard
+         * the command is called on.
+         *
+         * <p>The key for this is generated in the format
+         * <ul>
+         *     {@code <command-name>|U:<userID>|S:<shardID>}
+         * </ul>
+         *
+         * <p><b>NOTE:</b> This will automatically default back to {@link CooldownScope#USER CooldownScope.USER}
+         * when {@link net.dv8tion.jda.core.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
+         * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
+         * from being thrown while generating cooldown keys!
+         */
+        USER_SHARD("U:%d|S:%d", "on this shard"),
+
         /**
          * Applies this cooldown globally.
          *
