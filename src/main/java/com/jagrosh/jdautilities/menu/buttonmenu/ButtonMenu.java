@@ -47,10 +47,10 @@ public class ButtonMenu extends Menu {
     private final String description;
     private final List<String> choices;
     private final Consumer<ReactionEmote> action;
-    private final Runnable cancel;
+    private final Consumer<Message> finalAction;
     
     protected ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Runnable cancel)
+            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -58,7 +58,7 @@ public class ButtonMenu extends Menu {
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.cancel = cancel;
+        this.finalAction = finalAction;
     }
 
     /**
@@ -108,11 +108,11 @@ public class ButtonMenu extends Menu {
                                     : event.getReaction().getEmote().getName();
                             if(!choices.contains(re))
                                 return false;
-                            return isValidUser(event);
+                            return isValidUser(event.getUser(), event.getGuild());
                         }, (MessageReactionAddEvent event) -> {
                             m.delete().queue();
                             action.accept(event.getReaction().getEmote());
-                        }, timeout, unit, cancel);
+                        }, timeout, unit, () -> finalAction.accept(m));
                     });
             }
         });

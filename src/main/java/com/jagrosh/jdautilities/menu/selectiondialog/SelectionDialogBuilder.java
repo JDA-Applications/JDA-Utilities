@@ -19,9 +19,11 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
+import net.dv8tion.jda.core.entities.Message;
 
 /**
  * Scheduled for reallocation in 2.0
@@ -41,8 +43,8 @@ public class SelectionDialogBuilder extends MenuBuilder<SelectionDialogBuilder, 
     private Function<Integer,Color> color = i -> null;
     private boolean loop = true;
     private Function<Integer,String> text = i -> null;
-    private Consumer<Integer> success;
-    private Runnable cancel = () -> {};
+    private BiConsumer<Message, Integer> selection;
+    private Consumer<Message> cancel = (m) -> {};
     
     @Override
     public SelectionDialog build() {
@@ -50,10 +52,10 @@ public class SelectionDialogBuilder extends MenuBuilder<SelectionDialogBuilder, 
             throw new IllegalArgumentException("Must set an EventWaiter");
         if(choices.isEmpty())
             throw new IllegalArgumentException("Must have at least one choice");
-        if(success==null)
+        if(selection == null)
             throw new IllegalArgumentException("Must provide a selection consumer");
         return new SelectionDialog(waiter,users,roles,timeout,unit,choices,leftEnd,rightEnd,
-                defaultLeft,defaultRight,color,loop,success,cancel,text);
+                defaultLeft,defaultRight,color,loop,selection,cancel,text);
     }
 
     /**
@@ -179,10 +181,32 @@ public class SelectionDialogBuilder extends MenuBuilder<SelectionDialogBuilder, 
      *         A Consumer for the selection. This is one-based indexing.
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         Replace with {@link SelectionDialogBuilder#setSelectionConsumer(BiConsumer)}
      */
+    @Deprecated
     public SelectionDialogBuilder setSelectionConsumer(Consumer<Integer> selection)
     {
-        this.success = selection;
+        this.selection = (m, i) -> selection.accept(i);
+        return this;
+    }
+
+
+    /**
+     * Sets a {@link java.util.function.BiConsumer BiConsumer} action to perform once a selection is made.
+     * <br>The {@link net.dv8tion.jda.core.entities.Message Message} provided is the one used to display
+     * the menu and the {@link java.lang.Integer Integer} is that of the selection made by the user,
+     * and selections are in order of addition, 1 being the first String choice.
+     *
+     * @param  selection
+     *         A Consumer for the selection. This is one-based indexing.
+     *
+     * @return This builder
+     */
+    public SelectionDialogBuilder setSelectionConsumer(BiConsumer<Message, Integer> selection)
+    {
+        this.selection = selection;
         return this;
     }
     
@@ -194,8 +218,27 @@ public class SelectionDialogBuilder extends MenuBuilder<SelectionDialogBuilder, 
      *         The action to take when the SelectionDialog is canceled or times out
      * 
      * @return This builder
+     *
+     * @deprecated
+     *         Replace with {@link SelectionDialogBuilder#setCanceled(Consumer)}
      */
+    @Deprecated
     public SelectionDialogBuilder setCanceledRunnable(Runnable cancel)
+    {
+        this.cancel = (m) -> cancel.run();
+        return this;
+    }
+
+    /**
+     * Sets a {@link java.util.function.Consumer Consumer} action to take if the menu is cancelled, either
+     * via the cancel button being used, or if the SelectionDialog times out.
+     *
+     * @param  cancel
+     *         The action to take when the SelectionDialog is cancelled
+     *
+     * @return This builder
+     */
+    public SelectionDialogBuilder setCanceled(Consumer<Message> cancel)
     {
         this.cancel = cancel;
         return this;
