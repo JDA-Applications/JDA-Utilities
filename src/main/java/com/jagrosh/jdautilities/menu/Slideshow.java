@@ -161,7 +161,7 @@ public class Slideshow extends Menu
                     || STOP.equals(event.getReaction().getEmote().getName())
                     || RIGHT.equals(event.getReaction().getEmote().getName())))
                 return false;
-            return isValidUser(event);
+            return isValidUser(event.getUser(), event.getGuild());
         }, event -> {
             int newPageNum = pageNum;
             switch(event.getReaction().getEmote().getName())

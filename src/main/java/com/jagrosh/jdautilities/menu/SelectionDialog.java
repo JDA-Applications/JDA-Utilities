@@ -169,7 +169,7 @@ public class SelectionDialog extends Menu
                     || CANCEL.equals(event.getReaction().getEmote().getName())
                     || SELECT.equals(event.getReaction().getEmote().getName())))
                 return false;
-            return isValidUser(event);
+            return isValidUser(event.getUser(), event.getGuild());
         }, event -> {
             int newSelection = selection;
             switch(event.getReaction().getEmote().getName())

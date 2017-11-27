@@ -274,7 +274,7 @@ public class OrderedMenu extends Menu
         if(!e.getMessageId().equals(m.getId()))
             return false;
         // The user is not valid
-        if(!isValidUser(e))
+        if(!isValidUser(e.getUser(), e.getGuild()))
             return false;
         // The reaction is the cancel reaction
         if(e.getReaction().getEmote().getName().equals(CANCEL))
@@ -290,7 +290,7 @@ public class OrderedMenu extends Menu
         if(!e.getChannel().equals(m.getChannel()))
             return false;
         // Otherwise if it's a valid user or not
-        return isValidUser(e);
+        return isValidUser(e.getAuthor(), e.getGuild());
     }
     
     private String getEmoji(int number)

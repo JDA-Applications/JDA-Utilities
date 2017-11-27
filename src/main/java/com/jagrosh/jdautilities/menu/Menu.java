@@ -21,8 +21,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import javax.annotation.Nullable;
 
@@ -65,48 +63,6 @@ public abstract class Menu
      *         The Message to display this Menu as
      */
     public abstract void display(Message message);
-
-    /**
-     * This method was not officially documented before 1.9 when it was marked
-     * as deprecated.<p>
-     *
-     * Please see {@link Menu#isValidUser(User, Guild)} for the officially
-     * supported overload.
-     *
-     * @param  event
-     *         The event
-     *
-     * @return {@code true} if the User is valid.
-     *
-     * @deprecated
-     *         Replace with {@link Menu#isValidUser(User, Guild)}
-     */
-    @Deprecated
-    protected boolean isValidUser(MessageReactionAddEvent event)
-    {
-        return isValidUser(event.getUser(), event.getGuild());
-    }
-
-    /**
-     * This method was not officially documented before 1.9 when it was marked
-     * as deprecated.<p>
-     *
-     * Please see {@link Menu#isValidUser(User, Guild)} for the officially
-     * supported overload.
-     *
-     * @param  event
-     *         The event
-     *
-     * @return {@code true} if the User is valid.
-     *
-     * @deprecated
-     *         Replace with {@link Menu#isValidUser(User, Guild)}
-     */
-    @Deprecated
-    protected boolean isValidUser(MessageReceivedEvent event)
-    {
-        return isValidUser(event.getAuthor(), event.getGuild());
-    }
 
     /**
      * Checks to see if the provided {@link net.dv8tion.jda.core.entities.User User}
