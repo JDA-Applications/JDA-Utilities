@@ -30,7 +30,6 @@ import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.requests.Requester;
 import okhttp3.*;
@@ -417,7 +416,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(event instanceof MessageReceivedEvent)
             onMessageReceived((MessageReceivedEvent)event);
 
-        else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
+        else if(event instanceof GuildMessageDeleteEvent && usesLinkedDeletion())
             onMessageDelete((GuildMessageDeleteEvent) event);
 
         else if(event instanceof GuildJoinEvent)
@@ -529,7 +528,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
         }
 
-        listener.onNonCommandMessage(event);
+        if(listener != null)
+            listener.onNonCommandMessage(event);
     }
 
     private void sendStats(JDA jda)
