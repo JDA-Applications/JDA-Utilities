@@ -224,12 +224,13 @@ public class Paginator extends Menu
                 if(!mre.getChannel().equals(message.getChannel()))
                     return false;
                 String rawContent = mre.getMessage().getRawContent().trim();
-                if((leftText != null && rightText != null))
+                if(leftText != null && rightText != null)
                 {
                     if(rawContent.equalsIgnoreCase(leftText) || rawContent.equalsIgnoreCase(rightText))
                         return isValidUser(mre.getAuthor(), mre.getGuild());
                 }
-                else if(allowTextInput)
+
+                if(allowTextInput)
                 {
                     try {
                         int i = Integer.parseInt(rawContent);
