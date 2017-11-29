@@ -24,25 +24,34 @@
  *     <li>{@link com.jagrosh.jdautilities.commandclient.AnnotatedModuleCompiler AnnotatedModuleCompiler}
  *     <br>An interface to create Commands from annotated objects (More info on annotated commands can be found in the
  *     {@link com.jagrosh.jdautilities.commandclient.annotation.JDACommand JDACommand} documentation).</li>
- *     <br>
+ *
  *     <li>{@link com.jagrosh.jdautilities.commandclient.CommandBuilder CommandBuilder}
  *     <br>An chain builder for Commands.</li>
- *     <br>
+ *
  *     <li>{@link com.jagrosh.jdautilities.commandclient.Command Command}
- *     <br>An abstract class that can be inherited by classes to create Commands compatible with the {@code CommandClientImpl}.</li>
- *     <br>
+ *     <br>An abstract class that can be inherited by classes to create Commands compatible with the
+ *     {@code CommandClientImpl}.</li>
+ *
  *     <li>{@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient}
  *     <br>An interface used for getting info set when building a {@code CommandClientImpl}.</li>
- *     <br>
+ *
  *     <li>{@link com.jagrosh.jdautilities.commandclient.CommandClientBuilder CommandClientBuilder}
  *     <br>A builder system used to create a {@code CommandClientImpl} across several optional chained methods.</li>
- *     <br>
+ *
  *     <li>{@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent}
- *     <br>A wrapper for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}, {@code CommandClient}, and String arguments. 
- *     The main basis for carrying information to be used in Commands.</li>
- *     <br>
+ *     <br>A wrapper for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
+ *     {@code CommandClient}, and String arguments. The main basis for carrying information to be used in Commands.</li>
+ *
  *     <li>{@link com.jagrosh.jdautilities.commandclient.CommandListener CommandListener}
- *     <br>An interface to be provided to a {@code CommandClientImpl} that can provide Command operations depending on the outcome of the call.</li>
+ *     <br>An interface to be provided to a {@code CommandClientImpl} that can provide Command operations depending
+ *     on the outcome of the call.</li>
+ *
+ *     <li>{@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager GuildSettingsManager}
+ *     <br>An abstract object used to store and handle {@code GuildSettingsProvider} implementations.</li>
+ *
+ *     <li>{@link com.jagrosh.jdautilities.commandclient.GuildSettingsProvider GuildSettingsProvider}
+ *     <br>An implementable interface used to supply default methods for handling guild specific settings
+ *     via a {@code GuildSettingsManager}.</li>
  * </ul>
  */
 package com.jagrosh.jdautilities.commandclient;

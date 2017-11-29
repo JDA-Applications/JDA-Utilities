@@ -21,8 +21,8 @@ package com.jagrosh.jdautilities;
  */
 public class JDAUtilitiesInfo
 {
-    public static final String VERSION_MAJOR = "1";
-    public static final String VERSION_MINOR = "9";
+    public static final String VERSION_MAJOR = "2";
+    public static final String VERSION_MINOR = "0";
     public static final String VERSION = VERSION_MAJOR+"."+VERSION_MINOR;
     public static final String GITHUB = "https://github.com/JDA-Applications/JDA-Utilities";
     public static final String AUTHOR = "JDA-Applications";
