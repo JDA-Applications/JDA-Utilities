@@ -30,20 +30,27 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.GenericMessageEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu} implementation that paginates a
- * set of one or more text items across one or more pages.<p>
+ * set of one or more text items across one or more pages.
  *
- * When displayed, a Paginator will add three reactions in the following order:
+ * <p>When displayed, a Paginator will add three reactions in the following order:
  * <ul>
  *     <li><b>Left Arrow</b> - Causes the Paginator to traverse one page backwards.</li>
  *     <li><b>Stop</b> - Stops the Paginator.</li>
  *     <li><b>Right Arrow</b> - Causes the Paginator to traverse one page forwards.</li>
  * </ul>
+ *
+ * Additionally, if specified in the {@link Paginator.Builder}, two "bulk skip" reactions
+ * will be added to allow a certain number of pages to be skipped left or right.
+ * <br>Paginator.Builders can also set a Paginator to accept various forms of text-input,
+ * such as left and right text commands, and even user specified page number via text.
  *
  * @author John Grosh
  */
@@ -61,6 +68,9 @@ public class Paginator extends Menu
     private final boolean waitOnSinglePage;
     private final int bulkSkipNumber;
     private final boolean wrapPageEnds;
+    private final String leftText;
+    private final String rightText;
+    private final boolean allowTextInput;
 
     public static final String BIG_LEFT = "\u23EA";
     public static final String LEFT = "\u25C0";
@@ -72,7 +82,7 @@ public class Paginator extends Menu
               BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text,
               Consumer<Message> finalAction, int columns, int itemsPerPage, boolean showPageNumbers,
               boolean numberItems, List<String> items, boolean waitOnSinglePage, int bulkSkipNumber,
-              boolean wrapPageEnds)
+              boolean wrapPageEnds, String leftText, String rightText, boolean allowTextInput)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -87,6 +97,9 @@ public class Paginator extends Menu
         this.waitOnSinglePage = waitOnSinglePage;
         this.bulkSkipNumber = bulkSkipNumber;
         this.wrapPageEnds = wrapPageEnds;
+        this.leftText = leftText;
+        this.rightText = rightText;
+        this.allowTextInput = allowTextInput;
     }
 
     /**
@@ -165,7 +178,7 @@ public class Paginator extends Menu
     private void initialize(RestAction<Message> action, int pageNum)
     {
         action.queue(m -> {
-            if(pages>1)
+            if(pages > 1)
             {
                 if(bulkSkipNumber > 1)
                     m.addReaction(BIG_LEFT).queue();
@@ -178,7 +191,11 @@ public class Paginator extends Menu
             }
             else if(waitOnSinglePage)
             {
-                m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                // Go straight to without text-input because only one page is available
+                m.addReaction(STOP).queue(
+                    v -> paginationWithoutTextInput(m, pageNum),
+                    t -> paginationWithoutTextInput(m, pageNum)
+                );
             }
             else
             {
@@ -186,77 +203,155 @@ public class Paginator extends Menu
             }
         });
     }
-    
+
     private void pagination(Message message, int pageNum)
     {
-        waiter.waitForEvent(MessageReactionAddEvent.class, (MessageReactionAddEvent event) -> {
-            if(!event.getMessageId().equals(message.getId()))
-                return false;
-            switch(event.getReactionEmote().getName())
+        if(allowTextInput || (leftText != null && rightText != null))
+            paginationWithTextInput(message, pageNum);
+        else
+            paginationWithoutTextInput(message, pageNum);
+    }
+
+    private void paginationWithTextInput(Message message, int pageNum)
+    {
+        waiter.waitForEvent(GenericMessageEvent.class, event -> {
+            if(event instanceof MessageReactionAddEvent)
+                return checkReaction((MessageReactionAddEvent) event, message.getIdLong());
+            else if(event instanceof MessageReceivedEvent)
             {
-                // LEFT, STOP, RIGHT, BIG_LEFT, BIG_RIGHT all fall-through to
-                // return if the User is valid or not. If none trip, this defaults
-                // and returns false.
-                case LEFT:
-                case STOP:
-                case RIGHT:
-                    return isValidUser(event.getUser(), event.getGuild());
-                case BIG_LEFT:
-                case BIG_RIGHT:
-                    return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.getGuild());
-                default:
+                MessageReceivedEvent mre = (MessageReceivedEvent) event;
+                // Wrong channel
+                if(!mre.getChannel().equals(message.getChannel()))
                     return false;
+                String rawContent = mre.getMessage().getRawContent().trim();
+                if((leftText != null && rightText != null))
+                {
+                    if(rawContent.equalsIgnoreCase(leftText) || rawContent.equalsIgnoreCase(rightText))
+                        return isValidUser(mre.getAuthor(), mre.getGuild());
+                }
+                else if(allowTextInput)
+                {
+                    try {
+                        int i = Integer.parseInt(rawContent);
+                        // Minimum 1, Maximum the number of pages, never the current page number
+                        if(1 <= i && i <= pages && i != pageNum)
+                            return isValidUser(mre.getAuthor(), mre.getGuild());
+                    } catch(NumberFormatException e) {}
+                }
             }
+            // Default return false
+            return false;
         }, event -> {
-            int newPageNum = pageNum;
-            switch(event.getReaction().getEmote().getName())
+            if(event instanceof MessageReactionAddEvent)
             {
-                case LEFT:
-                    if(newPageNum == 1 && wrapPageEnds)
-                        newPageNum = pages + 1;
-                    if(newPageNum > 1)
-                        newPageNum--;
-                    break;
-                case RIGHT:
-                    if(newPageNum == pages && wrapPageEnds)
-                        newPageNum = 0;
-                    if(newPageNum < pages)
-                        newPageNum++;
-                    break;
-                case BIG_LEFT:
-                    if(newPageNum > 1 || wrapPageEnds)
-                    {
-                        for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
-                        {
-                            if(newPageNum == 1 && wrapPageEnds)
-                                newPageNum = pages + 1;
-                            newPageNum--;
-                        }
-                    }
-                    break;
-                case BIG_RIGHT:
-                    if(newPageNum < pages || wrapPageEnds)
-                    {
-                        for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
-                        {
-                            if(newPageNum == pages && wrapPageEnds)
-                                newPageNum = 0;
-                            newPageNum++;
-                        }
-                    }
-                    break;
-                case STOP:
-                    finalAction.accept(message);
-                    return;
+                handleMessageReactionAddAction((MessageReactionAddEvent) event, message, pageNum);
             }
+            else
+            {
+                MessageReceivedEvent mre = ((MessageReceivedEvent) event);
+                String rawContent = mre.getMessage().getRawContent().trim();
 
-            try {
-                event.getReaction().removeReaction(event.getUser()).queue();
-            } catch(PermissionException e) {}
+                final int targetPage;
 
-            int n = newPageNum;
-            message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
+                if(leftText != null && rawContent.equalsIgnoreCase(leftText) && (1 < pageNum || wrapPageEnds))
+                    targetPage = pageNum - 1 < 1 && wrapPageEnds? pages : pageNum - 1;
+                else if(rightText != null && rawContent.equalsIgnoreCase(rightText) && (pageNum < pages || wrapPageEnds))
+                    targetPage = pageNum + 1 > pages && wrapPageEnds? 1 : pageNum + 1;
+                else
+                {
+                    // This will run without fail because we know the above conditions don't apply but our logic
+                    // when checking the event in the block above this action block has guaranteed this is the only
+                    // option at this point
+                    targetPage = Integer.parseInt(rawContent);
+                }
+
+                message.editMessage(renderPage(targetPage)).queue(m -> pagination(m, targetPage));
+                mre.getMessage().delete().queue(v -> {}, t -> {}); // delete the calling message so it doesn't get spammy
+            }
         }, timeout, unit, () -> finalAction.accept(message));
+    }
+    
+    private void paginationWithoutTextInput(Message message, int pageNum)
+    {
+        waiter.waitForEvent(MessageReactionAddEvent.class,
+            event -> checkReaction(event, message.getIdLong()), // Check Reaction
+            event -> handleMessageReactionAddAction(event, message, pageNum), // Handle Reaction
+            timeout, unit, () -> finalAction.accept(message));
+    }
+
+    // Private method that checks MessageReactionAddEvents
+    private boolean checkReaction(MessageReactionAddEvent event, long messageId)
+    {
+        if(event.getMessageIdLong() != messageId)
+            return false;
+        switch(event.getReactionEmote().getName())
+        {
+            // LEFT, STOP, RIGHT, BIG_LEFT, BIG_RIGHT all fall-through to
+            // return if the User is valid or not. If none trip, this defaults
+            // and returns false.
+            case LEFT:
+            case STOP:
+            case RIGHT:
+                return isValidUser(event.getUser(), event.getGuild());
+            case BIG_LEFT:
+            case BIG_RIGHT:
+                return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.getGuild());
+            default:
+                return false;
+        }
+    }
+
+    // Private method that handles MessageReactionAddEvents
+    private void handleMessageReactionAddAction(MessageReactionAddEvent event, Message message, int pageNum)
+    {
+        int newPageNum = pageNum;
+        switch(event.getReaction().getEmote().getName())
+        {
+            case LEFT:
+                if(newPageNum == 1 && wrapPageEnds)
+                    newPageNum = pages + 1;
+                if(newPageNum > 1)
+                    newPageNum--;
+                break;
+            case RIGHT:
+                if(newPageNum == pages && wrapPageEnds)
+                    newPageNum = 0;
+                if(newPageNum < pages)
+                    newPageNum++;
+                break;
+            case BIG_LEFT:
+                if(newPageNum > 1 || wrapPageEnds)
+                {
+                    for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
+                    {
+                        if(newPageNum == 1 && wrapPageEnds)
+                            newPageNum = pages + 1;
+                        newPageNum--;
+                    }
+                }
+                break;
+            case BIG_RIGHT:
+                if(newPageNum < pages || wrapPageEnds)
+                {
+                    for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
+                    {
+                        if(newPageNum == pages && wrapPageEnds)
+                            newPageNum = 0;
+                        newPageNum++;
+                    }
+                }
+                break;
+            case STOP:
+                finalAction.accept(message);
+                return;
+        }
+
+        try {
+            event.getReaction().removeReaction(event.getUser()).queue();
+        } catch(PermissionException e) {}
+
+        int n = newPageNum;
+        message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
     }
     
     private Message renderPage(int pageNum)
@@ -311,6 +406,9 @@ public class Paginator extends Menu
         private boolean waitOnSinglePage = false;
         private int bulkSkipNumber = 1;
         private boolean wrapPageEnds = false;
+        private String textToLeft = null;
+        private String textToRight = null;
+        private boolean allowTextInput = false;
 
         private final List<String> strings = new LinkedList<>();
 
@@ -336,7 +434,7 @@ public class Paginator extends Menu
                 throw new IllegalArgumentException("Must include at least one item to paginate");
             return new Paginator(waiter, users, roles, timeout, unit, color, text, finalAction,
                 columns, itemsPerPage, showPageNumbers, numberItems, strings, waitOnSinglePage,
-                bulkSkipNumber, wrapPageEnds);
+                bulkSkipNumber, wrapPageEnds, textToLeft, textToRight, allowTextInput);
         }
 
         /**
@@ -570,6 +668,55 @@ public class Paginator extends Menu
             this.wrapPageEnds = wrapPageEnds;
             return this;
         }
-    }
 
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to allow
+         * a page number to be specified by a user via text.
+         *
+         * <p>Note that setting this doesn't mean that left and right text inputs
+         * provided via {@link Paginator.Builder#setLeftRightText(String, String)} will
+         * be invalidated if they were set previously! To invalidate those, provide
+         * {@code null} for one or both of the parameters of that method.
+         *
+         * @param  allowTextInput
+         *         {@code true} if the Paginator will allow page-number text input
+         *
+         * @return This builder
+         */
+        public Builder allowTextInput(boolean allowTextInput)
+        {
+            this.allowTextInput = allowTextInput;
+            return this;
+        }
+
+        /**
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to traverse
+         * left or right when a provided text input is sent in the form of a Message to
+         * the {@link net.dv8tion.jda.core.entities.Channel Channel} the menu is displayed in.
+         *
+         * <p>If one or both these parameters are provided {@code null} this resets
+         * both of them and they will no longer be available when the Paginator is built.
+         *
+         * @param  left
+         *         The left text input, causes the Paginator to traverse one page left
+         * @param  right
+         *         The right text input, causes the Paginator to traverse one page right
+         *
+         * @return This builder
+         */
+        public Builder setLeftRightText(String left, String right)
+        {
+            if(left == null || right == null)
+            {
+                textToLeft = null;
+                textToRight = null;
+            }
+            else
+            {
+                textToLeft = left;
+                textToRight = right;
+            }
+            return this;
+        }
+    }
 }
