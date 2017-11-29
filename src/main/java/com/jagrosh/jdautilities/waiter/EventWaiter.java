@@ -33,9 +33,10 @@ import net.dv8tion.jda.core.hooks.SubscribeEvent;
  * A simple object used primarily for entities found in {@link com.jagrosh.jdautilities.menu}.
  * 
  * <p>The EventWaiter is capable of handling specialized forms of {@link net.dv8tion.jda.core.events.Event Event}
- * that must meet criteria not normally specifiable without implementation of an {@link net.dv8tion.jda.core.hooks.EventListener EventListener}.
+ * that must meet criteria not normally specifiable without implementation of an
+ * {@link net.dv8tion.jda.core.hooks.EventListener EventListener}.
  * 
- * <p>If you intend to use the EventWaiter, it is highly recommended you <b>DO NOT create multiple EventWaiters</b>!
+ * <p>If you intend to use the EventWaiter, it is highly recommended you <b>DO NOT</b> create multiple EventWaiters!
  * Doing this will cause unnecessary increases in memory usage.
  * 
  * @author John Grosh (jagrosh)
@@ -50,8 +51,20 @@ public class EventWaiter implements EventListener
      */
     public EventWaiter()
     {
-        waitingEvents = new HashMap<>();
-        threadpool = Executors.newSingleThreadScheduledExecutor();
+        this(Executors.newSingleThreadScheduledExecutor());
+    }
+
+    /**
+     * Constructs an EventWaiter using the provided {@link java.util.concurrent.ScheduledExecutorService Executor}
+     * as it's threadpool.
+     *
+     * @param  threadpool
+     *         The ScheduledExecutorService to use for this EventWaiter's threadpool.
+     */
+    public EventWaiter(ScheduledExecutorService threadpool)
+    {
+        this.waitingEvents = new HashMap<>();
+        this.threadpool = threadpool;
     }
     
     /**
@@ -81,7 +94,7 @@ public class EventWaiter implements EventListener
      * 
      * <p>Once started, there are two possible outcomes:
      * <ul>
-     *     <li>The correct Event occurs within the time alloted, and the provided 
+     *     <li>The correct Event occurs within the time allotted, and the provided
      *     {@link java.util.function.Consumer Consumer} will accept and execute using the same Event.</li>
      *     
      *     <li>The time limit is elapsed and the provided {@link java.lang.Runnable} is executed.</li>
@@ -114,11 +127,14 @@ public class EventWaiter implements EventListener
         }
         WaitingEvent we = new WaitingEvent<>(condition, action);
         list.add(we);
+
         if(timeout>0 && unit!=null)
+        {
             threadpool.schedule(() -> {
                 if(list.remove(we) && timeoutAction!=null)
                     timeoutAction.run();
             }, timeout, unit);
+        }
     }
     
     @Override
