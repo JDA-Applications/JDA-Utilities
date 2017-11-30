@@ -25,8 +25,32 @@ import net.dv8tion.jda.core.entities.*;
 import javax.annotation.Nullable;
 
 /**
+ * A frame for wrapping an {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter}
+ * into a "action, reaction" menu that waits on forms of user input such as reactions,
+ * or key-phrases.
+ *
+ * <p>Classes extending this are able to take a provided {@link net.dv8tion.jda.core.entities.Message Message}
+ * or {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} and display a visualized "Menu"
+ * as or in it.
+ *
+ * <p>The JDA-Utilities default implementations of this superclass typically handle input through
+ * the assistance of things such as {@link net.dv8tion.jda.core.entities.MessageReaction reactions},
+ * but the actual implementation is only limited to the events provided by Discord and handled through JDA.
+ *
+ * <p>For custom implementations, readability of creating and integrating may be improved
+ * by the implementation of a companion builder may be helpful (see the documentation on
+ * {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for more info).
+ *
+ * @see    EventWaiter
+ * @see    Menu.Builder
  *
  * @author John Grosh
+ *
+ * @implNote
+ *         While the standard JDA-Utilities implementations of this and Menu are
+ *         all handled as {@link net.dv8tion.jda.core.entities.MessageEmbed embeds},
+ *         there is no bias or advantage of implementing a custom Menu as a message
+ *         without an embed.
  */
 public abstract class Menu
 {
@@ -132,10 +156,33 @@ public abstract class Menu
     }
 
     /**
+     * An extendable frame for a chain-method builder that constructs a specified type of
+     * {@link com.jagrosh.jdautilities.menu.Menu Menu}.<p>
+     *
+     * Conventionally, implementations of Menu should have a static nested class called
+     * {@code Builder}, which extends this superclass:
+     * <pre>
+     * public class MyMenu extends Menu
+     * {
+     *     // Menu Code
+     *
+     *    {@literal public static class Builder extends Menu.Builder<Builder, MyMenu>}
+     *     {
+     *         // Builder Code
+     *     }
+     * }
+     * </pre>
      *
      * @author John Grosh
+     *
+     * @implNote
+     *         Before 2.0 this were a separate class known as {@code MenuBuilder}.<br>
+     *         Note that while the standard JDA-Utilities implementations of this and Menu are
+     *         all handled as {@link net.dv8tion.jda.core.entities.MessageEmbed embeds}, there
+     *         is no bias or advantage of implementing a custom Menu as a message without an embed.
      */
-    public abstract static class Builder<T extends Builder<T, V>, V extends Menu> {
+    public abstract static class Builder<T extends Builder<T, V>, V extends Menu>
+    {
         protected EventWaiter waiter;
         protected Set<User> users = new HashSet<>();
         protected Set<Role> roles = new HashSet<>();
