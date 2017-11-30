@@ -16,10 +16,14 @@
 package com.jagrosh.jdautilities;
 
 /**
+ * Information regarding the library.
+ * <br>Visit the JDA-Utilities <a href="https://github.com/JDA-Applications/JDA-Utilities">GitHub Repository</a>
+ * to submit issue reports or feature requests, or join the <a href="https://discord.gg/0hMr4ce0tIk3pSjp">
+ * Official JDA Discord Guild</a> if you need any assistance with the library!
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public class JDAUtilitiesInfo
+public final class JDAUtilitiesInfo
 {
     public static final String VERSION_MAJOR;
     public static final String VERSION_MINOR;
@@ -28,7 +32,8 @@ public class JDAUtilitiesInfo
     public static final String AUTHOR = "JDA-Applications";
 
     // Version init block
-    static {
+    static
+    {
         Package pkg = JDAUtilitiesInfo.class.getPackage();
 
         String version = pkg.getImplementationVersion();
