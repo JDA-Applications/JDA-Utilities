@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.doc;
 import com.jagrosh.jdautilities.doc.standard.CommandInfo;
 import com.jagrosh.jdautilities.doc.standard.Error;
 import com.jagrosh.jdautilities.doc.standard.RequiredPermissions;
+import resources.FixedSizeCache;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * An instance based documentation engine for bot commands written in {@link net.dv8tion.jda JDA}.
+ * An instance based documentation engine for bot commands written in JDA.
  *
  * <p>Instances of this can read {@link java.lang.annotation.Annotation Annotation}s on
  * {@link java.lang.Class Class}es and/or {@link java.lang.reflect.Method}s to format
@@ -66,6 +67,7 @@ import java.util.stream.Collectors;
 public class DocGenerator
 {
     private final HashMap<Class<? extends Annotation>, DocConverter<? extends Annotation>> map;
+    private final FixedSizeCache<AnnotatedElement, String> cache;
     private final String separator;
 
     /**
@@ -91,26 +93,54 @@ public class DocGenerator
      */
     public DocGenerator()
     {
-        this("\n\n");
+        this(20);
+    }
+
+    /**
+     * Gets a blank DocGenerator with no conversions loaded,
+     * and a cache with the specified max-size.
+     *
+     * <p>Calls to {@link #getDocFor(Class)}, {@link #getDocFor(Method)},
+     * and {@link #getDocForMethods(Class)} also cache the values retrieved
+     * from the invocation as a way to reduce reflection overhead for
+     * repeated calls.
+     *
+     * @param  cacheSize
+     *         The of the cache size that contains previously generated CommandDoc
+     *         to reduce reflection overhead for repeated calls.
+     */
+    public DocGenerator(int cacheSize)
+    {
+        this("\n\n", cacheSize);
     }
 
     /**
      * Gets a blank DocGenerator with no conversions loaded
-     * and with the specified separator.
+     * and with the specified separator, and a cache with the
+     * specified max-size.
      *
      * <p>A separator will be appended to the documentation
      * returned by {@link DocGenerator#getDocFor(Class)} inbetween
      * annotation conversions.
      * <br>By default this is a double newline ({@literal \n\n}).
      *
+     * <p>Calls to {@link #getDocFor(Class)}, {@link #getDocFor(Method)},
+     * and {@link #getDocForMethods(Class)} also cache the values retrieved
+     * from the invocation as a way to reduce reflection overhead for
+     * repeated calls.
+     *
      * @param  separator
      *         The separator that occurs inbetween
      *         annotation conversions.
+     * @param  cacheSize
+     *         The of the cache size that contains previously generated CommandDoc
+     *         to reduce reflection overhead for repeated calls.
      */
-    public DocGenerator(String separator)
+    public DocGenerator(String separator, int cacheSize)
     {
         this.separator = separator;
         map = new HashMap<>();
+        cache = new FixedSizeCache<>(cacheSize);
     }
 
     /**
@@ -215,7 +245,7 @@ public class DocGenerator
                 instance = convertedBy.value().newInstance();
             }
         } catch(InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new IllegalArgumentException("Instance of "+convertedBy.value()+" could not be instantiated!",e);
+            throw new IllegalArgumentException("Instance of "+convertedBy.value()+" could not be instantiated!", e);
         }
 
         return register(type, instance);
@@ -251,6 +281,10 @@ public class DocGenerator
 
     private String read(AnnotatedElement ae)
     {
+        // Have we already read this?
+        if(cache.contains(ae))
+            return cache.get(ae);
+
         StringBuilder b = new StringBuilder();
         synchronized(map)
         {
@@ -291,6 +325,13 @@ public class DocGenerator
                 }
             }
         }
-        return b.toString().trim();
+
+        // Trim this down
+        String doc = b.toString().trim();
+
+        // Cache the read value, even if it's empty.
+        cache.add(ae, doc);
+
+        return doc;
     }
 }
