@@ -55,6 +55,7 @@ public class CommandBuilder
     private BiConsumer<CommandEvent, Command> helpBiConsumer = null;
     private boolean usesTopicTags = true;
     private CooldownScope cooldownScope = CooldownScope.USER;
+    private boolean hidden = false;
 
     /**
      * Sets the {@link com.jagrosh.jdautilities.commandclient.Command#name name}
@@ -435,6 +436,20 @@ public class CommandBuilder
     }
 
     /**
+     * Sets the Command built to be {@link com.jagrosh.jdautilities.commandclient.Command#hidden hidden}
+     * from the help builder.
+     *
+     * @param  hidden
+     *         {@code true} if this will be hidden from the help builder, {@code false} otherwise.
+     *
+     * @return This CommandBuilder
+     */
+    public CommandBuilder setHidden(boolean hidden) {
+        this.hidden = hidden;
+        return this;
+    }
+
+    /**
      * Builds the {@link com.jagrosh.jdautilities.commandclient.Command Command}
      * using the previously provided information.
      *
@@ -476,7 +491,7 @@ public class CommandBuilder
                 guildOnly, requiredRole, ownerCommand, cooldown,
                 userPermissions, botPermissions, aliases.toArray(new String[aliases.size()]),
                 children.toArray(new Command[children.size()]), helpBiConsumer, usesTopicTags,
-                cooldownScope)
+                cooldownScope, hidden)
         {
             @Override
             protected void execute(CommandEvent event)
@@ -493,7 +508,7 @@ public class CommandBuilder
                      boolean ownerCommand, int cooldown, Permission[] userPermissions,
                      Permission[] botPermissions, String[] aliases, Command[] children,
                      BiConsumer<CommandEvent, Command> helpBiConsumer,
-                     boolean usesTopicTags, CooldownScope cooldownScope)
+                     boolean usesTopicTags, CooldownScope cooldownScope, boolean hidden)
         {
             this.name = name;
             this.help = help;
@@ -510,6 +525,7 @@ public class CommandBuilder
             this.helpBiConsumer = helpBiConsumer;
             this.usesTopicTags = usesTopicTags;
             this.cooldownScope = cooldownScope;
+            this.hidden = hidden;
         }
     }
 }

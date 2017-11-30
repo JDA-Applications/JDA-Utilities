@@ -160,6 +160,13 @@ public @interface JDACommand
     String[] children() default {};
 
     /**
+     * Whether or not this command should remain hidden in the help builder.
+     *
+     * @return {@code true} if this command should remain hidden, {@code false} otherwise.
+     */
+    boolean isHidden() default false;
+
+    /**
      * The {@link JDACommand.Category JDACommand.Category} for this command.
      * <br>This holds data to properly locate a <b>static field</b> representing
      * this command's {@link com.jagrosh.jdautilities.commandclient.Command.Category
