@@ -429,8 +429,9 @@ public interface CommandClient
      * <p>The returning object for this is specified via provision of a
      * {@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager GuildSettingsManager} to
      * {@link com.jagrosh.jdautilities.commandclient.CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)
-     * CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)}, more specifically {@link
-     * com.jagrosh.jdautilities.commandclient.GuildSettingsManager#getSettings(Guild) GuildSettingsManager#getSettings(Guild)}.
+     * CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)}, more specifically
+     * {@link com.jagrosh.jdautilities.commandclient.GuildSettingsManager#getSettings(Guild)
+     * GuildSettingsManager#getSettings(Guild)}.
      *
      * @param  <S>
      *         The type of Object to get

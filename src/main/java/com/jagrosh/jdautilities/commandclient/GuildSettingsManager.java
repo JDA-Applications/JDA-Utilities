@@ -20,14 +20,39 @@ import net.dv8tion.jda.core.entities.Guild;
 import javax.annotation.Nullable;
 
 /**
+ * An implementable frame for classes that handle Guild-Specific
+ * settings.
+ *
+ * <p>Standard implementations should be able to simply provide a
+ * type of {@link java.lang.Object Object} provided a non-null
+ * {@link net.dv8tion.jda.core.entities.Guild Guild}. Further
+ * customization of the implementation is allowed on the developer
+ * end.
+ *
+ * @since  2.0
  * @author Kaidan Gustave
+ *
+ * @implNote
+ *         Unless in the event of a major breaking change to
+ *         JDA, there is no chance of implementations of this
+ *         interface being required to implement additional
+ *         methods.
+ *         <br>If in the future it is decided to add a method
+ *         to this interface, the method will have a default
+ *         implementation that doesn't require developer additions.
  */
-public abstract class GuildSettingsManager
+public interface GuildSettingsManager<T>
 {
+    /**
+     * Gets settings for a specified {@link net.dv8tion.jda.core.entities.Guild Guild}
+     * as an object of the specified type {@code T}, or {@code null} if the guild has no
+     * settings.
+     *
+     * @param  guild
+     *         The guild to get settings for.
+     *
+     * @return The settings object for the guild, or {@code null} if the guild has no settings.
+     */
     @Nullable
-    public abstract <T> T getSettings(Guild guild);
-
-    public abstract <T> void setSettings(Guild guild, T settings);
-
-    public abstract void removeSettings(Guild guild);
+    T getSettings(Guild guild);
 }

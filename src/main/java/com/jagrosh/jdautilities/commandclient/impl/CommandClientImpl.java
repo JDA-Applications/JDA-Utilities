@@ -399,7 +399,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         if(manager == null)
             return null;
-        return manager.getSettings(guild);
+        return (S)manager.getSettings(guild);
     }
 
     @Override
@@ -534,7 +534,6 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void sendStats(JDA jda)
     {
-        Logger log = LoggerFactory.getLogger("BotList");
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
 
         if(carbonKey != null)
@@ -544,23 +543,28 @@ public class CommandClientImpl implements CommandClient, EventListener
                     .add("servercount", Integer.toString(jda.getGuilds().size()));
             
             if(jda.getShardInfo() != null)
+            {
                 bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
                            .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+            }
                 
             Request.Builder builder = new Request.Builder()
                     .post(bodyBuilder.build())
                     .url("https://www.carbonitex.net/discord/data/botdata.php");
 
-            client.newCall(builder.build()).enqueue(new Callback() {
+            client.newCall(builder.build()).enqueue(new Callback()
+            {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    log.info("Successfully send information to carbonitex.net");
+                public void onResponse(Call call, Response response)
+                {
+                    LOG.info("Successfully send information to carbonitex.net");
                     response.close();
                 }
 
                 @Override
-                public void onFailure(Call call, IOException e) {
-                    log.error("Failed to send information to carbonitex.net ", e);
+                public void onFailure(Call call, IOException e)
+                {
+                    LOG.error("Failed to send information to carbonitex.net ", e);
                 }
             });
         }
@@ -569,7 +573,10 @@ public class CommandClientImpl implements CommandClient, EventListener
         {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
             if(jda.getShardInfo() != null)
-                body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+            {
+                body.put("shard_id", jda.getShardInfo().getShardId())
+                    .put("shard_count", jda.getShardInfo().getShardTotal());
+            }
             
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
@@ -577,16 +584,19 @@ public class CommandClientImpl implements CommandClient, EventListener
                     .header("Authorization", botsOrgKey)
                     .header("Content-Type", "application/json");
             
-            client.newCall(builder.build()).enqueue(new Callback() {
+            client.newCall(builder.build()).enqueue(new Callback()
+            {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    log.info("Successfully send information to discordbots.org");
+                public void onResponse(Call call, Response response)
+                {
+                    LOG.info("Successfully send information to discordbots.org");
                     response.close();
                 }
 
                 @Override
-                public void onFailure(Call call, IOException e) {
-                    log.error("Failed to send information to discordbots.org ", e);
+                public void onFailure(Call call, IOException e)
+                {
+                    LOG.error("Failed to send information to discordbots.org ", e);
                 }
             });
         }
@@ -596,7 +606,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
 
             if(jda.getShardInfo() != null)
-                body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+            {
+                body.put("shard_id", jda.getShardInfo().getShardId())
+                    .put("shard_count", jda.getShardInfo().getShardTotal());
+            }
 
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
@@ -604,26 +617,30 @@ public class CommandClientImpl implements CommandClient, EventListener
                     .header("Authorization", botsKey)
                     .header("Content-Type", "application/json");
 
-            client.newCall(builder.build()).enqueue(new Callback() {
+            client.newCall(builder.build()).enqueue(new Callback()
+            {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    log.info("Successfully send information to bots.discord.pw");
+                public void onResponse(Call call, Response response)
+                {
+                    LOG.info("Successfully send information to bots.discord.pw");
                     response.close();
                 }
 
                 @Override
-                public void onFailure(Call call, IOException e) {
-                    log.error("Failed to send information to bots.discord.pw ", e);
+                public void onFailure(Call call, IOException e)
+                {
+                    LOG.error("Failed to send information to bots.discord.pw ", e);
                 }
             });
 
             if(jda.getShardInfo()==null)
+            {
                 this.totalGuilds = jda.getGuilds().size();
+            }
             else
             {
-                try (Reader reader = client.newCall(new Request.Builder()
-                        .get()
-                        .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                try(Reader reader = client.newCall(new Request.Builder()
+                        .get().url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
                         .header("Authorization", botsKey)
                         .header("Content-Type", "application/json")
                         .build()).execute().body().charStream()) {
@@ -633,7 +650,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                         total += array.getJSONObject(i).getInt("server_count");
                     this.totalGuilds = total;
                 } catch (Exception e) {
-                    log.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
+                    LOG.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
                 }
             }
         }
@@ -683,7 +700,7 @@ public class CommandClientImpl implements CommandClient, EventListener
      */
     public void linkIds(long callId, Message message)
     {
-        synchronized (linkMap)
+        synchronized(linkMap)
         {
             Set<Message> stored = linkMap.get(callId);
             if(stored != null)
