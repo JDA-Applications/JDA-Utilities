@@ -161,7 +161,7 @@ public abstract class Menu
      *
      * Conventionally, implementations of Menu should have a static nested class called
      * {@code Builder}, which extends this superclass:
-     * <pre>
+     * <pre><code>
      * public class MyMenu extends Menu
      * {
      *     // Menu Code
@@ -171,7 +171,7 @@ public abstract class Menu
      *         // Builder Code
      *     }
      * }
-     * </pre>
+     * </code></pre>
      *
      * @author John Grosh
      *
