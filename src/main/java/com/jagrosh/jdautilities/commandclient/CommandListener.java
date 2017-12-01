@@ -74,14 +74,14 @@ public interface CommandListener
     default void onNonCommandMessage(MessageReceivedEvent event) {}
 
     /**
-     * Called when a {@link com.jagrosh.jdautilities.commandclient.Command Command} catches a
-     * {@link java.lang.Throwable Throwable} <b>during execution</b>.
+     * Called when a {@link com.jagrosh.jdautilities.commandclient.Command Command}
+     * catches a {@link java.lang.Throwable Throwable} <b>during execution</b>.
      *
-     * <p>This doesn't account for exceptions thrown during other pre-checks, and should not be
-     * treated as such!
+     * <p>This doesn't account for exceptions thrown during other pre-checks,
+     * and should not be treated as such!
      *
-     * <p>An example of this misconception is via a {@link com.jagrosh.jdautilities.commandclient.Command.Category
-     * Category} test:
+     * <p>An example of this misconception is via a
+     * {@link com.jagrosh.jdautilities.commandclient.Command.Category Category} test:
      *
      * <pre><code> public class BadCommand extends Command {
      *
@@ -109,5 +109,8 @@ public interface CommandListener
      * @param  throwable
      *         The Throwable thrown during Command execution
      */
-    default void onCommandException(CommandEvent event, Command command, Throwable throwable) {}
+    default void onCommandException(CommandEvent event, Command command, Throwable throwable) {
+        // Default rethrow as a runtime exception.
+        throw throwable instanceof RuntimeException? (RuntimeException)throwable : new RuntimeException(throwable);
+    }
 }

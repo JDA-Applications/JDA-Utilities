@@ -324,11 +324,17 @@ public abstract class Command
         // run
         try {
             execute(event);
-        } catch(Throwable e) {
-
+        } catch(Throwable t) {
+            if(event.getClient().getListener() != null)
+            {
+                event.getClient().getListener().onCommandException(event, this, t);
+                return;
+            }
+            // otherwise we rethrow
+            throw t;
         }
 
-        if(event.getClient().getListener()!=null)
+        if(event.getClient().getListener() != null)
             event.getClient().getListener().onCompletedCommand(event, this);
     }
     
