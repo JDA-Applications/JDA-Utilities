@@ -123,13 +123,20 @@ public class EventWaiter implements EventListener
      * execute using the same Event.
      * 
      * @param  <T>
-     *         The type of Event to wait for
+     *         The type of Event to wait for.
      * @param  classType
-     *         The {@link java.lang.Class} of the Event to wait for
+     *         The {@link java.lang.Class} of the Event to wait for. Never null.
      * @param  condition
-     *         The Predicate to test when Events of the provided type are thrown
+     *         The Predicate to test when Events of the provided type are thrown. Never null.
      * @param  action
-     *         The Consumer to perform an action when the condition Predicate returns {@code true}
+     *         The Consumer to perform an action when the condition Predicate returns {@code true}. Never null.
+     *
+     * @throws IllegalArgumentException
+     *         One of two reasons:
+     *         <ul>
+     *             <li>1) Either the {@code classType}, {@code condition}, or {@code action} was {@code null}.</li>
+     *             <li>2) The internal threadpool is shut down, meaning that no more tasks can be submitted.</li>
+     *         </ul>
      */
     public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action)
     {
@@ -149,27 +156,39 @@ public class EventWaiter implements EventListener
      * </ul>
      * 
      * @param  <T>
-     *         The type of Event to wait for
+     *         The type of Event to wait for.
      * @param  classType
-     *         The {@link java.lang.Class} of the Event to wait for
+     *         The {@link java.lang.Class} of the Event to wait for. Never null.
      * @param  condition
-     *         The Predicate to test when Events of the provided type are thrown
+     *         The Predicate to test when Events of the provided type are thrown. Never null.
      * @param  action
-     *         The Consumer to perform an action when the condition Predicate returns {@code true}
+     *         The Consumer to perform an action when the condition Predicate returns {@code true}. Never null.
      * @param  timeout
-     *         The maximum amount of time to wait for
+     *         The maximum amount of time to wait for, or {@code -1} if there is no timeout.
      * @param  unit
-     *         The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout
+     *         The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout, or
+     *         {@code null} if there is no timeout.
      * @param  timeoutAction
-     *         The Runnable to run if the time runs out before a correct Event is thrown
+     *         The Runnable to run if the time runs out before a correct Event is thrown, or
+     *         {@code null} if there is no action on timeout.
      *
      * @throws IllegalArgumentException
-     *         The internal threadpool is shut down, meaning that no more tasks can be submitted.
+     *         One of two reasons:
+     *         <ul>
+     *             <li>1) Either the {@code classType}, {@code condition}, or {@code action} was {@code null}.</li>
+     *             <li>2) The internal threadpool is shut down, meaning that no more tasks can be submitted.</li>
+     *         </ul>
      */
-    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit, Runnable timeoutAction)
+    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action,
+                                               long timeout, TimeUnit unit, Runnable timeoutAction)
     {
+        checkNotNull(classType, "class type");
+        checkNotNull(condition, "condition predicate");
+        checkNotNull(action, "action consumer");
+
         if(threadpool.isShutdown())
             throw new IllegalArgumentException("Attempted to register a WaitingEvent while the EventWaiter's threadpool was already shut down!");
+
         List<WaitingEvent> list;
         if(waitingEvents.containsKey(classType))
             list = waitingEvents.get(classType);
@@ -178,25 +197,26 @@ public class EventWaiter implements EventListener
             list = new ArrayList<>();
             waitingEvents.put(classType, list);
         }
+
         WaitingEvent we = new WaitingEvent<>(condition, action);
         list.add(we);
 
-        if(timeout>0 && unit!=null)
+        if(timeout > 0 && unit != null)
         {
             threadpool.schedule(() -> {
-                if(list.remove(we) && timeoutAction!=null)
+                if(list.remove(we) && timeoutAction != null)
                     timeoutAction.run();
             }, timeout, unit);
         }
     }
     
     @Override
-    @SuppressWarnings("unchecked")
     @SubscribeEvent
+    @SuppressWarnings("unchecked")
     public final void onEvent(Event event)
     {
         Class c = event.getClass();
-        while(c.getSuperclass()!=null) {
+        while(c.getSuperclass() != null) {
             if(waitingEvents.containsKey(c))
             {
                 List<WaitingEvent> list = waitingEvents.get(c);
@@ -218,8 +238,6 @@ public class EventWaiter implements EventListener
      * <br>Calling this method on an EventWaiter that does shutdown automatically will result in
      * an {@link java.lang.UnsupportedOperationException UnsupportedOperationException} being thrown.
      *
-     *
-     *
      * @throws UnsupportedOperationException
      *         The EventWaiter is supposed to close automatically.
      */
@@ -229,6 +247,12 @@ public class EventWaiter implements EventListener
             throw new UnsupportedOperationException("Shutting down EventWaiters that are set to automatically close is unsupported!");
 
         threadpool.shutdown();
+    }
+
+    private static void checkNotNull(Object obj, String objName)
+    {
+        if(obj == null)
+            throw new IllegalArgumentException(String.format("The provided %s was null!", objName));
     }
     
     private class WaitingEvent<T extends Event>
