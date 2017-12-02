@@ -201,7 +201,7 @@ public class EventWaiter implements EventListener
             {
                 List<WaitingEvent> list = waitingEvents.get(c);
                 List<WaitingEvent> ulist = new ArrayList<>(list);
-                list.removeAll(ulist.stream().filter(i -> i.attempt(event)).collect(Collectors.toList()));
+                list.removeAll(ulist.stream().filter(Objects::nonNull).filter(i -> i.attempt(event)).collect(Collectors.toList()));
             }
             if(event instanceof ShutdownEvent && shutdownAutomatically)
             {
