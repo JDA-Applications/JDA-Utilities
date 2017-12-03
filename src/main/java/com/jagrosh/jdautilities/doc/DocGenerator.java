@@ -50,9 +50,10 @@ import java.util.stream.Collectors;
  *
  * Then...
  *
- * <pre>   DocGenerator generator = {@link #getDefaultGenerator() DocGenerator.getDefaultGenerator()};
- * String documentation = generator.getDocForClass(MyCommand.class);
- * </pre>
+ * <pre><code>
+ *     DocGenerator generator = {@link #getDefaultGenerator() DocGenerator.getDefaultGenerator()};
+ *     String documentation = generator.getDocForClass(MyCommand.class);
+ * </code></pre>
  *
  * <p>Note: This documentation system is <b>universal</b>, can be applied to any
  * command system that uses Class and/or Method based commands, and works in any JVM

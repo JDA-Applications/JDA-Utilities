@@ -24,7 +24,6 @@ import resources.FixedSizeCache;
 import com.jagrosh.jdautilities.commandclient.Command.Category;
 import com.jagrosh.jdautilities.utils.SafeIdUtil;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -67,8 +66,6 @@ public class CommandClientImpl implements CommandClient, EventListener
     private static final String DEFAULT_PREFIX = "@mention";
 
     private final OffsetDateTime start;
-    private final Game game;
-    private final OnlineStatus status;
     private final String ownerId;
     private final String[] coOwnerIds;
     private final String prefix;
@@ -96,7 +93,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private CommandListener listener = null;
     private int totalGuilds;
 
-    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler,
             GuildSettingsManager manager)
@@ -123,8 +120,6 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.prefix = prefix==null || prefix.isEmpty() ? DEFAULT_PREFIX : prefix;
         this.altprefix = altprefix==null || altprefix.isEmpty() ? null : altprefix;
         this.textPrefix = prefix;
-        this.game = game;
-        this.status = status;
         this.serverInvite = serverInvite;
         this.success = success==null ? "": success;
         this.warning = warning==null ? "": warning;
@@ -146,6 +141,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
                 for(Command command : commands)
+                {
                     if(!command.isHidden() && (!command.isOwnerCommand() || event.isOwner()))
                     {
                         if(!Objects.equals(category, command.getCategory()))
@@ -154,9 +150,10 @@ public class CommandClientImpl implements CommandClient, EventListener
                             builder.append("\n\n  __").append(category==null ? "No Category" : category.getName()).append("__:\n");
                         }
                         builder.append("\n`").append(textPrefix).append(prefix==null?" ":"").append(command.getName())
-                                .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
-                                .append(" - ").append(command.getHelp());
+                               .append(command.getArguments()==null ? "`" : " "+command.getArguments()+"`")
+                               .append(" - ").append(command.getHelp());
                     }
+                }
                 User owner = event.getJDA().getUserById(ownerId);
                 if(owner!=null)
                 {
@@ -170,7 +167,10 @@ public class CommandClientImpl implements CommandClient, EventListener
                     event.replyWarning("Help cannot be sent because you are blocking Direct Messages.");
                 });
         } : helpConsumer;
-        for(Command command : commands) {
+
+        // Load commands
+        for(Command command : commands)
+        {
             addCommand(command);
         }
     }
@@ -271,8 +271,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
             commandIndex.put(name, index);
             if(index<commands.size())
+            {
                 commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>index).collect(Collectors.toList())
-                        .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
+                            .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
+            }
         }
         commands.add(index,command);
     }
@@ -284,8 +286,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
         int targetIndex = commandIndex.remove(name);
         if(commandIndex.containsValue(targetIndex))
+        {
             commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
-                    .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
+                        .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
+        }
         commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
                 .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
         commands.remove(targetIndex);
@@ -440,11 +444,6 @@ public class CommandClientImpl implements CommandClient, EventListener
             return;
         }
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
-        event.getJDA().getPresence().setStatus(status==null ? OnlineStatus.ONLINE : status);
-        if(game!=null)
-            event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
-                    Game.of("Type "+textPrefix+helpWord) :
-                    game);
         sendStats(event.getJDA());
     }
 
@@ -474,6 +473,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         // Check for alternate prefix
         if(parts == null && altprefix != null && rawContent.toLowerCase().startsWith(altprefix.toLowerCase()))
             parts = splitOnPrefixLength(rawContent, altprefix.length());
+        // Check for guild specific prefixes
         if(parts == null && settings != null)
         {
             Collection<String> prefixes = settings.getPrefixes();

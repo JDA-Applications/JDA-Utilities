@@ -444,7 +444,8 @@ public class CommandBuilder
      *
      * @return This CommandBuilder
      */
-    public CommandBuilder setHidden(boolean hidden) {
+    public CommandBuilder setHidden(boolean hidden)
+    {
         this.hidden = hidden;
         return this;
     }

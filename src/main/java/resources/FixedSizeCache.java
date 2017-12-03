@@ -32,8 +32,8 @@ import java.util.Map;
  * @since  1.3
  * @author Michael Ritter
  */
-public class FixedSizeCache<K, V> {
-
+public class FixedSizeCache<K, V>
+{
     private final Map<K, V> map;
     private final K[] keys;
     private int currIndex = 0;
