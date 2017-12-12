@@ -34,6 +34,10 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
+ * Scheduled for reallocation in 2.0
+ *
+ * <p>Full information on these and other 2.0 deprecations and changes can be found
+ * <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
  *
  * @author John Grosh
  */
@@ -43,10 +47,10 @@ public class ButtonMenu extends Menu {
     private final String description;
     private final List<String> choices;
     private final Consumer<ReactionEmote> action;
-    private final Runnable cancel;
+    private final Consumer<Message> finalAction;
     
     protected ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Runnable cancel)
+            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -54,7 +58,7 @@ public class ButtonMenu extends Menu {
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.cancel = cancel;
+        this.finalAction = finalAction;
     }
 
     /**
@@ -99,16 +103,16 @@ public class ButtonMenu extends Menu {
                         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
                             if(!event.getMessageId().equals(m.getId()))
                                 return false;
-                            String re = event.getReaction().getEmote().isEmote() 
-                                    ? event.getReaction().getEmote().getId() 
-                                    : event.getReaction().getEmote().getName();
+                            String re = event.getReactionEmote().isEmote()
+                                    ? event.getReactionEmote().getId()
+                                    : event.getReactionEmote().getName();
                             if(!choices.contains(re))
                                 return false;
-                            return isValidUser(event);
+                            return isValidUser(event.getUser(), event.getGuild());
                         }, (MessageReactionAddEvent event) -> {
                             m.delete().queue();
-                            action.accept(event.getReaction().getEmote());
-                        }, timeout, unit, cancel);
+                            action.accept(event.getReactionEmote());
+                        }, timeout, unit, () -> finalAction.accept(m));
                     });
             }
         });

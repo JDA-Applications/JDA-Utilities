@@ -134,6 +134,9 @@ public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler
         // Uses Topic Tags
         builder.setUsesTopicTags(properties.useTopicTags());
 
+        // Hidden
+        builder.setHidden(properties.isHidden());
+
         // Child Commands
         if(properties.children().length>0)
         {

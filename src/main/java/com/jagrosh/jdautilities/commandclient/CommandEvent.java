@@ -408,8 +408,34 @@ public class CommandEvent
      * 
      * @param  message
      *         A String message to reply with
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0, replaced with {@link #replyInDm(String)}
      */
+    @Deprecated
     public void replyInDM(String message)
+    {
+        replyInDm(message);
+    }
+
+    /**
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
+     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     *
+     * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
+     * be sent in two split Messages.
+     *
+     * @param  message
+     *         A String message to reply with
+     */
+    public void replyInDm(String message)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(message);
@@ -432,8 +458,31 @@ public class CommandEvent
      * 
      * @param  embed
      *         The MessageEmbed to reply with
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0, replaced with {@link #replyInDm(MessageEmbed)}
      */
+    @Deprecated
     public void replyInDM(MessageEmbed embed)
+    {
+        replyInDm(embed);
+    }
+
+    /**
+     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     *
+     * <p>If the User to be Direct Messaged does not already have a PrivateChannel
+     * open to send messages to, this method will automatically open one.
+     *
+     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     *
+     * @param  embed
+     *         The MessageEmbed to reply with
+     */
+    public void replyInDm(MessageEmbed embed)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(embed);
@@ -744,13 +793,20 @@ public class CommandEvent
 
     /**
      * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
-     * event is the Owner of the bot.
+     * event is an owner of the bot.
      * 
      * @return {@code true} if the User is the Owner, else {@code false}
      */
     public boolean isOwner()
     {
-    	return event.getAuthor().getId().equals(this.getClient().getOwnerId());
+    	if(event.getAuthor().getId().equals(this.getClient().getOwnerId()))
+    	    return true;
+        if(this.getClient().getCoOwnerIds()==null)
+            return false;
+        for(String id : this.getClient().getCoOwnerIds())
+            if(id.equals(event.getAuthor().getId()))
+                return true;
+        return false;
     }
     
     /**
@@ -758,7 +814,21 @@ public class CommandEvent
      * event is a CoOwner of the bot.
      * 
      * @return {@code true} if the User is the CoOwner, else {@code false}
+     *
+     * @deprecated
+     *         Set for removal in 2.0.
+     *         <br>The idea of "co-owner" has undergone a revision.
+     *         It is a principle that trying to discriminate between an owner
+     *         and co-owner is a hindrance that idea.
+     *         <br>You should optimally try to implement your own system,
+     *         either through {@link com.jagrosh.jdautilities.commandclient.Command.Category
+     *         Categories} or through some other means.
+     *         <br>This function is now supported in one call to {@link #isOwner()}.
+     *
+     *         <p>Full information on these and other 2.0 deprecations and changes can be found
+     *         <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
      */
+    @Deprecated
     public boolean isCoOwner()
     {
     	if(this.getClient().getCoOwnerIds()==null)

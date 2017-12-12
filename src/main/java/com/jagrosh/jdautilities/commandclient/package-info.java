@@ -15,7 +15,7 @@
  */
 
 /**
- * <p>Items in this package pertain to the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} and
+ * Items in this package pertain to the {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} and
  * {@link com.jagrosh.jdautilities.commandclient.Command Commands}.
  * 
  * <p>All of the contents are used heavily in the {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}, 

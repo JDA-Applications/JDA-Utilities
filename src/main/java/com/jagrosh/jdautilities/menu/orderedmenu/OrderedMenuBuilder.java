@@ -19,10 +19,16 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import com.jagrosh.jdautilities.menu.MenuBuilder;
+import net.dv8tion.jda.core.entities.Message;
 
 /**
+ * Scheduled for reallocation in 2.0
+ *
+ * <p>Full information on these and other 2.0 deprecations and changes can be found
+ * <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
  *
  * @author John Grosh
  */
@@ -32,8 +38,8 @@ public class OrderedMenuBuilder extends MenuBuilder<OrderedMenuBuilder, OrderedM
     private String text;
     private String description;
     private final List<String> choices = new LinkedList<>();
-    private Consumer<Integer> action;
-    private Runnable cancel = () -> {};
+    private BiConsumer<Message, Integer> selection;
+    private Consumer<Message> cancel = (m) -> {};
     private boolean useLetters = false;
     private boolean allowTypedInput = true;
     private boolean addCancel = false;
@@ -46,12 +52,12 @@ public class OrderedMenuBuilder extends MenuBuilder<OrderedMenuBuilder, OrderedM
             throw new IllegalArgumentException("Must have at least one choice");
         if(choices.size()>10)
             throw new IllegalArgumentException("Must have no more than ten choices");
-        if(action==null)
-            throw new IllegalArgumentException("Must provide an action consumer");
+        if(selection == null)
+            throw new IllegalArgumentException("Must provide an selection consumer");
         if(text==null && description==null)
             throw new IllegalArgumentException("Either text or description must be set");
         return new OrderedMenu(waiter,users,roles,timeout,unit,color,text,description,choices,
-                action,cancel,useLetters,allowTypedInput,addCancel);
+                selection,cancel,useLetters,allowTypedInput,addCancel);
     }
 
     /**
@@ -156,9 +162,27 @@ public class OrderedMenuBuilder extends MenuBuilder<OrderedMenuBuilder, OrderedM
      *         The Consumer action to perform upon selecting a button
      * 
      * @return This builder
+     *
+     * @deprecated
+     *         Replace with {@link OrderedMenuBuilder#setSelection(BiConsumer)}
      */
+    @Deprecated
     public OrderedMenuBuilder setAction(Consumer<Integer> action) {
-        this.action = action;
+        this.selection = (m, i) -> action.accept(i);
+        return this;
+    }
+
+    /**
+     * Sets the {@link java.util.function.BiConsumer BiConsumer} action to perform upon selecting a option.
+     *
+     * @param  selection
+     *         The BiConsumer action to perform upon selecting a button
+     *
+     * @return This builder
+     */
+    public OrderedMenuBuilder setSelection(BiConsumer<Message, Integer> selection)
+    {
+        this.selection = selection;
         return this;
     }
     
@@ -170,8 +194,27 @@ public class OrderedMenuBuilder extends MenuBuilder<OrderedMenuBuilder, OrderedM
      *         The Runnable action to perform if the ButtonMenu times out
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         Replace with {@link OrderedMenuBuilder#setCancel(Consumer)}
      */
+    @Deprecated
     public OrderedMenuBuilder setCancel(Runnable cancel) {
+        this.cancel = (m) -> cancel.run();
+        return this;
+    }
+
+    /**
+     * Sets the {@link java.util.function.Consumer Consumer} to perform if the
+     * {@link com.jagrosh.jdautilities.menu.orderedmenu.OrderedMenu OrderedMenu} is cancelled.
+     *
+     * @param  cancel
+     *         The Consumer action to perform if the ButtonMenu is cancelled
+     *
+     * @return This builder
+     */
+    public OrderedMenuBuilder setCancel(Consumer<Message> cancel)
+    {
         this.cancel = cancel;
         return this;
     }

@@ -34,6 +34,10 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
+ * Scheduled for reallocation in 2.0
+ *
+ * <p>Full information on these and other 2.0 deprecations and changes can be found
+ * <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
  *
  * @author John Grosh
  */
@@ -154,14 +158,14 @@ public class Slideshow extends Menu {
         waiter.waitForEvent(MessageReactionAddEvent.class, (MessageReactionAddEvent event) -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(LEFT.equals(event.getReaction().getEmote().getName()) 
-                    || STOP.equals(event.getReaction().getEmote().getName())
-                    || RIGHT.equals(event.getReaction().getEmote().getName())))
+            if(!(LEFT.equals(event.getReactionEmote().getName())
+                    || STOP.equals(event.getReactionEmote().getName())
+                    || RIGHT.equals(event.getReactionEmote().getName())))
                 return false;
-            return isValidUser(event);
+            return isValidUser(event.getUser(), event.getGuild());
         }, event -> {
             int newPageNum = pageNum;
-            switch(event.getReaction().getEmote().getName())
+            switch(event.getReactionEmote().getName())
             {
                 case LEFT:  if(newPageNum>1) newPageNum--; break;
                 case RIGHT: if(newPageNum<urls.size()) newPageNum++; break;

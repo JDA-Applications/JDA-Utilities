@@ -25,6 +25,15 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 
 /**
+ * Scheduled for removal in 2.0, replacement will be inner class of corresponding menu.
+ * This is effective for <b>ALL MENUBUILDERS</b>. The corresponding location of these
+ * classes will also be flattened down to {@link com.jagrosh.jdautilities.menu}.
+ *
+ * <p><b>PREPARE ACCORDINGLY!</b> If you have implemented your own Menus and MenuBuilders
+ * please be ready to make adjustments to them.
+ *
+ * <p>Full information on these and other 2.0 deprecations and changes can be found
+ * <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
  * 
  * @author John Grosh
  */
@@ -52,7 +61,13 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
      *         The Color of the MessageEmbed
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         This will be removed in 2.0 due to the bias it posses towards non-embed menus.<br>
+     *         If you wish to continue using it for your own custom Menu implementations in 2.0,
+     *         you simply have to remove the @Override annotation.
      */
+    @Deprecated
     public abstract T setColor(Color color);
         
     /**
@@ -70,7 +85,7 @@ public abstract class MenuBuilder<T extends MenuBuilder<T, V>, V extends Menu> {
     public final T setEventWaiter(EventWaiter waiter)
     {
         this.waiter = waiter;
-        return (T) this;
+        return (T)this;
     }
     
     /**
