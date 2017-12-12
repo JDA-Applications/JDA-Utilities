@@ -159,15 +159,15 @@ public class OrderedMenu extends Menu {
                 if(e instanceof MessageReactionAddEvent)
                 {
                     MessageReactionAddEvent event = (MessageReactionAddEvent)e;
-                    if(event.getReaction().getEmote().getName().equals(CANCEL))
+                    if(event.getReactionEmote().getName().equals(CANCEL))
                         cancel.accept(m);
                     else
-                        action.accept(m, getNumber(event.getReaction().getEmote().getName()));
+                        action.accept(m, getNumber(event.getReactionEmote().getName()));
                 }
                 else if (e instanceof MessageReceivedEvent)
                 {
                     MessageReceivedEvent event = (MessageReceivedEvent)e;
-                    int num = getMessageNumber(event.getMessage().getRawContent());
+                    int num = getMessageNumber(event.getMessage().getContentRaw());
                     if(num<0 || num>choices.size())
                         cancel.accept(m);
                     else
@@ -182,10 +182,10 @@ public class OrderedMenu extends Menu {
                 return isValidReaction(m, e);
             }, e -> {
                 m.delete().queue();
-                if(e.getReaction().getEmote().getName().equals(CANCEL))
+                if(e.getReactionEmote().getName().equals(CANCEL))
                     cancel.accept(m);
                 else
-                    action.accept(m, getNumber(e.getReaction().getEmote().getName()));
+                    action.accept(m, getNumber(e.getReactionEmote().getName()));
             }, timeout, unit, () -> cancel.accept(m));
     }
     
@@ -207,9 +207,9 @@ public class OrderedMenu extends Menu {
             return false;
         if(!isValidUser(e.getUser(), e.getGuild()))
             return false;
-        if(e.getReaction().getEmote().getName().equals(CANCEL))
+        if(e.getReactionEmote().getName().equals(CANCEL))
             return true;
-        int num = getNumber(e.getReaction().getEmote().getName());
+        int num = getNumber(e.getReactionEmote().getName());
         return !(num<0 || num>choices.size());
     }
     

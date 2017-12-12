@@ -485,7 +485,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
             return;
         boolean[] isCommand = new boolean[]{false};
         String[] parts = null;
-        String rawContent = event.getMessage().getRawContent();
+        String rawContent = event.getMessage().getContentRaw();
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix!=null && altprefix.equals(DEFAULT_PREFIX)))
         {
             if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">")
