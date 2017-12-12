@@ -467,7 +467,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         event.getJDA().getPresence().setStatus(status==null ? OnlineStatus.ONLINE : status);
         if(game!=null)
             event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
-                    Game.of("Type "+textPrefix+helpWord) :
+                    Game.playing("Type "+textPrefix+helpWord) :
                     game);
         sendStats(event.getJDA());
     }
@@ -584,7 +584,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     log.info("Successfully send information to carbonitex.net");
                     response.close();
                 }
@@ -609,7 +609,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
             
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     log.info("Successfully send information to discordbots.org");
                     response.close();
                 }
@@ -635,7 +635,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     log.info("Successfully send information to bots.discord.pw");
                     response.close();
                 }

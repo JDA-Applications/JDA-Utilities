@@ -37,7 +37,7 @@ import net.dv8tion.jda.core.entities.Game;
  */
 public class CommandClientBuilder
 {
-    private Game game = Game.of("default");
+    private Game game = Game.playing("default");
     private OnlineStatus status = OnlineStatus.ONLINE;
     private String ownerId;
     private String[] coOwnerIds;

@@ -28,7 +28,7 @@ You will need to add this project as a dependency (either from the latest .jar f
   <dependency>
     <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -47,7 +47,7 @@ You will need to add this project as a dependency (either from the latest .jar f
 With gradle:
 ```groovy
 dependencies {
-    compile 'com.jagrosh:JDA-Utilities:1.8'
+    compile 'com.jagrosh:JDA-Utilities:1.9'
     compile 'net.dv8tion:JDA:LATEST'
 }
 
