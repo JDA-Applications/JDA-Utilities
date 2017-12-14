@@ -26,6 +26,10 @@ import com.jagrosh.jdautilities.menu.MenuBuilder;
 import net.dv8tion.jda.core.entities.Message;
 
 /**
+ * Scheduled for reallocation in 2.0
+ *
+ * <p>Full information on these and other 2.0 deprecations and changes can be found
+ * <a href="https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee">here</a>
  *
  * @author John Grosh
  */

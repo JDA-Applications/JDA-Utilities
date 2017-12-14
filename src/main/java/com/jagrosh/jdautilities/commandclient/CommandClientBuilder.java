@@ -37,7 +37,7 @@ import net.dv8tion.jda.core.entities.Game;
  */
 public class CommandClientBuilder
 {
-    private Game game = Game.of("default");
+    private Game game = Game.playing("default");
     private OnlineStatus status = OnlineStatus.ONLINE;
     private String ownerId;
     private String[] coOwnerIds;
@@ -163,9 +163,14 @@ public class CommandClientBuilder
      * @param  helpFunction
      *         A function to convert a {@link com.jagrosh.jdautilities.commandclient.CommandEvent CommandEvent} 
      *         to a String for a help DM.
-     *         
+     *
      * @return This builder
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0, will be replaced with a Consumer instead.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed") // Suppress the link in docs
+    @Deprecated
     public CommandClientBuilder setHelpFunction(Function<CommandEvent,String> helpFunction)
     {
         this.helpFunction = helpFunction;
@@ -230,7 +235,17 @@ public class CommandClientBuilder
      *         The Game to use when the bot is ready
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         This features will be removed in 2.0 due to it's availability
+     *         through {@link net.dv8tion.jda.core.JDABuilder JDABuilder}
+     *         not being more or less efficient than through the CommandClient.
+     *         <br>If you want to set your bot's game or status, you may do so through
+     *         {@link net.dv8tion.jda.core.JDABuilder#setGame(Game) JDABuilder#setGame(Game)}
+     *         or {@link net.dv8tion.jda.core.JDABuilder#setStatus(OnlineStatus)
+     *         JDABuilder#setStatus(OnlineStatus)} respectively.
      */
+    @Deprecated
     public CommandClientBuilder setGame(Game game)
     {
         this.game = game;
@@ -244,7 +259,17 @@ public class CommandClientBuilder
      *         Non-null/non-empty name of the game
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         This features will be removed in 2.0 due to it's availability
+     *         through {@link net.dv8tion.jda.core.JDABuilder JDABuilder}
+     *         not being more or less efficient than through the CommandClient.
+     *         <br>If you want to set your bot's game or status, you may do so through
+     *         {@link net.dv8tion.jda.core.JDABuilder#setGame(Game) JDABuilder#setGame(Game)}
+     *         or {@link net.dv8tion.jda.core.JDABuilder#setStatus(OnlineStatus)
+     *         JDABuilder#setStatus(OnlineStatus)} respectively.
      */
+    @Deprecated
     public CommandClientBuilder setPlaying(String name)
     {
         if(name!=null && !name.isEmpty())
@@ -266,7 +291,17 @@ public class CommandClientBuilder
      *         The url of the stream (must be valid for streaming)
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         This features will be removed in 2.0 due to it's availability
+     *         through {@link net.dv8tion.jda.core.JDABuilder JDABuilder}
+     *         not being more or less efficient than through the CommandClient.
+     *         <br>If you want to set your bot's game or status, you may do so through
+     *         {@link net.dv8tion.jda.core.JDABuilder#setGame(Game) JDABuilder#setGame(Game)}
+     *         or {@link net.dv8tion.jda.core.JDABuilder#setStatus(OnlineStatus)
+     *         JDABuilder#setStatus(OnlineStatus)} respectively.
      */
+    @Deprecated
     public CommandClientBuilder setStreaming(String name, String url)
     {
         if(name!=null && !name.isEmpty())
@@ -284,7 +319,17 @@ public class CommandClientBuilder
      * 'Playing <b>Type [prefix]help</b>'
      * 
      * @return This builder
+     *
+     * @deprecated
+     *         This features will be removed in 2.0 due to it's availability
+     *         through {@link net.dv8tion.jda.core.JDABuilder JDABuilder}
+     *         not being more or less efficient than through the CommandClient.
+     *         <br>If you want to set your bot's game or status, you may do so through
+     *         {@link net.dv8tion.jda.core.JDABuilder#setGame(Game) JDABuilder#setGame(Game)}
+     *         or {@link net.dv8tion.jda.core.JDABuilder#setStatus(OnlineStatus)
+     *         JDABuilder#setStatus(OnlineStatus)} respectively.
      */
+    @Deprecated
     public CommandClientBuilder useDefaultGame()
     {
         this.game = Game.of("default");
@@ -299,7 +344,17 @@ public class CommandClientBuilder
      *         The status to set
      *
      * @return This builder
+     *
+     * @deprecated
+     *         This features will be removed in 2.0 due to it's availability
+     *         through {@link net.dv8tion.jda.core.JDABuilder JDABuilder}
+     *         not being more or less efficient than through the CommandClient.
+     *         <br>If you want to set your bot's game or status, you may do so through
+     *         {@link net.dv8tion.jda.core.JDABuilder#setGame(Game) JDABuilder#setGame(Game)}
+     *         or {@link net.dv8tion.jda.core.JDABuilder#setStatus(OnlineStatus)
+     *         JDABuilder#setStatus(OnlineStatus)} respectively.
      */
+    @Deprecated
     public CommandClientBuilder setStatus(OnlineStatus status)
     {
         this.status = status;
@@ -485,7 +540,11 @@ public class CommandClientBuilder
      *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
      *         
      * @return This builder
+     *
+     * @deprecated
+     *         Scheduled for removal in 2.0
      */
+    @Deprecated
     public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
     {
         this.executor = executor;

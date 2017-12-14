@@ -152,7 +152,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
                 for(Command command : commands)
-                    if(!command.isOwnerCommand() || event.isOwner() || event.isCoOwner())
+                    if(!command.isHidden() && (!command.isOwnerCommand() || event.isOwner()))
                     {
                         if(!Objects.equals(category, command.getCategory()))
                         {
@@ -331,7 +331,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
     {
         if(coOwnerIds==null)
             return null;
-        long[] ids = new long[coOwnerIds.length-1];
+        long[] ids = new long[coOwnerIds.length];
         for(int i = 0; i<coOwnerIds.length; i++)
         {
             ids[i] = Long.parseLong(coOwnerIds[i]);
@@ -467,7 +467,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
         event.getJDA().getPresence().setStatus(status==null ? OnlineStatus.ONLINE : status);
         if(game!=null)
             event.getJDA().getPresence().setGame("default".equals(game.getName()) ?
-                    Game.of("Type "+textPrefix+helpWord) :
+                    Game.playing("Type "+textPrefix+helpWord) :
                     game);
         sendStats(event.getJDA());
     }
@@ -485,7 +485,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
             return;
         boolean[] isCommand = new boolean[]{false};
         String[] parts = null;
-        String rawContent = event.getMessage().getRawContent();
+        String rawContent = event.getMessage().getContentRaw();
         if(prefix.equals(DEFAULT_PREFIX) || (altprefix!=null && altprefix.equals(DEFAULT_PREFIX)))
         {
             if(rawContent.startsWith("<@"+event.getJDA().getSelfUser().getId()+">")
@@ -584,7 +584,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     log.info("Successfully send information to carbonitex.net");
                     response.close();
                 }
@@ -609,7 +609,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
             
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     log.info("Successfully send information to discordbots.org");
                     response.close();
                 }
@@ -635,7 +635,7 @@ public class CommandClientImpl extends ListenerAdapter implements CommandClient
 
             client.newCall(builder.build()).enqueue(new Callback() {
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     log.info("Successfully send information to bots.discord.pw");
                     response.close();
                 }
