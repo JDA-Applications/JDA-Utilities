@@ -192,7 +192,7 @@ public class FinderUtil
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
      *
-     * <h4>WARNING</h4>
+     * <b>WARNING</b>
      *
      * Unlike the other finder methods, this one has two very unique features that set it apart from the rest:
      * <ul>

@@ -26,7 +26,7 @@ plugins {
 }
 
 def versionObj = new Version(major: 1, minor: 9)
-def jdaVersion = '3.3.1_309'
+def jdaVersion = '3.3.1_313'
 
 group = 'com.jagrosh'
 archivesBaseName = project.name
