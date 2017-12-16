@@ -141,7 +141,7 @@ public class CommandEvent
     }
 
     // functional calls
-
+    
     /**
      * Replies with a String message.
      * 
@@ -714,7 +714,7 @@ public class CommandEvent
             event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(success, failure), failure);
         }
     }
-    
+
     /**
      * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
      * name if left null, and sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s 
@@ -1057,7 +1057,7 @@ public class CommandEvent
                 return true;
         return false;
     }
-
+    
     
     // shortcuts
     

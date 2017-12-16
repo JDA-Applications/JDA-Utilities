@@ -368,7 +368,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         return prefix;
     }
-    
+
     @Override
     public String getAltPrefix()
     {
@@ -547,7 +547,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
                            .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
             }
-                
+
             Request.Builder builder = new Request.Builder()
                     .post(bodyBuilder.build())
                     .url("https://www.carbonitex.net/discord/data/botdata.php");

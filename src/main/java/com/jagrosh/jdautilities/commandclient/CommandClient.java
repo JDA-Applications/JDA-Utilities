@@ -82,7 +82,7 @@ public interface CommandClient
      * @return A possibly-null alternate prefix
      */
     String getAltPrefix();
-    
+
     /**
      * Returns the visual representation of the bot's prefix. 
      * 

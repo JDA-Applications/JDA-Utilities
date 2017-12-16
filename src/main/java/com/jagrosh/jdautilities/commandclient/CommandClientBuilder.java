@@ -214,7 +214,7 @@ public class CommandClientBuilder
         this.error = error;
         return this;
     }
-    
+
     /**
      * Adds a {@link com.jagrosh.jdautilities.commandclient.Command Command} and registers it to the 
      * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl} for this session.
@@ -377,7 +377,7 @@ public class CommandClientBuilder
         this.listener = listener;
         return this;
     }
-
+    
     /**
      * Sets the internal size of the client's {@link resources.FixedSizeCache FixedSizeCache}
      * used for caching and pairing the bot's response {@link net.dv8tion.jda.core.entities.Message Message}s with
