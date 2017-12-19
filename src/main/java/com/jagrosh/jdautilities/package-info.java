@@ -20,7 +20,7 @@
  *
  * <p>The contents of this package are summarized as follows:
  * <ul>
- *     <li>{@link com.jagrosh.jdautilities.commandclient CommandClient Package}
+ *     <li>{@link com.jagrosh.jdautilities.command CommandClient Package}
  *     <br>Contains all classes and interfaces relating to the CommandClient - A powerful command handler and register for bots.</li>
  *     
  *     <li>{@link com.jagrosh.jdautilities.menu Menu Package}

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.commandclient.examples;
+package com.jagrosh.jdautilities.command.examples;
 
 import java.awt.Color;
 import java.util.concurrent.TimeUnit;
-import com.jagrosh.jdautilities.commandclient.Command;
-import com.jagrosh.jdautilities.commandclient.CommandEvent;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.Permission;

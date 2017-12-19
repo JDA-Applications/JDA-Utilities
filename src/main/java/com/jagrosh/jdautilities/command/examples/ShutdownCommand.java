@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.commandclient.examples;
+package com.jagrosh.jdautilities.command.examples;
 
-import java.time.temporal.ChronoUnit;
-import com.jagrosh.jdautilities.commandclient.Command;
-import com.jagrosh.jdautilities.commandclient.CommandEvent;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 
 /**
  *
  * @author John Grosh (jagrosh)
  */
-public class PingCommand extends Command {
+public class ShutdownCommand extends Command {
 
-    public PingCommand()
+    public ShutdownCommand()
     {
-        this.name = "ping";
-        this.help = "checks the bot's latency";
+        this.name = "shutdown";
+        this.help = "safely shuts off the bot";
         this.guildOnly = false;
-        this.aliases = new String[]{"pong"};
+        this.ownerCommand = true;
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        event.reply("Ping: ...", m -> {
-            m.editMessage("Ping: "+event.getMessage().getCreationTime().until(m.getCreationTime(), ChronoUnit.MILLIS)+"ms | Websocket: "+event.getJDA().getPing()+"ms").queue();
-        });
+        event.reactWarning();
+        event.getJDA().shutdown();
     }
     
 }

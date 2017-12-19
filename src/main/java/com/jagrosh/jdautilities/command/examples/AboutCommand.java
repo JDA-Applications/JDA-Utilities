@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.commandclient.examples;
+package com.jagrosh.jdautilities.command.examples;
 
 import com.jagrosh.jdautilities.JDAUtilitiesInfo;
-import com.jagrosh.jdautilities.commandclient.Command;
-import com.jagrosh.jdautilities.commandclient.CommandEvent;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;

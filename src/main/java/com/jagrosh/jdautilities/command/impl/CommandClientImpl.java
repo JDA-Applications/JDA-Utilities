@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.commandclient.impl;
+package com.jagrosh.jdautilities.command.impl;
 
-import com.jagrosh.jdautilities.commandclient.*;
+import com.jagrosh.jdautilities.command.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import resources.FixedSizeCache;
-import com.jagrosh.jdautilities.commandclient.Command.Category;
+import com.jagrosh.jdautilities.command.Command.Category;
 import com.jagrosh.jdautilities.utils.SafeIdUtil;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
@@ -48,13 +48,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * An implementation of {@link com.jagrosh.jdautilities.commandclient.CommandClient CommandClient} to be used by a bot.
+ * An implementation of {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} to be used by a bot.
  * 
  * <p>This is a listener usable with {@link net.dv8tion.jda.core.JDA JDA}, as it implements
  * {@link net.dv8tion.jda.core.hooks.EventListener EventListener} in order to catch and use different kinds of
  * {@link net.dv8tion.jda.core.events.Event Event}s. The primary usage of this is where the CommandClient implementation
  * takes {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}s, and automatically
- * processes arguments, and provide them to a {@link com.jagrosh.jdautilities.commandclient.Command Command} for
+ * processes arguments, and provide them to a {@link com.jagrosh.jdautilities.command.Command Command} for
  * running and execution.
  * 
  * @author John Grosh (jagrosh)

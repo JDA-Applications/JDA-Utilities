@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.commandclient;
+package com.jagrosh.jdautilities.command;
 
-import com.jagrosh.jdautilities.commandclient.annotation.JDACommand;
+import com.jagrosh.jdautilities.command.annotation.JDACommand;
 import java.util.List;
 
 /**
  * A "compiler" for {@link java.lang.Object Object}s that uses {@link java.lang.annotation.Annotation Annotation}s
- * as helpers for creating {@link com.jagrosh.jdautilities.commandclient.Command Command}s.
+ * as helpers for creating {@link com.jagrosh.jdautilities.command.Command Command}s.
  *
  * <p>Previous to version 1.6 all Commands required the Command abstract class to be extended in source.
  * The primary issue that came with this was that Commands were restricted to that method of creation, offering
  * no support for popular means such as annotated commands.
  *
- * <p>Since 1.6 the introduction of {@link com.jagrosh.jdautilities.commandclient.CommandBuilder CommandBuilder}
- * has allowed the potential to create unique {@link com.jagrosh.jdautilities.commandclient.Command Command}
+ * <p>Since 1.6 the introduction of {@link com.jagrosh.jdautilities.command.CommandBuilder CommandBuilder}
+ * has allowed the potential to create unique {@link com.jagrosh.jdautilities.command.Command Command}
  * objects after compilation.
  * <br>The primary duty of this class is to provide a "in runtime" converter for generics that are annotated with
  * the {@link JDACommand.Module JDACommand.Module}
@@ -38,12 +38,12 @@ import java.util.List;
 public interface AnnotatedModuleCompiler
 {
     /**
-     * Compiles one or more {@link com.jagrosh.jdautilities.commandclient.Command Command}s
+     * Compiles one or more {@link com.jagrosh.jdautilities.command.Command Command}s
      * using method annotations as for properties from the specified {@link java.lang.Object
      * Object}.
      *
      * <p><b>This Object must be annotated with {@link
-     * com.jagrosh.jdautilities.commandclient.annotation.JDACommand.Module @JDACommand.Module}!</b>
+     * com.jagrosh.jdautilities.command.annotation.JDACommand.Module @JDACommand.Module}!</b>
      *
      * @param  o
      *         The Object, annotated with {@code @JDACommand.Module}.

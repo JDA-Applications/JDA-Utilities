@@ -27,7 +27,7 @@ import java.util.Map;
  * being at the maximum capacity set at instantiation.
  *
  * <p>This entity is intended for usage in linked deletion which is implemented in
- * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
+ * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
  *
  * @since  1.3
  * @author Michael Ritter

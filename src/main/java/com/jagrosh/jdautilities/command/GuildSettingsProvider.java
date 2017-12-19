@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.commandclient;
+package com.jagrosh.jdautilities.command;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
