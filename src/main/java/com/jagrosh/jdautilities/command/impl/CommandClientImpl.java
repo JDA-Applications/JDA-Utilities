@@ -190,7 +190,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     @Override
     public List<Command> getCommands()
     {
-        return commands;
+        return Collections.unmodifiableList(commands);
     }
 
     @Override
@@ -454,7 +454,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             return;
 
         String[] parts = null;
-        String rawContent = event.getMessage().getRawContent();
+        String rawContent = event.getMessage().getContentRaw();
 
         GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()) : null;
 

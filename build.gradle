@@ -21,71 +21,19 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'com.jfrog.bintray' version '1.7.3'
     id 'java'
+    id 'maven'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
 def versionObj = new Version(major: 2, minor: 0)
 def jdaVersion = '3.3.1_316'
+def date = new Date()
 
-group = 'com.jagrosh'
+group 'com.jagrosh'
 archivesBaseName = project.name
-version = versionObj.toString()
-
-sourceSets {
-    main.java.srcDirs += 'src/main/java'
-    test {
-        compileClasspath = main.compileClasspath
-        runtimeClasspath = main.runtimeClasspath
-    }
-}
-
-repositories {
-    jcenter()
-    maven { url 'https://mvnrepository.com/artifact/' }
-}
-
-dependencies {
-    compileOnly "net.dv8tion:JDA:${jdaVersion}"
-
-    testCompileOnly group: 'junit', name: 'junit', version: '4.12'
-}
-
-task sourcesForRelease(type: Copy) {
-    from 'src/main/java'
-    into 'build/filteredSrc'
-    filter(ReplaceTokens, tokens: [
-            versionMajor: versionObj.major.toString(),
-            versionMinor: versionObj.minor.toString()
-    ])
-}
-
-compileJava {
-    source = sourcesForRelease.destinationDir
-    classpath = sourceSets.main.compileClasspath
-    options.encoding = 'UTF-8'
-
-    dependsOn sourcesForRelease
-}
-
-jar {
-    baseName = project.name
-    manifest {
-        attributes 'Implementation-Version': version
-    }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from "${buildDir}/filteredSrc"
-}
 
 javadoc {
-    failOnError = false
-    options.memberLevel = JavadocMemberLevel.PROTECTED
-    options.author()
-    options.encoding = 'UTF-8'
-
     // exclude internal classes
     exclude('com/jagrosh/jdautilities/commandclient/impl')
 
@@ -93,77 +41,179 @@ javadoc {
     exclude('resources')
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
-shadowJar {
-    classifier = 'withDependencies'
-}
+    group "${rootProject.group}.jdautilities"
+    version "$versionObj"
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.0.1'
-}
+    // The baseName of all jars for the project in question
+    // If this is the root project, it's just JDA-Utilities
+    // If it's a individual module, it will be JDA-Utilities-X
+    // where X is the module name
+    String projectFullName = project == rootProject? rootProject.name : "$rootProject.name-${toCamelCase(project.name)}"
+    archivesBaseName = projectFullName
 
-bintray {
-    user = bintrayUsername
-    key = bintrayApiKey
-    publications = ["BintrayRelease"]
-    publish = true
-    pkg {
-        repo = 'maven'
-        name = 'JDA-Utilities'
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/JDA-Applications/JDA-Utilities'
-        version {
-            name = project.version
-            released = new Date()
+    repositories {
+        jcenter()
+        maven { url 'https://mvnrepository.com/artifact/' }
+    }
+
+    dependencies {
+        compileOnly "net.dv8tion:JDA:$jdaVersion"
+        testCompile 'junit:junit:4.12'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/java'
+        test {
+            compileClasspath = main.compileClasspath
+            runtimeClasspath = main.runtimeClasspath
         }
     }
-}
 
-publishing {
-    publications {
-        BintrayRelease(MavenPublication) {
-            from components.java
-            groupId group
-            artifactId archivesBaseName
-            version version
-            artifact javadocJar
-            artifact sourcesJar
+    task sourcesForRelease(type: Copy) {
+        group 'publishing'
+        description 'Organizes sources for a bintray release'
+
+        from 'src/main/java'
+        into "${buildDir}/filteredSrc"
+
+        filteringCharset 'UTF-8'
+
+        filter(ReplaceTokens, tokens: [
+                versionMajor: versionObj.major.toString(),
+                versionMinor: versionObj.minor.toString()
+        ])
+    }
+
+    compileJava {
+        source = sourcesForRelease.destinationDir
+        classpath = sourceSets.main.compileClasspath
+        options.encoding = 'UTF-8'
+
+        dependsOn sourcesForRelease
+    }
+
+    jar {
+        baseName projectFullName
+        manifest {
+            attributes 'Implementation-Version': version
         }
     }
-}
 
-String getProjectProperty(String propertyName)
-{
-    String property = ""
-    if (hasProperty(propertyName))
-    {
-        property = this.properties[propertyName]
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        group 'build'
+        description 'Creates a Sources Jar'
+
+        baseName projectFullName
+        classifier 'sources'
+        from "${buildDir}/filteredSrc"
     }
-    return property
+
+    javadoc {
+        failOnError = false
+
+        options.memberLevel = JavadocMemberLevel.PROTECTED
+        options.author()
+        options.encoding = 'UTF-8'
+
+        // Allow @implNote tag
+        options.addStringOption('tag', "implNote:a:Implementation Note:")
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        group 'documentation'
+        description 'Creates a Javadoc Jar'
+
+        baseName projectFullName
+        classifier 'javadoc'
+
+        from javadoc.destinationDir
+    }
+
+    shadowJar {
+        baseName projectFullName
+        classifier 'withDependencies'
+    }
+
+    publishing {
+        publications {
+            BintrayRelease(MavenPublication) {
+                from components.java
+                groupId group
+                artifactId archivesBaseName
+                version version
+                artifact javadocJar
+                artifact sourcesJar
+            }
+        }
+    }
+
+    bintray {
+        user = bintrayUsername
+        key = bintrayApiKey
+        publications = ["BintrayRelease"]
+        publish = true
+
+        pkg {
+            repo = 'maven'
+            name = 'JDA-Utilities'
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/JDA-Applications/JDA-Utilities'
+            version {
+                name = project.version
+                released = date
+            }
+        }
+    }
+
+    bintrayUpload {
+        dependsOn build
+
+        onlyIf { !propertyOf("bintrayUsername").empty }
+        onlyIf { !propertyOf("bintrayApiKey").empty }
+    }
+
+    clean {
+        doFirst {
+            // Clean Intellij /out/ directory
+            delete { files('/out') }
+        }
+    }
+
+    build {
+        dependsOn clean
+        dependsOn jar
+        dependsOn javadocJar
+        dependsOn sourcesJar
+        dependsOn shadowJar
+
+        jar.mustRunAfter clean
+        javadocJar.mustRunAfter jar
+        sourcesJar.mustRunAfter javadocJar
+        shadowJar.mustRunAfter sourcesJar
+    }
 }
 
-build {
-    dependsOn clean
-    dependsOn jar
-    dependsOn javadocJar
-    dependsOn sourcesJar
-    dependsOn shadowJar
+task buildAll {
+    group 'build'
+    description 'Builds all projects'
 
-    jar.mustRunAfter clean
-    javadocJar.mustRunAfter jar
-    sourcesJar.mustRunAfter javadocJar
-    shadowJar.mustRunAfter sourcesJar
-}
-
-bintrayUpload {
     dependsOn build
+    rootProject.childProjects.values().each { dependsOn it.tasks.getByName("build") }
+}
 
-    onlyIf { !getProjectProperty("bintrayUsername").empty }
-    onlyIf { !getProjectProperty("bintrayApiKey").empty }
+task cleanAll {
+    group 'build'
+    description 'Cleans all projects'
+
+    dependsOn clean
+    rootProject.childProjects.values().each { dependsOn it.tasks.getByName("clean") }
 }
 
 class Version {
@@ -172,4 +222,15 @@ class Version {
     String toString() {
         "${major}.${minor}"
     }
+}
+
+static String toCamelCase(String str) {
+    if(str.length() < 2)
+        return str.toUpperCase()
+
+    return "${str[0].toUpperCase()}${str.substring(1)}"
+}
+
+String propertyOf(String key) {
+    return !hasProperty(key)? "" : (properties["bintrayApiKey"] as String)
 }

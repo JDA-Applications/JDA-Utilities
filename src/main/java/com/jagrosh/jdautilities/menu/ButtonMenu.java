@@ -35,6 +35,9 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
+ * a organized display of emotes/emojis as buttons paired with options, and below
+ * the menu reactions corresponding to each button.
  *
  * @author John Grosh
  */
@@ -106,6 +109,7 @@ public class ButtonMenu extends Menu
                 if(i+1<choices.size())
                     r.queue(); // If there is still more reactions to add we delay using the EventWaiter
                 else
+                {
                     // This is the last reaction added.
                     r.queue(v -> {
                         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
@@ -116,9 +120,9 @@ public class ButtonMenu extends Menu
 
                             // If the reaction is an Emote we get the Snowflake,
                             // otherwise we get the unicode value.
-                            String re = event.getReaction().getEmote().isEmote() 
-                                    ? event.getReaction().getEmote().getId() 
-                                    : event.getReaction().getEmote().getName();
+                            String re = event.getReaction().getEmote().isEmote()
+                                ? event.getReaction().getEmote().getId()
+                                : event.getReaction().getEmote().getName();
 
                             // If the value we got is not registered as a button to
                             // the ButtonMenu being displayed we return false.
@@ -137,6 +141,7 @@ public class ButtonMenu extends Menu
                             finalAction.accept(m);
                         }, timeout, unit, () -> finalAction.accept(m));
                     });
+                }
             }
         });
     }

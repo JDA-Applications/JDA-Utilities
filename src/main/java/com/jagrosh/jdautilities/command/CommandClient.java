@@ -440,7 +440,7 @@ public interface CommandClient
      *
      * @return The settings object for the Guild, specified in
      *         {@link com.jagrosh.jdautilities.command.GuildSettingsManager#getSettings(Guild)
-     *         GuildSettingsManager#getSettings(Guild)}, can be {@link null} if the implementation
+     *         GuildSettingsManager#getSettings(Guild)}, can be {@code null} if the implementation
      *         allows it.
      */
     <S> S getSettingsFor(Guild guild);

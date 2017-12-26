@@ -1,5 +1,5 @@
 # gradle
-/build/
+**/build/
 /.gradle/
 /gradle.properties
 
@@ -10,6 +10,7 @@
 /bin/
 
 # intellij files
+**/out/
 /.idea/
 *.iml
 *.ipr
@@ -21,5 +22,5 @@
 *.nb-gradle-properties
 
 # project files
-/src/test
+**/src/test
 tokens.json
