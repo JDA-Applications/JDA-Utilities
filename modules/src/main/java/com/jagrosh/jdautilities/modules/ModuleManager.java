@@ -29,6 +29,7 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Kaidan Gustave
@@ -42,7 +43,7 @@ public class ModuleManager
 
     private final Map<String, ModuleFactory> loadedFactories;
     private final CommandClient representedClient;
-    private final Map<String, Module> loadedModules;
+    private final Map<String, Module<?>> loadedModules;
 
     public ModuleManager()
     {
@@ -89,7 +90,7 @@ public class ModuleManager
 
     public <T> Module<T> getModule(String name)
     {
-        return loadedModules.get(name.toLowerCase());
+        return (Module<T>) loadedModules.get(name.toLowerCase());
     }
 
     public void loadModule(String name)
@@ -145,7 +146,9 @@ public class ModuleManager
             loadedModules.remove(module.getName().toLowerCase());
             if(representedClient != null)
             {
-                Collection<Class<? extends Command>> moduleContents = module.getCommands();
+                List<Class<? extends Command>> moduleContents =
+                    module.getCommands().stream().map(Module.Entry::getCommandClass).collect(Collectors.toList());
+
                 representedClient.getCommands().forEach(command -> {
                     // Remove if the command is part of the module.
                     if(moduleContents.contains(command.getClass())) {

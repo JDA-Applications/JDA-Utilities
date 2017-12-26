@@ -48,7 +48,7 @@ public abstract class Module<T>
      * <br>It's highly recommended you avoid addition of classes to this after
      * instantiation of a Module.
      */
-    protected final HashMap<String, Entry<T>> commands;
+    protected final HashMap<String, Module.Entry<T>> commands;
 
     /**
      * The module's configuration.
@@ -119,9 +119,11 @@ public abstract class Module<T>
             throw new ModuleException("Name was still null after instantiation of module!");
     }
 
+    // TODO Documentation
     protected abstract void init(URLClassLoader classLoader) throws Exception;
 
-    public final List<Module.Entry<T>> getCommands()
+    // TODO Documentation
+    public List<Module.Entry<T>> getCommands()
     {
         return Collections.list(Collections.enumeration(commands.values()));
     }
