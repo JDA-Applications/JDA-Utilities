@@ -1,0 +1,129 @@
+plugins {
+    id 'com.github.ben-manes.versions' version '0.17.0'
+    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'com.jfrog.bintray' version '1.8.0'
+}
+
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'com.jfrog.bintray'
+
+    group 'com.jagrosh'
+    version = '2.0'
+
+    project.ext {
+        jdaVersion = '3.4.0_318'
+        slf4jVersion = '1.7.25'
+        okhttpVersion = '3.9.1'
+
+        artifactId = rootProject == project ? rootProject.name.toLowerCase() : (rootProject.name + '-' + project.name).toLowerCase()
+    }
+
+    repositories {
+        jcenter()
+    }
+
+    compileJava {
+        options.encoding = 'UTF-8'
+    }
+
+    jar {
+        //noinspection GroovyAssignabilityCheck
+        baseName project.artifactId
+
+        manifest {
+            attributes(
+                'Implementation-Title': project.artifactId,
+                'Implementation-Version': project.version
+            )
+        }
+    }
+
+    javadoc {
+        options.memberLevel = JavadocMemberLevel.PROTECTED
+        options.author()
+        options.encoding = 'UTF-8'
+        options.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
+
+    }
+
+    tasks.create('javadocJar', Jar) {
+        dependsOn tasks.javadoc
+        from javadoc.destinationDir
+
+        //noinspection GroovyAssignabilityCheck
+        baseName project.artifactId
+        classifier 'javadoc'
+        extension 'jar'
+        group 'build'
+    }
+
+    tasks.create('sourceJar', Jar) {
+        dependsOn tasks.classes
+        from sourceSets.main.allSource
+
+        //noinspection GroovyAssignabilityCheck
+        baseName project.artifactId
+        classifier 'sources'
+        extension 'jar'
+        group 'build'
+    }
+
+    publishing {
+        publications {
+            BintrayRelease(MavenPublication) {
+                from components.java
+                artifact tasks.javadocJar
+                artifact tasks.sourceJar
+
+                groupId = project.group
+                artifactId = project.artifactId
+                version = project.version
+            }
+        }
+    }
+
+    shadowJar {
+        //noinspection GroovyAssignabilityCheck
+        baseName project.artifactId
+    }
+
+    build {
+        dependsOn javadocJar
+        dependsOn sourceJar
+        dependsOn shadowJar
+    }
+
+    bintray {
+
+        dryRun = true
+
+        user = bintrayUsername
+        key = bintrayApiKey
+        publications = [ 'BintrayRelease' ]
+        publish = true
+        pkg {
+            repo = 'maven'
+            name = 'JDA-Utilities'
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/JDA-Applications/JDA-Utilities'
+            version {
+                name = project.version
+                released = new Date()
+            }
+        }
+    }
+
+    bintrayUpload {
+        dependsOn build
+
+        onlyIf { !project.property('bintrayUsername')?.trim()?.empty }
+        onlyIf { !project.property('bintrayApiKey')?.trim()?.empty }
+    }
+}
+
+dependencies {
+    api subprojects
+}

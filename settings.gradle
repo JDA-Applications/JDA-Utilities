@@ -1,0 +1,3 @@
+rootProject.name = 'JDA-Utilities'
+
+include 'commons', 'menu', 'command', 'examples'
