@@ -120,9 +120,9 @@ public class ButtonMenu extends Menu
 
                             // If the reaction is an Emote we get the Snowflake,
                             // otherwise we get the unicode value.
-                            String re = event.getReaction().getEmote().isEmote()
-                                ? event.getReaction().getEmote().getId()
-                                : event.getReaction().getEmote().getName();
+                            String re = event.getReaction().getReactionEmote().isEmote()
+                                ? event.getReaction().getReactionEmote().getId()
+                                : event.getReaction().getReactionEmote().getName();
 
                             // If the value we got is not registered as a button to
                             // the ButtonMenu being displayed we return false.
@@ -137,7 +137,7 @@ public class ButtonMenu extends Menu
                             // is fired and processed above.
 
                             // Preform the specified action with the ReactionEmote
-                            action.accept(event.getReaction().getEmote());
+                            action.accept(event.getReaction().getReactionEmote());
                             finalAction.accept(m);
                         }, timeout, unit, () -> finalAction.accept(m));
                     });

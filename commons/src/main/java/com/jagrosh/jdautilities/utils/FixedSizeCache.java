@@ -46,6 +46,7 @@ public class FixedSizeCache<K, V>
      * @param  size
      *         The size of the FixedSizeCache to be created.
      */
+    @SuppressWarnings("unchecked")
     public FixedSizeCache(int size)
     {
         this.map = new HashMap<>();

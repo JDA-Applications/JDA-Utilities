@@ -163,9 +163,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 }
                 if(event.isFromType(ChannelType.TEXT))
                     event.reactSuccess();
-                event.reply(builder.toString(), unused -> {}, t -> {
-                    event.replyWarning("Help cannot be sent because you are blocking Direct Messages.");
-                });
+                event.reply(builder.toString(), unused -> {}, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
         } : helpConsumer;
 
         // Load commands
@@ -232,7 +230,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         OffsetDateTime now = OffsetDateTime.now();
         cooldowns.keySet().stream().filter((str) -> (cooldowns.get(str).isBefore(now)))
-                .collect(Collectors.toList()).stream().forEach(str -> cooldowns.remove(str));
+                .collect(Collectors.toList()).forEach(cooldowns::remove);
     }
 
     @Override
@@ -288,7 +286,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(commandIndex.containsValue(targetIndex))
         {
             commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
-                        .collect(Collectors.toList()).forEach(key -> commandIndex.remove(key));
+                        .collect(Collectors.toList()).forEach(commandIndex::remove);
         }
         commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
                 .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
@@ -298,7 +296,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     @Override
     public void addAnnotatedModule(Object module)
     {
-        compiler.compile(module).forEach(command -> addCommand(command));
+        compiler.compile(module).forEach(this::addCommand);
     }
 
     @Override
@@ -398,6 +396,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         return linkedCacheSize>0;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <S> S getSettingsFor(Guild guild)
     {
@@ -406,6 +405,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         return (S)manager.getSettings(guild);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <M extends GuildSettingsManager> M getSettingsManager()
     {
@@ -454,7 +454,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             return;
 
         String[] parts = null;
-        String rawContent = event.getMessage().getRawContent();
+        String rawContent = event.getMessage().getContentRaw();
 
         GuildSettingsProvider settings = event.isFromType(ChannelType.TEXT)? provideSettings(event.getGuild()) : null;
 

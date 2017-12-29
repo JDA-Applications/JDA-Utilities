@@ -905,7 +905,7 @@ public class CommandEvent
                 event.getMessage().addReaction(reaction).queue();
             else
                 event.getMessage().addReaction(emote).queue();
-        }catch(PermissionException ex){}
+        }catch(PermissionException ignored){}
     }
     
     private Emote parseEmote(String text)

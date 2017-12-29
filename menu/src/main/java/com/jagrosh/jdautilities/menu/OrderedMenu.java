@@ -214,20 +214,20 @@ public class OrderedMenu extends Menu
             {
                 MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                 // Process which reaction it is
-                if(event.getReaction().getEmote().getName().equals(CANCEL))
+                if(event.getReaction().getReactionEmote().getName().equals(CANCEL))
                     cancel.accept(m);
                 else
                     // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                     // but from 1 to number of choices. So the first choice will correspond to 1, the second
                     // choice to 2, etc.
-                    action.accept(m, getNumber(event.getReaction().getEmote().getName()));
+                    action.accept(m, getNumber(event.getReaction().getReactionEmote().getName()));
             }
             // If it's a valid MessageReceivedEvent
             else if (e instanceof MessageReceivedEvent)
             {
                 MessageReceivedEvent event = (MessageReceivedEvent)e;
                 // Get the number in the message and process
-                int num = getMessageNumber(event.getMessage().getRawContent());
+                int num = getMessageNumber(event.getMessage().getContentRaw());
                 if(num<0 || num>choices.size())
                     cancel.accept(m);
                 else
@@ -244,13 +244,13 @@ public class OrderedMenu extends Menu
             return isValidReaction(m, e);
         }, e -> {
             m.delete().queue();
-            if(e.getReaction().getEmote().getName().equals(CANCEL))
+            if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
                 cancel.accept(m);
             else
                 // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                 // but from 1 to number of choices. So the first choice will correspond to 1, the second
                 // choice to 2, etc.
-                action.accept(m, getNumber(e.getReaction().getEmote().getName()));
+                action.accept(m, getNumber(e.getReaction().getReactionEmote().getName()));
         }, timeout, unit, () -> cancel.accept(m));
     }
 
@@ -277,10 +277,10 @@ public class OrderedMenu extends Menu
         if(!isValidUser(e.getUser(), e.getGuild()))
             return false;
         // The reaction is the cancel reaction
-        if(e.getReaction().getEmote().getName().equals(CANCEL))
+        if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
             return true;
 
-        int num = getNumber(e.getReaction().getEmote().getName());
+        int num = getNumber(e.getReaction().getReactionEmote().getName());
         return !(num<0 || num>choices.size());
     }
     

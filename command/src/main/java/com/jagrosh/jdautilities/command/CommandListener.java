@@ -87,7 +87,7 @@ public interface CommandListener
      *
      *      public BadCommand() {
      *          this.name = "bad";
-     *          this.category = new Category("bad category", event -> {
+     *          this.category = new Category("bad category", event {@literal ->} {
      *              // This will throw a NullPointerException if it's not from a Guild!
      *              return event.getGuild().getIdLong() == 12345678910111213;
      *          });

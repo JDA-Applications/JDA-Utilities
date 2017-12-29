@@ -469,7 +469,7 @@ public class CommandBuilder
      */
     public Command build(Consumer<CommandEvent> execution)
     {
-        return build((c, e) -> { execution.accept(e); });
+        return build((c, e) -> execution.accept(e));
     }
 
     /**

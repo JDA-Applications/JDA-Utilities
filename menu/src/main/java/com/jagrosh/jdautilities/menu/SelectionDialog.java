@@ -164,15 +164,15 @@ public class SelectionDialog extends Menu
         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(UP.equals(event.getReaction().getEmote().getName()) 
-                    || DOWN.equals(event.getReaction().getEmote().getName())
-                    || CANCEL.equals(event.getReaction().getEmote().getName())
-                    || SELECT.equals(event.getReaction().getEmote().getName())))
+            if(!(UP.equals(event.getReaction().getReactionEmote().getName())
+                    || DOWN.equals(event.getReaction().getReactionEmote().getName())
+                    || CANCEL.equals(event.getReaction().getReactionEmote().getName())
+                    || SELECT.equals(event.getReaction().getReactionEmote().getName())))
                 return false;
             return isValidUser(event.getUser(), event.getGuild());
         }, event -> {
             int newSelection = selection;
-            switch(event.getReaction().getEmote().getName())
+            switch(event.getReaction().getReactionEmote().getName())
             {
                 case UP:
                     if(newSelection>1)

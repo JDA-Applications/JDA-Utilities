@@ -200,7 +200,7 @@ public class Slideshow extends Menu
                 // Wrong channel
                 if(!mre.getChannel().equals(message.getChannel()))
                     return false;
-                String rawContent = mre.getMessage().getRawContent().trim();
+                String rawContent = mre.getMessage().getContentRaw().trim();
                 if(leftText != null && rightText != null)
                 {
                     if(rawContent.equalsIgnoreCase(leftText) || rawContent.equalsIgnoreCase(rightText))
@@ -214,7 +214,7 @@ public class Slideshow extends Menu
                         // Minimum 1, Maximum the number of pages, never the current page number
                         if(1 <= i && i <= urls.size() && i != pageNum)
                             return isValidUser(mre.getAuthor(), mre.getGuild());
-                    } catch(NumberFormatException e) {}
+                    } catch(NumberFormatException ignored) {}
                 }
             }
             // Default return false
@@ -227,7 +227,7 @@ public class Slideshow extends Menu
             else
             {
                 MessageReceivedEvent mre = ((MessageReceivedEvent) event);
-                String rawContent = mre.getMessage().getRawContent().trim();
+                String rawContent = mre.getMessage().getContentRaw().trim();
 
                 int pages = urls.size();
                 final int targetPage;
@@ -285,7 +285,7 @@ public class Slideshow extends Menu
     {
         int newPageNum = pageNum;
         int pages = urls.size();
-        switch(event.getReaction().getEmote().getName())
+        switch(event.getReaction().getReactionEmote().getName())
         {
             case LEFT:
                 if(newPageNum == 1 && wrapPageEnds)
@@ -328,7 +328,7 @@ public class Slideshow extends Menu
 
         try {
             event.getReaction().removeReaction(event.getUser()).queue();
-        } catch(PermissionException e) {}
+        } catch(PermissionException ignored) {}
 
         int n = newPageNum;
         message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));

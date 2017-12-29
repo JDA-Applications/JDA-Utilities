@@ -150,7 +150,7 @@ public abstract class Menu
         if(guild == null || !guild.isMember(user))
             return false;
 
-        return guild.getMember(user).getRoles().stream().anyMatch(r -> roles.contains(r));
+        return guild.getMember(user).getRoles().stream().anyMatch(roles::contains);
     }
 
     /**
@@ -179,11 +179,12 @@ public abstract class Menu
      *         all handled as {@link net.dv8tion.jda.core.entities.MessageEmbed embeds}, there
      *         is no bias or advantage of implementing a custom Menu as a message without an embed.
      */
+    @SuppressWarnings("unchecked")
     public abstract static class Builder<T extends Builder<T, V>, V extends Menu>
     {
         protected EventWaiter waiter;
-        protected Set<User> users = new HashSet<>();
-        protected Set<Role> roles = new HashSet<>();
+        protected final Set<User> users = new HashSet<>();
+        protected final Set<Role> roles = new HashSet<>();
         protected long timeout = 1;
         protected TimeUnit unit = TimeUnit.MINUTES;
 

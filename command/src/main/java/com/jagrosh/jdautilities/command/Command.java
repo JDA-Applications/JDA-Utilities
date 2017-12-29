@@ -230,7 +230,7 @@ public abstract class Command
         
         // required role check
         if(requiredRole!=null)
-            if(!event.isFromType(ChannelType.TEXT) || !event.getMember().getRoles().stream().anyMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
+            if(!event.isFromType(ChannelType.TEXT) || event.getMember().getRoles().stream().noneMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
             {
                 terminate(event, event.getClient().getError()+" You must have a role called `"+requiredRole+"` to use that!");
                 return;

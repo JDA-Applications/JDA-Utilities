@@ -25,7 +25,7 @@ import net.dv8tion.jda.core.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *
@@ -75,34 +75,27 @@ public class AboutCommand extends Command {
             }
         }
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(event.getGuild()==null ? color : event.getGuild().getSelfMember().getColor());
-        builder.setAuthor("All about "+event.getSelfUser().getName()+"!", null, event.getSelfUser().getAvatarUrl());
-        boolean join = !(event.getClient().getServerInvite()==null || event.getClient().getServerInvite().isEmpty());
-        boolean inv =  !oauthLink.isEmpty();
-        String invline = "\n"+(join ? "Join my server [`here`]("+event.getClient().getServerInvite()+")" : (inv ? "Please " : ""))+(inv ? (join ? ", or " : "")+"[`invite`]("+oauthLink+") me to your server" : "")+"!";
-        String descr = "Hello! I am **"+event.getSelfUser().getName()+"**, "+description
-                + "\nI "+(IS_AUTHOR ? "was written in Java" : "am owned")+" by **"+event.getJDA().getUserById(event.getClient().getOwnerId()).getName()
-                + "** using "+JDAUtilitiesInfo.AUTHOR+"'s [Commands Extension]("+JDAUtilitiesInfo.GITHUB+") ("+JDAUtilitiesInfo.VERSION+") and the "
-                + "[JDA library](https://github.com/DV8FromTheWorld/JDA) ("+JDAInfo.VERSION+")"
-                + "\nType `"+event.getClient().getTextualPrefix()+event.getClient().getHelpWord()+"` to see my commands!"
-                + (join||inv ? invline : "")
-                + "\n\nSome of my features include: ```css";
-        for(String feature: features)
-            descr+="\n"+(event.getClient().getSuccess().startsWith("<") ? REPLACEMENT_ICON : event.getClient().getSuccess())+" "+feature;
-        descr+=" ```";
+        builder.setColor(event.getGuild() == null ? color : event.getGuild().getSelfMember().getColor());
+        builder.setAuthor("All about " + event.getSelfUser().getName() + "!", null, event.getSelfUser().getAvatarUrl());
+        boolean join = !(event.getClient().getServerInvite() == null || event.getClient().getServerInvite().isEmpty());
+        boolean inv = !oauthLink.isEmpty();
+        String invline = "\n" + (join ? "Join my server [`here`](" + event.getClient().getServerInvite() + ")" : (inv ? "Please " : "")) + (inv ? (join ? ", or " : "") + "[`invite`](" + oauthLink + ") me to your server" : "") + "!";
+        StringBuilder descr = new StringBuilder("Hello! I am **" + event.getSelfUser().getName() + "**, " + description + "\nI " + (IS_AUTHOR ? "was written in Java" : "am owned") + " by **" + event.getJDA().getUserById(event.getClient().getOwnerId()).getName() + "** using " + JDAUtilitiesInfo.AUTHOR + "'s [Commands Extension](" + JDAUtilitiesInfo.GITHUB + ") (" + JDAUtilitiesInfo.VERSION + ") and the " + "[JDA library](https://github.com/DV8FromTheWorld/JDA) (" + JDAInfo.VERSION + ")" + "\nType `" + event.getClient().getTextualPrefix() + event.getClient().getHelpWord() + "` to see my commands!" + (join || inv ? invline : "") + "\n\nSome of my features include: ```css");
+        for (String feature : features)
+            descr.append("\n").append(event.getClient().getSuccess().startsWith("<") ? REPLACEMENT_ICON : event.getClient().getSuccess()).append(" ").append(feature);
+        descr.append(" ```");
         builder.setDescription(descr);
-        if(event.getJDA().getShardInfo()==null)
+        if (event.getJDA().getShardInfo() == null)
         {
-            builder.addField("Stats", event.getJDA().getGuilds().size()+" servers\n1 shard", true);
-            builder.addField("Users", event.getJDA().getUsers().size()+" unique\n"+event.getJDA().getGuilds().stream().mapToInt(g -> g.getMembers().size()).sum()+" total", true);
-            builder.addField("Channels", event.getJDA().getTextChannels().size()+" Text\n"+event.getJDA().getVoiceChannels().size()+" Voice", true);
+            builder.addField("Stats", event.getJDA().getGuilds().size() + " servers\n1 shard", true);
+            builder.addField("Users", event.getJDA().getUsers().size() + " unique\n" + event.getJDA().getGuilds().stream().mapToInt(g -> g.getMembers().size()).sum() + " total", true);
+            builder.addField("Channels", event.getJDA().getTextChannels().size() + " Text\n" + event.getJDA().getVoiceChannels().size() + " Voice", true);
         }
         else
         {
-            builder.addField("Stats",(event.getClient()).getTotalGuilds()+" Servers\nShard "
-                    +(event.getJDA().getShardInfo().getShardId()+1)+"/"+event.getJDA().getShardInfo().getShardTotal(), true);
-            builder.addField("This shard",event.getJDA().getUsers().size()+" Users\n"+event.getJDA().getGuilds().size()+" Servers", true);
-            builder.addField("", event.getJDA().getTextChannels().size()+" Text Channels\n"+event.getJDA().getVoiceChannels().size()+" Voice Channels", true);
+            builder.addField("Stats", (event.getClient()).getTotalGuilds() + " Servers\nShard " + (event.getJDA().getShardInfo().getShardId() + 1) + "/" + event.getJDA().getShardInfo().getShardTotal(), true);
+            builder.addField("This shard", event.getJDA().getUsers().size() + " Users\n" + event.getJDA().getGuilds().size() + " Servers", true);
+            builder.addField("", event.getJDA().getTextChannels().size() + " Text Channels\n" + event.getJDA().getVoiceChannels().size() + " Voice Channels", true);
         }
         builder.setFooter("Last restart", null);
         builder.setTimestamp(event.getClient().getStartTime());
