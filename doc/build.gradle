@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
+dependencies {
+    api project(':commons')
 
-include 'commons', 'menu', 'command', 'doc', 'examples'
+    implementation group: 'net.dv8tion', name: 'JDA', version: jdaVersion
+}
