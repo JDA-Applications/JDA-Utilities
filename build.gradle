@@ -20,10 +20,9 @@ plugins {
 }
 
 allprojects {
-    apply plugin: 'java-library'
     apply plugin: 'maven-publish'
-    apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
     group 'com.jagrosh'
     version = '2.0'
@@ -40,74 +39,14 @@ allprojects {
         jcenter()
     }
 
-    compileJava {
-        options.encoding = 'UTF-8'
-    }
-
-    jar {
-        //noinspection GroovyAssignabilityCheck
-        baseName project.artifactId
-
-        manifest {
-            attributes(
-                'Implementation-Title': project.artifactId,
-                'Implementation-Version': project.version
-            )
-        }
-    }
-
-    javadoc {
-        options.memberLevel = JavadocMemberLevel.PROTECTED
-        options.author()
-        options.encoding = 'UTF-8'
-        options.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
-    }
-
-    tasks.create('javadocJar', Jar) {
-        dependsOn tasks.javadoc
-        from javadoc.destinationDir
-
-        //noinspection GroovyAssignabilityCheck
-        baseName project.artifactId
-        classifier 'javadoc'
-        extension 'jar'
-        group 'build'
-    }
-
-    tasks.create('sourceJar', Jar) {
-        dependsOn tasks.classes
-        from sourceSets.main.allSource
-
-        //noinspection GroovyAssignabilityCheck
-        baseName project.artifactId
-        classifier 'sources'
-        extension 'jar'
-        group 'build'
-    }
-
     publishing {
         publications {
             BintrayRelease(MavenPublication) {
-                from components.java
-                artifact tasks.javadocJar
-                artifact tasks.sourceJar
-
                 groupId = project.group
                 artifactId = project.artifactId
                 version = project.version
             }
         }
-    }
-
-    shadowJar {
-        //noinspection GroovyAssignabilityCheck
-        baseName project.artifactId
-    }
-
-    build {
-        dependsOn javadocJar
-        dependsOn sourceJar
-        dependsOn shadowJar
     }
 
     bintray {
@@ -116,7 +55,7 @@ allprojects {
 
         user = bintrayUsername
         key = bintrayApiKey
-        publications = [ 'BintrayRelease' ]
+        publications = ['BintrayRelease']
         publish = true
         pkg {
             repo = 'maven'
@@ -138,6 +77,123 @@ allprojects {
     }
 }
 
+subprojects {
+    apply plugin: 'java-library'
+
+    compileJava {
+        options.encoding = 'UTF-8'
+    }
+
+    jar {
+        baseName "$project.artifactId"
+
+        manifest {
+            attributes(
+                    'Implementation-Title': project.artifactId,
+                    'Implementation-Version': project.version
+            )
+        }
+    }
+
+    shadowJar {
+        baseName "$project.artifactId"
+    }
+
+    javadoc {
+        options.memberLevel = JavadocMemberLevel.PROTECTED
+        options.author()
+        options.encoding = 'UTF-8'
+        options.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
+    }
+
+    tasks.create('javadocJar', Jar) {
+        dependsOn tasks.javadoc
+        from javadoc.destinationDir
+
+        baseName "$project.artifactId"
+        classifier 'javadoc'
+        extension 'jar'
+        group 'build'
+    }
+
+    tasks.create('sourceJar', Jar) {
+        dependsOn tasks.classes
+        from sourceSets.main.allSource
+
+        baseName "$project.artifactId"
+        classifier 'sources'
+        extension 'jar'
+        group 'build'
+    }
+
+    build {
+        dependsOn javadocJar
+        dependsOn sourceJar
+        dependsOn shadowJar
+    }
+
+    publishing {
+        publications {
+            BintrayRelease(MavenPublication) {
+                from components.java
+                artifact tasks.javadocJar
+                artifact tasks.sourceJar
+            }
+        }
+    }
+}
+
+configurations {
+    api {
+        description = "api"
+        transitive = true
+    }
+}
+
 dependencies {
     api subprojects
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+tasks.create("shadowJar", ShadowJar) {
+    group 'shadow'
+
+    dependsOn({ rootProject.getTasksByName("jar", true) } as Object[])
+
+    baseName "$project.artifactId"
+    classifier 'all'
+    version "$project.version"
+
+    from subprojects*.jar
+
+    destinationDir project.file('build/libs/')
+}
+
+tasks.create("build") {
+    group 'build'
+
+    dependsOn shadowJar
+}
+
+tasks.create("clean", Delete) {
+    group 'build'
+
+    delete['build/']
+}
+
+publishing {
+    publications {
+        BintrayRelease(MavenPublication) {
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.api.allDependencies.each {
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', it.group)
+                    dependencyNode.appendNode('artifactId', it instanceof ProjectDependency ? it.dependencyProject.artifactId : it.name)
+                    dependencyNode.appendNode('version', it.version)
+                }
+            }
+        }
+    }
 }
