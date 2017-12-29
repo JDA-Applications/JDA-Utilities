@@ -50,9 +50,6 @@ allprojects {
     }
 
     bintray {
-
-        dryRun = true
-
         user = bintrayUsername
         key = bintrayApiKey
         publications = ['BintrayRelease']
