@@ -186,8 +186,8 @@ public abstract class Menu
     public abstract static class Builder<T extends Builder<T, V>, V extends Menu>
     {
         protected EventWaiter waiter;
-        protected final Set<User> users = new HashSet<>();
-        protected final Set<Role> roles = new HashSet<>();
+        protected Set<User> users = new HashSet<>();
+        protected Set<Role> roles = new HashSet<>();
         protected long timeout = 1;
         protected TimeUnit unit = TimeUnit.MINUTES;
 
