@@ -15,10 +15,10 @@
  */
 package com.jagrosh.jdautilities.doc;
 
+import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
 import com.jagrosh.jdautilities.doc.standard.CommandInfo;
 import com.jagrosh.jdautilities.doc.standard.Error;
 import com.jagrosh.jdautilities.doc.standard.RequiredPermissions;
-import com.jagrosh.jdautilities.utils.FixedSizeCache;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -59,8 +59,8 @@ import java.util.stream.Collectors;
  * command system that uses Class and/or Method based commands, and works in any JVM
  * language that supports annotations.
  *
- * @see    com.jagrosh.jdautilities.doc.ConvertedBy
- * @see    com.jagrosh.jdautilities.doc.DocConverter
+ * @see    ConvertedBy
+ * @see    DocConverter
  *
  * @since  2.0
  * @author Kaidan Gustave
@@ -201,7 +201,7 @@ public class DocGenerator
      * to this DocGenerator.
      *
      * <p>An example of a custom CommandDoc conversion annotation can be found in the
-     * {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} documentation.
+     * {@link DocConverter DocConverter} documentation.
      *
      * @param  <T>
      *         The type of annotation
@@ -214,7 +214,7 @@ public class DocGenerator
      *
      * @throws IllegalArgumentException
      *         The annotation class provided is not annotated with
-     *         {@link com.jagrosh.jdautilities.doc.ConvertedBy @ConvertedBy},
+     *         {@link ConvertedBy @ConvertedBy},
      *         or an exception is thrown while instantiating the value said
      *         ConvertedBy annotation.
      *         <br><b>NOTE:</b> that a DocConverter instantiation will fail
@@ -260,7 +260,7 @@ public class DocGenerator
      * instance variable to the DocConverter you are providing.
      *
      * <p>An example of a custom CommandDoc conversion annotation can be found in the
-     * {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} documentation.
+     * {@link DocConverter DocConverter} documentation.
      *
      * @param  <T>
      *         The type of annotation.

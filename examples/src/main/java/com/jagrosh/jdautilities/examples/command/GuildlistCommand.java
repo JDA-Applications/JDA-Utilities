@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.jagrosh.jdautilities.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.exceptions.PermissionException;

@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-dependencies {
-    include('commons')
 
-    jda()
-}
+/**
+ * Common package for all package for all available examples classes.<br>
+ *
+ * <p>The contents of this package are summarized as follows:
+ * <ul>
+ *     <li>{@link com.jagrosh.jdautilities.examples.command Example Commands Package}
+ *     <br>Contains all example commands.</li>
+ * </ul>
+ */
+package com.jagrosh.jdautilities.examples;

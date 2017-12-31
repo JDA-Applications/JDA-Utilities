@@ -29,7 +29,7 @@ import java.lang.annotation.*;
  * method for specifying the bot's response if the error occurs.
  *
  * <p>Multiples of these can be applied using the
- * {@link com.jagrosh.jdautilities.doc.standard.Errors @Errors} annotation, or simply
+ * {@link Errors @Errors} annotation, or simply
  * multiples of these can be attached to a class or method.
  *
  * <p>Below is a visual of what this should generally look like:
@@ -40,7 +40,7 @@ import java.lang.annotation.*;
  *     &#8226; "An unexpected error occurred!" - Let's just blame Onitor!
  * </pre>
  *
- * @see    com.jagrosh.jdautilities.doc.standard.Errors
+ * @see    Errors
  *
  * @since  2.0
  * @author Kaidan Gustave
@@ -76,7 +76,7 @@ public @interface Error
      * A prefix appended to the front of the produced String during
      * conversion.
      * <br>Only really useful or needed when a Command has multiple
-     * {@link com.jagrosh.jdautilities.doc.standard.Error @Error}
+     * {@link Error @Error}
      * annotations, for the purpose of listing.
      *
      * @return A prefix for the conversion, useful when multiple @Errors
@@ -86,7 +86,7 @@ public @interface Error
 
     /**
      * The {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter}
-     * for the {@link com.jagrosh.jdautilities.doc.standard.Error @Error}
+     * for the {@link Error @Error}
      * annotation.
      */
     class Converter implements DocConverter<Error>

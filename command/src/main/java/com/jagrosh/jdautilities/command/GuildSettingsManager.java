@@ -17,6 +17,8 @@ package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.core.entities.Guild;
 
+import javax.annotation.Nullable;
+
 /**
  * An implementable frame for classes that handle Guild-Specific
  * settings.
@@ -51,5 +53,6 @@ public interface GuildSettingsManager<T>
      *
      * @return The settings object for the guild, or {@code null} if the guild has no settings.
      */
+    @Nullable
     T getSettings(Guild guild);
 }

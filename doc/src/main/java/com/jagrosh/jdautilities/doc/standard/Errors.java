@@ -19,10 +19,10 @@ import java.lang.annotation.*;
 
 /**
  * The {@link java.lang.annotation.Repeatable @Repeatable} value
- * for {@link com.jagrosh.jdautilities.doc.standard.Error @Error}.
+ * for {@link Error @Error}.
  * <br>Useful for organizing multiple @Error annotations
  *
- * @see    com.jagrosh.jdautilities.doc.standard.Error
+ * @see    Error
  *
  * @since  2.0
  * @author Kaidan Gustave
@@ -33,7 +33,7 @@ import java.lang.annotation.*;
 public @interface Errors
 {
     /**
-     * One or more {@link com.jagrosh.jdautilities.doc.standard.Error @Error}
+     * One or more {@link Error @Error}
      * annotations.
      *
      * @return One or more @Error annotations

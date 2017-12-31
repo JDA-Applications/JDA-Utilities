@@ -15,7 +15,7 @@
  */
 package com.jagrosh.jdautilities.examples.command;
 
-import com.jagrosh.jdautilities.JDAUtilitiesInfo;
+import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.bot.entities.ApplicationInfo;

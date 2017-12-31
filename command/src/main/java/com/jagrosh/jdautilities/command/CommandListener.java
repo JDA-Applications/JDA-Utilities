@@ -18,16 +18,16 @@ package com.jagrosh.jdautilities.command;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
- * An implementable "Listener" that can be added to a {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
- * and used to handle events relating to {@link com.jagrosh.jdautilities.command.Command Command}s.
+ * An implementable "Listener" that can be added to a {@link CommandClient CommandClient}
+ * and used to handle events relating to {@link Command Command}s.
  * 
  * @author John Grosh (jagrosh)
  */
 public interface CommandListener
 {
     /**
-     * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
-     * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent}.
+     * Called when a {@link Command Command} is triggered
+     * by a {@link CommandEvent CommandEvent}.
      * 
      * @param  event
      *         The CommandEvent that triggered the Command
@@ -37,8 +37,8 @@ public interface CommandListener
     default void onCommand(CommandEvent event, Command command) {}
     
     /**
-     * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
-     * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} after it's
+     * Called when a {@link Command Command} is triggered
+     * by a {@link CommandEvent CommandEvent} after it's
      * completed successfully.
      * 
      * @param  event
@@ -49,8 +49,8 @@ public interface CommandListener
     default void onCompletedCommand(CommandEvent event, Command command) {}
     
     /**
-     * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
-     * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} but is
+     * Called when a {@link Command Command} is triggered
+     * by a {@link CommandEvent CommandEvent} but is
      * terminated before completion.
      * 
      * @param  event
@@ -63,7 +63,7 @@ public interface CommandListener
     /**
      * Called when a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}
      * is caught by the Client Listener's but doesn't correspond to a
-     * {@link com.jagrosh.jdautilities.command.Command Command}.
+     * {@link Command Command}.
      * 
      * <p>In other words, this catches all <b>non-command</b> MessageReceivedEvents allowing
      * you to handle them without implementation of another listener.
@@ -74,14 +74,14 @@ public interface CommandListener
     default void onNonCommandMessage(MessageReceivedEvent event) {}
 
     /**
-     * Called when a {@link com.jagrosh.jdautilities.command.Command Command}
+     * Called when a {@link Command Command}
      * catches a {@link java.lang.Throwable Throwable} <b>during execution</b>.
      *
      * <p>This doesn't account for exceptions thrown during other pre-checks,
      * and should not be treated as such!
      *
      * <p>An example of this misconception is via a
-     * {@link com.jagrosh.jdautilities.command.Command.Category Category} test:
+     * {@link Command.Category Category} test:
      *
      * <pre><code> public class BadCommand extends Command {
      *

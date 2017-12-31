@@ -77,7 +77,7 @@ public @interface CommandInfo
 
     /**
      * The {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} for
-     * the {@link com.jagrosh.jdautilities.doc.standard.CommandInfo @CommandInfo}
+     * the {@link CommandInfo @CommandInfo}
      * annotation.
      */
     class Converter implements DocConverter<CommandInfo>

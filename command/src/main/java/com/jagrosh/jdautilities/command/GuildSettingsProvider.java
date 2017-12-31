@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -58,6 +59,7 @@ public interface GuildSettingsProvider
      *         implementation, or {@code null} to signify it has none or that the
      *         feature is not supported by the implementation.
      */
+    @Nullable
     default Collection<String> getPrefixes()
     {
         return null;

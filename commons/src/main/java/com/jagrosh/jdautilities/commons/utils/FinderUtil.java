@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.utils;
+package com.jagrosh.jdautilities.commons.utils;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
@@ -289,7 +289,7 @@ public final class FinderUtil
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
      *
-     * <p>Unlike {@link com.jagrosh.jdautilities.utils.FinderUtil#findUsers(String, JDA) FinderUtil.findUsers(String, JDA)},
+     * <p>Unlike {@link FinderUtil#findUsers(String, JDA) FinderUtil.findUsers(String, JDA)},
      * this method queries based on two different names: user name and effective name (excluding special cases in which it
      * queries solely based on user name).
      * <br>Each standard check looks at the user name, then the member name, and if either one's criteria is met the Member

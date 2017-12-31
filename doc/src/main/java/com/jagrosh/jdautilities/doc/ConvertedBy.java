@@ -19,13 +19,13 @@ import java.lang.annotation.*;
 
 /**
  * Specifies an {@link java.lang.annotation.Annotation Annotation} can be converted
- * using the specified {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter}
+ * using the specified {@link DocConverter DocConverter}
  * value.
  *
  * <p>Only annotations with this annotation applied to it are valid for processing
- * via an instance of {@link com.jagrosh.jdautilities.doc.DocGenerator DocGenerator}.
+ * via an instance of {@link DocGenerator DocGenerator}.
  *
- * @see    com.jagrosh.jdautilities.doc.DocConverter
+ * @see    DocConverter
  *
  * @since  2.0
  * @author Kaidan Gustave
@@ -36,9 +36,9 @@ import java.lang.annotation.*;
 public @interface ConvertedBy
 {
     /**
-     * The {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter}
+     * The {@link DocConverter DocConverter}
      * Class that the annotation this is applied to provides to
-     * {@link com.jagrosh.jdautilities.doc.DocConverter#read(Annotation)
+     * {@link DocConverter#read(Annotation)
      * DocConverter#read(Annotation)}.
      *
      * @return The DocConverter Class to use.

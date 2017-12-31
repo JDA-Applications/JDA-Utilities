@@ -16,13 +16,13 @@
 package com.jagrosh.jdautilities.command.impl;
 
 import com.jagrosh.jdautilities.command.*;
-import com.jagrosh.jdautilities.utils.FixedSizeCache;
+import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import com.jagrosh.jdautilities.command.Command.Category;
-import com.jagrosh.jdautilities.utils.SafeIdUtil;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;

@@ -25,7 +25,7 @@ import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 /**
  * A simple builder used to create a {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
  * 
- * <p>Once built, add the {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} as an EventListener to
+ * <p>Once built, add the {@link CommandClient CommandClient} as an EventListener to
  * {@link net.dv8tion.jda.core.JDA JDA} and it will automatically handle commands with ease!
  * 
  * @author John Grosh (jagrosh)
@@ -55,16 +55,16 @@ public class CommandClientBuilder
     /**
      * Builds a {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
      * with the provided settings.
-     * <br>Once built, only the {@link com.jagrosh.jdautilities.command.CommandListener CommandListener},
-     * and {@link com.jagrosh.jdautilities.command.Command Command}s can be changed.
+     * <br>Once built, only the {@link CommandListener CommandListener},
+     * and {@link Command Command}s can be changed.
      * 
      * @return The CommandClient built.
      */
     public CommandClient build()
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, serverInvite,
-                success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                helpConsumer, helpWord, linkedCacheSize, compiler, manager);
+                                                     success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
+                                                     helpConsumer, helpWord, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -133,7 +133,7 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets whether the {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} will use
+     * Sets whether the {@link CommandClient CommandClient} will use
      * the builder to automatically create a help command or not.
      * 
      * @param  useHelp
@@ -154,7 +154,7 @@ public class CommandClientBuilder
      * the default help builder.
      * 
      * @param  helpConsumer
-     *         A consumer to accept a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent}
+     *         A consumer to accept a {@link CommandEvent CommandEvent}
      *         when a help command is called.
      *         
      * @return This builder
@@ -216,7 +216,7 @@ public class CommandClientBuilder
     }
 
     /**
-     * Adds a {@link com.jagrosh.jdautilities.command.Command Command} and registers it to the
+     * Adds a {@link Command Command} and registers it to the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
      * 
      * @param  command
@@ -231,7 +231,7 @@ public class CommandClientBuilder
     }
     
     /**
-     * Adds and registers multiple {@link com.jagrosh.jdautilities.command.Command Command}s to the
+     * Adds and registers multiple {@link Command Command}s to the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
      * <br>This is the same as calling {@link CommandClientBuilder#addCommand(Command)} multiple times.
      * 
@@ -259,7 +259,7 @@ public class CommandClientBuilder
      *
      * @return This builder
      *
-     * @see    com.jagrosh.jdautilities.command.AnnotatedModuleCompiler
+     * @see    AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.command.annotation.JDACommand
      */
     public CommandClientBuilder addAnnotatedModule(Object module)
@@ -281,7 +281,7 @@ public class CommandClientBuilder
      *
      * @return This builder
      *
-     * @see    com.jagrosh.jdautilities.command.AnnotatedModuleCompiler
+     * @see    AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.command.annotation.JDACommand
      */
     public CommandClientBuilder addAnnotatedModules(Object... modules)
@@ -292,7 +292,7 @@ public class CommandClientBuilder
     }
 
     /**
-     * Sets the {@link com.jagrosh.jdautilities.command.AnnotatedModuleCompiler AnnotatedModuleCompiler}
+     * Sets the {@link AnnotatedModuleCompiler AnnotatedModuleCompiler}
      * for this CommandClientBuilder.
      *
      * <p>If not set this will be the default implementation found {@link
@@ -303,7 +303,7 @@ public class CommandClientBuilder
      *
      * @return This builder
      *
-     * @see    com.jagrosh.jdautilities.command.AnnotatedModuleCompiler
+     * @see    AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.command.annotation.JDACommand
      */
     public CommandClientBuilder setAnnotatedCompiler(AnnotatedModuleCompiler compiler)
@@ -364,7 +364,7 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the {@link com.jagrosh.jdautilities.command.CommandListener CommandListener} for the
+     * Sets the {@link CommandListener CommandListener} for the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
      * 
      * @param  listener
@@ -379,7 +379,7 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the internal size of the client's {@link com.jagrosh.jdautilities.utils.FixedSizeCache FixedSizeCache}
+     * Sets the internal size of the client's {@link com.jagrosh.jdautilities.commons.utils.FixedSizeCache FixedSizeCache}
      * used for caching and pairing the bot's response {@link net.dv8tion.jda.core.entities.Message Message}s with
      * the calling Message's ID.
      *
@@ -390,7 +390,7 @@ public class CommandClientBuilder
      *
      * @param  linkedCacheSize
      *         The maximum number of paired responses that can be cached, or {@code <1} if the
-     *         built {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
+     *         built {@link CommandClient CommandClient}
      *         will not use linked caching.
      *
      * @return This builder
@@ -402,7 +402,7 @@ public class CommandClientBuilder
     }
 
     /**
-     * Sets the {@link com.jagrosh.jdautilities.command.GuildSettingsManager GuildSettingsManager}
+     * Sets the {@link GuildSettingsManager GuildSettingsManager}
      * for the CommandClientImpl built using this builder.
      *
      * @param  manager

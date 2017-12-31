@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.utils;
+package com.jagrosh.jdautilities.commons.utils;
 
 /**
  * A Utilities class for safely checking and converting String IDs to longs usable with 

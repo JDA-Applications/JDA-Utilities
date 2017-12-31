@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.jagrosh.jdautilities.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -221,8 +221,8 @@ public class SelectionDialog extends Menu
     }
 
     /**
-     * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * a {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectuibDialog}.
+     * The {@link Menu.Builder Menu.Builder} for
+     * a {@link SelectionDialog SelectuibDialog}.
      *
      * @author John Grosh
      */
@@ -240,7 +240,7 @@ public class SelectionDialog extends Menu
         private Consumer<Message> cancel = (m) -> {};
 
         /**
-         * Builds the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog}
+         * Builds the {@link SelectionDialog SelectionDialog}
          * with this Builder.
          *
          * @return The OrderedMenu built from this Builder.
@@ -248,7 +248,7 @@ public class SelectionDialog extends Menu
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
-         *             <li>No {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter} was set.</li>
+         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
          *             <li>No choices were set.</li>
          *             <li>No action {@link java.util.function.Consumer Consumer} was set.</li>
          *         </ul>
@@ -300,7 +300,7 @@ public class SelectionDialog extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog} is built.
+         * when the {@link SelectionDialog SelectionDialog} is built.
          *
          * <p>This is displayed directly above the embed.
          *

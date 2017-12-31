@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import com.jagrosh.jdautilities.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Emote;
@@ -35,7 +35,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
- * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
+ * A {@link Menu Menu} implementation that creates
  * a organized display of emotes/emojis as buttons paired with options, and below
  * the menu reactions corresponding to each button.
  *
@@ -51,7 +51,7 @@ public class ButtonMenu extends Menu
     private final Consumer<Message> finalAction;
     
     ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
+               Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -158,8 +158,8 @@ public class ButtonMenu extends Menu
     }
 
     /**
-     * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * a {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu}.
+     * The {@link Menu.Builder Menu.Builder} for
+     * a {@link ButtonMenu ButtonMenu}.
      *
      * @author John Grosh
      */
@@ -173,7 +173,7 @@ public class ButtonMenu extends Menu
         private Consumer<Message> finalAction = (m) -> {};
 
         /**
-         * Builds the {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu}
+         * Builds the {@link ButtonMenu ButtonMenu}
          * with this Builder.
          *
          * @return The OrderedMenu built from this Builder.
@@ -181,7 +181,7 @@ public class ButtonMenu extends Menu
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
-         *             <li>No {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter} was set.</li>
+         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
          *             <li>No choices were set.</li>
          *             <li>No action {@link java.util.function.Consumer Consumer} was set.</li>
          *             <li>Neither text nor description were set.</li>
@@ -217,7 +217,7 @@ public class ButtonMenu extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} is built.
+         * when the {@link ButtonMenu ButtonMenu} is built.
          *
          * <p>This is displayed directly above the embed.
          *
@@ -263,7 +263,7 @@ public class ButtonMenu extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} is done,
+         * {@link ButtonMenu ButtonMenu} is done,
          * either via cancellation, a timeout, or a selection being made.<p>
          *
          * This accepts the message used to display the menu when called.
@@ -283,7 +283,7 @@ public class ButtonMenu extends Menu
          * Adds a single String unicode emoji as a button choice.
          *
          * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote Emote} should be
-         * added using {@link com.jagrosh.jdautilities.menu.ButtonMenu.Builder#addChoice(Emote)
+         * added using {@link ButtonMenu.Builder#addChoice(Emote)
          * ButtonMenu.Builder#addChoice(Emote)}.
          *
          * @param  emoji
@@ -301,7 +301,7 @@ public class ButtonMenu extends Menu
          * Adds a single custom {@link net.dv8tion.jda.core.entities.Emote Emote} as button choices.
          *
          * <p>Any regular unicode emojis should be added using {@link
-         * com.jagrosh.jdautilities.menu.ButtonMenu.Builder#addChoice(String)
+         * ButtonMenu.Builder#addChoice(String)
          * ButtonMenu.Builder#addChoice(String)}.
          *
          * @param  emote
@@ -318,7 +318,7 @@ public class ButtonMenu extends Menu
          * Adds String unicode emojis as button choices.
          *
          * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote Emote}s should be
-         * added using {@link com.jagrosh.jdautilities.menu.ButtonMenu.Builder#addChoices(Emote...)
+         * added using {@link ButtonMenu.Builder#addChoices(Emote...)
          * ButtonMenu.Builder#addChoices(Emote...)}.
          *
          * @param  emojis
@@ -337,7 +337,7 @@ public class ButtonMenu extends Menu
          * Adds custom {@link net.dv8tion.jda.core.entities.Emote Emote}s as button choices.
          *
          * <p>Any regular unicode emojis should be added using {@link
-         * com.jagrosh.jdautilities.menu.ButtonMenu.Builder#addChoices(String...)
+         * ButtonMenu.Builder#addChoices(String...)
          * ButtonMenu.Builder#addChoices(String...)}.
          *
          * @param  emotes
@@ -356,7 +356,7 @@ public class ButtonMenu extends Menu
          * Sets the String unicode emojis as button choices.
          *
          * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote Emote}s should be
-         * set using {@link com.jagrosh.jdautilities.menu.ButtonMenu.Builder#setChoices(Emote...)
+         * set using {@link ButtonMenu.Builder#setChoices(Emote...)
          * ButtonMenu.Builder#setChoices(Emote...)}.
          *
          * @param  emojis
@@ -374,7 +374,7 @@ public class ButtonMenu extends Menu
          * Sets the {@link net.dv8tion.jda.core.entities.Emote Emote}s as button choices.
          *
          * <p>Any regular unicode emojis should be set using {@link
-         * com.jagrosh.jdautilities.menu.ButtonMenu.Builder#setChoices(String...)
+         * ButtonMenu.Builder#setChoices(String...)
          * ButtonMenu.Builder#setChoices(String...)}.
          *
          * @param  emotes

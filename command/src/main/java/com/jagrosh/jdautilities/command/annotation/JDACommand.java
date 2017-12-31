@@ -37,7 +37,7 @@ import java.lang.annotation.*;
  * CommandBuilder}.
  *
  * <p>Classes that wish to be contain methods to be used as commands must be annotated with
- * {@link com.jagrosh.jdautilities.command.annotation.JDACommand.Module @Module}.
+ * {@link JDACommand.Module @Module}.
  * <br>Following that, any methods of said class annotated with this annotation (whose names
  * are also given as parameters of the {@code @Module} annotation) will be registered to the
  * module and "compiled" through the AnnotatedModuleCompiler provided in CommandClientBuilder.
@@ -55,7 +55,7 @@ import java.lang.annotation.*;
  *
  * }</code></pre>
  *
- * @see    com.jagrosh.jdautilities.command.annotation.JDACommand.Module
+ * @see    JDACommand.Module
  *
  * @since  1.7
  * @author Kaidan Gustave
@@ -186,7 +186,7 @@ public @interface JDACommand
      * <br>The arrangement of the double parameters is not important, so methods
      * may do it as {@code (CommandEvent, Command)} or {@code (Command, CommandEvent)}.
      *
-     * @see    com.jagrosh.jdautilities.command.annotation.JDACommand
+     * @see    JDACommand
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
@@ -213,7 +213,7 @@ public @interface JDACommand
      * The default {@link com.jagrosh.jdautilities.command.Command.CooldownScope CooldownScope}
      * is {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER CooldownScope.USER}.
      *
-     * @see    com.jagrosh.jdautilities.command.annotation.JDACommand#cooldown()
+     * @see    JDACommand#cooldown()
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
@@ -249,7 +249,7 @@ public @interface JDACommand
      * and any other attempted inputs will result in errors from the
      * {@link com.jagrosh.jdautilities.command.AnnotatedModuleCompiler compiler}.
      *
-     * @see    com.jagrosh.jdautilities.command.annotation.JDACommand#category()
+     * @see    JDACommand#category()
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)

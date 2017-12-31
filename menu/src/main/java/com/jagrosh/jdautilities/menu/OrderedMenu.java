@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import com.jagrosh.jdautilities.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -65,8 +65,8 @@ public class OrderedMenu extends Menu
     public final static String CANCEL = "\u274C";
     
     OrderedMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-            Color color, String text, String description, List<String> choices, BiConsumer<Message,Integer> action,
-            Consumer<Message> cancel, boolean useLetters, boolean allowTypedInput, boolean useCancel)
+                Color color, String text, String description, List<String> choices, BiConsumer<Message,Integer> action,
+                Consumer<Message> cancel, boolean useLetters, boolean allowTypedInput, boolean useCancel)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -331,7 +331,7 @@ public class OrderedMenu extends Menu
 
     /**
      * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}.
+     * an {@link OrderedMenu OrderedMenu}.
      *
      * @author John Grosh
      */
@@ -348,7 +348,7 @@ public class OrderedMenu extends Menu
         private boolean addCancel = false;
 
         /**
-         * Builds the {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
+         * Builds the {@link OrderedMenu OrderedMenu}
          * with this Builder.
          *
          * @return The OrderedMenu built from this Builder.
@@ -356,7 +356,7 @@ public class OrderedMenu extends Menu
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
-         *             <li>No {@link com.jagrosh.jdautilities.waiter.EventWaiter EventWaiter} was set.</li>
+         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
          *             <li>No choices were set.</li>
          *             <li>More than ten choices were set.</li>
          *             <li>No action {@link java.util.function.Consumer Consumer} was set.</li>
@@ -395,7 +395,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
+         * Sets the builder to build an {@link OrderedMenu OrderedMenu}
          * using letters for ordering and reactions (IE: A, B, C, etc.).
          * <br>As a note - by default the builder will use <b>numbers</b> not letters.
          *
@@ -408,7 +408,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
+         * Sets the builder to build an {@link OrderedMenu OrderedMenu}
          * using numbers for ordering and reactions (IE: A, B, C, etc.).
          *
          * @return This builder
@@ -450,7 +450,7 @@ public class OrderedMenu extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} is built.
+         * when the {@link OrderedMenu OrderedMenu} is built.
          *
          * <p>This is displayed directly above the embed.
          *
@@ -496,7 +496,7 @@ public class OrderedMenu extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} is cancelled.
+         * {@link OrderedMenu OrderedMenu} is cancelled.
          *
          * @param  cancel
          *         The Consumer action to perform if the ButtonMenu is cancelled

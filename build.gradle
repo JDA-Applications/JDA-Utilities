@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016 John Grosh (jagrosh).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
+tasks.create("build") {
+    group 'build'
+}
+
 allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
@@ -28,15 +32,29 @@ allprojects {
     version = '2.0'
 
     project.ext {
-        jdaVersion = '3.4.0_318'
+        jdaVersion = '3.4.0_320'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.9.1'
+        findbugsVersion = '3.0.2'
+
+        jda = { project.dependencies.compileOnly group: 'net.dv8tion', name: 'JDA', version: jdaVersion }
+        slf4j = { project.dependencies.compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion }
+        okhttp = { project.dependencies.compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion }
+        findbugs = { project.dependencies.compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion }
+
+        include = { String name -> project.dependencies.compile project.project(':' + name) }
 
         artifactId = rootProject == project ? rootProject.name.toLowerCase() : (rootProject.name + '-' + project.name).toLowerCase()
     }
 
     repositories {
         jcenter()
+    }
+
+    build {
+        dependsOn({ javadocJar } as Object)
+        dependsOn({ sourceJar } as Object)
+        dependsOn({ shadowJar } as Object)
     }
 
     publishing {
@@ -75,7 +93,7 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'java-library'
+    apply plugin: 'java'
 
     compileJava {
         options.encoding = 'UTF-8'
@@ -123,12 +141,6 @@ subprojects {
         group 'build'
     }
 
-    build {
-        dependsOn javadocJar
-        dependsOn sourceJar
-        dependsOn shadowJar
-    }
-
     publishing {
         publications {
             BintrayRelease(MavenPublication) {
@@ -141,42 +153,89 @@ subprojects {
 }
 
 configurations {
-    api {
-        description = "api"
+    compile {
+        description = "compile"
         transitive = true
     }
 }
 
 dependencies {
-    api subprojects
+    compile subprojects
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+tasks.create("jar", ShadowJar) {
+    group 'build'
+
+    from subprojects*.jar
+
+    destinationDir = project.file('build/libs/')
+
+    baseName "$project.artifactId"
+    version "$project.version"
+}
+
 tasks.create("shadowJar", ShadowJar) {
     group 'shadow'
-
     dependsOn({ rootProject.getTasksByName("jar", true) } as Object[])
+
+    from subprojects*.jar
+
+    destinationDir = project.file('build/libs/')
+
+    configurations = [configurations.runtime]
 
     baseName "$project.artifactId"
     classifier 'all'
     version "$project.version"
-
-    from subprojects*.jar
-
-    destinationDir project.file('build/libs/')
 }
 
-tasks.create("build") {
-    group 'build'
+tasks.create('javadoc', Javadoc) {
+    group 'documentation'
+    dependsOn({ subprojects*.getTasksByName("javadoc", true) } as Object[])
 
-    dependsOn shadowJar
+    source = subprojects*.sourceSets.main.allJava
+    classpath = files(subprojects*.javadoc.classpath)
+
+    destinationDir = project.file("build/docs/")
+
+    options.memberLevel = JavadocMemberLevel.PROTECTED
+    options.author()
+    options.encoding = 'UTF-8'
+    options.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
+}
+
+tasks.create('javadocJar', Jar) {
+    group 'build'
+    dependsOn tasks.javadoc
+
+    from javadoc.destinationDir
+
+    destinationDir = project.file("build/libs/")
+
+    baseName "$project.artifactId"
+    classifier 'javadoc'
+    extension 'jar'
+}
+
+tasks.create('sourceJar', Jar) {
+    group 'build'
+    dependsOn({ rootProject.getTasksByName("classes", true) } as Object[])
+
+    from { subprojects*.sourceSets.main.allSource }
+
+    destinationDir = project.file("build/libs/")
+
+    baseName "$project.artifactId"
+    classifier 'sources'
+    extension 'jar'
 }
 
 tasks.create("clean", Delete) {
     group 'build'
 
-    delete['build/']
+    delete = 'build/'
 }
 
 publishing {
@@ -184,11 +243,12 @@ publishing {
         BintrayRelease(MavenPublication) {
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.api.allDependencies.each {
+                configurations.compile.allDependencies.each {
                     def dependencyNode = dependenciesNode.appendNode('dependency')
                     dependencyNode.appendNode('groupId', it.group)
                     dependencyNode.appendNode('artifactId', it instanceof ProjectDependency ? it.dependencyProject.artifactId : it.name)
                     dependencyNode.appendNode('version', it.version)
+                    dependencyNode.appendNode('scope', 'compile')
                 }
             }
         }

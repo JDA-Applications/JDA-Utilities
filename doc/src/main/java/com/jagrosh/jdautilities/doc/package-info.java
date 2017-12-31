@@ -15,13 +15,6 @@
  */
 
 /**
- * Base package for the entirety of this extension library.<br>
- * From here you can navigate to one of the child packages inside.
- *
- * <p>The contents of this package are summarized as follows:
- * <ul>
- *     <li>{@link com.jagrosh.jdautilities.JDAUtilitiesInfo JDA-Utilities Information}
- *     <br>Contains all the information on this extension library.
- * </ul>
+ * Items in this package pertain to the {@link com.jagrosh.jdautilities.doc.DocGenerator DocGenerator}.
  */
-package com.jagrosh.jdautilities;
+package com.jagrosh.jdautilities.doc;
