@@ -37,17 +37,17 @@ import java.lang.annotation.*;
  * CommandBuilder}.
  *
  * <p>Classes that wish to be contain methods to be used as commands must be annotated with
- * {@link JDACommand.Module @Module}.
+ * {@link com.jagrosh.jdautilities.command.annotation.JDACommand.Module @Module}.
  * <br>Following that, any methods of said class annotated with this annotation (whose names
  * are also given as parameters of the {@code @Module} annotation) will be registered to the
  * module and "compiled" through the AnnotatedModuleCompiler provided in CommandClientBuilder.
  *
- * <pre><code>   {@link JDACommand.Module @JDACommand.Module}({@link Module#value() value} = "example")
+ * <pre><code>   {@link com.jagrosh.jdautilities.command.annotation.JDACommand.Module @JDACommand.Module}({@link com.jagrosh.jdautilities.command.annotation.JDACommand.Module#value() value} = "example")
  * public class AnnotatedModuleCmd {
  *
  *     {@literal @JDACommand(}
- *          {@link JDACommand#name() name} = {"example", "test", "demo"},
- *          {@link JDACommand#help() help} = "gives an example of what commands do"
+ *          {@link com.jagrosh.jdautilities.command.annotation.JDACommand#name() name} = {"example", "test", "demo"},
+ *          {@link com.jagrosh.jdautilities.command.annotation.JDACommand#help() help} = "gives an example of what commands do"
  *      )
  *      public void example(CommandEvent) {
  *          event.reply("Hey look! This would be the bot's reply if this was a command!");
@@ -55,7 +55,7 @@ import java.lang.annotation.*;
  *
  * }</code></pre>
  *
- * @see    JDACommand.Module
+ * @see    com.jagrosh.jdautilities.command.annotation.JDACommand.Module
  *
  * @since  1.7
  * @author Kaidan Gustave
@@ -242,21 +242,21 @@ public @interface JDACommand
      * A helper annotation to assist in location of Category instance.
      *
      * <p>This will target a <b>static field</b> in the specified class
-     * {@link Category#location() location} using reflections, with a
-     * matching {@link Category#name() name}.
+     * {@link com.jagrosh.jdautilities.command.annotation.JDACommand.Category#location() location} using reflections, with a
+     * matching {@link com.jagrosh.jdautilities.command.annotation.JDACommand.Category#name() name}.
      *
      * <p>It is important to remember the target must be a <b>static field</b>
      * and any other attempted inputs will result in errors from the
      * {@link com.jagrosh.jdautilities.command.AnnotatedModuleCompiler compiler}.
      *
-     * @see    JDACommand#category()
+     * @see    com.jagrosh.jdautilities.command.annotation.JDACommand#category()
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Category
     {
         /**
-         * The name of the <b>static field</b> in the {@link Category#location()
+         * The name of the <b>static field</b> in the {@link com.jagrosh.jdautilities.command.annotation.JDACommand.Category#location()
          * target class} that will be the category for the annotated command.
          *
          * @return The name of the <b>static field</b> in the target class.

@@ -25,11 +25,11 @@ import java.lang.annotation.*;
  * A CommandDoc {@link java.lang.annotation.Annotation Annotation} that describes
  * a possible error or termination clause a Command might have during it's runtime.
  *
- * <p>These are formatted ways to describe errors and provide the {@link Error#response()}
+ * <p>These are formatted ways to describe errors and provide the {@link com.jagrosh.jdautilities.doc.standard.Error#response()}
  * method for specifying the bot's response if the error occurs.
  *
  * <p>Multiples of these can be applied using the
- * {@link Errors @Errors} annotation, or simply
+ * {@link com.jagrosh.jdautilities.doc.standard.Errors @Errors} annotation, or simply
  * multiples of these can be attached to a class or method.
  *
  * <p>Below is a visual of what this should generally look like:
@@ -40,7 +40,7 @@ import java.lang.annotation.*;
  *     &#8226; "An unexpected error occurred!" - Let's just blame Onitor!
  * </pre>
  *
- * @see    Errors
+ * @see    com.jagrosh.jdautilities.doc.standard.Errors
  *
  * @since  2.0
  * @author Kaidan Gustave

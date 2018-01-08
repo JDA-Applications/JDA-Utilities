@@ -36,7 +36,7 @@ import java.util.function.Function;
  * <p>For the CommandClientImpl, once initialized, only the following can be modified:
  * <ul>
  *     <li>{@link com.jagrosh.jdautilities.command.Command Command}s may be added or removed.</li>
- *     <li>The {@link CommandListener CommandListener} may be set.</li>
+ *     <li>The {@link com.jagrosh.jdautilities.command.CommandListener CommandListener} may be set.</li>
  * </ul>
  *
  * @author John Grosh (jagrosh)
@@ -58,7 +58,7 @@ import java.util.function.Function;
  *                      if you provide {@code null} for the Owner ID, that'll just flat out throw an {@link
  *                      java.lang.IllegalArgumentException IllegalArgumentException}).
  *
- *         <p><b>4)</b> Do not provide strings when using {@link CommandClientBuilder#setEmojis(String, String, String)
+ *         <p><b>4)</b> Do not provide strings when using {@link com.jagrosh.jdautilities.command.CommandClientBuilder#setEmojis(String, String, String)
  *                      CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that do
  *                      not match the custom emote format specified in {@link net.dv8tion.jda.core.entities.Emote#getAsMention()
  *                      Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
@@ -223,8 +223,8 @@ public interface CommandClient
     void addAnnotatedModule(Object module, Function<Command, Integer> mapFunction);
 
     /**
-     * Sets the {@link CommandListener CommandListener} to catch
-     * command-related events thrown by this {@link CommandClient CommandClient}.
+     * Sets the {@link com.jagrosh.jdautilities.command.CommandListener CommandListener} to catch
+     * command-related events thrown by this {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}.
      * 
      * @param  listener
      *         The CommandListener
@@ -232,7 +232,7 @@ public interface CommandClient
     void setListener(CommandListener listener);
     
     /**
-     * Returns the current {@link CommandListener CommandListener}.
+     * Returns the current {@link com.jagrosh.jdautilities.command.CommandListener CommandListener}.
      * 
      * @return A possibly-null CommandListener
      */
@@ -247,7 +247,7 @@ public interface CommandClient
     List<Command> getCommands();
 
     /**
-     * Gets the time this {@link CommandClient CommandClient}
+     * Gets the time this {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
      * implementation was created.
      * 
      * @return The start time of this CommandClient implementation
@@ -427,10 +427,10 @@ public interface CommandClient
      * {@link net.dv8tion.jda.core.entities.Guild Guild}.
      *
      * <p>The returning object for this is specified via provision of a
-     * {@link GuildSettingsManager GuildSettingsManager} to
-     * {@link CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)
+     * {@link com.jagrosh.jdautilities.command.GuildSettingsManager GuildSettingsManager} to
+     * {@link com.jagrosh.jdautilities.command.CommandClientBuilder#setGuildSettingsManager(com.jagrosh.jdautilities.command.GuildSettingsManager)
      * CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)}, more specifically
-     * {@link GuildSettingsManager#getSettings(Guild)
+     * {@link GuildSettingsManager#getSettings(net.dv8tion.jda.core.entities.Guild)
      * GuildSettingsManager#getSettings(Guild)}.
      *
      * @param  <S>
@@ -439,14 +439,14 @@ public interface CommandClient
      *         The Guild to get Settings for
      *
      * @return The settings object for the Guild, specified in
-     *         {@link GuildSettingsManager#getSettings(Guild)
+     *         {@link com.jagrosh.jdautilities.command.GuildSettingsManager#getSettings(Guild)
      *         GuildSettingsManager#getSettings(Guild)}, can be {@code null} if the implementation
      *         allows it.
      */
     <S> S getSettingsFor(Guild guild);
 
     /**
-     * Returns the type of {@link GuildSettingsManager GuildSettingsManager},
+     * Returns the type of {@link com.jagrosh.jdautilities.command.GuildSettingsManager GuildSettingsManager},
      * the same type of one provided when building this CommandClient, or {@code null} if one was not provided there.
      *
      * <p>This is good if you want to use non-abstract methods specific to your implementation.

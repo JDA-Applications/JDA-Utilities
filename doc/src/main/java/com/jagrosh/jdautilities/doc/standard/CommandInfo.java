@@ -61,7 +61,7 @@ public @interface CommandInfo
 
     /**
      * A description of this command, what it does, and
-     * (if needed) elaboration on the {@link #usage()}.
+     * (if needed) elaboration on the {@link com.jagrosh.jdautilities.doc.standard.CommandInfo#usage()}.
      *
      * @return The description of this command
      */
@@ -77,7 +77,7 @@ public @interface CommandInfo
 
     /**
      * The {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} for
-     * the {@link CommandInfo @CommandInfo}
+     * the {@link com.jagrosh.jdautilities.doc.standard.CommandInfo @CommandInfo}
      * annotation.
      */
     class Converter implements DocConverter<CommandInfo>

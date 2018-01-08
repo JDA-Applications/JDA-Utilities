@@ -158,7 +158,7 @@ public abstract class Menu
 
     /**
      * An extendable frame for a chain-method builder that constructs a specified type of
-     * {@link Menu Menu}.<p>
+     * {@link com.jagrosh.jdautilities.menu.Menu Menu}.<p>
      *
      * Conventionally, implementations of Menu should have a static nested class called
      * {@code Builder}, which extends this superclass:
@@ -192,17 +192,17 @@ public abstract class Menu
         protected TimeUnit unit = TimeUnit.MINUTES;
 
         /**
-         * Builds the {@link Menu Menu} corresponding to
-         * this {@link Menu.Builder MenuBuilder}.
+         * Builds the {@link com.jagrosh.jdautilities.menu.Menu Menu} corresponding to
+         * this {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder}.
          * <br>After doing this, no modifications of the displayed Menu can be made.
          *
-         * @return The built Menu of corresponding type to this MenuBuilder.
+         * @return The built Menu of corresponding type to this {@link com.jagrosh.jdautilities.menu.Menu.Builder}.
          */
         public abstract V build();
 
         /**
          * Sets the {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter}
-         * that will do {@link Menu Menu} operations.
+         * that will do {@link com.jagrosh.jdautilities.menu.Menu Menu} operations.
          *
          * <p><b>NOTE:</b> All Menus will only work with an EventWaiter set!
          * <br>Not setting an EventWaiter means the Menu will not work.
@@ -220,7 +220,7 @@ public abstract class Menu
 
         /**
          * Adds {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
-         * {@link Menu Menu} that will be built.
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          *
          * @param  users
          *         The Users allowed to use the Menu
@@ -235,7 +235,7 @@ public abstract class Menu
 
         /**
          * Sets {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
-         * {@link Menu Menu} that will be built.
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          * <br>This clears any Users already registered before adding the ones specified.
          *
          * @param  users
@@ -252,7 +252,7 @@ public abstract class Menu
 
         /**
          * Adds {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
-         * {@link Menu Menu} that will be built.
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          *
          * @param  roles
          *         The Roles allowed to use the Menu
@@ -267,7 +267,7 @@ public abstract class Menu
 
         /**
          * Sets {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
-         * {@link Menu Menu} that will be built.
+         * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          * <br>This clears any Roles already registered before adding the ones specified.
          *
          * @param  roles
@@ -283,7 +283,7 @@ public abstract class Menu
         }
 
         /**
-         * Sets the timeout that the {@link Menu Menu} should
+         * Sets the timeout that the {@link com.jagrosh.jdautilities.menu.Menu Menu} should
          * stay available.
          *
          * <p>After this has expired, the a final action in the form of a

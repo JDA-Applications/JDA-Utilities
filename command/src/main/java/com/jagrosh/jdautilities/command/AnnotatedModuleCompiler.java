@@ -26,7 +26,7 @@ import java.util.List;
  * The primary issue that came with this was that Commands were restricted to that method of creation, offering
  * no support for popular means such as annotated commands.
  *
- * <p>Since 1.6 the introduction of {@link CommandBuilder CommandBuilder}
+ * <p>Since 1.6 the introduction of {@link com.jagrosh.jdautilities.command.CommandBuilder CommandBuilder}
  * has allowed the potential to create unique {@link com.jagrosh.jdautilities.command.Command Command}
  * objects after compilation.
  * <br>The primary duty of this class is to provide a "in runtime" converter for generics that are annotated with

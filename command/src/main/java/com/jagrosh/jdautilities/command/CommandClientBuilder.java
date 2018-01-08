@@ -55,7 +55,7 @@ public class CommandClientBuilder
     /**
      * Builds a {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
      * with the provided settings.
-     * <br>Once built, only the {@link CommandListener CommandListener},
+     * <br>Once built, only the {@link com.jagrosh.jdautilities.command.CommandListener CommandListener},
      * and {@link com.jagrosh.jdautilities.command.Command Command}s can be changed.
      * 
      * @return The CommandClient built.
@@ -138,7 +138,7 @@ public class CommandClientBuilder
      * 
      * @param  useHelp
      *         {@code false} to disable the help command builder, otherwise the CommandClient
-     *         will use either the default or one provided via {@link #setHelpConsumer(Consumer)}}.
+     *         will use either the default or one provided via {@link com.jagrosh.jdautilities.command.CommandClientBuilder#setHelpConsumer(Consumer)}}.
      *         
      * @return This builder
      */
@@ -233,7 +233,7 @@ public class CommandClientBuilder
     /**
      * Adds and registers multiple {@link com.jagrosh.jdautilities.command.Command Command}s to the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
-     * <br>This is the same as calling {@link CommandClientBuilder#addCommand(Command)} multiple times.
+     * <br>This is the same as calling {@link com.jagrosh.jdautilities.command.CommandClientBuilder#addCommand(Command)} multiple times.
      * 
      * @param  commands
      *         The Commands to add
@@ -271,7 +271,7 @@ public class CommandClientBuilder
     /**
      * Adds multiple annotated command modules to the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
-     * <br>This is the same as calling {@link CommandClientBuilder#addAnnotatedModule(Object)} multiple times.
+     * <br>This is the same as calling {@link com.jagrosh.jdautilities.command.CommandClientBuilder#addAnnotatedModule(Object)} multiple times.
      *
      * <p>For more information on annotated command modules, see
      * {@link com.jagrosh.jdautilities.command.annotation the annotation package} documentation.
@@ -292,7 +292,7 @@ public class CommandClientBuilder
     }
 
     /**
-     * Sets the {@link AnnotatedModuleCompiler AnnotatedModuleCompiler}
+     * Sets the {@link com.jagrosh.jdautilities.command.AnnotatedModuleCompiler AnnotatedModuleCompiler}
      * for this CommandClientBuilder.
      *
      * <p>If not set this will be the default implementation found {@link
@@ -364,7 +364,7 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the {@link CommandListener CommandListener} for the
+     * Sets the {@link com.jagrosh.jdautilities.command.CommandListener CommandListener} for the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
      * 
      * @param  listener
@@ -402,7 +402,7 @@ public class CommandClientBuilder
     }
 
     /**
-     * Sets the {@link GuildSettingsManager GuildSettingsManager}
+     * Sets the {@link com.jagrosh.jdautilities.command.GuildSettingsManager GuildSettingsManager}
      * for the CommandClientImpl built using this builder.
      *
      * @param  manager

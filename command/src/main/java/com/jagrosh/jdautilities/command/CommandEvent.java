@@ -443,8 +443,8 @@ public class CommandEvent
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
      * be sent in two split Messages.
      * 
-     * <p>It is also worth noting that unlike {@link CommandEvent#reply(File,String) CommandEvent#reply(File, String)}
-     * and {@link CommandEvent#reply(String,File,String) CommandEvent#reply(String, File, String)},
+     * <p>It is also worth noting that unlike {@link com.jagrosh.jdautilities.command.CommandEvent#reply(File,String) CommandEvent#reply(File, String)}
+     * and {@link com.jagrosh.jdautilities.command.CommandEvent#reply(String,File,String) CommandEvent#reply(String, File, String)},
      * this method does not throw a {@link java.io.IOException}. This is because the cause of the alternate String message being sent comes directly from a 
      * thrown {@link java.lang.Exception}, and thus a thrown IOException is grounds for the sending of the alternate message.
      * 

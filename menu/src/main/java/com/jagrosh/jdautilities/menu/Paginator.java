@@ -38,7 +38,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
- * A {@link Menu} implementation that paginates a
+ * A {@link com.jagrosh.jdautilities.menu.Menu} implementation that paginates a
  * set of one or more text items across one or more pages.
  *
  * <p>When displayed, a Paginator will add three reactions in the following order:
@@ -392,7 +392,7 @@ public class Paginator extends Menu
 
     /**
      * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * a {@link Paginator Paginator}.
+     * a {@link com.jagrosh.jdautilities.menu.Paginator Paginator}.
      *
      * @author John Grosh
      */
@@ -415,7 +415,7 @@ public class Paginator extends Menu
         private final List<String> strings = new LinkedList<>();
 
         /**
-         * Builds the {@link Paginator Paginator}
+         * Builds the {@link com.jagrosh.jdautilities.menu.Paginator Paginator}
          * with this Builder.
          *
          * @return The Paginator built from this Builder.
@@ -473,7 +473,7 @@ public class Paginator extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link Paginator Paginator} is built.
+         * when the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} is built.
          *
          * <p>This is displayed directly above the embed.
          *
@@ -508,7 +508,7 @@ public class Paginator extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link Paginator Paginator} times out.
+         * {@link com.jagrosh.jdautilities.menu.Paginator Paginator} times out.
          *
          * @param  finalAction
          *         The Consumer action to perform if the Paginator times out
@@ -586,7 +586,7 @@ public class Paginator extends Menu
         }
 
         /**
-         * Sets whether the {@link Paginator Paginator} will instantly
+         * Sets whether the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} will instantly
          * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
          *
          * @param  wait
@@ -642,7 +642,7 @@ public class Paginator extends Menu
         }
 
         /**
-         * Sets the {@link Paginator Paginator}'s bulk-skip
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator}'s bulk-skip
          * function to skip multiple pages using alternate forward and backwards
          *
          * @param  bulkSkipNumber
@@ -657,7 +657,7 @@ public class Paginator extends Menu
         }
 
         /**
-         * Sets the {@link Paginator Paginator} to wrap
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to wrap
          * from the last page to the first when traversing right and visa versa from the left.
          *
          * @param  wrapPageEnds
@@ -672,7 +672,7 @@ public class Paginator extends Menu
         }
 
         /**
-         * Sets the {@link Paginator Paginator} to allow
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to allow
          * a page number to be specified by a user via text.
          *
          * <p>Note that setting this doesn't mean that left and right text inputs
@@ -692,7 +692,7 @@ public class Paginator extends Menu
         }
 
         /**
-         * Sets the {@link Paginator Paginator} to traverse
+         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to traverse
          * left or right when a provided text input is sent in the form of a Message to
          * the {@link net.dv8tion.jda.core.entities.Channel Channel} the menu is displayed in.
          *

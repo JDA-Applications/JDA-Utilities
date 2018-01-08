@@ -331,7 +331,7 @@ public class OrderedMenu extends Menu
 
     /**
      * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * an {@link OrderedMenu OrderedMenu}.
+     * an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}.
      *
      * @author John Grosh
      */
@@ -348,7 +348,7 @@ public class OrderedMenu extends Menu
         private boolean addCancel = false;
 
         /**
-         * Builds the {@link OrderedMenu OrderedMenu}
+         * Builds the {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
          * with this Builder.
          *
          * @return The OrderedMenu built from this Builder.
@@ -395,7 +395,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the builder to build an {@link OrderedMenu OrderedMenu}
+         * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
          * using letters for ordering and reactions (IE: A, B, C, etc.).
          * <br>As a note - by default the builder will use <b>numbers</b> not letters.
          *
@@ -408,7 +408,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the builder to build an {@link OrderedMenu OrderedMenu}
+         * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
          * using numbers for ordering and reactions (IE: A, B, C, etc.).
          *
          * @return This builder
@@ -450,7 +450,7 @@ public class OrderedMenu extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link OrderedMenu OrderedMenu} is built.
+         * when the {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} is built.
          *
          * <p>This is displayed directly above the embed.
          *
@@ -496,7 +496,7 @@ public class OrderedMenu extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link OrderedMenu OrderedMenu} is cancelled.
+         * {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} is cancelled.
          *
          * @param  cancel
          *         The Consumer action to perform if the ButtonMenu is cancelled

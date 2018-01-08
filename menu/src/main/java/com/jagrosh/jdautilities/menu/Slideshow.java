@@ -38,8 +38,8 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
- * A {@link Menu} implementation, nearly identical
- * to {@link Paginator Paginator}, that displays an
+ * A {@link com.jagrosh.jdautilities.menu.Menu} implementation, nearly identical
+ * to {@link com.jagrosh.jdautilities.menu.Paginator Paginator}, that displays an
  * individual image on each page instead of a list of text items.<p>
  *
  * Like Paginator, reaction functions allow the user to traverse to the last page using
@@ -352,7 +352,7 @@ public class Slideshow extends Menu
 
     /**
      * The {@link Menu.Builder Menu.Builder} for
-     * a {@link Slideshow Slideshow}.
+     * a {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow}.
      *
      * @author John Grosh
      */
@@ -373,7 +373,7 @@ public class Slideshow extends Menu
         private final List<String> strings = new LinkedList<>();
 
         /**
-         * Builds the {@link Slideshow Slideshow}
+         * Builds the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow}
          * with this Builder.
          *
          * @return The Paginator built from this Builder.
@@ -432,7 +432,7 @@ public class Slideshow extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link Slideshow Slideshow} is built.
+         * when the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} is built.
          *
          * <p>This is displayed directly above the embed.
          *
@@ -468,7 +468,7 @@ public class Slideshow extends Menu
         /**
          * Sets the description of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
          * in the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed when the
-         * {@link Slideshow Slideshow} is built.
+         * {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} is built.
          *
          * @param  description
          *         The description of the MessageEmbed
@@ -501,7 +501,7 @@ public class Slideshow extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link Slideshow Slideshow} times out.
+         * {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} times out.
          *
          * @param  finalAction
          *         The Consumer action to perform if the Slideshow times out
@@ -529,7 +529,7 @@ public class Slideshow extends Menu
         }
 
         /**
-         * Sets whether the {@link Slideshow Slideshow} will instantly
+         * Sets whether the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} will instantly
          * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
          *
          * @param  wait
@@ -574,7 +574,7 @@ public class Slideshow extends Menu
         }
 
         /**
-         * Sets the {@link Slideshow Slideshow}'s bulk-skip
+         * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow}'s bulk-skip
          * function to skip multiple pages using alternate forward and backwards
          *
          * @param  bulkSkipNumber
@@ -589,7 +589,7 @@ public class Slideshow extends Menu
         }
 
         /**
-         * Sets the {@link Slideshow Slideshow} to wrap
+         * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} to wrap
          * from the last page to the first when traversing right and visa versa from the left.
          *
          * @param  wrapPageEnds
@@ -604,7 +604,7 @@ public class Slideshow extends Menu
         }
 
         /**
-         * Sets the {@link Slideshow Slideshow} to allow
+         * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} to allow
          * a slide number to be specified by a user via text.
          *
          * <p>Note that setting this doesn't mean that left and right text inputs
@@ -624,7 +624,7 @@ public class Slideshow extends Menu
         }
 
         /**
-         * Sets the {@link Slideshow Slideshow} to traverse
+         * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} to traverse
          * left or right when a provided text input is sent in the form of a Message to
          * the {@link net.dv8tion.jda.core.entities.Channel Channel} the menu is displayed in.
          *

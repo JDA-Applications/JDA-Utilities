@@ -81,7 +81,7 @@ public interface CommandListener
      * and should not be treated as such!
      *
      * <p>An example of this misconception is via a
-     * {@link Command.Category Category} test:
+     * {@link com.jagrosh.jdautilities.command.Command.Category Category} test:
      *
      * <pre><code> public class BadCommand extends Command {
      *

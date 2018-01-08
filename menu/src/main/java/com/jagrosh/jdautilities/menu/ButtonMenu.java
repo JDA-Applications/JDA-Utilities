@@ -35,7 +35,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RestAction;
 
 /**
- * A {@link Menu Menu} implementation that creates
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
  * a organized display of emotes/emojis as buttons paired with options, and below
  * the menu reactions corresponding to each button.
  *
@@ -158,8 +158,8 @@ public class ButtonMenu extends Menu
     }
 
     /**
-     * The {@link Menu.Builder Menu.Builder} for
-     * a {@link ButtonMenu ButtonMenu}.
+     * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
+     * a {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu}.
      *
      * @author John Grosh
      */
@@ -173,7 +173,7 @@ public class ButtonMenu extends Menu
         private Consumer<Message> finalAction = (m) -> {};
 
         /**
-         * Builds the {@link ButtonMenu ButtonMenu}
+         * Builds the {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu}
          * with this Builder.
          *
          * @return The OrderedMenu built from this Builder.
@@ -217,7 +217,7 @@ public class ButtonMenu extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link ButtonMenu ButtonMenu} is built.
+         * when the {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} is built.
          *
          * <p>This is displayed directly above the embed.
          *
@@ -263,7 +263,7 @@ public class ButtonMenu extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link ButtonMenu ButtonMenu} is done,
+         * {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} is done,
          * either via cancellation, a timeout, or a selection being made.<p>
          *
          * This accepts the message used to display the menu when called.

@@ -221,8 +221,8 @@ public class SelectionDialog extends Menu
     }
 
     /**
-     * The {@link Menu.Builder Menu.Builder} for
-     * a {@link SelectionDialog SelectuibDialog}.
+     * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
+     * a {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectuibDialog}.
      *
      * @author John Grosh
      */
@@ -240,7 +240,7 @@ public class SelectionDialog extends Menu
         private Consumer<Message> cancel = (m) -> {};
 
         /**
-         * Builds the {@link SelectionDialog SelectionDialog}
+         * Builds the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog}
          * with this Builder.
          *
          * @return The OrderedMenu built from this Builder.
@@ -300,7 +300,7 @@ public class SelectionDialog extends Menu
 
         /**
          * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
-         * when the {@link SelectionDialog SelectionDialog} is built.
+         * when the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog} is built.
          *
          * <p>This is displayed directly above the embed.
          *

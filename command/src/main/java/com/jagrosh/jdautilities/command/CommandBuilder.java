@@ -459,11 +459,11 @@ public class CommandBuilder
      * {@link com.jagrosh.jdautilities.command.Command#execute(CommandEvent) #execute(CommandEvent)},
      * and no information about the Command can be retrieved using this.
      *
-     * <p>An alternate method {@link #build(BiConsumer)} exists if you wish to retrieve information
+     * <p>An alternate method {@link com.jagrosh.jdautilities.command.CommandBuilder#build(java.util.function.BiConsumer)} exists if you wish to retrieve information
      * about the Command built during execution.
      *
      * @param  execution
-     *         The {@link Consumer} that runs on Command#execute(CommandEvent).
+     *         The {@link java.util.function.Consumer} that runs on Command#execute(CommandEvent).
      *
      * @return The Command built
      */
@@ -476,13 +476,13 @@ public class CommandBuilder
      * Builds the {@link com.jagrosh.jdautilities.command.Command Command}
      * using the previously provided information.
      *
-     * <p>This uses the both the {@link CommandEvent
+     * <p>This uses the both the {@link com.jagrosh.jdautilities.command.CommandEvent
      * CommandEvent} parameter that would be provided during
      * {@link com.jagrosh.jdautilities.command.Command#execute(CommandEvent) #execute(CommandEvent)},
      * and the Command built when, allowing info on the Command to be retrieved during execution.
      *
      * @param  execution
-     *         The {@link BiConsumer} that runs on Command#execute(CommandEvent).
+     *         The {@link java.util.function.BiConsumer} that runs on  {@link com.jagrosh.jdautilities.command.Command#execute(CommandEvent)}.
      *
      * @return The Command built
      */

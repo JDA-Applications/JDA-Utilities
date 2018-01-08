@@ -66,7 +66,7 @@ public class EventWaiter implements EventListener
      * Constructs an EventWaiter using the provided {@link java.util.concurrent.ScheduledExecutorService Executor}
      * as it's threadpool.
      *
-     * <p>A developer might choose to use this constructor over the {@link EventWaiter#EventWaiter() default},
+     * <p>A developer might choose to use this constructor over the {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter#EventWaiter() default},
      * for using a alternate form of threadpool, as opposed to a
      * {@link java.util.concurrent.Executors#newSingleThreadExecutor() single thread executor}.
      * <br>A developer might also favor this over the default as they use the same waiter for multiple
@@ -82,7 +82,7 @@ public class EventWaiter implements EventListener
      *     made to shutdown the provided Executor.</li>
      * </ul>
      * It's worth noting that this EventWaiter can serve as a delegate to invoke the threadpool's shutdown via
-     * a call to {@link EventWaiter#shutdown()}. However, this operation is only supported for EventWaiters that
+     * a call to {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter#shutdown()}. However, this operation is only supported for EventWaiters that
      * are not supposed to shutdown automatically, otherwise invocation of {@code EventWaiter#shutdown()} will
      * result in an {@link java.lang.UnsupportedOperationException UnsupportedOperationException}.
      *

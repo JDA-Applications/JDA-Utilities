@@ -101,8 +101,9 @@ public class DocGenerator
      * Gets a blank DocGenerator with no conversions loaded,
      * and a cache with the specified max-size.
      *
-     * <p>Calls to {@link #getDocFor(Class)}, {@link #getDocFor(Method)},
-     * and {@link #getDocForMethods(Class)} also cache the values retrieved
+     * <p>Calls to {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocFor(java.lang.Class)},
+     * {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocFor(java.lang.reflect.Method)},
+     * and {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocForMethods(java.lang.Class)} also cache the values retrieved
      * from the invocation as a way to reduce reflection overhead for
      * repeated calls.
      *
@@ -121,12 +122,13 @@ public class DocGenerator
      * specified max-size.
      *
      * <p>A separator will be appended to the documentation
-     * returned by {@link DocGenerator#getDocFor(Class)} inbetween
+     * returned by {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocFor(java.lang.Class)} inbetween
      * annotation conversions.
      * <br>By default this is a double newline ({@literal \n\n}).
      *
-     * <p>Calls to {@link #getDocFor(Class)}, {@link #getDocFor(Method)},
-     * and {@link #getDocForMethods(Class)} also cache the values retrieved
+     * <p>Calls to {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocFor(java.lang.Class)},
+     * {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocFor(java.lang.reflect.Method)},
+     * and {@link com.jagrosh.jdautilities.doc.DocGenerator#getDocForMethods(java.lang.Class)} also cache the values retrieved
      * from the invocation as a way to reduce reflection overhead for
      * repeated calls.
      *
@@ -201,7 +203,7 @@ public class DocGenerator
      * to this DocGenerator.
      *
      * <p>An example of a custom CommandDoc conversion annotation can be found in the
-     * {@link DocConverter DocConverter} documentation.
+     * {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} documentation.
      *
      * @param  <T>
      *         The type of annotation
@@ -214,7 +216,7 @@ public class DocGenerator
      *
      * @throws IllegalArgumentException
      *         The annotation class provided is not annotated with
-     *         {@link ConvertedBy @ConvertedBy},
+     *         {@link com.jagrosh.jdautilities.doc.ConvertedBy @ConvertedBy},
      *         or an exception is thrown while instantiating the value said
      *         ConvertedBy annotation.
      *         <br><b>NOTE:</b> that a DocConverter instantiation will fail
@@ -260,7 +262,7 @@ public class DocGenerator
      * instance variable to the DocConverter you are providing.
      *
      * <p>An example of a custom CommandDoc conversion annotation can be found in the
-     * {@link DocConverter DocConverter} documentation.
+     * {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} documentation.
      *
      * @param  <T>
      *         The type of annotation.

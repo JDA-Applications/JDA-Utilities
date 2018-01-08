@@ -36,7 +36,7 @@ public class FixedSizeCache<K, V>
     private int currIndex = 0;
 
     /**
-     * Constructs a new {@link FixedSizeCache FixedSizeCache}
+     * Constructs a new {@link com.jagrosh.jdautilities.commons.utils.FixedSizeCache FixedSizeCache}
      * with a set maximum capacity.
      *
      * <p>This entity runs on the basis of "first-in-first-out", meaning that elements inserted
@@ -58,7 +58,7 @@ public class FixedSizeCache<K, V>
     /**
      * Adds a key and pairs it with a value.
      *
-     * <p>If this {@link FixedSizeCache FixedSizeCache}
+     * <p>If this {@link com.jagrosh.jdautilities.commons.utils.FixedSizeCache FixedSizeCache}
      * is already at maximum occupation, this will remove the oldest element.
      *
      * <p><b>NOTE:</b> Any inner workings of {@link java.util.HashMap#put(Object, Object)
@@ -84,7 +84,7 @@ public class FixedSizeCache<K, V>
     }
 
     /**
-     * Checks if this {@link FixedSizeCache FixedSizeCache}
+     * Checks if this {@link com.jagrosh.jdautilities.commons.utils.FixedSizeCache FixedSizeCache}
      * contains a key.
      *
      * <p><b>NOTE:</b> Any inner workings of {@link java.util.HashMap#containsKey(Object)

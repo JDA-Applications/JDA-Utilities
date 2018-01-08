@@ -46,7 +46,7 @@ import java.lang.annotation.Annotation;
  *
  * It is also notably recommended you follow the standards for DocConverters listed below:
  * <ul>
- *     <li>1) {@link DocConverter#read(Annotation)} should not throw any exceptions,
+ *     <li>1) {@link com.jagrosh.jdautilities.doc.DocConverter#read(java.lang.annotation.Annotation)} should not throw any exceptions,
  *            nor otherwise halt a process due to one being thrown.</li>
  *     <li>2) When possible and practical, DocConverter implementations should be
  *            classes nested within the {@code @interface} they are used to convert
