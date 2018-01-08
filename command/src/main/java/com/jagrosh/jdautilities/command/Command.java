@@ -35,7 +35,7 @@ import net.dv8tion.jda.core.utils.PermissionUtil;
  * a low level of development. 
  * <br>All Commands extending this class can define any number of these fields in a object constructor and then 
  * create the command action/response in the abstract 
- * {@link Command#execute(CommandEvent) #execute(CommandEvent)} body:
+ * {@link Command#execute(com.jagrosh.jdautilities.command.CommandEvent) #execute(CommandEvent)} body:
  * 
  * <pre><code> public class ExampleCmd extends Command {
  *      
@@ -53,7 +53,7 @@ import net.dv8tion.jda.core.utils.PermissionUtil;
  * }</code></pre>
  * 
  * Execution is with the provision of a MessageReceivedEvent-CommandClient wrapper called a
- * {@link CommandEvent CommandEvent} and is performed in two steps:
+ * {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} and is performed in two steps:
  * <ul>
  *     <li>{@link Command#run(CommandEvent) run} - The command runs
  *     through a series of conditionals, automatically terminating the command instance if one is not met, 
@@ -172,14 +172,14 @@ public abstract class Command
      * {@link Command#run(CommandEvent) #run(CommandEvent)}.
      * 
      * @param  event
-     *         The {@link CommandEvent CommandEvent} that
+     *         The {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} that
      *         triggered this Command
      */
     protected abstract void execute(CommandEvent event);
     
     /**
      * Runs checks for the {@link Command Command} with the
-     * given {@link CommandEvent CommandEvent} that called it.
+     * given {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} that called it.
      * <br>Will terminate, and possibly respond with a failure message, if any checks fail.
      * 
      * @param  event
@@ -542,7 +542,7 @@ public abstract class Command
 
     /**
      * Gets the proper cooldown key for this Command under the provided
-     * {@link CommandEvent CommanEvent}.
+     * {@link com.jagrosh.jdautilities.command.CommandEvent CommanEvent}.
      *
      * @param  event
      *         The CommandEvent to generate the cooldown for.
@@ -571,7 +571,7 @@ public abstract class Command
 
     /**
      * Gets an error message for this Command under the provided
-     * {@link CommandEvent CommanEvent}.
+     * {@link com.jagrosh.jdautilities.command.CommandEvent CommanEvent}.
      *
      * @param  event
      *         The CommandEvent to generate the error message for.
@@ -599,7 +599,7 @@ public abstract class Command
     /**
      * To be used in {@link Command Command}s as a means of
      * organizing commands into "Categories" as well as terminate command usage when the calling 
-     * {@link CommandEvent CommandEvent} doesn't meet
+     * {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} doesn't meet
      * certain requirements.
      * 
      * @author John Grosh (jagrosh)
@@ -686,7 +686,7 @@ public abstract class Command
          * Runs a test of the provided {@link java.util.function.Predicate}.
          * 
          * @param  event
-         *         The {@link CommandEvent CommandEvent}
+         *         The {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent}
          *         that was called when this method is invoked
          *         
          * @return {@code true} if the Predicate was not set, was set as null, or was 

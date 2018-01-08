@@ -29,8 +29,8 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 
 /**
  * A wrapper class for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
- * {@link CommandClient CommandClient}, and String user arguments
- * compatible with all {@link Command Command}s.
+ * {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}, and String user arguments
+ * compatible with all {@link com.jagrosh.jdautilities.command.Command Command}s.
  * 
  * <p>From here, developers can invoke several useful and specialized methods to assist in Command function and
  * development. There are also "extension" methods for all methods found in MessageReceivedEvent.
@@ -62,7 +62,7 @@ public class CommandEvent
      * @param  args
      *         The String arguments after the command call
      * @param  client
-     *         The {@link CommandClient CommandClient}
+     *         The {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
      */
     public CommandEvent(MessageReceivedEvent event, String args, CommandClient client)
     {
@@ -99,7 +99,7 @@ public class CommandEvent
     }
     
     /**
-     * Returns the {@link CommandClient CommandClient}
+     * Returns the {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
      * that initiated this CommandEvent.
      * 
      * @return The initiating CommandClient
@@ -121,8 +121,8 @@ public class CommandEvent
      * IllegalArgumentException} will be thrown:
      * <ul>
      *     <li>The Message provided is from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}).</li>
-     *     <li>The base {@link CommandClient CommandClient} must be using
-     *     linked deletion (IE: {@link CommandClient#usesLinkedDeletion()
+     *     <li>The base {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} must be using
+     *     linked deletion (IE: {@link com.jagrosh.jdautilities.command.CommandClient#usesLinkedDeletion()
      *     CommandClient#usesLinkedDeletion()} returns {@code true})</li>
      * </ul>
      *
