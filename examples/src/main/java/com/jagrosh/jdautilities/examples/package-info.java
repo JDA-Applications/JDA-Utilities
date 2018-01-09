@@ -15,7 +15,7 @@
  */
 
 /**
- * Common package for all package for all available examples classes.<br>
+ * Common package for all available example classes.<br>
  *
  * <p>The contents of this package are summarized as follows:
  * <ul>
