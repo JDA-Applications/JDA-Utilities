@@ -220,7 +220,9 @@ public final class FinderUtil
     {
         List<User> bans;
         try {
-            bans = guild.getBans().complete();
+            bans = guild.getBanList().complete().stream()
+                .map(Guild.Ban::getUser)
+                .collect(Collectors.toList());
         } catch(Exception e) {
             return null;
         }
