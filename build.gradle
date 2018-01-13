@@ -19,7 +19,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
-tasks.create("build") {
+tasks.create('build') {
     group 'build'
 }
 
@@ -85,7 +85,7 @@ allprojects {
     }
 
     bintrayUpload {
-        dependsOn { rootProject.getTasksByName("build", true) }
+        dependsOn { rootProject.getTasksByName('build', true) }
 
         onlyIf { !project.property('bintrayUsername')?.trim()?.empty }
         onlyIf { !project.property('bintrayApiKey')?.trim()?.empty }
@@ -154,7 +154,7 @@ subprojects {
 
 configurations {
     compile {
-        description = "compile"
+        description = 'compile'
         transitive = true
     }
 }
@@ -165,24 +165,24 @@ dependencies {
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-tasks.create("jar", ShadowJar) {
+tasks.create('jar', ShadowJar) {
     group 'build'
 
     from subprojects*.jar
 
-    destinationDir = project.file('build/libs/')
+    destinationDir = project.file("$project.buildDir/libs/")
 
     baseName "$project.artifactId"
     version "$project.version"
 }
 
-tasks.create("shadowJar", ShadowJar) {
+tasks.create('shadowJar', ShadowJar) {
     group 'shadow'
-    dependsOn({ rootProject.getTasksByName("jar", true) } as Object[])
+    dependsOn({ rootProject.getTasksByName('jar', true) } as Object[])
 
     from subprojects*.jar
 
-    destinationDir = project.file('build/libs/')
+    destinationDir = project.file("$project.buildDir/libs/")
 
     configurations = [configurations.runtime]
 
@@ -193,12 +193,12 @@ tasks.create("shadowJar", ShadowJar) {
 
 tasks.create('javadoc', Javadoc) {
     group 'documentation'
-    dependsOn({ subprojects*.getTasksByName("javadoc", true) } as Object[])
+    dependsOn({ subprojects*.getTasksByName('javadoc', true) } as Object[])
 
     source = subprojects*.sourceSets.main.allJava
     classpath = files(subprojects*.javadoc.classpath)
 
-    destinationDir = project.file("build/docs/")
+    destinationDir = project.file("$project.buildDir/docs/")
 
     options.memberLevel = JavadocMemberLevel.PROTECTED
     options.author()
@@ -212,7 +212,7 @@ tasks.create('javadocJar', Jar) {
 
     from javadoc.destinationDir
 
-    destinationDir = project.file("build/libs/")
+    destinationDir = project.file("$project.buildDir/libs/")
 
     baseName "$project.artifactId"
     classifier 'javadoc'
@@ -221,21 +221,21 @@ tasks.create('javadocJar', Jar) {
 
 tasks.create('sourceJar', Jar) {
     group 'build'
-    dependsOn({ rootProject.getTasksByName("classes", true) } as Object[])
+    dependsOn({ rootProject.getTasksByName('classes', true) } as Object[])
 
     from { subprojects*.sourceSets.main.allSource }
 
-    destinationDir = project.file("build/libs/")
+    destinationDir = project.file("$project.buildDir/libs/")
 
     baseName "$project.artifactId"
     classifier 'sources'
     extension 'jar'
 }
 
-tasks.create("clean", Delete) {
+tasks.create('clean', Delete) {
     group 'build'
 
-    delete = 'build/'
+    delete = project.buildDir
 }
 
 publishing {
