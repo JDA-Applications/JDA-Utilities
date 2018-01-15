@@ -19,8 +19,8 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
-tasks.create('build') {
-    group 'build'
+tasks.create(name: 'build') {
+    group = 'build'
 }
 
 allprojects {
@@ -28,7 +28,7 @@ allprojects {
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    group 'com.jagrosh'
+    group = 'com.jagrosh'
     version = '2.0'
 
     project.ext {
@@ -166,37 +166,37 @@ dependencies {
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 tasks.create('jar', ShadowJar) {
-    group 'build'
+    group = 'build'
 
-    from subprojects*.jar
+    from { subprojects*.jar }
 
     destinationDir = project.file("$project.buildDir/libs/")
 
-    baseName "$project.artifactId"
-    version "$project.version"
+    baseName = "$project.artifactId"
+    version = "$project.version"
 }
 
 tasks.create('shadowJar', ShadowJar) {
-    group 'shadow'
+    group = 'shadow'
     dependsOn({ rootProject.getTasksByName('jar', true) } as Object[])
 
-    from subprojects*.jar
+    from { subprojects*.jar }
 
     destinationDir = project.file("$project.buildDir/libs/")
 
-    configurations = [configurations.runtime]
+    configurations += configurations.runtime
 
-    baseName "$project.artifactId"
-    classifier 'all'
-    version "$project.version"
+    baseName = "$project.artifactId"
+    classifier = 'all'
+    version = "$project.version"
 }
 
-tasks.create('javadoc', Javadoc) {
-    group 'documentation'
+tasks.create(name: 'javadoc', type: Javadoc) {
+    group = 'documentation'
     dependsOn({ subprojects*.getTasksByName('javadoc', true) } as Object[])
 
-    source = subprojects*.sourceSets.main.allJava
-    classpath = files(subprojects*.javadoc.classpath)
+    source = { subprojects*.sourceSets.main.allJava }
+    classpath = project.files(subprojects*.javadoc.classpath as FileCollection[])
 
     destinationDir = project.file("$project.buildDir/docs/")
 
@@ -207,33 +207,33 @@ tasks.create('javadoc', Javadoc) {
 }
 
 tasks.create('javadocJar', Jar) {
-    group 'build'
+    group = 'build'
     dependsOn tasks.javadoc
 
-    from javadoc.destinationDir
+    from { javadoc.destinationDir }
 
     destinationDir = project.file("$project.buildDir/libs/")
 
-    baseName "$project.artifactId"
-    classifier 'javadoc'
-    extension 'jar'
+    baseName = "$project.artifactId"
+    classifier = 'javadoc'
+    extension = 'jar'
 }
 
 tasks.create('sourceJar', Jar) {
-    group 'build'
+    group = 'build'
     dependsOn({ rootProject.getTasksByName('classes', true) } as Object[])
 
     from { subprojects*.sourceSets.main.allSource }
 
     destinationDir = project.file("$project.buildDir/libs/")
 
-    baseName "$project.artifactId"
-    classifier 'sources'
-    extension 'jar'
+    baseName = "$project.artifactId"
+    classifier = 'sources'
+    extension = 'jar'
 }
 
 tasks.create('clean', Delete) {
-    group 'build'
+    group = 'build'
 
     delete = project.buildDir
 }
