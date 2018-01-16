@@ -34,6 +34,3 @@
 /target/
 /.nb-gradle/
 *.nb-gradle-properties
-
-# project files
-gradle.properties
