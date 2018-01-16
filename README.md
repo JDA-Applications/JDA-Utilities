@@ -9,16 +9,15 @@
 [ ![issues][] ][issueslink]
 
 ## JDA-Utilities
-JDA-Utilities is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) to assist in bot creation.
+JDA-Utilities is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) 
+to assist in bot creation.
 
 ## Version 2.0 Notice
-Version 2.0 will be a come with a lot of big (some breaking) changes to the library.
+Version 2.0 comes with a lot of big (some breaking) changes to the library.
 
-If you use this library for anything, it is **STRONGLY** recommended you read [this gist](https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee)
-which documents all of the changes that will be made, as to better prepare yourself for moving to 2.0.
-
-Note that the gist is in no way final, and will be modified possibly until the day that we release 2.0,
-so it's a good idea to keep up-to-date with it in the coming weeks.
+If you use this library for anything, it is **STRONGLY** recommended you read 
+[this gist](https://gist.github.com/TheMonitorLizard/4f09ac2a3c9d8019dc3cde02cc456eee)
+which documents all of the changes that have been made.
 
 If you have questions or concerns about any of these changes, please contact **Shengaero**#9090.
 
@@ -44,7 +43,7 @@ With maven:
   <dependency>
     <groupId>com.jagrosh</groupId>
     <artifactId>JDA-Utilities</artifactId>
-    <version>1.9</version>
+    <version>2.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -64,7 +63,7 @@ With maven:
 With gradle:
 ```groovy
 dependencies {
-    compile 'com.jagrosh:JDA-Utilities:1.9'
+    compile 'com.jagrosh:JDA-Utilities:2.0'
     compile 'net.dv8tion:JDA:LATEST'
 }
 
@@ -82,7 +81,7 @@ With maven:
     <groupId>com.jagrosh</groupId>
     <!-- Notice that the dependency notation ends with "-command" -->
     <artifactId>JDA-Utilities-command</artifactId>
-    <version>1.9</version>
+    <version>2.0</version>
     <scope>compile</scope>
   </dependency>
 ```
@@ -91,7 +90,7 @@ With gradle:
 ```groovy
 dependencies {
     // Notice that the dependency notation ends with "-command"
-    compile 'com.jagrosh:JDA-Utilities-command:1.9'
+    compile 'com.jagrosh:JDA-Utilities-command:2.0'
 }
 ```
 
