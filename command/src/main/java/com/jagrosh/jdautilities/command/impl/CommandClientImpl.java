@@ -96,7 +96,7 @@ public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements C
     private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
-    private final GuildSettingsManager<S> manager;
+    private final M manager;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -105,7 +105,7 @@ public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements C
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
-            GuildSettingsManager manager)
+            M manager)
     {
         if(ownerId == null)
             throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
@@ -417,15 +417,13 @@ public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements C
     @Override
     public S getSettingsFor(Guild guild)
     {
-        if(manager == null)
-            return null;
-        return (S) manager.getSettings(guild);
+        return manager.getSettings(guild);
     }
 
     @Override
-    public  M getSettingsManager()
+    public M getSettingsManager()
     {
-        return (M) manager;
+        return manager;
     }
 
     @Override
