@@ -17,6 +17,7 @@ dependencies {
     include('commons')
     include('command')
     include('menu')
+    include('doc')
 
     jda()
     slf4j()

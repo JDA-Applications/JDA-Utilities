@@ -18,11 +18,18 @@ package com.jagrosh.jdautilities.examples.command;
 import java.time.temporal.ChronoUnit;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.doc.standard.CommandInfo;
+import com.jagrosh.jdautilities.examples.doc.Author;
 
 /**
  *
  * @author John Grosh (jagrosh)
  */
+@CommandInfo(
+    name = {"Ping", "Pong"},
+    description = "Checks the bot's latency"
+)
+@Author("John Grosh (jagrosh)")
 public class PingCommand extends Command {
 
     public PingCommand()

@@ -21,6 +21,9 @@
  * <ul>
  *     <li>{@link com.jagrosh.jdautilities.examples.command Example Commands Package}
  *     <br>Contains all example commands.</li>
+ *
+ *     <li>{@link com.jagrosh.jdautilities.examples.doc Example CommandDoc Package}
+ *     <br>Contains all example CommandDoc annotations.</li>
  * </ul>
  */
 package com.jagrosh.jdautilities.examples;

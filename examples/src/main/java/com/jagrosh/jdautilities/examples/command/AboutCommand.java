@@ -18,6 +18,8 @@ package com.jagrosh.jdautilities.examples.command;
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.doc.standard.CommandInfo;
+import com.jagrosh.jdautilities.examples.doc.Author;
 import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
@@ -31,6 +33,11 @@ import java.awt.*;
  *
  * @author John Grosh (jagrosh)
  */
+@CommandInfo(
+    name = "About",
+    description = "Gets information about the bot."
+)
+@Author("John Grosh (jagrosh)")
 public class AboutCommand extends Command {
     private boolean IS_AUTHOR = true;
     private String REPLACEMENT_ICON = "+";

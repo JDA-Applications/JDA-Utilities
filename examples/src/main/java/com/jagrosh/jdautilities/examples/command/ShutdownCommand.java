@@ -17,11 +17,18 @@ package com.jagrosh.jdautilities.examples.command;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.doc.standard.CommandInfo;
+import com.jagrosh.jdautilities.examples.doc.Author;
 
 /**
  *
  * @author John Grosh (jagrosh)
  */
+@CommandInfo(
+    name = "Shutdown",
+    description = "Safely shuts down the bot."
+)
+@Author("John Grosh (jagrosh)")
 public class ShutdownCommand extends Command {
 
     public ShutdownCommand()

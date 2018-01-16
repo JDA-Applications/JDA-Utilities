@@ -19,6 +19,10 @@ import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.doc.standard.CommandInfo;
+import com.jagrosh.jdautilities.doc.standard.Error;
+import com.jagrosh.jdautilities.doc.standard.RequiredPermissions;
+import com.jagrosh.jdautilities.examples.doc.Author;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.Permission;
@@ -29,7 +33,20 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
  *
  * @author John Grosh (jagrosh)
  */
-@SuppressWarnings("deprecation")
+@CommandInfo(
+    name = "Guildlist",
+    description = "Gets a paginated list of the guilds the bot is on.",
+    requirements = {
+        "The bot has all necessary permissions.",
+        "The user is the bot's owner."
+    }
+)
+@Error(
+    value = "If arguments are provided, but they are not an integer.",
+    response = "[PageNumber] is not a valid integer!"
+)
+@RequiredPermissions({Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION})
+@Author("John Grosh (jagrosh)")
 public class GuildlistCommand extends Command {
 
     private final Paginator.Builder pbuilder;
