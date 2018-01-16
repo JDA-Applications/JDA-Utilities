@@ -22,8 +22,24 @@ so it's a good idea to keep up-to-date with it in the coming weeks.
 
 If you have questions or concerns about any of these changes, please contact **Shengaero**#9090.
 
+## Packages
+
+Since JDA-Utilities 2.0, the library has been split into multiple modular projects,
+in order to better organize it's contents based on what developers might want to use and not use.
+
++ [Command Package](https://github.com/JDA-Applications/JDA-Utilities/tree/master/command)
++ [Commons Package](https://github.com/JDA-Applications/JDA-Utilities/tree/master/commons)
++ [CommandDoc Package](https://github.com/JDA-Applications/JDA-Utilities/tree/master/doc)
++ [Examples Package](https://github.com/JDA-Applications/JDA-Utilities/tree/master/examples)
++ [Menu Package](https://github.com/JDA-Applications/JDA-Utilities/tree/master/menu)
+
+Visit individual modules to read more about their contents!
+
 ## Getting Started
-You will need to add this project as a dependency (either from the latest .jar from the releases page, or via maven or gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). With maven, you can use the snippets below:
+You will need to add this project as a dependency (either from the latest .jar from the releases page, 
+or via maven or gradle), as well as [JDA](https://github.com/DV8FromTheWorld/JDA). 
+
+With maven:
 ```xml
   <dependency>
     <groupId>com.jagrosh</groupId>
@@ -44,6 +60,7 @@ You will need to add this project as a dependency (either from the latest .jar f
     <url>http://jcenter.bintray.com</url>
   </repository>
 ```
+
 With gradle:
 ```groovy
 dependencies {
@@ -53,6 +70,28 @@ dependencies {
 
 repositories {
     jcenter()
+}
+```
+
+Individual modules can be downloaded using the same structure shown above, with the addition of the module's
+name as a suffix to the dependency:
+
+With maven:
+```xml
+  <dependency>
+    <groupId>com.jagrosh</groupId>
+    <!-- Notice that the dependency notation ends with "-command" -->
+    <artifactId>JDA-Utilities-command</artifactId>
+    <version>1.9</version>
+    <scope>compile</scope>
+  </dependency>
+```
+
+With gradle:
+```groovy
+dependencies {
+    // Notice that the dependency notation ends with "-command"
+    compile 'com.jagrosh:JDA-Utilities-command:1.9'
 }
 ```
 
