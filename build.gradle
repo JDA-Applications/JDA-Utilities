@@ -47,6 +47,9 @@ allprojects {
         include = { String name -> project.dependencies.compile project.project(':' + name) }
 
         artifactId = rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name.capitalize())
+
+        moduleName = rootProject == project ? "com.jagrosh.jdautilities" :
+                "com.jagrosh.jdautilities.${project.name.toLowerCase()}"
     }
 
     repositories {
@@ -107,7 +110,8 @@ subprojects {
         manifest {
             attributes(
                     'Implementation-Title': project.artifactId,
-                    'Implementation-Version': project.version
+                    'Implementation-Version': project.version,
+                    'Automatic-Module-Name': "${project.moduleName}"
             )
         }
     }
@@ -179,7 +183,8 @@ tasks.create('jar', ShadowJar) {
     manifest {
         attributes(
                 'Implementation-Title': project.artifactId,
-                'Implementation-Version': project.version
+                'Implementation-Version': project.version,
+                'Automatic-Module-Name': "${project.moduleName}"
         )
     }
 }
@@ -202,7 +207,8 @@ tasks.create('shadowJar', ShadowJar) {
     manifest {
         attributes(
                 'Implementation-Title': project.artifactId,
-                'Implementation-Version': project.version
+                'Implementation-Version': project.version,
+                'Automatic-Module-Name': "${project.moduleName}"
         )
     }
 }
