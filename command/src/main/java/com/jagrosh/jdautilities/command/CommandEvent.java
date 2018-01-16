@@ -893,6 +893,17 @@ public class CommandEvent
         react(client.getError());
     }
     
+    /**
+     * Uses the client's scheduled executor service to run something outside
+     * of JDA's event loop
+     * 
+     * @param runnable the runnable to run async
+     */
+    public void async(Runnable runnable)
+    {
+        client.getScheduleExecutor().submit(runnable);
+    }
+    
     
     //private methods
 
@@ -911,7 +922,7 @@ public class CommandEvent
     
     private Emote parseEmote(String text)
     {
-        String id = text.replaceAll("<:.+:(\\d+)>", "$1");
+        String id = text.replaceAll("<a?:.+:(\\d+)>", "$1");
         try {
             return event.getJDA().getEmoteById(id);
         } catch(Exception e) {

@@ -21,6 +21,9 @@ import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.AnnotatedModuleCompilerImpl;
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
+import java.util.concurrent.ScheduledExecutorService;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.Game;
 
 /**
  * A simple builder used to create a {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
@@ -32,6 +35,8 @@ import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
  */
 public class CommandClientBuilder
 {
+    private Game game = Game.playing("default");
+    private OnlineStatus status = OnlineStatus.ONLINE;
     private String ownerId;
     private String[] coOwnerIds;
     private String prefix;
@@ -48,7 +53,8 @@ public class CommandClientBuilder
     private boolean useHelp = true;
     private Consumer<CommandEvent> helpConsumer;
     private String helpWord;
-    private int linkedCacheSize = 200;
+    private ScheduledExecutorService executor;
+    private int linkedCacheSize = 0;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
     private GuildSettingsManager manager = null;
 
@@ -62,9 +68,9 @@ public class CommandClientBuilder
      */
     public CommandClient build()
     {
-        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, serverInvite,
+        CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                                                      success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                                                     helpConsumer, helpWord, linkedCacheSize, compiler, manager);
+                                                     helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -215,6 +221,48 @@ public class CommandClientBuilder
         return this;
     }
 
+    /**
+     * Sets the {@link net.dv8tion.jda.core.entities.Game Game} to use when the bot is ready.
+     * <br>Can be set to {@code null} for no game.
+     * 
+     * @param  game
+     *         The Game to use when the bot is ready
+     *         
+     * @return This builder
+     */
+    public CommandClientBuilder setGame(Game game)
+    {
+        this.game = game;
+        return this;
+    }
+    
+    /**
+     * Sets the {@link net.dv8tion.jda.core.entities.Game Game} the bot will use as the default: 
+     * 'Playing <b>Type [prefix]help</b>'
+     * 
+     * @return This builder
+     */
+    public CommandClientBuilder useDefaultGame()
+    {
+        this.game = Game.playing("default");
+        return this;
+    }
+    
+    /**
+     * Sets the {@link net.dv8tion.jda.core.OnlineStatus OnlineStatus} the bot will use once Ready
+     * This defaults to ONLINE
+     *
+     * @param  status
+     *         The status to set
+     *
+     * @return This builder
+     */
+    public CommandClientBuilder setStatus(OnlineStatus status)
+    {
+        this.status = status;
+        return this;
+    }
+    
     /**
      * Adds a {@link com.jagrosh.jdautilities.command.Command Command} and registers it to the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl} for this session.
@@ -375,6 +423,21 @@ public class CommandClientBuilder
     public CommandClientBuilder setListener(CommandListener listener)
     {
         this.listener = listener;
+        return this;
+    }
+    
+    /**
+     * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for this 
+     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
+     * 
+     * @param  executor
+     *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
+     *         
+     * @return This builder
+     */
+    public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
+    {
+        this.executor = executor;
         return this;
     }
     

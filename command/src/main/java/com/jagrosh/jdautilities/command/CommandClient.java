@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.entities.Guild;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
 /**
@@ -366,6 +367,13 @@ public interface CommandClient
      * @return The error emoji
      */
     String getError();
+    
+    /**
+     * Gets the scheduled executor service.
+     * 
+     * @return the scheduled executor service
+     */
+    ScheduledExecutorService getScheduleExecutor();
     
     /**
      * Gets the invite to the bot's support server.

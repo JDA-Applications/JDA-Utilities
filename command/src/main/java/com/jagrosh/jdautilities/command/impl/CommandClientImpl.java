@@ -43,9 +43,13 @@ import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.events.ShutdownEvent;
 
 /**
  * An implementation of {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} to be used by a bot.
@@ -66,6 +70,8 @@ public class CommandClientImpl implements CommandClient, EventListener
     private static final String DEFAULT_PREFIX = "@mention";
 
     private final OffsetDateTime start;
+    private final Game game;
+    private final OnlineStatus status;
     private final String ownerId;
     private final String[] coOwnerIds;
     private final String prefix;
@@ -85,6 +91,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final boolean useHelp;
     private final Consumer<CommandEvent> helpConsumer;
     private final String helpWord;
+    private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
     private final GuildSettingsManager manager;
@@ -93,9 +100,9 @@ public class CommandClientImpl implements CommandClient, EventListener
     private CommandListener listener = null;
     private int totalGuilds;
 
-    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, String serverInvite,
+    public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
-            boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, int linkedCacheSize, AnnotatedModuleCompiler compiler,
+            boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
             GuildSettingsManager manager)
     {
         if(ownerId == null)
@@ -120,6 +127,8 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.prefix = prefix==null || prefix.isEmpty() ? DEFAULT_PREFIX : prefix;
         this.altprefix = altprefix==null || altprefix.isEmpty() ? null : altprefix;
         this.textPrefix = prefix;
+        this.game = game;
+        this.status = status;
         this.serverInvite = serverInvite;
         this.success = success==null ? "": success;
         this.warning = warning==null ? "": warning;
@@ -134,6 +143,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.linkMap = linkedCacheSize>0 ? new FixedSizeCache<>(linkedCacheSize) : null;
         this.useHelp = useHelp;
         this.helpWord = helpWord==null ? "help" : helpWord;
+        this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.linkedCacheSize = linkedCacheSize;
         this.compiler = compiler;
         this.manager = manager;
@@ -356,6 +366,12 @@ public class CommandClientImpl implements CommandClient, EventListener
     }
 
     @Override
+    public ScheduledExecutorService getScheduleExecutor()
+    {
+        return executor;
+    }
+    
+    @Override
     public String getServerInvite()
     {
         return serverInvite;
@@ -396,22 +412,20 @@ public class CommandClientImpl implements CommandClient, EventListener
         return linkedCacheSize>0;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <S> S getSettingsFor(Guild guild)
     {
         if(manager == null)
             return null;
-        return (S)manager.getSettings(guild);
+        return (S) manager.getSettings(guild);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <M extends GuildSettingsManager> M getSettingsManager()
     {
         if(manager == null)
             return null;
-        return (M)manager;
+        return (M) manager;
     }
 
     @Override
@@ -433,6 +447,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             sendStats(event.getJDA());
         else if(event instanceof ReadyEvent)
             onReady((ReadyEvent)event);
+        else if(event instanceof ShutdownEvent)
+            executor.shutdown();
     }
 
     private void onReady(ReadyEvent event)
@@ -444,6 +460,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             return;
         }
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
+        event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
+                game==null ? null : "default".equals(game.getName()) ? Game.playing("Type "+textPrefix+helpWord) : game);
         sendStats(event.getJDA());
     }
 

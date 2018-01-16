@@ -700,7 +700,8 @@ public abstract class Command
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(Object obj)
+        {
             if(!(obj instanceof Category))
                 return false;
             Category other = (Category)obj;
@@ -708,7 +709,8 @@ public abstract class Command
         }
 
         @Override
-        public int hashCode() {
+        public int hashCode()
+        {
             int hash = 7;
             hash = 17 * hash + Objects.hashCode(this.name);
             hash = 17 * hash + Objects.hashCode(this.failResponse);
