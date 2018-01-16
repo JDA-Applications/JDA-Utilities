@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'com.github.ben-manes.versions' version '0.17.0'
     id 'com.github.johnrengelman.shadow' version '2.0.2'
@@ -44,7 +46,7 @@ allprojects {
 
         include = { String name -> project.dependencies.compile project.project(':' + name) }
 
-        artifactId = rootProject == project ? rootProject.name.toLowerCase() : (rootProject.name + '-' + project.name).toLowerCase()
+        artifactId = rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name.capitalize())
     }
 
     repositories {
@@ -163,10 +165,9 @@ dependencies {
     compile subprojects
 }
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 tasks.create('jar', ShadowJar) {
     group = 'build'
+    dependsOn('clean')
 
     from { subprojects*.jar }
 
@@ -174,11 +175,19 @@ tasks.create('jar', ShadowJar) {
 
     baseName = "$project.artifactId"
     version = "$project.version"
+
+    manifest {
+        attributes(
+                'Implementation-Title': project.artifactId,
+                'Implementation-Version': project.version
+        )
+    }
 }
 
 tasks.create('shadowJar', ShadowJar) {
     group = 'shadow'
     dependsOn({ rootProject.getTasksByName('jar', true) } as Object[])
+    dependsOn('clean')
 
     from { subprojects*.jar }
 
@@ -189,11 +198,19 @@ tasks.create('shadowJar', ShadowJar) {
     baseName = "$project.artifactId"
     classifier = 'all'
     version = "$project.version"
+
+    manifest {
+        attributes(
+                'Implementation-Title': project.artifactId,
+                'Implementation-Version': project.version
+        )
+    }
 }
 
 tasks.create(name: 'javadoc', type: Javadoc) {
     group = 'documentation'
     dependsOn({ subprojects*.getTasksByName('javadoc', true) } as Object[])
+    dependsOn('clean')
 
     source = { subprojects*.sourceSets.main.allJava }
     classpath = project.files(subprojects*.javadoc.classpath as FileCollection[])
@@ -209,6 +226,7 @@ tasks.create(name: 'javadoc', type: Javadoc) {
 tasks.create('javadocJar', Jar) {
     group = 'build'
     dependsOn tasks.javadoc
+    dependsOn('clean')
 
     from { javadoc.destinationDir }
 
@@ -222,6 +240,7 @@ tasks.create('javadocJar', Jar) {
 tasks.create('sourceJar', Jar) {
     group = 'build'
     dependsOn({ rootProject.getTasksByName('classes', true) } as Object[])
+    dependsOn('clean')
 
     from { subprojects*.sourceSets.main.allSource }
 
