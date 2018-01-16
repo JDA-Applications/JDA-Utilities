@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 John Grosh (jagrosh).
+ * Copyright 2016-2018 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
