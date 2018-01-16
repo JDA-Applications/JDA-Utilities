@@ -59,8 +59,8 @@ import java.util.stream.Collectors;
  * command system that uses Class and/or Method based commands, and works in any JVM
  * language that supports annotations.
  *
- * @see    ConvertedBy
- * @see    DocConverter
+ * @see    com.jagrosh.jdautilities.doc.ConvertedBy
+ * @see    com.jagrosh.jdautilities.doc.DocConverter
  *
  * @since  2.0
  * @author Kaidan Gustave
@@ -232,8 +232,9 @@ public class DocGenerator
         if(convertedBy == null)
             throw new IllegalArgumentException("Illegal annotation type! Not annotated with @ConvertedBy!");
 
-        final DocConverter<?> instance;
-        try {
+        final DocConverter<T> instance;
+        try
+        {
             // If parameters are specified
             if(converterParams.length > 0)
             {
@@ -247,7 +248,9 @@ public class DocGenerator
             {
                 instance = convertedBy.value().getConstructor().newInstance();
             }
-        } catch(InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        }
+        catch(InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
+        {
             throw new IllegalArgumentException("Instance of "+convertedBy.value()+" could not be instantiated!", e);
         }
 

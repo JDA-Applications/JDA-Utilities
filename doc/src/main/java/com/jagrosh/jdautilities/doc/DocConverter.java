@@ -23,7 +23,7 @@ import java.lang.annotation.Annotation;
  * method representing a command for a bot.
  *
  * <p>These are the fundamental building blocks behind command doc annotations, and can
- * be applied using the {@link ConvertedBy @ConvertedBy}
+ * be applied using the {@link com.jagrosh.jdautilities.doc.ConvertedBy @ConvertedBy}
  * annotation:
  *
  * <pre>

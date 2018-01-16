@@ -76,7 +76,7 @@ public @interface Error
      * A prefix appended to the front of the produced String during
      * conversion.
      * <br>Only really useful or needed when a Command has multiple
-     * {@link Error @Error}
+     * {@link com.jagrosh.jdautilities.doc.standard.Error @Error}
      * annotations, for the purpose of listing.
      *
      * @return A prefix for the conversion, useful when multiple @Errors
@@ -86,7 +86,7 @@ public @interface Error
 
     /**
      * The {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter}
-     * for the {@link Error @Error}
+     * for the {@link com.jagrosh.jdautilities.doc.standard.Error @Error}
      * annotation.
      */
     class Converter implements DocConverter<Error>

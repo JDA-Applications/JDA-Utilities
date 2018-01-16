@@ -45,7 +45,7 @@ public @interface RequiredPermissions
 
     /**
      * The {@link com.jagrosh.jdautilities.doc.DocConverter DocConverter} for the
-     * {@link RequiredPermissions @RequiredPermissions}
+     * {@link com.jagrosh.jdautilities.doc.standard.RequiredPermissions @RequiredPermissions}
      * annotation.
      */
     class Converter implements DocConverter<RequiredPermissions>
