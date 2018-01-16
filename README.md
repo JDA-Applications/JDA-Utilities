@@ -42,7 +42,7 @@ With maven:
 ```xml
   <dependency>
     <groupId>com.jagrosh</groupId>
-    <artifactId>JDA-Utilities</artifactId>
+    <artifactId>jda-utilities</artifactId>
     <version>2.0</version>
     <scope>compile</scope>
   </dependency>
@@ -63,7 +63,7 @@ With maven:
 With gradle:
 ```groovy
 dependencies {
-    compile 'com.jagrosh:JDA-Utilities:2.0'
+    compile 'com.jagrosh:jda-utilities:2.0'
     compile 'net.dv8tion:JDA:LATEST'
 }
 
@@ -80,7 +80,7 @@ With maven:
   <dependency>
     <groupId>com.jagrosh</groupId>
     <!-- Notice that the dependency notation ends with "-command" -->
-    <artifactId>JDA-Utilities-command</artifactId>
+    <artifactId>jda-utilities-command</artifactId>
     <version>2.0</version>
     <scope>compile</scope>
   </dependency>
@@ -90,7 +90,7 @@ With gradle:
 ```groovy
 dependencies {
     // Notice that the dependency notation ends with "-command"
-    compile 'com.jagrosh:JDA-Utilities-command:2.0'
+    compile 'com.jagrosh:jda-utilities-command:2.0'
 }
 ```
 

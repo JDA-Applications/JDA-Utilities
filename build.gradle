@@ -46,7 +46,7 @@ allprojects {
 
         include = { String name -> project.dependencies.compile project.project(':' + name) }
 
-        artifactId = rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name.capitalize())
+        artifactId = (rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name)).toLowerCase()
 
         moduleName = rootProject == project ? "com.jagrosh.jdautilities" :
                 "com.jagrosh.jdautilities.${project.name.toLowerCase()}"
@@ -171,7 +171,6 @@ dependencies {
 
 tasks.create('jar', ShadowJar) {
     group = 'build'
-    dependsOn('clean')
 
     from { subprojects*.jar }
 
@@ -192,7 +191,6 @@ tasks.create('jar', ShadowJar) {
 tasks.create('shadowJar', ShadowJar) {
     group = 'shadow'
     dependsOn({ rootProject.getTasksByName('jar', true) } as Object[])
-    dependsOn('clean')
 
     from { subprojects*.jar }
 
@@ -216,7 +214,6 @@ tasks.create('shadowJar', ShadowJar) {
 tasks.create(name: 'javadoc', type: Javadoc) {
     group = 'documentation'
     dependsOn({ subprojects*.getTasksByName('javadoc', true) } as Object[])
-    dependsOn('clean')
 
     source = { subprojects*.sourceSets.main.allJava }
     classpath = project.files(subprojects*.javadoc.classpath as FileCollection[])
@@ -232,7 +229,6 @@ tasks.create(name: 'javadoc', type: Javadoc) {
 tasks.create('javadocJar', Jar) {
     group = 'build'
     dependsOn tasks.javadoc
-    dependsOn('clean')
 
     from { javadoc.destinationDir }
 
@@ -246,7 +242,6 @@ tasks.create('javadocJar', Jar) {
 tasks.create('sourceJar', Jar) {
     group = 'build'
     dependsOn({ rootProject.getTasksByName('classes', true) } as Object[])
-    dependsOn('clean')
 
     from { subprojects*.sourceSets.main.allSource }
 

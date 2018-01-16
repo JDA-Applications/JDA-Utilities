@@ -428,7 +428,7 @@ public class CommandClientBuilder
     
     /**
      * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for this 
-     * {@link com.jagrosh.jdautilities.commandclient.impl.CommandClientImpl CommandClientImpl}.
+     * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
      * 
      * @param  executor
      *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
