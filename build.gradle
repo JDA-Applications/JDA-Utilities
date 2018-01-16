@@ -27,7 +27,7 @@ plugins {
 }
 
 def versionObj = new Version(major: 2, minor: 0)
-def jdaVersion = '3.3.1_316'
+def jdaVersion = '3.4.0_320'
 def date = new Date()
 
 group 'com.jagrosh'

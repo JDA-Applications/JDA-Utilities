@@ -21,6 +21,7 @@ import com.jagrosh.jdautilities.modules.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -32,29 +33,74 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * A service manager for hot-loading external jars containing classes that
+ * extend {@link com.jagrosh.jdautilities.command.Command Command} and serve
+ * as {@link com.jagrosh.jdautilities.modules.Module Module}s.
+ *
+ * <p>The following is a good example of how exactly this system works:
+ *
+ * <pre><code>
+ * directory
+ *    - bot.jar
+ *       - MyBot.class
+ *    - commands.jar
+ *       - module.conf
+ *       - MyCommand.class
+ * </code></pre>
+ *
+ * In this example, two jar files ({@code bot.jar} and {@code commands.jar}) are located
+ * in the same {@code directory}.
+ * <br>{@code bot.jar} contains the class {@code MyBot.class}, which for the example we
+ * will assume is the main method for the jar and the main for the central runtime of the
+ * bot.
+ * <br>The other jar in the {@code directory}, {@code commands.jar}, contains the class
+ * {@code MyCommand.class}, which we will assume extends {@code Command} in this case.
+ *
+ * <p>From somewhere in the main method of {@code MyBot}, the following snippet of code is
+ * invoked:
+ *
+ * <pre><code>
+ * CommandClient client = // Defined
+ *
+ * ModuleManager moduleManager = new ModuleManager(client);
+ *
+ * Module commandsModule = moduleManager.loadModule("commands");
+ *
+ * client.addCommand(commandsModule.getEntry("MyCommand").createInstance());
+ * </code></pre>
+ *
+ * This code creates an instance of ModuleManager, loads the modular jar {@code commands}, and
+ * creates an instance of the entry {@code MyCommand}, as well as adding that instance to the
+ * {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}.
+ *
+ * @since  2.0
  * @author Kaidan Gustave
  */
 @SuppressWarnings("Convert2Lambda")
-public class ModuleManager
+public final class ModuleManager
 {
     private static final Logger LOG = LoggerFactory.getLogger(ModuleManager.class);
     private static final String MODULE_FILE_FORMAT = "%s.jar";
     private static final String MODULE_DESCRIBER_FORMAT = "module.%s";
 
     private final Map<String, ModuleFactory> loadedFactories;
-    private final CommandClient representedClient;
+    private final CommandClient client;
     private final Map<String, Module<?>> loadedModules;
 
-    public ModuleManager()
-    {
-        this(null);
-    }
-
-    public ModuleManager(CommandClient representedClient)
+    /**
+     * Creates a new ModuleManager, wrapping the provided
+     * {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} for easy
+     * loading and unloading {@link com.jagrosh.jdautilities.modules.Module Module}s.
+     *
+     * @param  client
+     *         The CommandClient for the ModuleManager to wrap, never {@code null}
+     */
+    public ModuleManager(@Nonnull CommandClient client)
     {
         this.loadedFactories = new HashMap<>();
-        this.representedClient = representedClient;
+        this.client = client;
         this.loadedModules = new HashMap<>();
+
         initFactories(Thread.currentThread().getContextClassLoader());
     }
 
@@ -67,7 +113,8 @@ public class ModuleManager
                 @Override
                 public ServiceLoader<ModuleFactory> run()
                 {
-                    return getLoader(loader);
+                    return loader == null? ServiceLoader.loadInstalled(ModuleFactory.class) :
+                        ServiceLoader.load(ModuleFactory.class, loader);
                 }
             });
         }
@@ -77,35 +124,44 @@ public class ModuleManager
             return;
         }
 
-        serviceLoader.forEach(factory -> loadedFactories.put(factory.getFileExtension().toLowerCase(), factory));
+        serviceLoader.forEach(factory -> {
+            System.out.println(factory.getFileExtension());
+            // We should not overwrite already loaded factories.
+            // Instead we provide a service warning telling the developer that something is wrong.
+            // This is similar to an SLF4J "no log implementation found" warning.
+            if(loadedFactories.containsKey(factory.getFileExtension().toLowerCase()))
+            {
+                LOG.warn("ModuleManager: Failed to load ModuleFactory '" +
+                         factory.getClass().getCanonicalName() + "' due to it's " +
+                         "extension being reserved by another ModuleFactory already.");
+
+                return;
+            }
+
+            loadedFactories.put(factory.getFileExtension().toLowerCase(), factory);
+        });
     }
 
-    private ServiceLoader<ModuleFactory> getLoader(final ClassLoader loader)
+    public Module getModule(String name)
     {
-        if(loader == null)
-            return ServiceLoader.loadInstalled(ModuleFactory.class);
-        else
-            return ServiceLoader.load(ModuleFactory.class, loader);
+        return loadedModules.get(name.toLowerCase());
     }
 
-    public <T> Module<T> getModule(String name)
-    {
-        return (Module<T>) loadedModules.get(name.toLowerCase());
-    }
-
-    public void loadModule(String name)
+    public Module loadModule(String name)
     {
         File jarFile = FileUtil.getFile(String.format(MODULE_FILE_FORMAT, name));
         URLClassLoader classLoader = null;
 
-        try {
+        try
+        {
             classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()});
 
             String trueExtension = null;
             for(String extension : loadedFactories.keySet())
             {
-                URL url = classLoader.getResource(String.format(MODULE_DESCRIBER_FORMAT, extension));
-                if(url != null)
+                String describer = String.format(MODULE_DESCRIBER_FORMAT, extension);
+                System.out.println(describer);
+                if(classLoader.getResource(describer) != null)
                 {
                     trueExtension = extension;
                     break;
@@ -116,22 +172,42 @@ public class ModuleManager
             {
                 ModuleFactory factory = loadedFactories.get(trueExtension);
                 Module module = factory.load(classLoader);
+                String moduleMappedName = module.getName().toLowerCase();
+
+                // We cannot accidentally overwrite a module because this will make it
+                // potentially impossible for the garbage collector to clean it up when
+                // we unload. For this reason, modules must never be overwritten in the
+                // event we load a module with an identical name.
+                if(loadedModules.containsKey(moduleMappedName)) {
+                    throw new IllegalArgumentException("Could not load module '" + name + "' because there is " +
+                                                       "already a module loaded with the name '" + module.getName() + "'!");
+                }
+
                 loadedModules.put(module.getName().toLowerCase(), module);
+
+                return module;
             }
             else
             {
                 // I believe it's appropriate to throw an exception
                 // at this point. If you don't fight me irl
-                throw new ModuleException("Could not load module '" + name + "' because no valid " +
-                                          "ModuleFactory services were found!");
+                throw new IllegalArgumentException("Could not load module '" + name + "' because no valid " +
+                                                   "ModuleFactory services were found!");
             }
-        } catch(MalformedURLException e) {
+        }
+        catch(MalformedURLException e)
+        {
             throw new ModuleException("Failed to load Module due to MalformedURL.", e);
-        } finally {
-            try {
+        }
+        finally
+        {
+            try
+            {
                 if(classLoader != null)
                     classLoader.close();
-            } catch(IOException e) {
+            }
+            catch(IOException e)
+            {
                 LOG.error("Failed to close URLClassLoader for module: "+name, e);
             }
         }
@@ -139,23 +215,23 @@ public class ModuleManager
 
     public void unloadModule(String name)
     {
-        loadedModules.values().stream().filter(module ->
-            module.getName() != null && module.getName().equalsIgnoreCase(name)
-        ).findFirst().ifPresent(module -> {
-            // Remove it from the loaded
+        loadedModules.values().stream()
+                     .filter(module -> module.getName().equalsIgnoreCase(name))
+                     .findFirst().ifPresent(module -> {
+            // Remove it from the loaded modules map
             loadedModules.remove(module.getName().toLowerCase());
-            if(representedClient != null)
-            {
-                List<Class<? extends Command>> moduleContents =
-                    module.getCommands().stream().map(Module.Entry::getCommandClass).collect(Collectors.toList());
 
-                representedClient.getCommands().forEach(command -> {
-                    // Remove if the command is part of the module.
-                    if(moduleContents.contains(command.getClass())) {
-                        representedClient.removeCommand(command.getName());
-                    }
-                });
-            }
+            // Map classes of the module to a list
+            List<Class<? extends Command>> moduleContents =
+                module.getCommands().stream().map(Module.Entry::getCommandClass).collect(Collectors.toList());
+
+            //
+            client.getCommands().forEach(command -> {
+                // Remove if the command is part of the module.
+                if(moduleContents.contains(command.getClass())) {
+                    client.removeCommand(command.getName());
+                }
+            });
         });
     }
 }

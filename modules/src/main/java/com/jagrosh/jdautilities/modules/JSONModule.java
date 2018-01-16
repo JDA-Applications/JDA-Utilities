@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import javax.annotation.WillNotClose;
 import java.io.InputStream;
 import java.net.URLClassLoader;
 
@@ -27,7 +28,7 @@ import java.net.URLClassLoader;
  */
 public class JSONModule extends Module<JSONObject>
 {
-    JSONModule(URLClassLoader classLoader)
+    JSONModule(@WillNotClose URLClassLoader classLoader)
     {
         super(classLoader, cLoader -> {
             final JSONObject json;
@@ -47,7 +48,7 @@ public class JSONModule extends Module<JSONObject>
     }
 
     @Override
-    protected void init(URLClassLoader classLoader)
+    protected void init(@WillNotClose URLClassLoader classLoader)
     {
         if(moduleConfig.has("name") && !moduleConfig.isNull("name"))
         {
@@ -58,7 +59,7 @@ public class JSONModule extends Module<JSONObject>
     public static class Factory implements ModuleFactory<JSONObject, JSONModule>
     {
         @Override
-        public JSONModule create(URLClassLoader classLoader) throws ModuleException
+        public JSONModule create(@WillNotClose URLClassLoader classLoader)
         {
             return new JSONModule(classLoader);
         }

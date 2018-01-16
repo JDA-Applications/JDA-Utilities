@@ -21,6 +21,7 @@ import com.typesafe.config.ConfigRenderOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 
+import javax.annotation.WillNotClose;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLClassLoader;
@@ -33,7 +34,7 @@ public class HoconModule extends Module<CommentedConfigurationNode>
 {
     private static final String NO_NODE_FOUND_FORMAT = "Module configuration node '%s' was not found!";
 
-    HoconModule(URLClassLoader classLoader)
+    HoconModule(@WillNotClose URLClassLoader classLoader)
     {
         super(classLoader, cLoader -> {
             HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
@@ -57,7 +58,7 @@ public class HoconModule extends Module<CommentedConfigurationNode>
     }
 
     @Override
-    protected void init(URLClassLoader classLoader)
+    protected void init(@WillNotClose URLClassLoader classLoader)
     {
         CommentedConfigurationNode moduleNode = moduleConfig.getNode("module");
 
@@ -110,7 +111,7 @@ public class HoconModule extends Module<CommentedConfigurationNode>
         }
 
         @Override
-        public HoconModule create(URLClassLoader classLoader) throws ModuleException
+        public HoconModule create(@WillNotClose URLClassLoader classLoader)
         {
             return new HoconModule(classLoader);
         }

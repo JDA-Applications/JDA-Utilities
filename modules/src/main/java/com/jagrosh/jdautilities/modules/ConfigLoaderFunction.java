@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.modules;
 
+import javax.annotation.WillNotClose;
 import java.net.URLClassLoader;
 
 /**
@@ -48,10 +49,10 @@ public interface ConfigLoaderFunction<C>
      *         The {@link java.net.URLClassLoader URLClassLoader} pointing to a jar for a
      *         {@link Module Module to load}.
      *
-     * @return A configuration object of the type {@link C} for this ConfigLoaderFunction.
-     *
      * @throws Exception
      *         If the implementation of this requires an error to be thrown.
+     *
+     * @return A configuration object of the type {@link C} for this ConfigLoaderFunction.
      */
-    C load(URLClassLoader classLoader) throws Exception;
+    C load(@WillNotClose URLClassLoader classLoader) throws Exception;
 }
