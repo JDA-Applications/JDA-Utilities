@@ -12,25 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# gradle
-**/build/
-/.gradle/
-/gradle.properties
+root = true
 
-# eclipse files
-.classpath
-.project
-.settings/
-/bin/
+[*]
+end_of_line = crlf
+insert_final_newline = true
 
-# intellij files
-**/out/
-.idea/
-*.iml 
-*.ipr 
-*.iws 
+[gradlew]
+end_of_line = lf
 
-# netbeans files
-/target/
-/.nb-gradle/
-*.nb-gradle-properties
+[*.{java, md, gradle, properties}]
+charset = utf-8
+indent_style = space
+indent_size = 4
