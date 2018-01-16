@@ -62,8 +62,10 @@ import net.dv8tion.jda.core.events.ShutdownEvent;
  * running and execution.
  * 
  * @author John Grosh (jagrosh)
+ * @param <M> type of the GuildSettingsManager
+ * @param <S> type of the settings provided by the GuildSettingsManager
  */
-public class CommandClientImpl implements CommandClient, EventListener
+public class CommandClientImpl<M extends GuildSettingsManager,S> implements CommandClient, EventListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;
@@ -94,7 +96,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
-    private final GuildSettingsManager manager;
+    private final GuildSettingsManager<S> manager;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -413,7 +415,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     }
 
     @Override
-    public <S> S getSettingsFor(Guild guild)
+    public S getSettingsFor(Guild guild)
     {
         if(manager == null)
             return null;
@@ -421,7 +423,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     }
 
     @Override
-    public <M extends GuildSettingsManager> M getSettingsManager()
+    public  M getSettingsManager()
     {
         if(manager == null)
             return null;
