@@ -68,7 +68,7 @@ import java.util.function.Function;
  *                      net.dv8tion.jda.core.entities.Message)}. This will create errors and has no real purpose outside
  *                      of it's current usage.
  */
-public interface CommandClient
+public interface CommandClient<M extends GuildSettingsManager<S>, S>
 {
     /**
      * Gets the Client's prefix.
@@ -441,8 +441,6 @@ public interface CommandClient
      * {@link GuildSettingsManager#getSettings(net.dv8tion.jda.core.entities.Guild)
      * GuildSettingsManager#getSettings(Guild)}.
      *
-     * @param  <S>
-     *         The type of Object to get
      * @param  guild
      *         The Guild to get Settings for
      *
@@ -451,7 +449,7 @@ public interface CommandClient
      *         GuildSettingsManager#getSettings(Guild)}, can be {@code null} if the implementation
      *         allows it.
      */
-    <S> S getSettingsFor(Guild guild);
+    S getSettingsFor(Guild guild);
 
     /**
      * Returns the type of {@link com.jagrosh.jdautilities.command.GuildSettingsManager GuildSettingsManager},
@@ -459,10 +457,7 @@ public interface CommandClient
      *
      * <p>This is good if you want to use non-abstract methods specific to your implementation.
      *
-     * @param  <M>
-     *         The type of GuildSettingsManager to get
-     *
      * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.
      */
-    <M extends GuildSettingsManager> M getSettingsManager();
+    M getSettingsManager();
 }
