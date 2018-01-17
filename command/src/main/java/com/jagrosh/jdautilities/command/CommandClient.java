@@ -41,7 +41,9 @@ import java.util.function.Function;
  * </ul>
  *
  * @author John Grosh (jagrosh)
- *
+ * 
+ * @param <M> the type of the GuildSettingsManager
+ * @param <S> the type of settings the GuildSettingsManager provides
  * @implNote
  *         While typically safe, there are a few ways to misuse the standard implementation of this interface:
  *         the CommandClientImpl.

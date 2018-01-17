@@ -65,7 +65,7 @@ import net.dv8tion.jda.core.events.ShutdownEvent;
  * @param <M> type of the GuildSettingsManager
  * @param <S> type of the settings provided by the GuildSettingsManager
  */
-public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements CommandClient, EventListener
+public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements CommandClient<M,S>, EventListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;

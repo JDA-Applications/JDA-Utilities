@@ -650,7 +650,7 @@ public class CommandEvent
      * @param  message
      *         The Message to reply with
      */
-    public void replyInDM(Message message)
+    public void replyInDm(Message message)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(message);
