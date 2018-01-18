@@ -62,16 +62,6 @@ allprojects {
         dependsOn({ shadowJar } as Object)
     }
 
-    publishing {
-        publications {
-            BintrayRelease(MavenPublication) {
-                groupId = project.group
-                artifactId = project.artifactId
-                version = project.version
-            }
-        }
-    }
-
     bintray {
         user = bintrayUsername
         key = bintrayApiKey
@@ -94,6 +84,16 @@ allprojects {
 
         onlyIf { !project.property('bintrayUsername')?.trim()?.empty }
         onlyIf { !project.property('bintrayApiKey')?.trim()?.empty }
+    }
+
+    publishing {
+        publications {
+            BintrayRelease(MavenPublication) {
+                groupId = project.group
+                artifactId = project.artifactId
+                version = project.version
+            }
+        }
     }
 }
 
@@ -211,7 +211,7 @@ tasks.create('shadowJar', ShadowJar) {
     }
 }
 
-tasks.create(name: 'javadoc', type: Javadoc) {
+tasks.create('javadoc', Javadoc) {
     group = 'documentation'
     dependsOn({ subprojects*.getTasksByName('javadoc', true) } as Object[])
 
@@ -262,6 +262,13 @@ publishing {
     publications {
         BintrayRelease(MavenPublication) {
             pom.withXml {
+                def repositoriesNode = asNode().appendNode('repositories')
+                def repositoryNode = repositoriesNode.appendNode('repository')
+
+                repositoryNode.appendNode('name', 'bintray')
+                repositoryNode.appendNode('id', 'bintray-jagrosh-maven')
+                repositoryNode.appendNode('url', 'https://dl.bintray.com/jagrosh/maven')
+
                 def dependenciesNode = asNode().appendNode('dependencies')
                 configurations.compile.allDependencies.each {
                     def dependencyNode = dependenciesNode.appendNode('dependency')
