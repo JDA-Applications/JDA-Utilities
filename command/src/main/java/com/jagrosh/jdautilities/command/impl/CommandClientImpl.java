@@ -62,10 +62,8 @@ import net.dv8tion.jda.core.events.ShutdownEvent;
  * running and execution.
  * 
  * @author John Grosh (jagrosh)
- * @param <M> type of the GuildSettingsManager
- * @param <S> type of the settings provided by the GuildSettingsManager
  */
-public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements CommandClient<M,S>, EventListener
+public class CommandClientImpl implements CommandClient, EventListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
     private static final int INDEX_LIMIT = 20;
@@ -96,7 +94,7 @@ public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements C
     private final ScheduledExecutorService executor;
     private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
-    private final M manager;
+    private final GuildSettingsManager manager;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -105,7 +103,7 @@ public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements C
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
-            M manager)
+            GuildSettingsManager manager)
     {
         if(ownerId == null)
             throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
@@ -414,16 +412,20 @@ public class CommandClientImpl<M extends GuildSettingsManager<S>,S> implements C
         return linkedCacheSize>0;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public S getSettingsFor(Guild guild)
+    public <S> S getSettingsFor(Guild guild)
     {
-        return manager.getSettings(guild);
+        if (manager==null)
+            return null;
+        return (S) manager.getSettings(guild);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public M getSettingsManager()
+    public <M extends GuildSettingsManager> M getSettingsManager()
     {
-        return manager;
+        return (M) manager;
     }
 
     @Override

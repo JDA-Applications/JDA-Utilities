@@ -42,8 +42,6 @@ import java.util.function.Function;
  *
  * @author John Grosh (jagrosh)
  * 
- * @param <M> the type of the GuildSettingsManager
- * @param <S> the type of settings the GuildSettingsManager provides
  * @implNote
  *         While typically safe, there are a few ways to misuse the standard implementation of this interface:
  *         the CommandClientImpl.
@@ -70,7 +68,7 @@ import java.util.function.Function;
  *                      net.dv8tion.jda.core.entities.Message)}. This will create errors and has no real purpose outside
  *                      of it's current usage.
  */
-public interface CommandClient<M extends GuildSettingsManager<S>, S>
+public interface CommandClient
 {
     /**
      * Gets the Client's prefix.
@@ -445,13 +443,15 @@ public interface CommandClient<M extends GuildSettingsManager<S>, S>
      *
      * @param  guild
      *         The Guild to get Settings for
+     * @param <S>
+     *         The type of settings the GuildSettingsManager provides
      *
      * @return The settings object for the Guild, specified in
      *         {@link com.jagrosh.jdautilities.command.GuildSettingsManager#getSettings(Guild)
      *         GuildSettingsManager#getSettings(Guild)}, can be {@code null} if the implementation
      *         allows it.
      */
-    S getSettingsFor(Guild guild);
+    <S> S getSettingsFor(Guild guild);
 
     /**
      * Returns the type of {@link com.jagrosh.jdautilities.command.GuildSettingsManager GuildSettingsManager},
@@ -459,7 +459,10 @@ public interface CommandClient<M extends GuildSettingsManager<S>, S>
      *
      * <p>This is good if you want to use non-abstract methods specific to your implementation.
      *
+     * @param <M>
+     *         The type of the GuildSettingsManager
+     * 
      * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.
      */
-    M getSettingsManager();
+    <M extends GuildSettingsManager> M getSettingsManager();
 }
