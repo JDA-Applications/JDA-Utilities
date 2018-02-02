@@ -15,9 +15,15 @@
  */
 package com.jagrosh.jdautilities.commons.waiter;
 
-import java.util.ArrayList;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import net.dv8tion.jda.core.utils.Checks;
+
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +31,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.ShutdownEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
-import net.dv8tion.jda.core.hooks.SubscribeEvent;
-import net.dv8tion.jda.core.utils.Checks;
 
 /**
  * <p>The EventWaiter is capable of handling specialized forms of
@@ -53,7 +53,7 @@ import net.dv8tion.jda.core.utils.Checks;
  */
 public class EventWaiter implements EventListener
 {
-    private final HashMap<Class<?>, List<WaitingEvent>> waitingEvents;
+    private final HashMap<Class<?>, Set<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     private final boolean shutdownAutomatically;
     
@@ -207,14 +207,14 @@ public class EventWaiter implements EventListener
         Checks.notNull(action, "The provided action consumer");
 
         WaitingEvent we = new WaitingEvent<>(condition, action);
-        List<WaitingEvent> list = waitingEvents.computeIfAbsent(classType, c -> new ArrayList<>());
-        list.add(we);
+        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> new HashSet<>());
+        set.add(we);
 
         if(timeout > 0 && unit != null)
         {
             threadpool.schedule(() ->
             {
-                if(list.remove(we) && timeoutAction != null)
+                if(set.remove(we) && timeoutAction != null)
                     timeoutAction.run();
             }, timeout, unit);
         }
@@ -235,13 +235,13 @@ public class EventWaiter implements EventListener
         {
             if(waitingEvents.containsKey(c))
             {
-                List<WaitingEvent> list = waitingEvents.get(c);
-                WaitingEvent[] toRemove = list.toArray(new WaitingEvent[list.size()]);
+                Set<WaitingEvent> set = waitingEvents.get(c);
+                WaitingEvent[] toRemove = set.toArray(new WaitingEvent[set.size()]);
 
                 // WaitingEvent#attempt invocations that return true have passed their condition tests
                 // and executed the action. We filter the ones that return false out of the toRemove and
-                // remove them all from the list.
-                list.removeAll(Stream.of(toRemove).filter(i -> i.attempt(event)).collect(Collectors.toList()));
+                // remove them all from the set.
+                set.removeAll(Stream.of(toRemove).filter(i -> i.attempt(event)).collect(Collectors.toSet()));
             }
             if(event instanceof ShutdownEvent && shutdownAutomatically)
             {
