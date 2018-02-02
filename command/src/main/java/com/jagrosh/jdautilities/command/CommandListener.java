@@ -40,6 +40,10 @@ public interface CommandListener
      * Called when a {@link com.jagrosh.jdautilities.command.Command Command} is triggered
      * by a {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} after it's
      * completed successfully.
+     *
+     * <p>Note that a <i>successfully</i> completed command is one that has not encountered
+     * an error or exception. Calls that do face errors should be handled by
+     * {@link CommandListener#onCommandException(CommandEvent, Command, Throwable) CommandListener#onCommandException}
      * 
      * @param  event
      *         The CommandEvent that triggered the Command

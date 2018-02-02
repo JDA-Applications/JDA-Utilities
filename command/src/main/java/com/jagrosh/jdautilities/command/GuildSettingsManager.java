@@ -29,10 +29,12 @@ import javax.annotation.Nullable;
  * customization of the implementation is allowed on the developer
  * end.
  *
+ * @param  <T>
+ *         The specific type of the settings object.
+ *
  * @since  2.0
  * @author Kaidan Gustave
  *
- * @param <T> The specific type of the settings object
  * @implNote
  *         Unless in the event of a major breaking change to
  *         JDA, there is no chance of implementations of this

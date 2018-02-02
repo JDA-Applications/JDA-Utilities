@@ -427,11 +427,11 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for this 
+     * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for the
      * {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}.
      * 
      * @param  executor
-     *         The ScheduledExecutorService for the CommandClientImpl (must be a SingleThreadScheduledExecutor)
+     *         The ScheduledExecutorService for the CommandClientImpl
      *         
      * @return This builder
      */
