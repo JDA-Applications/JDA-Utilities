@@ -105,7 +105,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
             GuildSettingsManager manager)
     {
-        Checks.check(ownerId == null, "Owner ID was set null or not set! Please provide an User ID to register as the owner!");
+        Checks.check(ownerId != null, "Owner ID was set null or not set! Please provide an User ID to register as the owner!");
 
         if(!SafeIdUtil.checkId(ownerId))
             LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
