@@ -36,9 +36,10 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.Checks;
 
 /**
- * A {@link com.jagrosh.jdautilities.menu.Menu} implementation, nearly identical
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation, nearly identical
  * to {@link com.jagrosh.jdautilities.menu.Paginator Paginator}, that displays an
  * individual image on each page instead of a list of text items.<p>
  *
@@ -388,10 +389,9 @@ public class Slideshow extends Menu
         @Override
         public Slideshow build()
         {
-            if(waiter==null)
-                throw new IllegalArgumentException("Must set an EventWaiter");
-            if(strings.isEmpty())
-                throw new IllegalArgumentException("Must include at least one item to paginate");
+            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(!strings.isEmpty(), "Must include at least one item to paginate");
+
             return new Slideshow(
                 waiter, users, roles, timeout, unit, color, text, description, finalAction,
                 showPageNumbers, strings, waitOnSinglePage, bulkSkipNumber, wrapPageEnds,
