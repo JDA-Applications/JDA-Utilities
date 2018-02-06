@@ -15,4 +15,4 @@
  */
 rootProject.name = 'JDA-Utilities'
 
-include 'commons', 'menu', 'command', 'doc', 'examples'
+include 'commons', 'menu', 'command', 'doc', 'examples', 'oauth2'
