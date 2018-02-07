@@ -15,19 +15,22 @@
  */
 package com.jagrosh.jdautilities.commons.waiter;
 
-import java.util.ArrayList;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import net.dv8tion.jda.core.utils.Checks;
+
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.ShutdownEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
-import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import java.util.stream.Stream;
 
 /**
  * <p>The EventWaiter is capable of handling specialized forms of
@@ -50,7 +53,7 @@ import net.dv8tion.jda.core.hooks.SubscribeEvent;
  */
 public class EventWaiter implements EventListener
 {
-    private final HashMap<Class<?>, List<WaitingEvent>> waitingEvents;
+    private final HashMap<Class<?>, Set<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     private final boolean shutdownAutomatically;
     
@@ -67,8 +70,7 @@ public class EventWaiter implements EventListener
      * as it's threadpool.
      *
      * <p>A developer might choose to use this constructor over the {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter#EventWaiter() default},
-     * for using a alternate form of threadpool, as opposed to a
-     * {@link java.util.concurrent.Executors#newSingleThreadExecutor() single thread executor}.
+     * for using a alternate form of threadpool, as opposed to a {@link java.util.concurrent.Executors#newSingleThreadExecutor() single thread executor}.
      * <br>A developer might also favor this over the default as they use the same waiter for multiple
      * shards, and thus shutdown must be handled externally if a special shutdown sequence is being used.
      *
@@ -82,9 +84,10 @@ public class EventWaiter implements EventListener
      *     made to shutdown the provided Executor.</li>
      * </ul>
      * It's worth noting that this EventWaiter can serve as a delegate to invoke the threadpool's shutdown via
-     * a call to {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter#shutdown()}. However, this operation is only supported for EventWaiters that
-     * are not supposed to shutdown automatically, otherwise invocation of {@code EventWaiter#shutdown()} will
-     * result in an {@link java.lang.UnsupportedOperationException UnsupportedOperationException}.
+     * a call to {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter#shutdown() EventWaiter#shutdown()}.
+     * However, this operation is only supported for EventWaiters that are not supposed to shutdown automatically,
+     * otherwise invocation of {@code EventWaiter#shutdown()} will result in an
+     * {@link java.lang.UnsupportedOperationException UnsupportedOperationException}.
      *
      * @param  threadpool
      *         The ScheduledExecutorService to use for this EventWaiter's threadpool.
@@ -92,10 +95,17 @@ public class EventWaiter implements EventListener
      *         Whether or not the {@code threadpool} will shutdown automatically when a
      *         {@link net.dv8tion.jda.core.events.ShutdownEvent ShutdownEvent} is fired.
      *
-     * @see    EventWaiter#shutdown()
+     * @throws java.lang.IllegalArgumentException
+     *         If the threadpool provided is {@code null} or
+     *         {@link java.util.concurrent.ScheduledExecutorService#isShutdown() is shutdown}
+     *
+     * @see    com.jagrosh.jdautilities.commons.waiter.EventWaiter#shutdown() EventWaiter#shutdown()
      */
     public EventWaiter(ScheduledExecutorService threadpool, boolean shutdownAutomatically)
     {
+        Checks.notNull(threadpool, "ScheduledExecutorService");
+        Checks.check(!threadpool.isShutdown(), "Cannot construct EventWaiter with a closed ScheduledExecutorService!");
+
         this.waitingEvents = new HashMap<>();
         this.threadpool = threadpool;
 
@@ -112,7 +122,18 @@ public class EventWaiter implements EventListener
         // NOT MINE
         this.shutdownAutomatically = shutdownAutomatically;
     }
-    
+
+    /**
+     * Gets whether the EventWaiter's internal ScheduledExecutorService
+     * {@link java.util.concurrent.ScheduledExecutorService#isShutdown() is shutdown}.
+     *
+     * @return {@code true} if the ScheduledExecutorService is shutdown, {@code false} otherwise.
+     */
+    public boolean isShutdown()
+    {
+        return threadpool.isShutdown();
+    }
+
     /**
      * Waits an indefinite amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that
      * returns {@code true} when tested with the provided {@link java.util.function.Predicate Predicate}.
@@ -180,29 +201,20 @@ public class EventWaiter implements EventListener
     public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action,
                                                long timeout, TimeUnit unit, Runnable timeoutAction)
     {
-        checkNotNull(classType, "class type");
-        checkNotNull(condition, "condition predicate");
-        checkNotNull(action, "action consumer");
-
-        if(threadpool.isShutdown())
-            throw new IllegalArgumentException("Attempted to register a WaitingEvent while the EventWaiter's threadpool was already shut down!");
-
-        List<WaitingEvent> list;
-        if(waitingEvents.containsKey(classType))
-            list = waitingEvents.get(classType);
-        else
-        {
-            list = new ArrayList<>();
-            waitingEvents.put(classType, list);
-        }
+        Checks.check(!isShutdown(), "Attempted to register a WaitingEvent while the EventWaiter's threadpool was already shut down!");
+        Checks.notNull(classType, "The provided class type");
+        Checks.notNull(condition, "The provided condition predicate");
+        Checks.notNull(action, "The provided action consumer");
 
         WaitingEvent we = new WaitingEvent<>(condition, action);
-        list.add(we);
+        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> new HashSet<>());
+        set.add(we);
 
         if(timeout > 0 && unit != null)
         {
-            threadpool.schedule(() -> {
-                if(list.remove(we) && timeoutAction != null)
+            threadpool.schedule(() ->
+            {
+                if(set.remove(we) && timeoutAction != null)
                     timeoutAction.run();
             }, timeout, unit);
         }
@@ -214,12 +226,22 @@ public class EventWaiter implements EventListener
     public final void onEvent(Event event)
     {
         Class c = event.getClass();
-        while(c.getSuperclass() != null) {
+
+        // Runs at least once for the fired Event, at most
+        // once for each superclass (excluding Object) because
+        // Class#getSuperclass() returns null when the superclass
+        // is primitive, void, or (in this case) Object.
+        while(c != null)
+        {
             if(waitingEvents.containsKey(c))
             {
-                List<WaitingEvent> list = waitingEvents.get(c);
-                List<WaitingEvent> ulist = new ArrayList<>(list);
-                list.removeAll(ulist.stream().filter(i -> i.attempt(event)).collect(Collectors.toList()));
+                Set<WaitingEvent> set = waitingEvents.get(c);
+                WaitingEvent[] toRemove = set.toArray(new WaitingEvent[set.size()]);
+
+                // WaitingEvent#attempt invocations that return true have passed their condition tests
+                // and executed the action. We filter the ones that return false out of the toRemove and
+                // remove them all from the set.
+                set.removeAll(Stream.of(toRemove).filter(i -> i.attempt(event)).collect(Collectors.toSet()));
             }
             if(event instanceof ShutdownEvent && shutdownAutomatically)
             {
@@ -245,12 +267,6 @@ public class EventWaiter implements EventListener
             throw new UnsupportedOperationException("Shutting down EventWaiters that are set to automatically close is unsupported!");
 
         threadpool.shutdown();
-    }
-
-    private static void checkNotNull(Object obj, String objName)
-    {
-        if(obj == null)
-            throw new IllegalArgumentException(String.format("The provided %s was null!", objName));
     }
     
     private class WaitingEvent<T extends Event>

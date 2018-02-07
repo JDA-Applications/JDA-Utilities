@@ -314,8 +314,7 @@ public interface CommandClient
      * @param  name
      *         The name of the Command
      *         
-     * @return The number of uses for the Command, or {@code 0} if the name does not match with a 
-     *         Command
+     * @return The number of uses for the Command, or {@code 0} if the name does not match with a Command
      */
     int getCommandUses(String name);
     
@@ -369,9 +368,12 @@ public interface CommandClient
     String getError();
     
     /**
-     * Gets the scheduled executor service.
+     * Gets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} held by this client.
+     *
+     * <p>This is used for methods such as {@link com.jagrosh.jdautilities.command.CommandEvent#async(Runnable)
+     * CommandEvent#async(Runnable)} run code asynchronously.
      * 
-     * @return the scheduled executor service
+     * @return The ScheduledExecutorService held by this client.
      */
     ScheduledExecutorService getScheduleExecutor();
     
@@ -425,7 +427,7 @@ public interface CommandClient
      *
      * @return {@code true} if the bot uses linked deletion, {@code false} otherwise.
      *
-     * @see    CommandClientBuilder#setLinkedCacheSize(int)
+     * @see    com.jagrosh.jdautilities.command.CommandClientBuilder#setLinkedCacheSize(int)
      *         CommandClientBuilder#setLinkedCacheSize(int)
      */
     boolean usesLinkedDeletion();
@@ -441,10 +443,10 @@ public interface CommandClient
      * {@link GuildSettingsManager#getSettings(net.dv8tion.jda.core.entities.Guild)
      * GuildSettingsManager#getSettings(Guild)}.
      *
+     * @param  <S>
+     *         The type of settings the GuildSettingsManager provides
      * @param  guild
      *         The Guild to get Settings for
-     * @param <S>
-     *         The type of settings the GuildSettingsManager provides
      *
      * @return The settings object for the Guild, specified in
      *         {@link com.jagrosh.jdautilities.command.GuildSettingsManager#getSettings(Guild)
@@ -459,7 +461,7 @@ public interface CommandClient
      *
      * <p>This is good if you want to use non-abstract methods specific to your implementation.
      *
-     * @param <M>
+     * @param  <M>
      *         The type of the GuildSettingsManager
      * 
      * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.

@@ -29,10 +29,12 @@ import javax.annotation.Nullable;
  * customization of the implementation is allowed on the developer
  * end.
  *
+ * @param  <T>
+ *         The specific type of the settings object.
+ *
  * @since  2.0
  * @author Kaidan Gustave
  *
- * @param <T> The specific type of the settings object
  * @implNote
  *         Unless in the event of a major breaking change to
  *         JDA, there is no chance of implementations of this
@@ -56,4 +58,18 @@ public interface GuildSettingsManager<T>
      */
     @Nullable
     T getSettings(Guild guild);
+
+    /**
+     * Called when JDA has fired a {@link net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
+     *
+     * <p>Developers should implement this method to create or initialize resources when starting their bot.
+     */
+    default void init() {}
+
+    /**
+     * Called when JDA has fired a {@link net.dv8tion.jda.core.events.ShutdownEvent ShutdownEvent}.
+     *
+     * <p>Developers should implement this method to free up or close resources when shutting their bot.
+     */
+    default void shutdown() {}
 }

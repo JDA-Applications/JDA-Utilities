@@ -33,6 +33,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.Checks;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
@@ -190,14 +191,11 @@ public class ButtonMenu extends Menu
         @Override
         public ButtonMenu build()
         {
-            if(waiter==null)
-                throw new IllegalArgumentException("Must set an EventWaiter");
-            if(choices.isEmpty())
-                throw new IllegalArgumentException("Must have at least one choice");
-            if(action==null)
-                throw new IllegalArgumentException("Must provide an action consumer");
-            if(text==null && description==null)
-                throw new IllegalArgumentException("Either text or description must be set");
+            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(!choices.isEmpty(), "Must have at least one choice");
+            Checks.check(action != null, "Must provide an action consumer");
+            Checks.check(text != null || description != null, "Either text or description must be set");
+
             return new ButtonMenu(waiter, users, roles, timeout, unit, color, text, description, choices, action, finalAction);
         }
 

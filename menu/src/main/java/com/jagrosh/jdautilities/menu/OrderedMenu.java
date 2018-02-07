@@ -38,9 +38,17 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.Checks;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 
 /**
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} of ordered buttons signified
+ * by numbers or letters, each with a reaction linked to it for users to click.
+ *
+ * <p>Up to ten text choices can be set in the {@link OrderedMenu.Builder},
+ * and additional methods for handling the resulting choice made by a user using the
+ * menu may also be attached via the {@link OrderedMenu.Builder#setSelection(BiConsumer)}
+ * and {@link OrderedMenu.Builder#setCancel(Consumer)} methods.
  *
  * @author John Grosh
  */
@@ -366,16 +374,11 @@ public class OrderedMenu extends Menu
         @Override
         public OrderedMenu build()
         {
-            if(waiter==null)
-                throw new IllegalArgumentException("Must set an EventWaiter");
-            if(choices.isEmpty())
-                throw new IllegalArgumentException("Must have at least one choice");
-            if(choices.size()>10)
-                throw new IllegalArgumentException("Must have no more than ten choices");
-            if(selection == null)
-                throw new IllegalArgumentException("Must provide an selection consumer");
-            if(text==null && description==null)
-                throw new IllegalArgumentException("Either text or description must be set");
+            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(!choices.isEmpty(), "Must have at least one choice");
+            Checks.check(choices.size() <= 10, "Must have no more than ten choices");
+            Checks.check(selection != null, "Must provide an selection consumer");
+            Checks.check(text != null || description != null, "Either text or description must be set");
             return new OrderedMenu(waiter,users,roles,timeout,unit,color,text,description,choices,
                 selection,cancel,useLetters,allowTypedInput,addCancel);
         }
@@ -519,6 +522,8 @@ public class OrderedMenu extends Menu
          */
         public Builder addChoice(String choice)
         {
+            Checks.check(choices.size() < 10, "Cannot set more than 10 choices");
+
             this.choices.add(choice);
             return this;
         }
@@ -550,8 +555,19 @@ public class OrderedMenu extends Menu
          */
         public Builder setChoices(String... choices)
         {
-            this.choices.clear();
+            clearChoices();
             return addChoices(choices);
+        }
+
+        /**
+         * Clears all previously set choices.
+         *
+         * @return This builder
+         */
+        public Builder clearChoices()
+        {
+            this.choices.clear();
+            return this;
         }
     }
 }
