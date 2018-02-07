@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
 
-include 'commons', 'menu', 'command', 'doc', 'examples'
+/**
+ * Items in this package pertain to the {@link com.jagrosh.jdautilities.doc.DocGenerator DocGenerator}.
+ */
+package com.jagrosh.jdautilities.doc;

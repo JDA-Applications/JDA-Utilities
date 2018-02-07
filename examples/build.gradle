@@ -13,6 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
+dependencies {
+    include('commons')
+    include('command')
+    include('menu')
+    include('doc')
 
-include 'commons', 'menu', 'command', 'doc', 'examples'
+    jda()
+    slf4j()
+}
