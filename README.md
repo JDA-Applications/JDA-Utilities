@@ -50,7 +50,7 @@ With maven:
   <dependency>
     <groupId>net.dv8tion</groupId>
     <artifactId>JDA</artifactId>
-    <version>LATEST</version>
+    <version>JDA-VERSION</version>
   </dependency>
 ```
 ```xml
@@ -65,7 +65,7 @@ With gradle:
 ```groovy
 dependencies {
     compile 'com.jagrosh:jda-utilities:2.1'
-    compile 'net.dv8tion:JDA:LATEST'
+    compile 'net.dv8tion:JDA:JDA-VERSION'
 }
 
 repositories {
