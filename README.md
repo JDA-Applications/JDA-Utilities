@@ -44,6 +44,7 @@ With maven:
     <groupId>com.jagrosh</groupId>
     <artifactId>jda-utilities</artifactId>
     <version>2.1</version>
+    <scope>compile</scope>
     <type>pom</type>
   </dependency>
   <dependency>
@@ -82,7 +83,7 @@ With maven:
     <!-- Notice that the dependency notation ends with "-command" -->
     <artifactId>jda-utilities-command</artifactId>
     <version>2.1</version>
-    <type>compile</type>
+    <scope>compile</scope>
   </dependency>
 ```
 
