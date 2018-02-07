@@ -15,6 +15,8 @@
  */
 package com.jagrosh.jdautilities.oauth2.requests;
 
+import net.dv8tion.jda.core.JDAInfo;
+
 /**
  * Simple formattable constants for various URLs used in the JDA-Utilities OAuth2.
  *
@@ -22,22 +24,22 @@ package com.jagrosh.jdautilities.oauth2.requests;
  */
 public enum OAuth2URL
 {
-    AUTHORIZE("oauth2/authorize",
+    AUTHORIZE("/oauth2/authorize",
         "client_id=%d",
         "redirect_uri=%s",
         "response_type=code",
         "scope=%s",
         "state=%s"),
-    TOKEN("oauth2/token",
+    TOKEN("/oauth2/token",
         "client_id=%d",
         "redirect_uri=%s",
         "grant_type=authorization_code",
         "code=%s",
         "client_secret=%s"),
-    CURRENT_USER("users/@me"),
-    CURRENT_USER_GUILDS("users/@me/guilds");
-
-    public static final String BASE_API_URL = "https://discordapp.com/api/";
+    CURRENT_USER("/users/@me"),
+    CURRENT_USER_GUILDS("/users/@me/guilds");
+                                              // We always use the same rest version as JDA
+    public static final String BASE_API_URL = String.format("https://discordapp.com/api/v%d", JDAInfo.DISCORD_REST_VERSION);
 
     private final String route;
     private final String formattableRoute;
