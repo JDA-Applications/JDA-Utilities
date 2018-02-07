@@ -446,7 +446,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         else if(event instanceof ReadyEvent)
             onReady((ReadyEvent)event);
         else if(event instanceof ShutdownEvent)
+        {
+            GuildSettingsManager<?> manager = getSettingsManager();
+            if(manager != null)
+                manager.shutdown();
             executor.shutdown();
+        }
     }
 
     private void onReady(ReadyEvent event)
@@ -460,6 +465,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
                 game==null ? null : "default".equals(game.getName()) ? Game.playing("Type "+textPrefix+helpWord) : game);
+
+        // Start SettingsManager if necessary
+        GuildSettingsManager<?> manager = getSettingsManager();
+        if(manager != null)
+            manager.init();
+
         sendStats(event.getJDA());
     }
 

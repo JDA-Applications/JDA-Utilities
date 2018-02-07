@@ -58,4 +58,18 @@ public interface GuildSettingsManager<T>
      */
     @Nullable
     T getSettings(Guild guild);
+
+    /**
+     * Called when JDA has fired a {@link net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
+     *
+     * <p>Developers should implement this method to create or initialize resources when starting their bot.
+     */
+    default void init() {}
+
+    /**
+     * Called when JDA has fired a {@link net.dv8tion.jda.core.events.ShutdownEvent ShutdownEvent}.
+     *
+     * <p>Developers should implement this method to free up or close resources when shutting their bot.
+     */
+    default void shutdown() {}
 }
