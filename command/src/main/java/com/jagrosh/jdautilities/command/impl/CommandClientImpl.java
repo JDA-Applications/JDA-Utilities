@@ -173,7 +173,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                 }
                 if(event.isFromType(ChannelType.TEXT))
                     event.reactSuccess();
-                event.reply(builder.toString(), unused -> {}, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
+                event.replyInDm(builder.toString(), unused -> {}, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
         } : helpConsumer;
 
         // Load commands
