@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jagrosh.jdautilities.oauth2.state;
+package com.jagrosh.jdautilities.oauth2.exceptions;
 
 /**
+ * Exception raised when the provided OAuth2 state is not valid.
+ *
+ * <p><b>Not to be confused with {@link java.lang.IllegalStateException IllegalStateException}</b>
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */

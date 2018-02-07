@@ -20,16 +20,14 @@ import com.jagrosh.jdautilities.oauth2.session.DefaultSessionController.DefaultS
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 
-
 /**
+ * The default {@link com.jagrosh.jdautilities.oauth2.session.SessionController SessionController} implementation.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public class DefaultSessionController implements SessionController<DefaultSession>
 {
-
     private final HashMap<String, DefaultSession> sessions = new HashMap<>();
-    
     
     @Override
     public DefaultSession getSession(String identifier)
@@ -38,14 +36,13 @@ public class DefaultSessionController implements SessionController<DefaultSessio
     }
 
     @Override
-    public DefaultSession createSession(String identifier, String accessToken, String refreshToken, String tokenType, OffsetDateTime expiration, Scope[] scopes)
+    public DefaultSession createSession(SessionData data)
     {
-        DefaultSession created = new DefaultSession(accessToken, refreshToken, tokenType, expiration, scopes);
-        sessions.put(identifier, created);
+        DefaultSession created = new DefaultSession(data);
+        sessions.put(data.getIdentifier(), created);
         return created;
     }
-    
-    
+
     public class DefaultSession implements Session
     {
         private final String accessToken, refreshToken, tokenType;
@@ -59,6 +56,11 @@ public class DefaultSessionController implements SessionController<DefaultSessio
             this.tokenType = tokenType;
             this.expiration = expiration;
             this.scopes = scopes;
+        }
+
+        private DefaultSession(SessionData data)
+        {
+            this(data.getAccessToken(), data.getRefreshToken(), data.getTokenType(), data.getExpiration(), data.getScopes());
         }
         
         @Override

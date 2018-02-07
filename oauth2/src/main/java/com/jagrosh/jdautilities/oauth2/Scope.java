@@ -16,68 +16,73 @@
 package com.jagrosh.jdautilities.oauth2;
 
 /**
+ * Constants used to specify the scope of OAuth2 sessions.
+ *
+ * <p>All OAuth2 sessions can act within' their available scope upon creation,
+ * and as such, these are specified in when the session's are created.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public enum Scope
 {
     /**
-     * for oauth2 bots, this puts the bot in the user's selected guild by default
+     * For oauth2 bots, this puts the bot in the user's selected guild by default
      */
     BOT("bot"),
     
     /**
-     * allows /users/@me/connections to return linked third-party accounts
+     * Allows /users/@me/connections to return linked third-party accounts
      */
     CONNECTIONS("connections"),
     
     /**
-     * enables /users/@me to return an email
+     * Enables /users/@me to return an email
      */
     EMAIL("email"),
     
     /**
-     * allows /users/@me without email
+     * Allows /users/@me without email
      */
     IDENTIFY("identify"),
     
     /**
-     * allows /users/@me/guilds to return basic information about all of a user's guilds
+     * Allows /users/@me/guilds to return basic information about all of a user's guilds
      */
     GUILDS("guilds"),
     
     /**
-     * allows /invites/{invite.id} to be used for joining users to a guild
+     * Allows /invites/{invite.id} to be used for joining users to a guild
      */
     GUILDS_JOIN("guilds.join"),
     
     /**
-     * allows your app to join users to a group dm
+     * Allows your app to join users to a group dm
      */
     GDM_JOIN("gdm.join"),
     
     /**
-     * for local rpc server api access, this allows you to read messages from all client channels (otherwise restricted to channels/guilds your app creates)
+     * For local rpc server api access, this allows you to read messages from all
+     * client channels (otherwise restricted to channels/guilds your app creates)
      */
     MESSAGES_READ("messages.read"),
     
     /**
-     * for local rpc server access, this allows you to control a user's local Discord client
+     * For local rpc server access, this allows you to control a user's local Discord client
      */
     RPC("rpc"),
     
     /**
-     * for local rpc server api access, this allows you to access the API as the local user
+     * For local rpc server api access, this allows you to access the API as the local user
      */
     RPC_API("rpc.api"),
     
     /**
-     * for local rpc server api access, this allows you to receive notifications pushed out to the user
+     * For local rpc server api access, this allows you to receive notifications pushed out to the user
      */
     RPC_NOTIFICATIONS_READ("rpc.notifications.read"),
     
     /**
-     * this generates a webhook that is returned in the oauth token response for authorization code grants
+     * This generates a webhook that is returned in the oauth token response for authorization code grants
      */
     WEBHOOK_INCOMING("webhook.incoming"),
     
@@ -88,29 +93,65 @@ public enum Scope
     
     private final String text;
     
-    private Scope(String text)
+    Scope(String text)
     {
         this.text = text;
     }
-    
+
+    /**
+     * The text key associated with this scope.
+     *
+     * @return The text key associated with this scope.
+     */
     public String getText()
     {
         return text;
     }
-    
+
+    public static boolean contains(Scope[] scopes, Scope scope)
+    {
+        if(scopes == null || scopes.length == 0 || scope == null || scope == UNKNOWN)
+            return false;
+        for(Scope s : scopes)
+            if(s == scope)
+                return true;
+        return false;
+    }
+
+    /**
+     * Joins the specified scopes properly as they should
+     * be represented as part of an authorization URL.
+     *
+     * @param  scopes
+     *         The scopes to join.
+     *
+     * @return A String representing how the scopes should be
+     *         represented as part of an authorization URL.
+     */
     public static String join(Scope... scopes)
     {
-        if(scopes.length==0)
+        if(scopes.length == 0)
             return "";
         StringBuilder sb = new StringBuilder(scopes[0].getText());
-        for(int i=1; i<scopes.length; i++)
+        for(int i = 1; i < scopes.length; i++)
+        {
             sb.append("%20").append(scopes[i].getText());
+        }
         return sb.toString();
     }
-    
+
+    /**
+     * Gets a scope based on the specified text key.
+     *
+     * @param  scope
+     *         A text key to get a scope by.
+     *
+     * @return The scope matching the provided text key
+     *         ({@link Scope#UNKNOWN UNKNOWN} by default)
+     */
     public static Scope from(String scope)
     {
-        for(Scope s: values())
+        for(Scope s : values())
             if(s.text.equalsIgnoreCase(scope))
                 return s;
         return UNKNOWN;

@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.oauth2.state;
 import java.util.HashMap;
 
 /**
+ * The default {@link com.jagrosh.jdautilities.oauth2.state.StateController StateController} implementation.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
@@ -43,7 +44,7 @@ public class DefaultStateController implements StateController
     private static String randomState()
     {
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i<10; i++)
+        for(int i = 0; i < 10; i++)
             sb.append(CHARACTERS.charAt((int)(Math.random()*CHARACTERS.length())));
         return sb.toString();
     }

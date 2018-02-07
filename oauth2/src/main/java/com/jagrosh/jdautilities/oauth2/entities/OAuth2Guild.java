@@ -15,77 +15,74 @@
  */
 package com.jagrosh.jdautilities.oauth2.entities;
 
-import java.util.Collections;
-import java.util.List;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ISnowflake;
 
+import java.util.List;
+
 /**
+ * OAuth2 representation of a Discord Server/Guild.
+ *
+ * <p>Note that this is effectively a wrapper for both the Guild info, as well
+ * as the info on the user in the guild represented by the session that got this Guild.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
+ * @author Kaidan Gustave
  */
-public class OAuth2Guild implements ISnowflake
+public interface OAuth2Guild extends ISnowflake
 {
-    private final long id;
-    private final String name, icon;
-    private final boolean owner;
-    private final int permissions;
-    
-    public OAuth2Guild(long id, String name, String icon, boolean owner, int permissions)
-    {
-        this.id = id;
-        this.name = name;
-        this.icon = icon;
-        this.owner = owner;
-        this.permissions = permissions;
-    }
-    
-    @Override
-    public long getIdLong()
-    {
-        return id;
-    }
-    
-    public String getName()
-    {
-        return name;
-    }
-    
-    public String getIconId()
-    {
-        return icon;
-    }
-    
-    public String getIconUrl()
-    {
-        return icon == null ? null : "https://cdn.discordapp.com/icons/" + id + "/" + icon + ".jpg";
-    }
-    
-    public int getPermissionsRaw()
-    {
-        return permissions;
-    }
-    
-    public List<Permission> getPermissions()
-    {
-        return Collections.unmodifiableList(Permission.getPermissions(permissions));
-    }
-    
-    public boolean isOwner()
-    {
-        return owner;
-    }
-    
-    public boolean hasPermission(Permission... perms)
-    {
-        if(owner)
-            return true;
-        for (Permission perm : perms)
-        {
-            final long rawValue = perm.getRawValue();
-            if ((permissions & rawValue) != rawValue)
-                return false;
-        }
-        return true;
-    }
+    /**
+     * Gets the Guild's name.
+     *
+     * @return The Guild's name.
+     */
+    String getName();
+
+    /**
+     * Gets the Guild's icon ID, or {@code null} if the Guild does not have an icon.
+     *
+     * @return The Guild's icon ID.
+     */
+    String getIconId();
+
+    /**
+     * Gets the Guild's icon URL, or {@code null} if the Guild does not have an icon.
+     *
+     * @return The Guild's icon URL.
+     */
+    String getIconUrl();
+
+    /**
+     * Gets the Session User's raw permission value for the Guild.
+     *
+     * @return The Session User's raw permission value for the Guild.
+     */
+    int getPermissionsRaw();
+
+    /**
+     * Gets the Session User's {@link net.dv8tion.jda.core.Permission Permissions} for the Guild.
+     *
+     * @return The Session User's Permissions for the Guild.
+     */
+    List<Permission> getPermissions();
+
+    /**
+     * Whether or not the Session User is the owner of the Guild.
+     *
+     * @return {@code true} if the Session User is the owner of
+     *         the Guild, {@code false} otherwise.
+     */
+    boolean isOwner();
+
+    /**
+     * Whether or not the Session User has all of the specified
+     * {@link net.dv8tion.jda.core.Permission Permissions} in the Guild.
+     *
+     * @param  perms
+     *         The Permissions to check for.
+     *
+     * @return {@code true} if and only if the Session User has all of the
+     *         specified Permissions, {@code false} otherwise.
+     */
+    boolean hasPermission(Permission... perms);
 }

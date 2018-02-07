@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.oauth2.entities;
 
+import com.jagrosh.jdautilities.oauth2.session.Session;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.IMentionable;
@@ -22,228 +23,161 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.User;
 
 /**
+ * OAuth2 representation of a Discord User.
+ * <br>More specifically, this is the User that the session is currently managing when retrieved using
+ * {@link com.jagrosh.jdautilities.oauth2.OAuth2Client#getUser(Session) OAuth2Client#getUser}.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
+ * @author Kaidan Gustave
  */
-public class OAuth2User implements ISnowflake, IMentionable
+public interface OAuth2User extends ISnowflake, IMentionable
 {
-    private final long id;
-    private final String name, discriminator, avatar, email;
-    private final boolean verified, mfaEnabled;
-
-    public OAuth2User(long id, String name, String discriminator, String avatar, String email, boolean verified, boolean mfaEnabled)
-    {
-        this.id = id;
-        this.name = name;
-        this.discriminator = discriminator;
-        this.avatar = avatar;
-        this.email = email;
-        this.verified = verified;
-        this.mfaEnabled = mfaEnabled;
-    }
-    
     /**
-     * Gets the Users Snowflake ID as a {@code long}.
+     * Gets the originating {@link com.jagrosh.jdautilities.oauth2.session.Session}
+     * that is responsible for this OAuth2User.
      *
-     * @return The Users Snowflake ID as a {@code long}.
+     * @return The Session responsible for this OAuth2User.
      */
-    @Override
-    public long getIdLong()
-    {
-        return id;
-    }
+    Session getSession();
 
     /**
-     * Gets the Users account name.
+     * Gets the user's Snowflake ID as a String.
      *
-     * @return The Users account name.
+     * @return The user's Snowflake ID as a String.
      */
-    public String getName()
-    {
-        return name;
-    }
+    String getId();
 
     /**
-     * Gets the OAuth2User's email address that is associated with their 
-     * Discord account. This will be null if this user is acquired without
-     * the 'email' OAuth2 scope.
-     * 
-     * @return The Users email, or null if the necessary scope is not provided
+     * Gets the user's Snowflake ID as a {@code long}.
+     *
+     * @return The user's Snowflake ID as a {@code long}.
      */
-    public String getEmail()
-    {
-        return email;
-    }
-    
-    /**
-     * Returns true if the user's Discord account has been verified via
-     * email. This is required to send messages in servers when certain 
-     * moderation levels are used.
-     * 
-     * @return true if the user has verified their account
-     */
-    public boolean isVerified()
-    {
-        return verified;
-    }
-    
-    /**
-     * Returns true if this user has multi-factor authentication enabled. Some
-     * servers require mfa for administrative actions.
-     * 
-     * @return true if the user has mfa enabled
-     */
-    public boolean isMfaEnabled()
-    {
-        return mfaEnabled;
-    }
+    long getIdLong();
 
     /**
-     * Gets the Users discriminator.
+     * Gets the user's account name.
      *
-     * @return The Users discriminator.
+     * @return The user's account name.
      */
-    public String getDiscriminator()
-    {
-        return discriminator;
-    }
+    String getName();
 
     /**
-     * Gets the Users avatar ID.
+     * Gets the user's email address that is associated with their Discord account.
      *
-     * @return The Users avatar ID.
+     * <p>Note that if this user is acquired without the '{@link com.jagrosh.jdautilities.oauth2.Scope#EMAIL email}'
+     * OAuth {@link com.jagrosh.jdautilities.oauth2.Scope Scope}, this will throw a
+     * {@link com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException MissingScopeException}.
+     *
+     * @return The user's email.
+     *
+     * @throws com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException
+     *         If the corresponding {@link OAuth2User#getSession() session} does not have the
+     *         proper 'email' OAuth2 scope
      */
-    public String getAvatarId()
-    {
-        return avatar;
-    }
+    String getEmail();
 
     /**
-     * Gets the Users avatar URL.
+     * Returns {@code true} if the user's Discord account has been verified via email.
      *
-     * @return The Users avatar URL.
+     * <p>This is required to send messages in guilds where certain moderation levels are used.
+     *
+     * @return {@code true} if the user has verified their account, {@code false} otherwise.
      */
-    public String getAvatarUrl()
-    {
-        return getAvatarId() == null ? null : "https://cdn.discordapp.com/avatars/" + getId() + "/" + getAvatarId()
-            + (getAvatarId().startsWith("a_") ? ".gif" : ".png");
-    }
+    boolean isVerified();
 
     /**
-     * Gets the Users {@link DefaultAvatar} avatar ID.
+     * Returns {@code true} if this user has multi-factor authentication enabled.
      *
-     * @return The Users {@link DefaultAvatar} avatar ID.
+     * <p>Some guilds require mfa for administrative actions.
+     *
+     * @return {@code true} if the user has mfa enabled, {@code false} otherwise.
      */
-    public String getDefaultAvatarId()
-    {
-        return DefaultAvatar.values()[Integer.parseInt(getDiscriminator()) % DefaultAvatar.values().length].toString();
-    }
+    boolean isMfaEnabled();
 
     /**
-     * Gets the Users {@link DefaultAvatar} avatar URL.
+     * Gets the user's discriminator.
      *
-     * @return The Users {@link DefaultAvatar} avatar URL.
+     * @return The user's discriminator.
      */
-    public String getDefaultAvatarUrl()
-    {
-        return "https://discordapp.com/assets/" + getDefaultAvatarId() + ".png";
-    }
+    String getDiscriminator();
 
     /**
-     * Gets the Users avatar URL, or their {@link DefaultAvatar} avatar URL if they
-     * do not have a custom avatar set on their account.
+     * Gets the user's avatar ID, or {@code null} if they have not set one.
      *
-     * @return The Users effective avatar URL.
+     * @return The user's avatar ID, or {@code null} if they have not set one.
      */
-    public String getEffectiveAvatarUrl()
-    {
-        return getAvatarUrl() == null ? getDefaultAvatarUrl() : getAvatarUrl();
-    }
-    
+    String getAvatarId();
+
     /**
-     * Gets whether or not this OAuth2User is a bot.<p>
+     * Gets the user's avatar URL.
      *
-     * While, at the time of writing this documentation, bots cannot
+     * @return The user's avatar URL.
+     */
+    String getDefaultAvatarId();
+
+    /**
+     * Gets the user's default avatar ID.
+     *
+     * @return The user's default avatar ID.
+     */
+    String getDefaultAvatarUrl();
+
+    /**
+     * Gets the user's avatar URL, or their {@link #getDefaultAvatarUrl() default avatar URL}
+     * if they do not have a custom avatar set on their account.
+     *
+     * @return The user's effective avatar URL.
+     */
+    String getEffectiveAvatarUrl();
+
+    /**
+     * Gets whether or not this user is a bot.<p>
+     *
+     * <p>While, at the time of writing this documentation, bots cannot
      * authenticate applications, there may be a time in the future
      * where they have such an ability.
      *
-     * @return False
+     * @return {@code false}
      */
-    public boolean isBot()
-    {
-        return false;
-    }
-    
+    boolean isBot();
+
     /**
-     * Gets the OAuth2User as a discord formatted mention.<p>
+     * Gets the user as a discord formatted mention:
+     * <br>{@code <@SNOWFLAKE_ID> }
      *
-     * {@code <@SNOWFLAKE_ID> }
-     *
-     * @return A discord formatted mention of this OAuth2User.
+     * @return A discord formatted mention of this user.
      */
-    @Override
-    public String getAsMention()
-    {
-        return "<@" + id + '>';
-    }
-    
-    public User getJDAUser(JDA jda)
-    {
-        return jda.getUserById(id);
-    }
-    
-    public User getJDAUser(ShardManager shards)
-    {
-        for(JDA jda: shards.getShards())
-            if(jda.getUserById(id)!=null)
-                return jda.getUserById(id);
-        return null;
-    }
-    
-    @Override
-    public boolean equals(Object o)
-    {
-        if (!(o instanceof OAuth2User))
-            return false;
-        OAuth2User oUser = (OAuth2User) o;
-        return this == oUser || this.id == oUser.id;
-    }
-    
-    @Override
-    public int hashCode()
-    {
-        return Long.hashCode(id);
-    }
+    String getAsMention();
 
-    @Override
-    public String toString()
-    {
-        return "U:" + getName() + '(' + id + ')';
-    }
-    
     /**
-     * Constants representing one of five different
-     * default avatars a {@link OAuth2User} can have.
+     * Gets the corresponding {@link net.dv8tion.jda.core.entities.User JDA User}
+     * from the provided instance of {@link net.dv8tion.jda.core.JDA JDA}.
+     *
+     * <p>Note that there is no guarantee that this will not return {@code null}
+     * as the instance of JDA may not have access to the User.
+     *
+     * <p>For sharded bots, use {@link OAuth2User#getJDAUser(ShardManager)}.
+     *
+     * @param  jda
+     *         The instance of JDA to get from.
+     *
+     * @return A JDA User, possibly {@code null}.
      */
-    public enum DefaultAvatar
-    {
-        BLURPLE("6debd47ed13483642cf09e832ed0bc1b"),
-        GREY("322c936a8c8be1b803cd94861bdfa868"),
-        GREEN("dd4dbc0016779df1378e7812eabaa04d"),
-        ORANGE("0e291f67c9274a1abdddeb3fd919cbaa"),
-        RED("1cbd08c76f8af6dddce02c5138971129");
+    User getJDAUser(JDA jda);
 
-        private final String text;
-
-        DefaultAvatar(String text)
-        {
-            this.text = text;
-        }
-
-        @Override
-        public String toString()
-        {
-            return text;
-        }
-    }
+    /**
+     * Gets the corresponding {@link net.dv8tion.jda.core.entities.User JDA User}
+     * from the provided {@link net.dv8tion.jda.bot.sharding.ShardManager ShardManager}.
+     *
+     * <p>Note that there is no guarantee that this will not return {@code null}
+     * as the ShardManager may not have access to the User.
+     *
+     * <p>For unsharded bots, use {@link OAuth2User#getJDAUser(JDA)}.
+     *
+     * @param  shardManager
+     *         The ShardManager to get from.
+     *
+     * @return A JDA User, possibly {@code null}.
+     */
+    User getJDAUser(ShardManager shardManager);
 }

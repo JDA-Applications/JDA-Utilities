@@ -15,200 +15,238 @@
  */
 package com.jagrosh.jdautilities.oauth2;
 
-import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2Guild;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2User;
-import com.jagrosh.jdautilities.oauth2.session.DefaultSessionController;
+import com.jagrosh.jdautilities.oauth2.entities.impl.OAuth2ClientImpl;
+import com.jagrosh.jdautilities.oauth2.requests.OAuth2Action;
 import com.jagrosh.jdautilities.oauth2.session.Session;
 import com.jagrosh.jdautilities.oauth2.session.SessionController;
-import com.jagrosh.jdautilities.oauth2.state.DefaultStateController;
-import com.jagrosh.jdautilities.oauth2.state.InvalidStateException;
+import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.state.StateController;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.OffsetDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import net.dv8tion.jda.core.exceptions.HttpException;
-import net.dv8tion.jda.core.requests.Requester;
 import net.dv8tion.jda.core.utils.Checks;
-import net.dv8tion.jda.core.utils.IOUtil;
-import net.dv8tion.jda.core.utils.JDALogger;
-import net.dv8tion.jda.core.utils.MiscUtil;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.slf4j.Logger;
+
+import javax.annotation.CheckReturnValue;
+import java.util.List;
 
 /**
+ * The central controller for OAuth2 state and session management using the Discord API.
+ *
+ * <p>OAuth2Client's are made using a {@link com.jagrosh.jdautilities.oauth2.OAuth2Client.Builder OAuth2Client.Builder},
+ * and sessions can be appended using {@link OAuth2Client#startSession(String, String, String)}.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
+ * @author Kaidan Gustave
  */
-public class OAuth2Client
+public interface OAuth2Client
 {
-    public static final String BASE_API_URL = "https://discordapp.com/api/";
-    public static final String AUTHORIZE_URL = BASE_API_URL + "oauth2/authorize"
-            + "?client_id=%d"
-            + "&redirect_uri=%s"
-            + "&response_type=code"
-            + "&scope=%s"
-            + "&state=%s";
-    public static final String TOKEN_URL = BASE_API_URL + "oauth2/token"
-            + "?client_id=%d"
-            + "&redirect_uri=%s"
-            + "&grant_type=authorization_code"
-            + "&code=%s"
-            + "&client_secret=%s";
-    public static final String CURRENT_USER_URL = BASE_API_URL + "users/@me";
-    public static final String CURRENT_USER_GUILDS_URL = BASE_API_URL + "users/@me/guilds";
-    public static final String USER_AGENT = "JDA-Utils Oauth2("+JDAUtilitiesInfo.GITHUB + " | " + JDAUtilitiesInfo.VERSION + ")";
-    public static final Logger LOG = JDALogger.getLog(OAuth2Client.class);
-    public static final RequestBody EMPTY_BODY = RequestBody.create(null, new byte[0]);
-    
-    private final long clientId;
-    private final String clientSecret;
-    private final SessionController sessionController;
-    private final StateController stateController;
-    private final OkHttpClient client;
+    /**
+     * Generates a formatted authorization URL from the provided redirect URI fragment
+     * and {@link com.jagrosh.jdautilities.oauth2.Scope Scopes}.
+     *
+     * @param  redirectUri
+     *         The redirect URI.
+     * @param  scopes
+     *         The provided scopes.
+     *
+     * @return The generated authorization URL.
+     */
+    String generateAuthorizationURL(String redirectUri, Scope... scopes);
 
-    protected OAuth2Client(long clientId, String clientSecret, SessionController sessionController, 
-            StateController stateController, OkHttpClient client)
-    {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.sessionController = sessionController;
-        this.stateController = stateController;
-        this.client = client;
-    }
-    
-    public String generateAuthorizationURL(String redirectUri, Scope... scopes)
-    {
-        return String.format(AUTHORIZE_URL, clientId, MiscUtil.encodeUTF8(redirectUri), Scope.join(scopes), stateController.generateNewState(redirectUri));
-    }
-    
-    public Session startSession(String code, String state, String identifier) throws InvalidStateException, IOException
-    {
-        Checks.notEmpty(state, "state");
-        Checks.notEmpty(code, "code");
-        String redirectUri = stateController.consumeState(state);
-        if(redirectUri==null)
-            throw new InvalidStateException(String.format("No state '%s' exists!", state));
-        String requestUrl = String.format(TOKEN_URL, clientId, MiscUtil.encodeUTF8(redirectUri), code, clientSecret);
-        try(Response response = client.newCall(new Request.Builder()
-                .header("Content-Type", "x-www-form-urlencoded").url(requestUrl)
-                .post(EMPTY_BODY).build()).execute())
-        {
-            if(!response.isSuccessful())
-                throw failure(response);
-            JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));
-            String[] scopeStrings = body.getString("scope").split(" ");
-            Scope[] scopes = new Scope[scopeStrings.length];
-            for(int i=0; i<scopeStrings.length; i++)
-                scopes[i] = Scope.from(scopeStrings[i]);
-            return sessionController.createSession(identifier, body.getString("access_token"), body.getString("refresh_token"), 
-                    body.getString("token_type"), OffsetDateTime.now().plusSeconds(body.getInt("expires_in")), scopes);
-        }
-    }
-    
-    public OAuth2User getUser(Session session) throws IOException
-    {
-        Checks.notNull(session, "session");
-        try(Response response = client.newCall(new Request.Builder()
-                .header("Authorization", session.getTokenType()+" "+session.getAccessToken())
-                .get().url(CURRENT_USER_URL)
-                .build()).execute())
-        {
-            if(!response.isSuccessful())
-                throw failure(response);
-            JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));
-            return new OAuth2User(body.getLong("id"), body.getString("username"), body.getString("discriminator"), 
-                    body.optString("avatar", null), body.optString("email", null), body.getBoolean("verified"), body.getBoolean("mfa_enabled"));
-        }
-    }
-    
-    public List<OAuth2Guild> getGuilds(Session session) throws IOException
-    {
-        Checks.notNull(session, "session");
-        try(Response response = client.newCall(new Request.Builder()
-                .header("Authorization", session.getTokenType()+" "+session.getAccessToken())
-                .get().url(CURRENT_USER_GUILDS_URL)
-                .build()).execute())
-        {
-            if(!response.isSuccessful())
-                throw failure(response);
-            JSONArray body = new JSONArray(new JSONTokener(Requester.getBody(response)));
-            List<OAuth2Guild> list = new LinkedList<>();
-            JSONObject obj;
-            for(int i=0; i<body.length(); i++)
-            {
-                obj = body.getJSONObject(i);
-                list.add(new OAuth2Guild(obj.getLong("id"), obj.getString("name"), obj.getString("icon"), obj.getBoolean("owner"), obj.getInt("permissions")));
-            }
-            return list;
-        }
-    }
-    
-    public long getIdLong()
-    {
-        return clientId;
-    }
-    
-    public String getId()
-    {
-        return Long.toUnsignedString(clientId);
-    }
-    
-    protected static HttpException failure(Response response) throws IOException
-    {
-        final InputStream stream = Requester.getBody(response);
-        final String responseBody = new String(IOUtil.readFully(stream));
-        return new HttpException("Request returned failure " + response.code() + ": " + responseBody);
-    }
-    
-    public static class Builder
+    /**
+     * Starts a {@link com.jagrosh.jdautilities.oauth2.session.Session Session} with the provided code,
+     * state, and identifier. The state provided should be <i>unique</i> and provided through an
+     * implementation of {@link com.jagrosh.jdautilities.oauth2.state.StateController StateController}.
+     *
+     * <p>If the state has already been consumed by the StateController using
+     * {@link com.jagrosh.jdautilities.oauth2.state.StateController#consumeState(String) StateController#consumeState},
+     * then it should return {@code null} when provided the same state, so that this may throw a
+     * {@link InvalidStateException InvalidStateException} to signify it has
+     * been consumed.
+     *
+     * @param  code
+     *         The code for the Session to start.
+     * @param  state
+     *         The state for the Session to start.
+     * @param  identifier
+     *         The identifier for the Session to start.
+     *
+     * @return A {@link com.jagrosh.jdautilities.oauth2.requests.OAuth2Action OAuth2Action} for the Session to start.
+     *
+     * @throws InvalidStateException
+     *         If the state, when consumed by this client's StateController, results in a {@code null} redirect URI.
+     */
+    @CheckReturnValue
+    OAuth2Action<Session> startSession(String code, String state, String identifier) throws InvalidStateException;
+
+    /**
+     * Requests a {@link com.jagrosh.jdautilities.oauth2.entities.OAuth2User OAuth2User}
+     * from the {@link com.jagrosh.jdautilities.oauth2.session.Session Session}.
+     *
+     * <p>All Sessions should handle an individual Discord User, and as such this method retrieves
+     * data on that User when the session is provided.
+     *
+     * @param  session
+     *         The Session to get a OAuth2User for.
+     *
+     * @return A {@link com.jagrosh.jdautilities.oauth2.requests.OAuth2Action OAuth2Action} for
+     *         the OAuth2User to be retrieved.
+     */
+    @CheckReturnValue
+    OAuth2Action<OAuth2User> getUser(Session session);
+
+    /**
+     * Requests a list of {@link com.jagrosh.jdautilities.oauth2.entities.OAuth2Guild OAuth2Guilds}
+     * from the {@link com.jagrosh.jdautilities.oauth2.session.Session Session}.
+     *
+     * <p>All Sessions should handle an individual Discord User, and as such this method retrieves
+     * data on all the various Discord Guilds that user is a part of when the session is provided.
+     *
+     * <p>Note that this can only be performed for Sessions who have the necessary
+     * {@link com.jagrosh.jdautilities.oauth2.Scope#GUILDS 'guilds'} scope.
+     * <br>Trying to call this using a Session without the scope will cause a
+     * {@link com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException MissingScopeException}
+     * to be thrown.
+     *
+     * @param  session
+     *         The Session to get OAuth2Guilds for.
+     *
+     * @return A {@link com.jagrosh.jdautilities.oauth2.requests.OAuth2Action OAuth2Action} for
+     *         the OAuth2Guilds to be retrieved.
+     *
+     * @throws com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException
+     *         If the provided Session does not have the 'guilds' scope.
+     */
+    @CheckReturnValue
+    OAuth2Action<List<OAuth2Guild>> getGuilds(Session session);
+
+    /**
+     * Gets the client ID for this OAuth2Client.
+     *
+     * @return The client ID.
+     */
+    long getId();
+
+    /**
+     * Gets the client's secret.
+     *
+     * @return The client's secret.
+     */
+    String getSecret();
+
+    /**
+     * Gets the client's {@link com.jagrosh.jdautilities.oauth2.state.StateController StateController}.
+     *
+     * @return The client's StateController.
+     */
+    StateController getStateController();
+
+    /**
+     * Gets the client's {@link com.jagrosh.jdautilities.oauth2.session.SessionController SessionController}.
+     *
+     * @return The client's SessionController.
+     */
+    SessionController getSessionController();
+
+    /**
+     * Builder for creating OAuth2Client instances.
+     *
+     * <p>At minimum, the developer must provide a
+     * valid Client ID, as well as a valid secret.
+     */
+    class Builder
     {
         private long clientId = -1;
         private String clientSecret;
         private SessionController sessionController;
         private StateController stateController;
         private OkHttpClient client;
-        
+
+        /**
+         * Finalizes and builds an {@link com.jagrosh.jdautilities.oauth2.OAuth2Client OAuth2Client}
+         * instance using this builder.
+         *
+         * @return The OAuth2Client instance build.
+         *
+         * @throws java.lang.IllegalArgumentException
+         *         If either:
+         *         <ul>
+         *             <li>The Client ID is not valid.</li>
+         *             <li>The Client Secret is empty.</li>
+         *         </ul>
+         */
         public OAuth2Client build()
         {
-            Checks.positive(clientId, "client id");
-            Checks.notEmpty(clientSecret, "client secret");
-            return new OAuth2Client(clientId, clientSecret, sessionController==null ? new DefaultSessionController() : sessionController, 
-                    stateController==null ? new DefaultStateController() : stateController, client==null ? new OkHttpClient.Builder().build() : client);
+            Checks.check(clientId >= 0, "Client ID is invalid!");
+            Checks.notEmpty(clientSecret, "Client Secret");
+            return new OAuth2ClientImpl(clientId, clientSecret, sessionController, stateController, client);
         }
-        
+
+        /**
+         * Sets the OAuth2Client's ID.
+         *
+         * @param  clientId
+         *         The OAuth2Client's ID.
+         *
+         * @return This builder.
+         */
         public Builder setClientId(long clientId)
         {
             this.clientId = clientId;
             return this;
         }
-        
+
+        /**
+         * Sets the OAuth2Client's secret.
+         *
+         * @param  clientSecret
+         *         The OAuth2Client's secret.
+         *
+         * @return This builder.
+         */
         public Builder setClientSecret(String clientSecret)
         {
             this.clientSecret = clientSecret;
             return this;
         }
-        
+
+        /**
+         * Sets the OAuth2Client's {@link com.jagrosh.jdautilities.oauth2.session.SessionController SessionController}.
+         *
+         * @param  sessionController
+         *         The OAuth2Client's SessionController.
+         *
+         * @return This builder.
+         */
         public Builder setSessionController(SessionController sessionController)
         {
             this.sessionController = sessionController;
             return this;
         }
-        
+
+        /**
+         * Sets the OAuth2Client's {@link com.jagrosh.jdautilities.oauth2.state.StateController StateController}.
+         *
+         * @param  stateController
+         *         The OAuth2Client's StateController.
+         *
+         * @return This builder.
+         */
         public Builder setStateController(StateController stateController)
         {
             this.stateController = stateController;
             return this;
         }
-        
+
+        /**
+         * Sets the client's internal {@link okhttp3.OkHttpClient OkHttpClient} used for
+         * all requests and interactions with Discord.
+         *
+         * @param  client
+         *         The OAuth2Client's OkHttpClient.
+         *
+         * @return This builder.
+         */
         public Builder setOkHttpClient(OkHttpClient client)
         {
             this.client = client;
