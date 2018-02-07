@@ -31,7 +31,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = 'com.jagrosh'
-    version = '2.0'
+    version = '2.1'
 
     project.ext {
         jdaVersion = '3.5.0_327'
@@ -235,6 +235,7 @@ tasks.create('javadocJar', Jar) {
     destinationDir = project.file("$project.buildDir/libs/")
 
     baseName = "$project.artifactId"
+    version = "$project.version"
     classifier = 'javadoc'
     extension = 'jar'
 }
@@ -248,6 +249,7 @@ tasks.create('sourceJar', Jar) {
     destinationDir = project.file("$project.buildDir/libs/")
 
     baseName = "$project.artifactId"
+    version = "$project.version"
     classifier = 'sources'
     extension = 'jar'
 }
