@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 dependencies {
-    include('commons')
-    include('command')
-    include('menu')
-    include('doc')
+    commons()
+    command()
+    menu()
+    doc()
 
     jda()
     slf4j()

@@ -51,12 +51,14 @@ allprojects {
         json = { project.dependencies.compile group: 'org.json', name: 'json', version: jsonVersion }
         junit = { project.dependencies.testCompile group: 'junit', name: 'junit', version: junitVersion }
 
-        include = { String name -> project.dependencies.compile project.project(':' + name) }
-
         artifactId = (rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name)).toLowerCase()
 
         moduleName = rootProject == project ? "com.jagrosh.jdautilities" :
                 "com.jagrosh.jdautilities.${project.name.toLowerCase()}"
+    }
+
+    rootProject.subprojects.each { subproject ->
+        project.ext."$subproject.name" = { project.dependencies.compile project.project(":$subproject.name") }
     }
 
     repositories {
