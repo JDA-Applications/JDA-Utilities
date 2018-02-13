@@ -19,7 +19,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Immutable
 public class Incident
@@ -130,60 +132,76 @@ public class Incident
 
     public enum Status
     {
-        INVESTIGATING,
-        IDENTIFIED,
-        MONITORING,
-        RESOLVED,
-        POSTMORTEM,
+        INVESTIGATING("investigating"),
+        IDENTIFIED("identified"),
+        MONITORING("monitoring"),
+        RESOLVED("resolved"),
+        POSTMORTEM("postmortem"),
 
-        UNKNOWN;
+        UNKNOWN("");
+
+        private static final Map<String, Status> MAP = new HashMap<>();
+
+        static
+        {
+            for (Status status : Status.values())
+                if (MAP.put(status.getKey(), status) != null)
+                    throw new IllegalStateException("Duplicate key: " + status.getKey());
+        }
+
+        private final String key;
+
+        Status(String key)
+        {
+            this.key = key;
+        }
 
         @Nonnull
-        public static Status from(String name)
+        public static Status from(String key)
         {
-            switch (name)
-            {
-                case "investigating":
-                    return INVESTIGATING;
-                case "identified":
-                    return IDENTIFIED;
-                case "monitoring":
-                    return MONITORING;
-                case "resolved":
-                    return RESOLVED;
-                case "postmortem":
-                    return POSTMORTEM;
-                default:
-                    return UNKNOWN;
-            }
+            return MAP.getOrDefault(key, UNKNOWN);
+        }
+
+        public String getKey()
+        {
+            return key;
         }
     }
 
     public enum Impact
     {
-        NONE,
-        MINOR,
-        MAJOR,
-        CRITICAL,
+        NONE("none"),
+        MINOR("minor"),
+        MAJOR("major"),
+        CRITICAL("critical"),
 
-        UNKNOWN;
+        UNKNOWN("");
+
+        private static final Map<String, Impact> MAP = new HashMap<>();
+
+        static
+        {
+            for (Impact impact : Impact.values())
+                if (MAP.put(impact.getKey(), impact) != null)
+                    throw new IllegalStateException("Duplicate key: " + impact.getKey());
+        }
+
+        private final String key;
+
+        Impact(String key)
+        {
+            this.key = key;
+        }
 
         @Nonnull
-        public static Impact from(String name)
+        public static Impact from(String key)
         {
-            switch (name)
-            {
-                case "none":
-                    return NONE;
-                case "minor":
-                    return MINOR;
-                case "major":
-                    return MAJOR;
-                case "critical":
-                    return CRITICAL;
-                default:
-                    return UNKNOWN;
-            }
+            return MAP.getOrDefault(key, UNKNOWN);
+        }
+
+        public String getKey()
+        {
+            return key;
         }
     }
 

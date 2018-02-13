@@ -19,6 +19,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Immutable
 public class Component
@@ -130,29 +132,38 @@ public class Component
 
     public enum Status
     {
-        OPERATIONAL,
-        DEGRADED_PERFORMANCE,
-        PARTIAL_OUTAGE,
-        MAJOR_OUTAGE,
+        OPERATIONAL("operational"),
+        DEGRADED_PERFORMANCE("degraded_performance"),
+        PARTIAL_OUTAGE("partial_outage"),
+        MAJOR_OUTAGE("major_outage"),
 
-        UNKNOWN;
+        UNKNOWN("");
+
+        private static final Map<String, Status> MAP = new HashMap<>();
+
+        static
+        {
+            for (Status status : Status.values())
+                if (MAP.put(status.getKey(), status) != null)
+                    throw new IllegalStateException("Duplicate key: " + status.getKey());
+        }
+
+        private final String key;
+
+        Status(String key)
+        {
+            this.key = key;
+        }
 
         @Nonnull
-        public static Status from(String name)
+        public static Status from(String key)
         {
-            switch (name.toLowerCase())
-            {
-                case "operational":
-                    return OPERATIONAL;
-                case "degraded_performance":
-                    return DEGRADED_PERFORMANCE;
-                case "partial_outage":
-                    return PARTIAL_OUTAGE;
-                case "major_outage":
-                    return MAJOR_OUTAGE;
-                default:
-                    return UNKNOWN;
-            }
+            return MAP.getOrDefault(key, UNKNOWN);
+        }
+
+        public String getKey()
+        {
+            return key;
         }
     }
 }

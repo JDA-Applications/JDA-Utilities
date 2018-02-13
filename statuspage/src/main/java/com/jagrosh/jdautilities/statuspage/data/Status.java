@@ -17,6 +17,8 @@ package com.jagrosh.jdautilities.statuspage.data;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import java.util.HashMap;
+import java.util.Map;
 
 @Immutable
 public class Status
@@ -46,29 +48,38 @@ public class Status
 
     public enum Indicator
     {
-        NONE,
-        MINOR,
-        MAJOR,
-        CRITICAL,
+        NONE("none"),
+        MINOR("minor"),
+        MAJOR("major"),
+        CRITICAL("critical"),
 
-        UNKNOWN;
+        UNKNOWN("");
+
+        private static final Map<String, Indicator> MAP = new HashMap<>();
+
+        static
+        {
+            for (Indicator indicator : Indicator.values())
+                if (MAP.put(indicator.getKey(), indicator) != null)
+                    throw new IllegalStateException("Duplicate key: " + indicator.getKey());
+        }
+
+        private final String key;
+
+        Indicator(String key)
+        {
+            this.key = key;
+        }
 
         @Nonnull
-        public static Indicator from(String severity)
+        public static Indicator from(String key)
         {
-            switch (severity.toLowerCase())
-            {
-                case "none":
-                    return NONE;
-                case "minor":
-                    return MINOR;
-                case "major":
-                    return MAJOR;
-                case "critical":
-                    return CRITICAL;
-                default:
-                    return UNKNOWN;
-            }
+            return MAP.getOrDefault(key, UNKNOWN);
+        }
+
+        public String getKey()
+        {
+            return key;
         }
     }
 }
