@@ -38,11 +38,13 @@ allprojects {
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.9.1'
         findbugsVersion = '3.0.2'
+        jsonVersion = '20180130'
 
         jda = { project.dependencies.compileOnly group: 'net.dv8tion', name: 'JDA', version: jdaVersion }
         slf4j = { project.dependencies.compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion }
         okhttp = { project.dependencies.compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion }
         findbugs = { project.dependencies.compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion }
+        json = { project.dependencies.compile group: 'org.json', name: 'json', version: jsonVersion }
 
         include = { String name -> project.dependencies.compile project.project(':' + name) }
 
