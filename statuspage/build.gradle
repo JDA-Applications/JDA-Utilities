@@ -17,4 +17,5 @@ dependencies {
     okhttp()
     json()
     findbugs()
+    junit()
 }

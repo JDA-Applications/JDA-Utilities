@@ -25,14 +25,14 @@ import org.json.JSONTokener;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.io.IOException;
 import java.io.Reader;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Immutable
 public class Statuspage
@@ -57,29 +57,19 @@ public class Statuspage
     protected static final String URL_SCHEDULED_MAINTENANCES_UPCOMING = URL_API_BASE + "scheduled-maintenances/upcoming.json";
 
     @Nonnull
-    protected final OkHttpClient client;
+    protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
     @Nonnull
-    protected final ExecutorService pool;
+    protected final OkHttpClient client;
 
     public Statuspage()
     {
-        this(null, null);
+        this(null);
     }
 
     public Statuspage(@Nullable OkHttpClient client)
     {
-        this(client, null);
-    }
-
-    public Statuspage(@Nullable ExecutorService pool)
-    {
-        this(null, pool);
-    }
-
-    public Statuspage(@Nullable OkHttpClient client, @Nullable ExecutorService pool)
-    {
         this.client = client == null ? new OkHttpClient.Builder().build() : client;
-        this.pool = pool == null ? Executors.newSingleThreadExecutor() : pool;
     }
 
     /**
@@ -89,7 +79,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<Summary> getSummary()
     {
-        return createFuture(f -> f.complete(createSummary(get(URL_SUMMARY))));
+        return get(URL_SUMMARY, this::createSummary);
     }
 
     /**
@@ -99,7 +89,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<Incidents> getIncidentsAll()
     {
-        return createFuture(f -> f.complete(createIncidents(get(URL_INCIDENTS_ALL))));
+        return get(URL_INCIDENTS_ALL, this::createIncidents);
     }
 
     /**
@@ -108,7 +98,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<Incidents> getIncidentsUnresolved()
     {
-        return createFuture(f -> f.complete(createIncidents(get(URL_INCIDENTS_UNRESOLVED))));
+        return get(URL_INCIDENTS_UNRESOLVED, this::createIncidents);
     }
 
     /**
@@ -118,7 +108,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<Components> getComponents()
     {
-        return createFuture(f -> f.complete(createComponents(get(URL_COMPONENTS))));
+        return get(URL_COMPONENTS, this::createComponents);
     }
 
     /**
@@ -127,7 +117,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<ScheduledMaintenances> getScheduledMaintenancesAll()
     {
-        return createFuture(f -> f.complete(createScheduledMaintenances(get(URL_SCHEDULED_MAINTENANCES_ALL))));
+        return get(URL_SCHEDULED_MAINTENANCES_ALL, this::createScheduledMaintenances);
     }
 
     /**
@@ -136,7 +126,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<ScheduledMaintenances> getScheduledMaintenancesActive()
     {
-        return createFuture(f -> f.complete(createScheduledMaintenances(get(URL_SCHEDULED_MAINTENANCES_ACTIVE))));
+        return get(URL_SCHEDULED_MAINTENANCES_ACTIVE, this::createScheduledMaintenances);
     }
 
     /**
@@ -145,7 +135,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<ScheduledMaintenances> getScheduledMaintenancesUpcoming()
     {
-        return createFuture(f -> f.complete(createScheduledMaintenances(get(URL_SCHEDULED_MAINTENANCES_UPCOMING))));
+        return get(URL_SCHEDULED_MAINTENANCES_UPCOMING, this::createScheduledMaintenances);
     }
 
     /**
@@ -156,7 +146,7 @@ public class Statuspage
     @Nonnull
     public CompletableFuture<ServiceStatus> getServiceStatus()
     {
-        return createFuture(f -> f.complete(createServiceStatus(get(URL_SERVICE_STATUS))));
+        return get(URL_SERVICE_STATUS, this::createServiceStatus);
     }
 
     @Nonnull
@@ -242,30 +232,11 @@ public class Statuspage
     }
 
     @Nonnull
-    protected <T> CompletableFuture<T> createFuture(@Nonnull Consumer<CompletableFuture<T>> action)
+    protected <T> CompletableFuture<T> get(@Nonnull String url, @Nonnull Function<JSONObject, T> funtion)
     {
         CompletableFuture<T> future = new CompletableFuture<>();
 
-        pool.submit(() -> {
-            try
-            {
-                action.accept(future);
-            }
-            catch (Exception e)
-            {
-                future.completeExceptionally(e);
-            }
-        });
-
-        return future;
-    }
-
-    @Nonnull
-    protected JSONObject get(@Nonnull String url)
-    {
-        try
-        {
-            // @formatter:off
+        // @formatter:off
             Request request = new Request.Builder()
                 .get()
                 .url(url)
@@ -273,9 +244,12 @@ public class Statuspage
                 .build();
             // @formatter:on
 
-            Call call = client.newCall(request);
+        Call call = this.client.newCall(request);
 
-            try (Response response = call.execute())
+        call.enqueue(new Callback()
+        {
+            @Override
+            public void onResponse(@Nonnull Call call, @Nonnull Response response)
             {
                 ResponseBody body = response.body();
 
@@ -284,17 +258,21 @@ public class Statuspage
 
                 Reader reader = body.charStream();
 
-                return new JSONObject(new JSONTokener(reader));
+                JSONObject object = new JSONObject(new JSONTokener(reader));
+
+                T t = funtion.apply(object);
+
+                future.complete(t);
             }
-        }
-        catch (RuntimeException e)
-        {
-            throw e;
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+
+            @Override
+            public void onFailure(@Nonnull Call call, @Nonnull IOException e)
+            {
+                future.completeExceptionally(e);
+            }
+        });
+
+        return future;
     }
 
     @Nonnull
@@ -463,6 +441,6 @@ public class Statuspage
 
     protected OffsetDateTime toOffsetDateTime(String time)
     {
-        return time == null ? null : OffsetDateTime.parse(time);
+        return time == null || time.isEmpty() ? null : OffsetDateTime.parse(time, DATE_TIME_FORMATTER);
     }
 }
