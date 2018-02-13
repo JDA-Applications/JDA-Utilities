@@ -41,7 +41,10 @@ allprojects {
         jsonVersion = '20180130'
         junitVersion = '4.12'
 
-        jda = { project.dependencies.compileOnly group: 'net.dv8tion', name: 'JDA', version: jdaVersion }
+        jda = {
+            project.dependencies.compileOnly group: 'net.dv8tion', name: 'JDA', version: jdaVersion
+            project.dependencies.testCompile group: 'net.dv8tion', name: 'JDA', version: jdaVersion
+        }
         slf4j = { project.dependencies.compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion }
         okhttp = { project.dependencies.compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion }
         findbugs = { project.dependencies.compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion }

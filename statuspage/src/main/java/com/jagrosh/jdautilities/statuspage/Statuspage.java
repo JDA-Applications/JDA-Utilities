@@ -15,6 +15,8 @@
  */
 package com.jagrosh.jdautilities.statuspage;
 
+import com.jagrosh.jdautilities.commons.async.AsyncFuture;
+import com.jagrosh.jdautilities.commons.async.AsyncTask;
 import com.jagrosh.jdautilities.statuspage.data.*;
 import com.jagrosh.jdautilities.statuspage.endpoints.*;
 import okhttp3.*;
@@ -31,7 +33,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 @Immutable
@@ -77,7 +78,7 @@ public class Statuspage
      * in-progress scheduled maintenances.
      */
     @Nonnull
-    public CompletableFuture<Summary> getSummary()
+    public AsyncFuture<Summary> getSummary()
     {
         return get(URL_SUMMARY, this::createSummary);
     }
@@ -87,7 +88,7 @@ public class Statuspage
      * as well as those in the Resolved and Postmortem state.
      */
     @Nonnull
-    public CompletableFuture<Incidents> getIncidentsAll()
+    public AsyncFuture<Incidents> getIncidentsAll()
     {
         return get(URL_INCIDENTS_ALL, this::createIncidents);
     }
@@ -96,7 +97,7 @@ public class Statuspage
      * Get a list of any unresolved incidents. This endpoint will only return incidents in the Investigating, Identified, or Monitoring state.
      */
     @Nonnull
-    public CompletableFuture<Incidents> getIncidentsUnresolved()
+    public AsyncFuture<Incidents> getIncidentsUnresolved()
     {
         return get(URL_INCIDENTS_UNRESOLVED, this::createIncidents);
     }
@@ -106,7 +107,7 @@ public class Statuspage
      * degraded_performance, partial_outage, or major_outage.
      */
     @Nonnull
-    public CompletableFuture<Components> getComponents()
+    public AsyncFuture<Components> getComponents()
     {
         return get(URL_COMPONENTS, this::createComponents);
     }
@@ -115,7 +116,7 @@ public class Statuspage
      * Get a list of the 50 most recent scheduled maintenances. This includes scheduled maintenances as described in the above two endpoints, as well as those in the Completed state.
      */
     @Nonnull
-    public CompletableFuture<ScheduledMaintenances> getScheduledMaintenancesAll()
+    public AsyncFuture<ScheduledMaintenances> getScheduledMaintenancesAll()
     {
         return get(URL_SCHEDULED_MAINTENANCES_ALL, this::createScheduledMaintenances);
     }
@@ -124,7 +125,7 @@ public class Statuspage
      * Get a list of any active maintenances. This endpoint will only return scheduled maintenances in the In Progress or Verifying state.
      */
     @Nonnull
-    public CompletableFuture<ScheduledMaintenances> getScheduledMaintenancesActive()
+    public AsyncFuture<ScheduledMaintenances> getScheduledMaintenancesActive()
     {
         return get(URL_SCHEDULED_MAINTENANCES_ACTIVE, this::createScheduledMaintenances);
     }
@@ -133,7 +134,7 @@ public class Statuspage
      * Get a list of any upcoming maintenances. This endpoint will only return scheduled maintenances still in the Scheduled state.
      */
     @Nonnull
-    public CompletableFuture<ScheduledMaintenances> getScheduledMaintenancesUpcoming()
+    public AsyncFuture<ScheduledMaintenances> getScheduledMaintenancesUpcoming()
     {
         return get(URL_SCHEDULED_MAINTENANCES_UPCOMING, this::createScheduledMaintenances);
     }
@@ -144,7 +145,7 @@ public class Statuspage
      * "All Systems Operational", "Partial System Outage", and "Major Service Outage".
      */
     @Nonnull
-    public CompletableFuture<ServiceStatus> getServiceStatus()
+    public AsyncFuture<ServiceStatus> getServiceStatus()
     {
         return get(URL_SERVICE_STATUS, this::createServiceStatus);
     }
@@ -232,9 +233,9 @@ public class Statuspage
     }
 
     @Nonnull
-    protected <T> CompletableFuture<T> get(@Nonnull String url, @Nonnull Function<JSONObject, T> funtion)
+    protected <T> AsyncFuture<T> get(@Nonnull String url, @Nonnull Function<JSONObject, T> funtion)
     {
-        CompletableFuture<T> future = new CompletableFuture<>();
+        AsyncTask<T> future = new AsyncTask<>();
 
         // @formatter:off
             Request request = new Request.Builder()
