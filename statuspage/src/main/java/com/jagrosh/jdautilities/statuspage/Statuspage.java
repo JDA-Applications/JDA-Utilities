@@ -84,6 +84,16 @@ public class Statuspage
     }
 
     /**
+     * Get the components for the page. Each component is listed along with its status - one of operational,
+     * degraded_performance, partial_outage, or major_outage.
+     */
+    @Nonnull
+    public AsyncFuture<Components> getComponents()
+    {
+        return get(URL_COMPONENTS, this::createComponents);
+    }
+
+    /**
      * Get a list of the 50 most recent incidents. This includes all unresolved incidents as described above,
      * as well as those in the Resolved and Postmortem state.
      */
@@ -100,16 +110,6 @@ public class Statuspage
     public AsyncFuture<Incidents> getIncidentsUnresolved()
     {
         return get(URL_INCIDENTS_UNRESOLVED, this::createIncidents);
-    }
-
-    /**
-     * Get the components for the page. Each component is listed along with its status - one of operational,
-     * degraded_performance, partial_outage, or major_outage.
-     */
-    @Nonnull
-    public AsyncFuture<Components> getComponents()
-    {
-        return get(URL_COMPONENTS, this::createComponents);
     }
 
     /**
@@ -148,6 +148,50 @@ public class Statuspage
     public AsyncFuture<ServiceStatus> getServiceStatus()
     {
         return get(URL_SERVICE_STATUS, this::createServiceStatus);
+    }
+
+    @Nonnull
+    protected <T> AsyncFuture<T> get(@Nonnull String url, @Nonnull Function<JSONObject, T> funtion)
+    {
+        AsyncTask<T> future = new AsyncTask<>();
+
+        // @formatter:off
+            Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .header("Content-Type", "application/json")
+                .build();
+            // @formatter:on
+
+        Call call = this.client.newCall(request);
+
+        call.enqueue(new Callback()
+        {
+            @Override
+            public void onResponse(@Nonnull Call call, @Nonnull Response response)
+            {
+                ResponseBody body = response.body();
+
+                if (body == null)
+                    throw new IllegalStateException("response has no body");
+
+                Reader reader = body.charStream();
+
+                JSONObject object = new JSONObject(new JSONTokener(reader));
+
+                T t = funtion.apply(object);
+
+                future.complete(t);
+            }
+
+            @Override
+            public void onFailure(@Nonnull Call call, @Nonnull IOException e)
+            {
+                future.completeExceptionally(e);
+            }
+        });
+
+        return future;
     }
 
     @Nonnull
@@ -201,18 +245,20 @@ public class Statuspage
     }
 
     @Nonnull
-    protected ServiceStatus createServiceStatus(@Nonnull JSONObject object)
+    protected Incidents createIncidents(@Nonnull JSONObject object)
     {
+        @Nonnull
+        final JSONArray incidentsArray = object.getJSONArray("incidents");
+        @Nonnull
+        final List<Incident> incidents = new ArrayList<>(incidentsArray.length());
+        for (int i = 0; i < incidentsArray.length(); i++)
+            incidents.add(createIncident(incidentsArray.getJSONObject(i)));
         @Nonnull
         final JSONObject pageObject = object.getJSONObject("page");
         @Nonnull
         final Page page = createPage(pageObject);
-        @Nonnull
-        final JSONObject statusObject = object.getJSONObject("status");
-        @Nonnull
-        final Status status = createStatus(statusObject);
 
-        return new ServiceStatus(page, status);
+        return new Incidents(page, incidents);
     }
 
     @Nonnull
@@ -233,47 +279,45 @@ public class Statuspage
     }
 
     @Nonnull
-    protected <T> AsyncFuture<T> get(@Nonnull String url, @Nonnull Function<JSONObject, T> funtion)
+    protected ServiceStatus createServiceStatus(@Nonnull JSONObject object)
     {
-        AsyncTask<T> future = new AsyncTask<>();
+        @Nonnull
+        final JSONObject pageObject = object.getJSONObject("page");
+        @Nonnull
+        final Page page = createPage(pageObject);
+        @Nonnull
+        final JSONObject statusObject = object.getJSONObject("status");
+        @Nonnull
+        final Status status = createStatus(statusObject);
 
-        // @formatter:off
-            Request request = new Request.Builder()
-                .get()
-                .url(url)
-                .header("Content-Type", "application/json")
-                .build();
-            // @formatter:on
+        return new ServiceStatus(page, status);
+    }
 
-        Call call = this.client.newCall(request);
+    @Nonnull
+    protected Component createComponent(@Nonnull JSONObject object)
+    {
+        @Nonnull
+        final String pageId = object.getString("page_id");
+        @Nonnull
+        final String updatedAt = object.getString("updated_at");
+        @Nonnull
+        final String name = object.getString("name");
+        @Nonnull
+        final String createdAt = object.getString("created_at");
+        @Nullable
+        final String description = object.optString("description");
+        @Nonnull
+        final String id = object.getString("id");
+        final int position = object.getInt("position");
+        @Nonnull
+        final String status = object.getString("status");
+        final boolean showcase = object.getBoolean("showcase");
+        @Nullable
+        final String groupId = object.optString("group_id");
+        final boolean group = object.getBoolean("group");
+        final boolean showOnlyIfDegraded = object.getBoolean("only_show_if_degraded");
 
-        call.enqueue(new Callback()
-        {
-            @Override
-            public void onResponse(@Nonnull Call call, @Nonnull Response response)
-            {
-                ResponseBody body = response.body();
-
-                if (body == null)
-                    throw new IllegalStateException("response has no body");
-
-                Reader reader = body.charStream();
-
-                JSONObject object = new JSONObject(new JSONTokener(reader));
-
-                T t = funtion.apply(object);
-
-                future.complete(t);
-            }
-
-            @Override
-            public void onFailure(@Nonnull Call call, @Nonnull IOException e)
-            {
-                future.completeExceptionally(e);
-            }
-        });
-
-        return future;
+        return new Component(pageId, toOffsetDateTime(updatedAt), name, toOffsetDateTime(createdAt), description, id, position, Component.Status.from(status), showcase, groupId, group, showOnlyIfDegraded);
     }
 
     @Nonnull
@@ -310,23 +354,6 @@ public class Statuspage
     }
 
     @Nonnull
-    protected Incidents createIncidents(@Nonnull JSONObject object)
-    {
-        @Nonnull
-        final JSONArray incidentsArray = object.getJSONArray("incidents");
-        @Nonnull
-        final List<Incident> incidents = new ArrayList<>(incidentsArray.length());
-        for (int i = 0; i < incidentsArray.length(); i++)
-            incidents.add(createIncident(incidentsArray.getJSONObject(i)));
-        @Nonnull
-        final JSONObject pageObject = object.getJSONObject("page");
-        @Nonnull
-        final Page page = createPage(pageObject);
-
-        return new Incidents(page, incidents);
-    }
-
-    @Nonnull
     protected Incident.Update createIncidentUpdate(@Nonnull JSONObject object)
     {
         @Nonnull
@@ -349,59 +376,6 @@ public class Statuspage
         // 'affected_components', 'custom_tweet' and 'deliver_notifications'
 
         return new Incident.Update(incidentId, toOffsetDateTime(updatedAt), toOffsetDateTime(createdAt), id, body, toOffsetDateTime(displayAt), Incident.Status.from(status));
-    }
-
-    @Nonnull
-    protected Page createPage(@Nonnull JSONObject object)
-    {
-        @Nonnull
-        final String name = object.getString("name");
-        @Nonnull
-        final String id = object.getString("id");
-        @Nonnull
-        final String url = object.getString("url");
-        @Nonnull
-        final String updatedAt = object.getString("updated_at");
-
-        return new Page(name, id, url, toOffsetDateTime(updatedAt));
-    }
-
-    @Nonnull
-    protected Status createStatus(@Nonnull JSONObject object)
-    {
-        @Nonnull
-        final String indicator = object.getString("indicator");
-        @Nonnull
-        final String description = object.getString("description");
-
-        return new Status(Status.Indicator.from(indicator), description);
-    }
-
-    @Nonnull
-    protected Component createComponent(@Nonnull JSONObject object)
-    {
-        @Nonnull
-        final String pageId = object.getString("page_id");
-        @Nonnull
-        final String updatedAt = object.getString("updated_at");
-        @Nonnull
-        final String name = object.getString("name");
-        @Nonnull
-        final String createdAt = object.getString("created_at");
-        @Nullable
-        final String description = object.optString("description");
-        @Nonnull
-        final String id = object.getString("id");
-        final int position = object.getInt("position");
-        @Nonnull
-        final String status = object.getString("status");
-        final boolean showcase = object.getBoolean("showcase");
-        @Nullable
-        final String groupId = object.optString("group_id");
-        final boolean group = object.getBoolean("group");
-        final boolean showOnlyIfDegraded = object.getBoolean("only_show_if_degraded");
-
-        return new Component(pageId, toOffsetDateTime(updatedAt), name, toOffsetDateTime(createdAt), description, id, position, Component.Status.from(status), showcase, groupId, group, showOnlyIfDegraded);
     }
 
     @Nonnull
@@ -438,6 +412,32 @@ public class Statuspage
         final String scheduledUntil = object.getString("updated_at");
 
         return new ScheduledMaintenance(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt), impact, name, toOffsetDateTime(createdAt), updates, id, shortlink, Incident.Status.from(status), toOffsetDateTime(scheduledFor), toOffsetDateTime(scheduledUntil));
+    }
+
+    @Nonnull
+    protected Status createStatus(@Nonnull JSONObject object)
+    {
+        @Nonnull
+        final String indicator = object.getString("indicator");
+        @Nonnull
+        final String description = object.getString("description");
+
+        return new Status(Status.Indicator.from(indicator), description);
+    }
+
+    @Nonnull
+    protected Page createPage(@Nonnull JSONObject object)
+    {
+        @Nonnull
+        final String name = object.getString("name");
+        @Nonnull
+        final String id = object.getString("id");
+        @Nonnull
+        final String url = object.getString("url");
+        @Nonnull
+        final String updatedAt = object.getString("updated_at");
+
+        return new Page(name, id, url, toOffsetDateTime(updatedAt));
     }
 
     protected OffsetDateTime toOffsetDateTime(String time)
