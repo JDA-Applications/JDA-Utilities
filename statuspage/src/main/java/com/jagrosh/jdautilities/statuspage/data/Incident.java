@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class Incident
         this.impact = impact;
         this.name = name;
         this.createdAt = createdAt;
-        this.updates = updates;
+        this.updates = Collections.unmodifiableList(updates);
         this.id = id;
         this.shortlink = shortlink;
         this.status = status;
@@ -140,6 +141,7 @@ public class Incident
 
         UNKNOWN("");
 
+        @Nonnull
         private static final Map<String, Status> MAP = new HashMap<>();
 
         static
@@ -149,19 +151,21 @@ public class Incident
                     throw new IllegalStateException("Duplicate key: " + status.getKey());
         }
 
+        @Nonnull
         private final String key;
 
-        Status(String key)
+        Status(@Nonnull String key)
         {
             this.key = key;
         }
 
         @Nonnull
-        public static Status from(String key)
+        public static Status from(@Nullable String key)
         {
             return MAP.getOrDefault(key, UNKNOWN);
         }
 
+        @Nonnull
         public String getKey()
         {
             return key;
@@ -177,6 +181,7 @@ public class Incident
 
         UNKNOWN("");
 
+        @Nonnull
         private static final Map<String, Impact> MAP = new HashMap<>();
 
         static
@@ -186,19 +191,21 @@ public class Incident
                     throw new IllegalStateException("Duplicate key: " + impact.getKey());
         }
 
+        @Nonnull
         private final String key;
 
-        Impact(String key)
+        Impact(@Nonnull String key)
         {
             this.key = key;
         }
 
         @Nonnull
-        public static Impact from(String key)
+        public static Impact from(@Nullable String key)
         {
             return MAP.getOrDefault(key, UNKNOWN);
         }
 
+        @Nonnull
         public String getKey()
         {
             return key;

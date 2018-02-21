@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.statuspage.data;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,19 +65,21 @@ public class Status
                     throw new IllegalStateException("Duplicate key: " + indicator.getKey());
         }
 
+        @Nonnull
         private final String key;
 
-        Indicator(String key)
+        Indicator(@Nonnull String key)
         {
             this.key = key;
         }
 
         @Nonnull
-        public static Indicator from(String key)
+        public static Indicator from(@Nullable String key)
         {
             return MAP.getOrDefault(key, UNKNOWN);
         }
 
+        @Nonnull
         public String getKey()
         {
             return key;

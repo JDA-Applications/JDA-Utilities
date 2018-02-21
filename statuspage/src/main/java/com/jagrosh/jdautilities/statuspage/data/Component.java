@@ -139,6 +139,7 @@ public class Component
 
         UNKNOWN("");
 
+        @Nonnull
         private static final Map<String, Status> MAP = new HashMap<>();
 
         static
@@ -148,19 +149,21 @@ public class Component
                     throw new IllegalStateException("Duplicate key: " + status.getKey());
         }
 
+        @Nonnull
         private final String key;
 
-        Status(String key)
+        Status(@Nonnull String key)
         {
             this.key = key;
         }
 
         @Nonnull
-        public static Status from(String key)
+        public static Status from(@Nullable String key)
         {
             return MAP.getOrDefault(key, UNKNOWN);
         }
 
+        @Nonnull
         public String getKey()
         {
             return key;

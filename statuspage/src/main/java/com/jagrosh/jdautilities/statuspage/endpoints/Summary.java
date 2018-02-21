@@ -19,6 +19,7 @@ import com.jagrosh.jdautilities.statuspage.data.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.List;
 
 @Immutable
@@ -37,10 +38,10 @@ public class Summary
 
     public Summary(@Nonnull List<Component> components, @Nonnull List<Incident> incidents, @Nonnull Page page, @Nonnull List<ScheduledMaintenance> scheduledMaintenances, @Nonnull Status status)
     {
-        this.components = components;
-        this.incidents = incidents;
+        this.components = Collections.unmodifiableList(components);
+        this.incidents = Collections.unmodifiableList(incidents);
         this.page = page;
-        this.scheduledMaintenances = scheduledMaintenances;
+        this.scheduledMaintenances = Collections.unmodifiableList(scheduledMaintenances);
         this.status = status;
     }
 

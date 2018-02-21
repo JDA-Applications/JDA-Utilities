@@ -39,23 +39,27 @@ import java.util.function.Function;
 public class Statuspage
 {
     @Nonnull
-    protected static final String URL_API_BASE = "https://status.discordapp.com/api/v2/";
+    protected static final String URL_API_BASE = "https://status.discordapp.com/api/v2";
     @Nonnull
-    protected static final String URL_SUMMARY = URL_API_BASE + "summary.json";
+    protected static final String URL_SUMMARY = URL_API_BASE + "/summary.json";
     @Nonnull
-    protected static final String URL_SERVICE_STATUS = URL_API_BASE + "status.json";
+    protected static final String URL_SERVICE_STATUS = URL_API_BASE + "/status.json";
     @Nonnull
-    protected static final String URL_COMPONENTS = URL_API_BASE + "components.json";
+    protected static final String URL_COMPONENTS = URL_API_BASE + "/components.json";
     @Nonnull
-    protected static final String URL_INCIDENTS_ALL = URL_API_BASE + "incidents.json";
+    protected static final String URL_SCHEDULED_INCIDENTS_BASE = URL_API_BASE + "/incidents";
     @Nonnull
-    protected static final String URL_INCIDENTS_UNRESOLVED = URL_API_BASE + "incidents/unresolved.json";
+    protected static final String URL_INCIDENTS_ALL = URL_SCHEDULED_INCIDENTS_BASE + ".json";
     @Nonnull
-    protected static final String URL_SCHEDULED_MAINTENANCES_ALL = URL_API_BASE + "scheduled-maintenances.json";
+    protected static final String URL_INCIDENTS_UNRESOLVED = URL_SCHEDULED_INCIDENTS_BASE + "/unresolved.json";
     @Nonnull
-    protected static final String URL_SCHEDULED_MAINTENANCES_ACTIVE = URL_API_BASE + "scheduled-maintenances/active.json";
+    protected static final String URL_SCHEDULED_MAINTENANCES_BASE = URL_API_BASE + "/scheduled-maintenances";
     @Nonnull
-    protected static final String URL_SCHEDULED_MAINTENANCES_UPCOMING = URL_API_BASE + "scheduled-maintenances/upcoming.json";
+    protected static final String URL_SCHEDULED_MAINTENANCES_ALL = URL_SCHEDULED_MAINTENANCES_BASE + ".json";
+    @Nonnull
+    protected static final String URL_SCHEDULED_MAINTENANCES_ACTIVE = URL_SCHEDULED_MAINTENANCES_BASE + "/active.json";
+    @Nonnull
+    protected static final String URL_SCHEDULED_MAINTENANCES_UPCOMING = URL_SCHEDULED_MAINTENANCES_BASE + "/upcoming.json";
 
     @Nonnull
     protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -197,31 +201,21 @@ public class Statuspage
     @Nonnull
     protected Summary createSummary(@Nonnull JSONObject object)
     {
-        @Nonnull
         final JSONArray componentsArray = object.getJSONArray("components");
-        @Nonnull
         final List<Component> components = new ArrayList<>(componentsArray.length());
         for (int i = 0; i < componentsArray.length(); i++)
             components.add(createComponent(componentsArray.getJSONObject(i)));
-        @Nonnull
         final JSONArray incidentsArray = object.getJSONArray("incidents");
-        @Nonnull
         final List<Incident> incidents = new ArrayList<>(incidentsArray.length());
         for (int i = 0; i < incidentsArray.length(); i++)
             incidents.add(createIncident(incidentsArray.getJSONObject(i)));
-        @Nonnull
         final JSONArray scheduledMaintenancesArray = object.getJSONArray("scheduled_maintenances");
-        @Nonnull
         final List<ScheduledMaintenance> scheduledMaintenances = new ArrayList<>(scheduledMaintenancesArray.length());
         for (int i = 0; i < scheduledMaintenancesArray.length(); i++)
             scheduledMaintenances.add(createScheduledMaintenance(scheduledMaintenancesArray.getJSONObject(i)));
-        @Nonnull
         final JSONObject pageObject = object.getJSONObject("page");
-        @Nonnull
         final Page page = createPage(pageObject);
-        @Nonnull
         final JSONObject statusObject = object.getJSONObject("status");
-        @Nonnull
         final Status status = createStatus(statusObject);
 
         return new Summary(components, incidents, page, scheduledMaintenances, status);
@@ -230,13 +224,9 @@ public class Statuspage
     @Nonnull
     protected Components createComponents(@Nonnull JSONObject object)
     {
-        @Nonnull
         final JSONObject pageObject = object.getJSONObject("page");
-        @Nonnull
         final Page page = createPage(pageObject);
-        @Nonnull
         final JSONArray componentsArray = object.getJSONArray("components");
-        @Nonnull
         final List<Component> components = new ArrayList<>(componentsArray.length());
         for (int i = 0; i < componentsArray.length(); i++)
             components.add(createComponent(componentsArray.getJSONObject(i)));
@@ -247,15 +237,11 @@ public class Statuspage
     @Nonnull
     protected Incidents createIncidents(@Nonnull JSONObject object)
     {
-        @Nonnull
         final JSONArray incidentsArray = object.getJSONArray("incidents");
-        @Nonnull
         final List<Incident> incidents = new ArrayList<>(incidentsArray.length());
         for (int i = 0; i < incidentsArray.length(); i++)
             incidents.add(createIncident(incidentsArray.getJSONObject(i)));
-        @Nonnull
         final JSONObject pageObject = object.getJSONObject("page");
-        @Nonnull
         final Page page = createPage(pageObject);
 
         return new Incidents(page, incidents);
@@ -264,13 +250,9 @@ public class Statuspage
     @Nonnull
     protected ScheduledMaintenances createScheduledMaintenances(@Nonnull JSONObject object)
     {
-        @Nonnull
         final JSONObject pageObject = object.getJSONObject("page");
-        @Nonnull
         final Page page = createPage(pageObject);
-        @Nonnull
         final JSONArray scheduledMaintenancesArray = object.getJSONArray("scheduled_maintenances");
-        @Nonnull
         final List<ScheduledMaintenance> scheduledMaintenances = new ArrayList<>(scheduledMaintenancesArray.length());
         for (int i = 0; i < scheduledMaintenancesArray.length(); i++)
             scheduledMaintenances.add(createScheduledMaintenance(scheduledMaintenancesArray.getJSONObject(i)));
@@ -281,13 +263,9 @@ public class Statuspage
     @Nonnull
     protected ServiceStatus createServiceStatus(@Nonnull JSONObject object)
     {
-        @Nonnull
         final JSONObject pageObject = object.getJSONObject("page");
-        @Nonnull
         final Page page = createPage(pageObject);
-        @Nonnull
         final JSONObject statusObject = object.getJSONObject("status");
-        @Nonnull
         final Status status = createStatus(statusObject);
 
         return new ServiceStatus(page, status);
@@ -296,23 +274,15 @@ public class Statuspage
     @Nonnull
     protected Component createComponent(@Nonnull JSONObject object)
     {
-        @Nonnull
         final String pageId = object.getString("page_id");
-        @Nonnull
         final String updatedAt = object.getString("updated_at");
-        @Nonnull
         final String name = object.getString("name");
-        @Nonnull
         final String createdAt = object.getString("created_at");
-        @Nullable
         final String description = object.optString("description");
-        @Nonnull
         final String id = object.getString("id");
         final int position = object.getInt("position");
-        @Nonnull
         final String status = object.getString("status");
         final boolean showcase = object.getBoolean("showcase");
-        @Nullable
         final String groupId = object.optString("group_id");
         final boolean group = object.getBoolean("group");
         final boolean showOnlyIfDegraded = object.getBoolean("only_show_if_degraded");
@@ -323,31 +293,19 @@ public class Statuspage
     @Nonnull
     protected Incident createIncident(@Nonnull JSONObject object)
     {
-        @Nullable
         final String monitoringAt = object.optString("monitoring_at");
-        @Nonnull
         final String pageId = object.getString("page_id");
-        @Nonnull
         final String updatedAt = object.getString("updated_at");
-        @Nullable
         final String resolvedAt = object.optString("resolved_at");
-        @Nonnull
         final String impact = object.getString("impact");
-        @Nonnull
         final String name = object.getString("name");
-        @Nonnull
         final String createdAt = object.getString("created_at");
-        @Nonnull
         final JSONArray updatesArray = object.getJSONArray("incident_updates");
-        @Nonnull
         final List<Incident.Update> updates = new ArrayList<>(updatesArray.length());
         for (int i = 0; i < updatesArray.length(); i++)
             updates.add(createIncidentUpdate(updatesArray.getJSONObject(i)));
-        @Nonnull
         final String id = object.getString("id");
-        @Nonnull
         final String shortlink = object.getString("shortlink");
-        @Nonnull
         final String status = object.getString("status");
 
         return new Incident(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt), impact, name, toOffsetDateTime(createdAt), updates, id, shortlink, Incident.Status.from(status));
@@ -356,19 +314,12 @@ public class Statuspage
     @Nonnull
     protected Incident.Update createIncidentUpdate(@Nonnull JSONObject object)
     {
-        @Nonnull
         final String incidentId = object.getString("incident_id");
-        @Nonnull
         final String updatedAt = object.getString("updated_at");
-        @Nonnull
         final String createdAt = object.getString("created_at");
-        @Nonnull
         final String id = object.getString("id");
-        @Nonnull
         final String body = object.getString("body");
-        @Nonnull
         final String displayAt = object.getString("display_at");
-        @Nonnull
         final String status = object.getString("status");
 
         // There are 3 more fields but they aren't part of the public API
@@ -381,34 +332,21 @@ public class Statuspage
     @Nonnull
     protected ScheduledMaintenance createScheduledMaintenance(@Nonnull JSONObject object)
     {
-        @Nullable
         final String monitoringAt = object.optString("monitoring_at");
-        @Nonnull
         final String pageId = object.getString("page_id");
-        @Nonnull
         final String updatedAt = object.getString("updated_at");
-        @Nullable
         final String resolvedAt = object.optString("resolved_at");
-        @Nonnull
         final String impact = object.getString("impact");
-        @Nonnull
         final String name = object.getString("name");
-        @Nonnull
         final String createdAt = object.getString("created_at");
         final JSONArray updatesArray = object.getJSONArray("incident_updates");
-        @Nonnull
         final List<Incident.Update> updates = new ArrayList<>(updatesArray.length());
         for (int i = 0; i < updatesArray.length(); i++)
             updates.add(createIncidentUpdate(updatesArray.getJSONObject(i)));
-        @Nonnull
         final String id = object.getString("id");
-        @Nonnull
         final String shortlink = object.getString("shortlink");
-        @Nonnull
         final String status = object.getString("status");
-        @Nonnull
         final String scheduledFor = object.getString("updated_at");
-        @Nonnull
         final String scheduledUntil = object.getString("updated_at");
 
         return new ScheduledMaintenance(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt), impact, name, toOffsetDateTime(createdAt), updates, id, shortlink, Incident.Status.from(status), toOffsetDateTime(scheduledFor), toOffsetDateTime(scheduledUntil));
@@ -417,9 +355,7 @@ public class Statuspage
     @Nonnull
     protected Status createStatus(@Nonnull JSONObject object)
     {
-        @Nonnull
         final String indicator = object.getString("indicator");
-        @Nonnull
         final String description = object.getString("description");
 
         return new Status(Status.Indicator.from(indicator), description);
@@ -428,13 +364,9 @@ public class Statuspage
     @Nonnull
     protected Page createPage(@Nonnull JSONObject object)
     {
-        @Nonnull
         final String name = object.getString("name");
-        @Nonnull
         final String id = object.getString("id");
-        @Nonnull
         final String url = object.getString("url");
-        @Nonnull
         final String updatedAt = object.getString("updated_at");
 
         return new Page(name, id, url, toOffsetDateTime(updatedAt));
