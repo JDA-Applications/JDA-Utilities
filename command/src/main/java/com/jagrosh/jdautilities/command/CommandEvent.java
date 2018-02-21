@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
-import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -913,12 +912,7 @@ public class CommandEvent
             return;
         try
         {
-            long id = SafeIdUtil.safeConvert(reaction.replaceAll("<a?:.+:(\\d+)>", "$1"));
-            Emote emote = event.getJDA().getEmoteById(id);
-            if(emote == null)
-                event.getMessage().addReaction(reaction).queue();
-            else
-                event.getMessage().addReaction(emote).queue();
+            event.getMessage().addReaction(reaction.replaceAll("<a?:(.+):(\\d+)>", "$1:$2")).queue();
         }
         catch(PermissionException ignored) {}
     }
