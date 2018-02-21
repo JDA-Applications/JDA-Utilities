@@ -117,7 +117,8 @@ public class Statuspage
     }
 
     /**
-     * Get a list of the 50 most recent scheduled maintenances. This includes scheduled maintenances as described in the above two endpoints, as well as those in the Completed state.
+     * Get a list of the 50 most recent scheduled maintenances. This includes scheduled maintenances as described in the above two endpoints,
+     * as well as those in the Completed state.
      */
     @Nonnull
     public AsyncFuture<ScheduledMaintenances> getScheduledMaintenancesAll()
@@ -287,7 +288,8 @@ public class Statuspage
         final boolean group = object.getBoolean("group");
         final boolean showOnlyIfDegraded = object.getBoolean("only_show_if_degraded");
 
-        return new Component(pageId, toOffsetDateTime(updatedAt), name, toOffsetDateTime(createdAt), description, id, position, Component.Status.from(status), showcase, groupId, group, showOnlyIfDegraded);
+        return new Component(pageId, toOffsetDateTime(updatedAt), name, toOffsetDateTime(createdAt), description, id, position,
+                             Component.Status.from(status), showcase, groupId, group, showOnlyIfDegraded);
     }
 
     @Nonnull
@@ -308,7 +310,8 @@ public class Statuspage
         final String shortlink = object.getString("shortlink");
         final String status = object.getString("status");
 
-        return new Incident(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt), impact, name, toOffsetDateTime(createdAt), updates, id, shortlink, Incident.Status.from(status));
+        return new Incident(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt),
+                            Incident.Impact.from(impact), name, toOffsetDateTime(createdAt), updates, id, shortlink, Incident.Status.from(status));
     }
 
     @Nonnull
@@ -326,7 +329,8 @@ public class Statuspage
         // and I'm unsure what they are used for:
         // 'affected_components', 'custom_tweet' and 'deliver_notifications'
 
-        return new Incident.Update(incidentId, toOffsetDateTime(updatedAt), toOffsetDateTime(createdAt), id, body, toOffsetDateTime(displayAt), Incident.Status.from(status));
+        return new Incident.Update(incidentId, toOffsetDateTime(updatedAt), toOffsetDateTime(createdAt), id, body,
+                                   toOffsetDateTime(displayAt), Incident.Status.from(status));
     }
 
     @Nonnull
@@ -349,7 +353,9 @@ public class Statuspage
         final String scheduledFor = object.getString("updated_at");
         final String scheduledUntil = object.getString("updated_at");
 
-        return new ScheduledMaintenance(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt), impact, name, toOffsetDateTime(createdAt), updates, id, shortlink, Incident.Status.from(status), toOffsetDateTime(scheduledFor), toOffsetDateTime(scheduledUntil));
+        return new ScheduledMaintenance(toOffsetDateTime(monitoringAt), pageId, toOffsetDateTime(updatedAt), toOffsetDateTime(resolvedAt),
+                                        Incident.Impact.from(impact), name, toOffsetDateTime(createdAt), updates, id, shortlink,
+                                        Incident.Status.from(status), toOffsetDateTime(scheduledFor), toOffsetDateTime(scheduledUntil));
     }
 
     @Nonnull

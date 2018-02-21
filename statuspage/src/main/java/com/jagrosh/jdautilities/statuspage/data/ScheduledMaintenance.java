@@ -28,7 +28,7 @@ public class ScheduledMaintenance extends Incident
     @Nonnull
     protected final OffsetDateTime scheduledUntil;
 
-    public ScheduledMaintenance(OffsetDateTime monitoringAt, @Nonnull String pageId, @Nonnull OffsetDateTime updatedAt, OffsetDateTime resolvedAt, @Nonnull String impact, @Nonnull String name, @Nonnull OffsetDateTime createdAt, @Nonnull List<Update> updates, @Nonnull String id, @Nonnull String shortlink, @Nonnull Status status, @Nonnull OffsetDateTime scheduledFor, @Nonnull OffsetDateTime scheduledUntil)
+    public ScheduledMaintenance(OffsetDateTime monitoringAt, @Nonnull String pageId, @Nonnull OffsetDateTime updatedAt, OffsetDateTime resolvedAt, @Nonnull Impact impact, @Nonnull String name, @Nonnull OffsetDateTime createdAt, @Nonnull List<Update> updates, @Nonnull String id, @Nonnull String shortlink, @Nonnull Status status, @Nonnull OffsetDateTime scheduledFor, @Nonnull OffsetDateTime scheduledUntil)
     {
         super(monitoringAt, pageId, updatedAt, resolvedAt, impact, name, createdAt, updates, id, shortlink, status);
 

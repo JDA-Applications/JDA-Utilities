@@ -36,7 +36,7 @@ public class Incident
     @Nullable
     protected final OffsetDateTime resolvedAt;
     @Nonnull
-    protected final String impact;
+    protected final Impact impact;
     @Nonnull
     protected final String name;
     @Nonnull
@@ -50,7 +50,7 @@ public class Incident
     @Nonnull
     protected final Status status;
 
-    public Incident(@Nullable OffsetDateTime monitoringAt, @Nonnull String pageId, @Nonnull OffsetDateTime updatedAt, @Nullable OffsetDateTime resolvedAt, @Nonnull String impact, @Nonnull String name, @Nonnull OffsetDateTime createdAt, @Nonnull List<Update> updates, @Nonnull String id, @Nonnull String shortlink, @Nonnull Status status)
+    public Incident(@Nullable OffsetDateTime monitoringAt, @Nonnull String pageId, @Nonnull OffsetDateTime updatedAt, @Nullable OffsetDateTime resolvedAt, @Nonnull Impact impact, @Nonnull String name, @Nonnull OffsetDateTime createdAt, @Nonnull List<Update> updates, @Nonnull String id, @Nonnull String shortlink, @Nonnull Status status)
     {
         this.monitoringAt = monitoringAt;
         this.pageId = pageId;
@@ -90,7 +90,7 @@ public class Incident
     }
 
     @Nonnull
-    public String getImpact()
+    public Impact getImpact()
     {
         return impact;
     }
