@@ -22,3 +22,5 @@ dependencies {
 
     junit()
 }
+
+includeInParent = false

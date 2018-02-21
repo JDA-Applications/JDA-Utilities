@@ -34,7 +34,7 @@ allprojects {
     version = '2.1'
 
     project.ext {
-        jdaVersion = '3.5.0_335'
+        jdaVersion = '3.5.1_339'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.9.1'
         findbugsVersion = '3.0.2'
@@ -53,8 +53,7 @@ allprojects {
 
         artifactId = (rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name)).toLowerCase()
 
-        moduleName = rootProject == project ? "com.jagrosh.jdautilities" :
-                "com.jagrosh.jdautilities.${project.name.toLowerCase()}"
+        moduleName = rootProject == project ? "com.jagrosh.jdautilities" : "com.jagrosh.jdautilities.${project.name.toLowerCase()}"
     }
 
     rootProject.subprojects.each { subproject ->
@@ -108,6 +107,10 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+
+    ext {
+        includeInParent = true
+    }
 
     compileJava {
         options.encoding = 'UTF-8'
@@ -165,6 +168,12 @@ subprojects {
             }
         }
     }
+
+    afterEvaluate {
+        if (project.includeInParent)
+            rootProject.dependencies.compile project
+    }
+
 }
 
 configurations {
@@ -172,10 +181,6 @@ configurations {
         description = 'compile'
         transitive = true
     }
-}
-
-dependencies {
-    compile subprojects
 }
 
 tasks.create('jar', ShadowJar) {
@@ -289,6 +294,15 @@ publishing {
                     dependencyNode.appendNode('scope', 'compile')
                 }
             }
+        }
+    }
+}
+
+dependencyUpdates.resolutionStrategy = {
+    componentSelection { rules ->
+        rules.all { selection ->
+            if ( ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier -> selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/ } )
+                selection.reject('only a release candidate')
         }
     }
 }
