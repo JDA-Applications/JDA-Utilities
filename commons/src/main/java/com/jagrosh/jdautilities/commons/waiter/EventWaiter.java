@@ -23,7 +23,9 @@ import net.dv8tion.jda.core.utils.Checks;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +55,7 @@ import java.util.stream.Stream;
  */
 public class EventWaiter implements EventListener
 {
-    private final HashMap<Class<?>, Set<WaitingEvent>> waitingEvents;
+    private final Map<Class<?>, Set<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     private final boolean shutdownAutomatically;
     
@@ -106,7 +108,7 @@ public class EventWaiter implements EventListener
         Checks.notNull(threadpool, "ScheduledExecutorService");
         Checks.check(!threadpool.isShutdown(), "Cannot construct EventWaiter with a closed ScheduledExecutorService!");
 
-        this.waitingEvents = new HashMap<>();
+        this.waitingEvents = new ConcurrentHashMap<>();
         this.threadpool = threadpool;
 
         // "Why is there no default constructor?"
