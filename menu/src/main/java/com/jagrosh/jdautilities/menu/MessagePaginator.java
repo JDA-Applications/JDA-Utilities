@@ -35,9 +35,9 @@ import java.util.function.Consumer;
  *
  * <p>When displayed, a MessagePaginator will add three reactions in the following order:
  * <ul>
- *     <li><b>Left Arrow</b> - Causes the Paginator to traverse one page backwards.</li>
- *     <li><b>Stop</b> - Stops the Paginator.</li>
- *     <li><b>Right Arrow</b> - Causes the Paginator to traverse one page forwards.</li>
+ *     <li><b>Left Arrow</b> - Causes the MessagePaginator to traverse one page backwards.</li>
+ *     <li><b>Stop</b> - Stops the MessagePaginator.</li>
+ *     <li><b>Right Arrow</b> - Causes the MessagePaginator to traverse one page forwards.</li>
  * </ul>
  *
  * Additionally, if specified in the {@link MessagePaginator.Builder}, two "bulk skip" reactions
@@ -90,7 +90,7 @@ public class MessagePaginator extends Menu
      *
      * <p>Starting on another page is available via {@link
      * MessagePaginator#paginate(MessageChannel, int)
-     * Paginator#paginate(MessageChannel, int)}.
+     * MessagePaginator#paginate(MessageChannel, int)}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
@@ -106,7 +106,7 @@ public class MessagePaginator extends Menu
      * {@link net.dv8tion.jda.core.entities.Message Message}.
      *
      * <p>Starting on another page is available via
-     * {@link MessagePaginator#paginate(Message, int) Paginator#paginate(Message, int)}.
+     * {@link MessagePaginator#paginate(Message, int) MessagePaginator#paginate(Message, int)}.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -423,10 +423,10 @@ public class MessagePaginator extends Menu
 
         /**
          * Sets the {@link java.util.function.Consumer Consumer} to perform if the
-         * {@link com.jagrosh.jdautilities.menu.Paginator Paginator} times out.
+         * {@link com.jagrosh.jdautilities.menu.MessagePaginator MessagePaginator} times out.
          *
          * @param  finalAction
-         *         The Consumer action to perform if the Paginator times out
+         *         The Consumer action to perform if the MessagePaginator times out
          *
          * @return This builder
          */
@@ -482,11 +482,11 @@ public class MessagePaginator extends Menu
         }
 
         /**
-         * Sets whether the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} will instantly
+         * Sets whether the {@link com.jagrosh.jdautilities.menu.MessagePaginator MessagePaginator} will instantly
          * timeout, and possibly run a provided {@link java.lang.Runnable Runnable}, if only a single slide is available to display.
          *
          * @param  wait
-         *         {@code true} if the Paginator will still generate
+         *         {@code true} if the MessagePaginator will still generate
          *
          * @return This builder
          */
@@ -497,7 +497,7 @@ public class MessagePaginator extends Menu
         }
 
         /**
-         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator}'s bulk-skip
+         * Sets the {@link com.jagrosh.jdautilities.menu.MessagePaginator MessagePaginator}'s bulk-skip
          * function to skip multiple pages using alternate forward and backwards
          *
          * @param  bulkSkipNumber
@@ -512,7 +512,7 @@ public class MessagePaginator extends Menu
         }
 
         /**
-         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to wrap
+         * Sets the {@link com.jagrosh.jdautilities.menu.MessagePaginator MessagePaginator} to wrap
          * from the last page to the first when traversing right and visa versa from the left.
          *
          * @param  wrapPageEnds
@@ -527,7 +527,7 @@ public class MessagePaginator extends Menu
         }
 
         /**
-         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to allow
+         * Sets the {@link com.jagrosh.jdautilities.menu.MessagePaginator MessagePaginator} to allow
          * a page number to be specified by a user via text.
          *
          * <p>Note that setting this doesn't mean that left and right text inputs
@@ -536,7 +536,7 @@ public class MessagePaginator extends Menu
          * {@code null} for one or both of the parameters of that method.
          *
          * @param  allowTextInput
-         *         {@code true} if the Paginator will allow page-number text input
+         *         {@code true} if the MessagePaginator will allow page-number text input
          *
          * @return This builder
          */
@@ -547,17 +547,17 @@ public class MessagePaginator extends Menu
         }
 
         /**
-         * Sets the {@link com.jagrosh.jdautilities.menu.Paginator Paginator} to traverse
+         * Sets the {@link com.jagrosh.jdautilities.menu.MessagePaginator MessagePaginator} to traverse
          * left or right when a provided text input is sent in the form of a Message to
          * the {@link net.dv8tion.jda.core.entities.Channel Channel} the menu is displayed in.
          *
          * <p>If one or both these parameters are provided {@code null} this resets
-         * both of them and they will no longer be available when the Paginator is built.
+         * both of them and they will no longer be available when the MessagePaginator is built.
          *
          * @param  left
-         *         The left text input, causes the Paginator to traverse one page left
+         *         The left text input, causes the MessagePaginator to traverse one page left
          * @param  right
-         *         The right text input, causes the Paginator to traverse one page right
+         *         The right text input, causes the MessagePaginator to traverse one page right
          *
          * @return This builder
          */
