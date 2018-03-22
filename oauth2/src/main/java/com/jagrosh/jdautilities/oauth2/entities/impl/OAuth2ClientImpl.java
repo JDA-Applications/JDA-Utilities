@@ -151,7 +151,7 @@ public class OAuth2ClientImpl implements OAuth2Client
                 return new OAuth2UserImpl(session, body.getLong("id"),
                     body.getString("username"), body.getString("discriminator"),
                     body.optString("avatar", null), body.optString("email", null),
-                    body.getBoolean("verified"), body.getBoolean("mfa_enabled"));
+                    body.optBoolean("verified", false), body.getBoolean("mfa_enabled"));
             }
         };
     }
