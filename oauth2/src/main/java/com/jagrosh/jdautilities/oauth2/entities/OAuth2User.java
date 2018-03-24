@@ -154,8 +154,19 @@ public interface OAuth2User extends ISnowflake, IMentionable
      * where they have such an ability.
      *
      * @return {@code false}
+     *
+     * @deprecated
+     *         Due to the nature of OAuth2 at this moment, bots are not
+     *         allowed to use the various urls provided.
+     *         <br>This method is scheduled for removal upon merging it
+     *         with <code>master</code> in JDA-Utilities 2.2
      */
-    boolean isBot();
+    @Deprecated
+    default boolean isBot()
+    {
+        // Note: the code here has not changed from it's implementation.
+        return false;
+    }
 
     /**
      * Gets the user as a discord formatted mention:
@@ -188,7 +199,7 @@ public interface OAuth2User extends ISnowflake, IMentionable
      * <p>Note that there is no guarantee that this will not return {@code null}
      * as the ShardManager may not have access to the User.
      *
-     * <p>For unsharded bots, use {@link OAuth2User#getJDAUser(JDA)}.
+     * <p>For un-sharded bots, use {@link OAuth2User#getJDAUser(JDA)}.
      *
      * @param  shardManager
      *         The ShardManager to get from.

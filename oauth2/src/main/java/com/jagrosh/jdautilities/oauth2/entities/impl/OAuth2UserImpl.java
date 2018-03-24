@@ -138,12 +138,6 @@ public class OAuth2UserImpl implements OAuth2User
     }
 
     @Override
-    public boolean isBot()
-    {
-        return false;
-    }
-
-    @Override
     public String getAsMention()
     {
         return "<@" + id + '>';
