@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.oauth2.entities;
 
+import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.session.Session;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
@@ -32,6 +33,14 @@ import net.dv8tion.jda.core.entities.User;
  */
 public interface OAuth2User extends ISnowflake, IMentionable
 {
+    /**
+     * Gets the underlying {@link com.jagrosh.jdautilities.oauth2.OAuth2Client OAuth2Client}
+     * that created this OAuth2User.
+     *
+     * @return The OAuth2Client that created this OAuth2User.
+     */
+    OAuth2Client getClient();
+
     /**
      * Gets the originating {@link com.jagrosh.jdautilities.oauth2.session.Session}
      * that is responsible for this OAuth2User.
@@ -107,6 +116,13 @@ public interface OAuth2User extends ISnowflake, IMentionable
      * @return The user's avatar ID, or {@code null} if they have not set one.
      */
     String getAvatarId();
+
+    /**
+     * Gets the user's avatar URL, or {@code null} if they have not set one.
+     *
+     * @return The user's avatar URL, or {@code null} if they have not set one.
+     */
+    String getAvatarUrl();
 
     /**
      * Gets the user's avatar URL.

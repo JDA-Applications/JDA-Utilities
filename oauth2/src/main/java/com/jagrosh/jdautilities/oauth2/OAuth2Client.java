@@ -41,6 +41,11 @@ import java.util.List;
 public interface OAuth2Client
 {
     /**
+     * The REST version targeted by JDA-Utilities OAuth2.
+     */
+    int DISCORD_REST_VERSION = 6;
+
+    /**
      * Generates a formatted authorization URL from the provided redirect URI fragment
      * and {@link com.jagrosh.jdautilities.oauth2.Scope Scopes}.
      *

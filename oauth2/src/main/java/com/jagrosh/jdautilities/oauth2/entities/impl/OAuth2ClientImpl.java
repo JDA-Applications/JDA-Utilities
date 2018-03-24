@@ -77,7 +77,7 @@ public class OAuth2ClientImpl implements OAuth2Client
         this.sessionController = sessionController == null? new DefaultSessionController() : sessionController;
         this.stateController = stateController == null? new DefaultStateController() : stateController;
         this.httpClient = httpClient == null? new OkHttpClient.Builder().build() : httpClient;
-        this.requester = new OAuth2Requester(httpClient);
+        this.requester = new OAuth2Requester(this.httpClient);
     }
     
     @Override
@@ -148,7 +148,7 @@ public class OAuth2ClientImpl implements OAuth2Client
                 if(!response.isSuccessful())
                     throw failure(response);
                 JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));
-                return new OAuth2UserImpl(session, body.getLong("id"),
+                return new OAuth2UserImpl(OAuth2ClientImpl.this, session, body.getLong("id"),
                     body.getString("username"), body.getString("discriminator"),
                     body.optString("avatar", null), body.optString("email", null),
                     body.optBoolean("verified", false), body.getBoolean("mfa_enabled"));
@@ -181,8 +181,9 @@ public class OAuth2ClientImpl implements OAuth2Client
                 for(int i = 0; i < body.length(); i++)
                 {
                     obj = body.getJSONObject(i);
-                    list.add(new OAuth2GuildImpl(obj.getLong("id"), obj.getString("name"),
-                        obj.getString("icon"), obj.getBoolean("owner"), obj.getInt("permissions")));
+                    list.add(new OAuth2GuildImpl(OAuth2ClientImpl.this, obj.getLong("id"),
+                        obj.getString("name"), obj.getString("icon"), obj.getBoolean("owner"),
+                        obj.getInt("permissions")));
                 }
                 return list;
             }
@@ -211,6 +212,11 @@ public class OAuth2ClientImpl implements OAuth2Client
     public SessionController getSessionController()
     {
         return sessionController;
+    }
+
+    public void shutdown()
+    {
+        httpClient.dispatcher().executorService().shutdown();
     }
 
     /**

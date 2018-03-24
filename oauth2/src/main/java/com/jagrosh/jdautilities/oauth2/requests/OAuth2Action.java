@@ -91,6 +91,16 @@ public abstract class OAuth2Action<T>
         return builder.build();
     }
 
+    protected Method getMethod()
+    {
+        return method;
+    }
+
+    protected String getUrl()
+    {
+        return url;
+    }
+
     /**
      * Asynchronously executes this OAuth2Action.
      */

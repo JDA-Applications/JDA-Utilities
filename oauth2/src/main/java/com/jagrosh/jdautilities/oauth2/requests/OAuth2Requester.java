@@ -49,18 +49,35 @@ public class OAuth2Requester
                 try
                 {
                     T value = request.handle(response);
-                    if(value != null)
-                        success.accept(value);
+                    logSuccessfulRequest(request);
+
+                    // Handle end-user exception differently
+                    try
+                    {
+                        if(value != null)
+                            success.accept(value);
+                    }
+                    catch(Throwable t)
+                    {
+                        LOGGER.error("OAuth2Action success callback threw an exception!", t);
+                    }
                 }
                 catch(Throwable t)
                 {
-                    failure.accept(t);
+                    // Handle end-user exception differently
+                    try
+                    {
+                        failure.accept(t);
+                    }
+                    catch(Throwable t1)
+                    {
+                        LOGGER.error("OAuth2Action success callback threw an exception!", t1);
+                    }
                 }
                 finally
                 {
                     response.close();
                 }
-
             }
 
             @Override
@@ -75,7 +92,15 @@ public class OAuth2Requester
     {
         try(Response response = httpClient.newCall(request.buildRequest()).execute())
         {
-            return request.handle(response);
+            T value = request.handle(response);
+            logSuccessfulRequest(request);
+            return value;
         }
+    }
+
+    private static void logSuccessfulRequest(OAuth2Action request)
+    {
+        LOGGER.debug("Got a response for {} - {}\nHeaders: {}", request.getMethod(),
+            request.getUrl(), request.getHeaders());
     }
 }

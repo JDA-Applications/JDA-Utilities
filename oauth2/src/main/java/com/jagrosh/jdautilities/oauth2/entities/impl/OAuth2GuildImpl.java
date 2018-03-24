@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.oauth2.entities.impl;
 import java.util.Collections;
 import java.util.List;
 
+import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2Guild;
 import net.dv8tion.jda.core.Permission;
 
@@ -27,20 +28,28 @@ import net.dv8tion.jda.core.Permission;
  */
 public class OAuth2GuildImpl implements OAuth2Guild
 {
+    private final OAuth2Client client;
     private final long id;
     private final String name, icon;
     private final boolean owner;
     private final int permissions;
     
-    public OAuth2GuildImpl(long id, String name, String icon, boolean owner, int permissions)
+    public OAuth2GuildImpl(OAuth2Client client, long id, String name, String icon, boolean owner, int permissions)
     {
+        this.client = client;
         this.id = id;
         this.name = name;
         this.icon = icon;
         this.owner = owner;
         this.permissions = permissions;
     }
-    
+
+    @Override
+    public OAuth2Client getClient()
+    {
+        return client;
+    }
+
     @Override
     public long getIdLong()
     {

@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.oauth2.entities.impl;
 
+import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.Scope;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2User;
 import com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException;
@@ -29,14 +30,16 @@ import net.dv8tion.jda.core.entities.User;
  */
 public class OAuth2UserImpl implements OAuth2User
 {
+    private final OAuth2Client client;
     private final Session session;
     private final long id;
     private final String name, discriminator, avatar, email;
     private final boolean verified, mfaEnabled;
 
-    public OAuth2UserImpl(Session session, long id, String name, String discriminator,
+    public OAuth2UserImpl(OAuth2Client client, Session session, long id, String name, String discriminator,
                           String avatar, String email, boolean verified, boolean mfaEnabled)
     {
+        this.client = client;
         this.session = session;
         this.id = id;
         this.name = name;
@@ -45,6 +48,12 @@ public class OAuth2UserImpl implements OAuth2User
         this.email = email;
         this.verified = verified;
         this.mfaEnabled = mfaEnabled;
+    }
+
+    @Override
+    public OAuth2Client getClient()
+    {
+        return client;
     }
 
     @Override
@@ -103,6 +112,7 @@ public class OAuth2UserImpl implements OAuth2User
         return avatar;
     }
 
+    @Override
     public String getAvatarUrl()
     {
         return getAvatarId() == null ? null : "https://cdn.discordapp.com/avatars/" + getId() + "/" + getAvatarId()

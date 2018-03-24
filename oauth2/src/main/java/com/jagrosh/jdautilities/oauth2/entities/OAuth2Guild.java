@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.oauth2.entities;
 
+import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ISnowflake;
 
@@ -31,6 +32,14 @@ import java.util.List;
  */
 public interface OAuth2Guild extends ISnowflake
 {
+    /**
+     * Gets the underlying {@link com.jagrosh.jdautilities.oauth2.OAuth2Client OAuth2Client}
+     * that created this OAuth2Guild.
+     *
+     * @return The OAuth2Client that created this OAuth2Guild.
+     */
+    OAuth2Client getClient();
+
     /**
      * Gets the Guild's name.
      *
