@@ -25,13 +25,15 @@ tasks.create(name: 'build') {
     group = 'build'
 }
 
+def versionObj = new Version(major: 2, minor: 1, revision: 1)
+
 allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = 'com.jagrosh'
-    version = '2.1'
+    version = "$versionObj"
 
     project.ext {
         jdaVersion = '3.5.0_335'
@@ -281,5 +283,18 @@ publishing {
                 }
             }
         }
+    }
+}
+
+class Version {
+    String major, minor, revision
+
+    String release() {
+        return "${major}.${minor}"
+    }
+
+    @Override
+    String toString() {
+        return "${major}.${minor}.${revision}"
     }
 }
