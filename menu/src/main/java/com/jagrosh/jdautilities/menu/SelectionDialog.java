@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.IEventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -60,7 +60,7 @@ public class SelectionDialog extends Menu
     public static final String SELECT = "\u2705";
     public static final String CANCEL = "\u274E";
     
-    SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
+    SelectionDialog(IEventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                     List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
                     Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
                     Consumer<Message> cancel, Function<Integer,String> text)
@@ -252,7 +252,7 @@ public class SelectionDialog extends Menu
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
-         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
+         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter IEventWaiter} was set.</li>
          *             <li>No choices were set.</li>
          *             <li>No action {@link java.util.function.Consumer Consumer} was set.</li>
          *         </ul>
@@ -260,7 +260,7 @@ public class SelectionDialog extends Menu
         @Override
         public SelectionDialog build()
         {
-            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(waiter != null, "Must set an IEventWaiter");
             Checks.check(!choices.isEmpty(), "Must have at least one choice");
             Checks.check(selection != null, "Must provide a selection consumer");
 

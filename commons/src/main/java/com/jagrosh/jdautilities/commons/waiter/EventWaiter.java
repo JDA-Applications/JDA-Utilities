@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Standard implementation of {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter IEventWaiter}.
+ *
  * <p>The EventWaiter is capable of handling specialized forms of
  * {@link net.dv8tion.jda.core.events.Event Event} that must meet criteria not normally specifiable
  * without implementation of an {@link net.dv8tion.jda.core.hooks.EventListener EventListener}.
@@ -45,18 +47,18 @@ import java.util.stream.Stream;
  * <br>A more "shutdown adaptable" constructor allows the provision of a
  * {@code ScheduledExecutorService} and a choice of how exactly shutdown will be handled
  * (see {@link EventWaiter#EventWaiter(ScheduledExecutorService, boolean)} for more details).
- * 
+ *
  * <p>As a final note, if you intend to use the EventWaiter, it is highly recommended you <b>DO NOT</b>
  * create multiple EventWaiters! Doing this will cause unnecessary increases in memory usage.
- * 
+ *
  * @author John Grosh (jagrosh)
  */
-public class EventWaiter implements EventListener
+public class EventWaiter implements IEventWaiter, EventListener
 {
     private final HashMap<Class<?>, Set<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     private final boolean shutdownAutomatically;
-    
+
     /**
      * Constructs an empty EventWaiter.
      */
@@ -135,45 +137,17 @@ public class EventWaiter implements EventListener
     }
 
     /**
-     * Waits an indefinite amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that
-     * returns {@code true} when tested with the provided {@link java.util.function.Predicate Predicate}.
-     * 
-     * <p>When this occurs, the provided {@link java.util.function.Consumer Consumer} will accept and
-     * execute using the same Event.
-     * 
-     * @param  <T>
-     *         The type of Event to wait for.
-     * @param  classType
-     *         The {@link java.lang.Class} of the Event to wait for. Never null.
-     * @param  condition
-     *         The Predicate to test when Events of the provided type are thrown. Never null.
-     * @param  action
-     *         The Consumer to perform an action when the condition Predicate returns {@code true}. Never null.
-     *
-     * @throws IllegalArgumentException
-     *         One of two reasons:
-     *         <ul>
-     *             <li>1) Either the {@code classType}, {@code condition}, or {@code action} was {@code null}.</li>
-     *             <li>2) The internal threadpool is shut down, meaning that no more tasks can be submitted.</li>
-     *         </ul>
-     */
-    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action)
-    {
-        waitForEvent(classType, condition, action, -1, null, null);
-    }
-    
-    /**
      * Waits a predetermined amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that
      * returns {@code true} when tested with the provided {@link java.util.function.Predicate Predicate}.
-     * 
+     *
      * <p>Once started, there are two possible outcomes:
      * <ul>
      *     <li>The correct Event occurs within the time allotted, and the provided
      *     {@link java.util.function.Consumer Consumer} will accept and execute using the same Event.</li>
-     *     
+     *
      *     <li>The time limit is elapsed and the provided {@link java.lang.Runnable} is executed.</li>
      * </ul>
-     * 
+     *
      * @param  <T>
      *         The type of Event to wait for.
      * @param  classType
@@ -198,6 +172,7 @@ public class EventWaiter implements EventListener
      *             <li>2) The internal threadpool is shut down, meaning that no more tasks can be submitted.</li>
      *         </ul>
      */
+    @Override
     public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action,
                                                long timeout, TimeUnit unit, Runnable timeoutAction)
     {
@@ -219,7 +194,7 @@ public class EventWaiter implements EventListener
             }, timeout, unit);
         }
     }
-    
+
     @Override
     @SubscribeEvent
     @SuppressWarnings("unchecked")
@@ -268,18 +243,18 @@ public class EventWaiter implements EventListener
 
         threadpool.shutdown();
     }
-    
+
     private class WaitingEvent<T extends Event>
     {
         final Predicate<T> condition;
         final Consumer<T> action;
-        
+
         WaitingEvent(Predicate<T> condition, Consumer<T> action)
         {
             this.condition = condition;
             this.action = action;
         }
-        
+
         boolean attempt(T event)
         {
             if(condition.test(event))

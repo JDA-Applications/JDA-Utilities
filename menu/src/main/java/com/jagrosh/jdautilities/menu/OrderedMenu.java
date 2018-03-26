@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.IEventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -72,7 +72,7 @@ public class OrderedMenu extends Menu
 
     public final static String CANCEL = "\u274C";
     
-    OrderedMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
+    OrderedMenu(IEventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                 Color color, String text, String description, List<String> choices, BiConsumer<Message,Integer> action,
                 Consumer<Message> cancel, boolean useLetters, boolean allowTypedInput, boolean useCancel)
     {
@@ -364,7 +364,7 @@ public class OrderedMenu extends Menu
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
-         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
+         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter IEventWaiter} was set.</li>
          *             <li>No choices were set.</li>
          *             <li>More than ten choices were set.</li>
          *             <li>No action {@link java.util.function.Consumer Consumer} was set.</li>
@@ -374,7 +374,7 @@ public class OrderedMenu extends Menu
         @Override
         public OrderedMenu build()
         {
-            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(waiter != null, "Must set an IEventWaiter");
             Checks.check(!choices.isEmpty(), "Must have at least one choice");
             Checks.check(choices.size() <= 10, "Must have no more than ten choices");
             Checks.check(selection != null, "Must provide an selection consumer");

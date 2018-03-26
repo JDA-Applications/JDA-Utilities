@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.IEventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -70,7 +70,7 @@ public class Slideshow extends Menu
     public static final String RIGHT = "\u25B6";
     public static final String BIG_RIGHT = "\u23E9";
     
-    Slideshow(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
+    Slideshow(IEventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
               BiFunction<Integer,Integer,Color> color, BiFunction<Integer,Integer,String> text,
               BiFunction<Integer,Integer,String> description, Consumer<Message> finalAction,
               boolean showPageNumbers, List<String> items, boolean waitOnSinglePage,
@@ -382,14 +382,14 @@ public class Slideshow extends Menu
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
-         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
+         *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter EventWaiter} was set.</li>
          *             <li>No items were set to paginate.</li>
          *         </ul>
          */
         @Override
         public Slideshow build()
         {
-            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(waiter != null, "Must set an IEventWaiter");
             Checks.check(!strings.isEmpty(), "Must include at least one item to paginate");
 
             return new Slideshow(
