@@ -33,7 +33,7 @@ import java.util.function.Predicate;
  *
  * @see    EventWaiter
  *
- * @since  2.2
+ * @since  2.1
  * @author Kaidan Gustave
  *
  * @implNote
