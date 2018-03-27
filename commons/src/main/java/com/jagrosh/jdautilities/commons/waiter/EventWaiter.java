@@ -277,13 +277,10 @@ public class EventWaiter implements IEventWaiter, EventListener
         {
             if(waitingEvents.containsKey(c))
             {
-                Set<WaitingEvent> set = waitingEvents.get(c);
-                WaitingEvent[] toRemove = set.toArray(new WaitingEvent[set.size()]);
-
                 // WaitingEvent#attempt invocations that return true have passed their condition tests
                 // and executed the action. We filter the ones that return false out of the toRemove and
                 // remove them all from the set.
-                set.removeAll(Stream.of(toRemove).filter(i -> i.attempt(event)).collect(Collectors.toSet()));
+                waitingEvents.get(c).removeIf(i -> i.attempt(event));
             }
             if(event instanceof ShutdownEvent && shutdownAutomatically)
             {
