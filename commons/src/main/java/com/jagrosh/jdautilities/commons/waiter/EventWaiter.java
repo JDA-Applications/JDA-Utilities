@@ -25,13 +25,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Standard implementation of {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter IEventWaiter}.
@@ -49,8 +48,10 @@ import java.util.stream.Stream;
  * {@code ScheduledExecutorService} and a choice of how exactly shutdown will be handled
  * (see {@link EventWaiter#EventWaiter(ScheduledExecutorService, boolean)} for more details).
  *
- * <p>If you require a different form of {@link java.util.Map} to store {@link WaitingEvent}s,
- * you should use {@link EventWaiter#EventWaiter(Map)}.
+ * <p>By default, waiting events are stored in a {@link java.util.HashMap HashMap}, and thread
+ * safety is not considered.
+ * <br>If you require a thread safe EventWaiter that allows concurrent modification of the
+ * stored events, use {@link EventWaiter#EventWaiter(ScheduledExecutorService, boolean, boolean)}.
  *
  * <p>As a final note, if you intend to use the EventWaiter, it is highly recommended you <b>DO NOT</b>
  * create multiple EventWaiters! Doing this will cause unnecessary increases in memory usage.
@@ -62,13 +63,26 @@ public class EventWaiter implements IEventWaiter, EventListener
     private final Map<Class<?>, Set<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     private final boolean shutdownAutomatically;
+    private final boolean threadSafe;
 
     /**
-     * Constructs an empty EventWaiter.
+     * Constructs a default EventWaiter.
      */
     public EventWaiter()
     {
         this(Executors.newSingleThreadScheduledExecutor(), true);
+    }
+
+    /**
+     * Creates a new EventWaiter that is thread safe allowing safe modification
+     * across multiple threads when {@code threadSafe} is {@code true}.
+     *
+     * @param  threadSafe
+     *         {@code true} if the EventWaiter constructed is thread-safe.
+     */
+    public EventWaiter(boolean threadSafe)
+    {
+        this(Executors.newSingleThreadScheduledExecutor(), true, true);
     }
 
     /**
@@ -109,30 +123,15 @@ public class EventWaiter implements IEventWaiter, EventListener
      */
     public EventWaiter(ScheduledExecutorService threadpool, boolean shutdownAutomatically)
     {
-        this(new HashMap<>(), threadpool, shutdownAutomatically);
+        this(threadpool, shutdownAutomatically, false);
     }
+
 
     /**
      * Constructs an EventWaiter using the provided {@link java.util.concurrent.ScheduledExecutorService Executor}
      * as it's threadpool.
-     *
-     * <p>The specifiable map allows library users to have control over what kind of internal storage of
-     * {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter.WaitingEvent WaitingEvent}s is used.
-     *
-     * @param  map
-     *         The {@link java.util.Map Map} to use for storage of WaitingEvents.
-     */
-    public EventWaiter(Map<Class<?>, Set<WaitingEvent>> map)
-    {
-        this(map, Executors.newSingleThreadScheduledExecutor(), true);
-    }
-
-    /**
-     * Constructs an EventWaiter using the provided {@link java.util.concurrent.ScheduledExecutorService Executor}
-     * as it's threadpool.
-     *
-     * <p>The specifiable map allows library users to have control over what kind of internal storage of
-     * {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter.WaitingEvent WaitingEvent}s is used.
+     * <br>Additionally the EventWaiter constructed can be specified as thread-safe allowing for concurrent
+     * modification of it's stored waiting events when {@code threadSafe} is {@code true}.
      *
      * <p>A developer might choose to use this constructor over the {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter#EventWaiter() default},
      * for using a alternate form of threadpool, as opposed to a {@link java.util.concurrent.Executors#newSingleThreadExecutor() single thread executor}.
@@ -154,13 +153,13 @@ public class EventWaiter implements IEventWaiter, EventListener
      * otherwise invocation of {@code EventWaiter#shutdown()} will result in an
      * {@link java.lang.UnsupportedOperationException UnsupportedOperationException}.
      *
-     * @param  map
-     *         The {@link java.util.Map Map} to use for storage of WaitingEvents.
      * @param  threadpool
      *         The ScheduledExecutorService to use for this EventWaiter's threadpool.
      * @param  shutdownAutomatically
      *         Whether or not the {@code threadpool} will shutdown automatically when a
      *         {@link net.dv8tion.jda.core.events.ShutdownEvent ShutdownEvent} is fired.
+     * @param  threadSafe
+     *         {@code true} if the EventWaiter constructed is thread-safe.
      *
      * @throws java.lang.IllegalArgumentException
      *         If the threadpool provided is {@code null} or
@@ -168,26 +167,33 @@ public class EventWaiter implements IEventWaiter, EventListener
      *
      * @see    com.jagrosh.jdautilities.commons.waiter.EventWaiter#shutdown() EventWaiter#shutdown()
      */
-    public EventWaiter(Map<Class<?>, Set<WaitingEvent>> map, ScheduledExecutorService threadpool,
-                       boolean shutdownAutomatically)
+    public EventWaiter(ScheduledExecutorService threadpool, boolean shutdownAutomatically, boolean threadSafe)
     {
-        Checks.notNull(map, "WaitingEvent map");
         Checks.notNull(threadpool, "ScheduledExecutorService");
         Checks.check(!threadpool.isShutdown(), "Cannot construct EventWaiter with a closed ScheduledExecutorService!");
 
-        this.waitingEvents = map;
+        this.waitingEvents = threadSafe ? new ConcurrentHashMap<>() : new HashMap<>();
         this.threadpool = threadpool;
 
+        // As per #60, usage of HashMap and HashSet leaves a vulnerability to
+        //concurrent modification errors.
+        // This is difficult to handle, as allowing the library user to specify
+        //their own Map can present numerous problems such as unsupported operations,
+        //various thread-safety specifications, and modification of WaitingEvents
+        //external to the EventWaiter.
+        // While I certainly do not like the way this is done, I don't really think
+        //that this is possible to solve without breaking changes, and this might
+        //require a future rewrite or change in convention, possibly some kinda
+        //builder class?
+        this.threadSafe = threadSafe;
+
         // "Why is there no default constructor?"
-        //
         // When a developer uses this constructor we want them to be aware that this
-        // is putting the task on them to shut down the threadpool if they set this to false,
-        // or to avoid errors being thrown when ShutdownEvent is fired if they set it true.
-        //
+        //is putting the task on them to shut down the threadpool if they set this to false,
+        //or to avoid errors being thrown when ShutdownEvent is fired if they set it true.
         // It is YOUR fault if you have a rogue threadpool that doesn't shut down if you
-        // forget to dispose of it and set this false, or that certain tasks may fail
-        // if you use this executor for other things and set this true.
-        //
+        //forget to dispose of it and set this false, or that certain tasks may fail
+        //if you use this executor for other things and set this true.
         // NOT MINE
         this.shutdownAutomatically = shutdownAutomatically;
     }
@@ -249,7 +255,11 @@ public class EventWaiter implements IEventWaiter, EventListener
         Checks.notNull(action, "The provided action consumer");
 
         WaitingEvent we = new WaitingEvent<>(condition, action);
-        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> new HashSet<>());
+        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c ->
+        {
+            return threadSafe ? ConcurrentHashMap.newKeySet() : new HashSet<>();
+        });
+
         set.add(we);
 
         if(timeout > 0 && unit != null)
@@ -270,16 +280,16 @@ public class EventWaiter implements IEventWaiter, EventListener
         Class c = event.getClass();
 
         // Runs at least once for the fired Event, at most
-        // once for each superclass (excluding Object) because
-        // Class#getSuperclass() returns null when the superclass
-        // is primitive, void, or (in this case) Object.
+        //once for each superclass (excluding Object) because
+        //Class#getSuperclass() returns null when the superclass
+        //is primitive, void, or (in this case) Object.
         while(c != null)
         {
             if(waitingEvents.containsKey(c))
             {
                 // WaitingEvent#attempt invocations that return true have passed their condition tests
-                // and executed the action. We filter the ones that return false out of the toRemove and
-                // remove them all from the set.
+                //and executed the action. We filter the ones that return false out of the toRemove and
+                //remove them all from the set.
                 waitingEvents.get(c).removeIf(i -> i.attempt(event));
             }
             if(event instanceof ShutdownEvent && shutdownAutomatically)
@@ -308,7 +318,7 @@ public class EventWaiter implements IEventWaiter, EventListener
         threadpool.shutdown();
     }
 
-    public class WaitingEvent<T extends Event>
+    private class WaitingEvent<T extends Event>
     {
         final Predicate<T> condition;
         final Consumer<T> action;
