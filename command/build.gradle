@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 dependencies {
-    include('commons')
+    compileOnly jda()
+    compile slf4j()
+    compile okhttp()
+    compile findbugs()
 
-    jda()
-    slf4j()
-    okhttp()
-    findbugs()
+    compile project(':commons')
 }
 
 javadoc {

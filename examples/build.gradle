@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 dependencies {
-    include('commons')
-    include('command')
-    include('menu')
-    include('doc')
+    compileOnly jda()
+    compile slf4j()
 
-    jda()
-    slf4j()
+    compile project(':commons')
+    compile project(':command')
+    compile project(':menu')
+    compile project(':doc')
 }
