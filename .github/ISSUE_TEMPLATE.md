@@ -7,7 +7,6 @@
 [jda-u-projects]: https://github.com/JDA-Applications/JDA-Utilities#projects
 
 ## Issue
-Before opening an issue please make sure to fill out the information below.
 
 #### Issue Checklist
 Please follow the following steps before opening this issue.<br>

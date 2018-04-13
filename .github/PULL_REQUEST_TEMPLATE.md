@@ -2,7 +2,6 @@
 [pull-request]: https://github.com/JDA-Applications/JDA-Utilities/pulls
 
 ## Pull Request
-Before opening a PR please make sure to fill out the information below.
 
 #### Pull Request Checklist
 Please follow the following steps before opening this PR.<br>
