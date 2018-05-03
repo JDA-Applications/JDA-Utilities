@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import com.jagrosh.jdautilities.command.Command.Category;
+import com.jagrosh.jdautilities.commons.l10n.LocalizationManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
@@ -95,6 +96,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final ScheduledExecutorService executor;
     private final AnnotatedModuleCompiler compiler;
     private final GuildSettingsManager manager;
+    private final LocalizationManager localization;
 
     private String textPrefix;
     private CommandListener listener = null;
@@ -103,7 +105,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
             boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
-            GuildSettingsManager manager)
+            GuildSettingsManager manager, LocalizationManager localization)
     {
         Checks.check(ownerId != null, "Owner ID was set null or not set! Please provide an User ID to register as the owner!");
 
@@ -145,6 +147,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.compiler = compiler;
         this.manager = manager;
+        this.localization = localization;
         this.helpConsumer = helpConsumer==null ? (event) -> {
                 StringBuilder builder = new StringBuilder("**"+event.getSelfUser().getName()+"** commands:\n");
                 Category category = null;
@@ -426,6 +429,12 @@ public class CommandClientImpl implements CommandClient, EventListener
     public <M extends GuildSettingsManager> M getSettingsManager()
     {
         return (M) manager;
+    }
+    
+    @Override
+    public LocalizationManager getLocalizationManager()
+    {
+        return localization;
     }
 
     @Override

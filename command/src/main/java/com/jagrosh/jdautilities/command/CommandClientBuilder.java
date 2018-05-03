@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.AnnotatedModuleCompilerImpl;
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
+import com.jagrosh.jdautilities.commons.l10n.LocalizationManager;
 import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
@@ -57,6 +58,7 @@ public class CommandClientBuilder
     private int linkedCacheSize = 0;
     private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
     private GuildSettingsManager manager = null;
+    private LocalizationManager localization = null;
 
     /**
      * Builds a {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
@@ -70,7 +72,7 @@ public class CommandClientBuilder
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                                                      success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                                                     helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
+                                                     helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager, localization);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -476,6 +478,21 @@ public class CommandClientBuilder
     public CommandClientBuilder setGuildSettingsManager(GuildSettingsManager manager)
     {
         this.manager = manager;
+        return this;
+    }
+    
+    /**
+     * Sets the {@link com.jagrosh.jdautilities.commons.l10n.LocalizationManager LocalizationManager}
+     * for the CommandClientImpl built using this builder.
+     * 
+     * @param localization
+     *        The LocalizationManager to set.
+     * 
+     * @return This builder
+     */
+    public CommandClientBuilder setLocalizationManager(LocalizationManager localization)
+    {
+        this.localization = localization;
         return this;
     }
 }

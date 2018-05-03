@@ -17,6 +17,7 @@ package com.jagrosh.jdautilities.command;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * A basic frame that is optionally implementable by objects returned from
@@ -61,6 +62,12 @@ public interface GuildSettingsProvider
      */
     @Nullable
     default Collection<String> getPrefixes()
+    {
+        return null;
+    }
+    
+    @Nullable
+    default Locale getLocale()
     {
         return null;
     }

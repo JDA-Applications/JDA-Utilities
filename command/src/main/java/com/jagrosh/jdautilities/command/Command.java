@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import com.jagrosh.jdautilities.commons.l10n.Localization;
 
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
@@ -162,9 +163,6 @@ public abstract class Command
      */
     protected CooldownScope cooldownScope = CooldownScope.USER;
     
-    private final static String BOT_PERM = "%s I need the %s permission in this %s!";
-    private final static String USER_PERM = "%s You must have the %s permission in this %s to use that!";
-    
     /**
      * The main body method of a {@link com.jagrosh.jdautilities.command.Command Command}.
      * <br>This is the "response" for a successful 
@@ -223,7 +221,7 @@ public abstract class Command
         // is allowed check
         if(event.isFromType(ChannelType.TEXT) && !isAllowed(event.getTextChannel()))
         {
-            terminate(event, "That command cannot be used in this channel!");
+            terminateError(event, Messages.COMMAND_NOCHANNEL);
             return;
         }
         
@@ -231,7 +229,7 @@ public abstract class Command
         if(requiredRole!=null)
             if(!event.isFromType(ChannelType.TEXT) || event.getMember().getRoles().stream().noneMatch(r -> r.getName().equalsIgnoreCase(requiredRole)))
             {
-                terminate(event, event.getClient().getError()+" You must have a role called `"+requiredRole+"` to use that!");
+                terminateError(event, Messages.COMMAND_NEEDROLE, requiredRole);
                 return;
             }
         
@@ -243,17 +241,17 @@ public abstract class Command
             {
                 if(p.isChannel())
                 {
-                    if(p.name().startsWith("VOICE"))
+                    if(p.isVoice())
                     {
                         VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                         if(vc==null)
                         {
-                            terminate(event, event.getClient().getError()+" You must be in a voice channel to use that!");
+                            terminateError(event, Messages.COMMAND_INVOICE);
                             return;
                         }
                         else if(!event.getSelfMember().hasPermission(vc, p))
                         {
-                            terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Voice Channel"));
+                            terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Messages.ENTITY_VOICECHANNEL));
                             return;
                         }
                     }
@@ -261,7 +259,7 @@ public abstract class Command
                     {
                         if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                         {
-                            terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Channel"));
+                            terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Messages.ENTITY_CHANNEL));
                             return;
                         }
                     }
@@ -270,7 +268,7 @@ public abstract class Command
                 {
                     if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                     {
-                        terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Guild"));
+                        terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Messages.ENTITY_GUILD));
                         return;
                     }
                 }
@@ -283,7 +281,7 @@ public abstract class Command
                 {
                     if(!event.getMember().hasPermission(event.getTextChannel(), p))
                     {
-                        terminate(event, String.format(USER_PERM, event.getClient().getError(), p.name(), "Channel"));
+                        terminateError(event, Messages.COMMAND_USERPERM, p.name(), event.localize(Messages.ENTITY_CHANNEL));
                         return;
                     }
                 }
@@ -291,7 +289,7 @@ public abstract class Command
                 {
                     if(!event.getMember().hasPermission(p))
                     {
-                        terminate(event, String.format(USER_PERM, event.getClient().getError(), p.name(), "Guild"));
+                        terminateError(event, Messages.COMMAND_USERPERM, p.name(), event.localize(Messages.ENTITY_GUILD));
                         return;
                     }
                 }
@@ -299,7 +297,7 @@ public abstract class Command
         }
         else if(guildOnly)
         {
-            terminate(event, event.getClient().getError()+" This command cannot be used in Direct messages");
+            terminateError(event, Messages.COMMAND_NODM);
             return;
         }
         
@@ -533,10 +531,20 @@ public abstract class Command
 
     private void terminate(CommandEvent event, String message)
     {
-        if(message!=null)
-            event.reply(message);
-        if(event.getClient().getListener()!=null)
+        if (message != null)
+            event.replyError(message);
+        if (event.getClient().getListener() != null)
             event.getClient().getListener().onTerminatedCommand(event, this);
+    }
+    
+    private void terminateError(CommandEvent event, Localization text, Object... params)
+    {
+        terminate(event, event.getClient().getError() + " " + event.localize(text, params));
+    }
+    
+    private void terminateWarning(CommandEvent event, Localization text, Object... params)
+    {
+        terminate(event, event.getClient().getWarning() + " " + event.localize(text, params));
     }
 
     /**
@@ -584,15 +592,15 @@ public abstract class Command
     {
         if(remaining<=0)
             return null;
-        String front = event.getClient().getWarning()+" That command is on cooldown for "+remaining+" more seconds";
+        String front = event.getClient().getWarning() + event.localize(Messages.COMMAND_COOLDOWN, remaining);
         if(cooldownScope.equals(CooldownScope.USER))
-            return front+"!";
+            return front+event.localize(CooldownScope.USER.errorSpecification);
         else if(cooldownScope.equals(CooldownScope.USER_GUILD) && event.getGuild()==null)
-            return front+" "+CooldownScope.USER_CHANNEL.errorSpecification+"!";
+            return front+" "+event.localize(CooldownScope.USER_CHANNEL.errorSpecification);
         else if(cooldownScope.equals(CooldownScope.GUILD) && event.getGuild()==null)
-            return front+" "+CooldownScope.CHANNEL.errorSpecification+"!";
+            return front+" "+event.localize(CooldownScope.CHANNEL.errorSpecification);
         else
-            return front+" "+cooldownScope.errorSpecification+"!";
+            return front+" "+event.localize(cooldownScope.errorSpecification);
     }
 
     /**
@@ -765,7 +773,7 @@ public abstract class Command
          *     {@code <command-name>|U:<userID>}
          * </ul>
          */
-        USER("U:%d",""),
+        USER("U:%d", Messages.COOLDOWN_USER),
 
         /**
          * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the
@@ -776,7 +784,7 @@ public abstract class Command
          *     {@code <command-name>|C:<channelID>}
          * </ul>
          */
-        CHANNEL("C:%d","in this channel"),
+        CHANNEL("C:%d", Messages.COOLDOWN_CHANNEL),
 
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
@@ -787,7 +795,7 @@ public abstract class Command
          *     {@code <command-name>|U:<userID>|C:<channelID>}
          * </ul>
          */
-        USER_CHANNEL("U:%d|C:%d", "in this channel"),
+        USER_CHANNEL("U:%d|C:%d", Messages.COOLDOWN_CHANNEL),
 
         /**
          * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
@@ -801,7 +809,7 @@ public abstract class Command
          * when called in a private channel.  This is done in order to prevent internal
          * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
          */
-        GUILD("G:%d", "in this server"),
+        GUILD("G:%d", Messages.COOLDOWN_GUILD),
 
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
@@ -816,7 +824,7 @@ public abstract class Command
          * when called in a private channel. This is done in order to prevent internal
          * {@link java.lang.NullPointerException NullPointerException}s from being thrown while generating cooldown keys!
          */
-        USER_GUILD("U:%d|G:%d", "in this server"),
+        USER_GUILD("U:%d|G:%d", Messages.COOLDOWN_GUILD),
 
         /**
          * Applies the cooldown to the calling Shard the command is called on.
@@ -831,7 +839,7 @@ public abstract class Command
          * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
          * from being thrown while generating cooldown keys!
          */
-        SHARD("S:%d", "on this shard"),
+        SHARD("S:%d", Messages.COOLDOWN_SHARD),
 
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} on the Shard
@@ -847,7 +855,7 @@ public abstract class Command
          * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
          * from being thrown while generating cooldown keys!
          */
-        USER_SHARD("U:%d|S:%d", "on this shard"),
+        USER_SHARD("U:%d|S:%d", Messages.COOLDOWN_SHARD),
 
         /**
          * Applies this cooldown globally.
@@ -857,12 +865,12 @@ public abstract class Command
          *
          * <p>The key for this is {@code <command-name>|globally}
          */
-        GLOBAL("Global", "globally");
+        GLOBAL("Global", Messages.COOLDOWN_GLOBAL);
 
         private final String format;
-        final String errorSpecification;
+        final Localization errorSpecification;
 
-        CooldownScope(String format, String errorSpecification)
+        CooldownScope(String format, Localization errorSpecification)
         {
             this.format = format;
             this.errorSpecification = errorSpecification;

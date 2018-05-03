@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
+import java.util.Locale;
 import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.utils.Checks;
+import com.jagrosh.jdautilities.commons.l10n.Localization;
 
 /**
  * A wrapper class for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
@@ -136,6 +138,36 @@ public class CommandEvent
     // functional calls
     
     /**
+     * Localizes a {@link com.jagrosh.jdautilities.commons.l10n.Localization Localization}
+     * object with the given parameters to the {@link java.util.Locale Locale} for the event's
+     * {@link net.dv8tion.jda.core.entities.Guild Guild}. If the event does not have an associated
+ Guild, the LocalizationManager for the CommandClient is not set, the Guild does not have
+ an associated Locale, or a translation for the provided Locale does not exist, the default 
+ text for the Localization is returned.
+     * 
+     * @param text the Localization to localize
+     * @param params parameters to insert in the text
+     * 
+     * @return A String that has been localized for the event
+     */
+    public String localize(Localization text, Object... params)
+    {
+        if (text == null)
+            return null;
+        if (event.getGuild() == null)
+            return text.getDefaultText();
+        if (client.getLocalizationManager() == null)
+            return text.getDefaultText();
+        GuildSettingsProvider gsp = client.getSettingsFor(event.getGuild());
+        if (gsp == null)
+            return text.getDefaultText();
+        Locale locale = gsp.getLocale();
+        if (locale == null)
+            return text.getDefaultText();
+        return client.getLocalizationManager().format(text, locale, params);
+    }
+    
+    /**
      * Replies with a String message.
      * 
      * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
@@ -151,6 +183,11 @@ public class CommandEvent
     public void reply(String message)
     {
         sendMessage(event.getChannel(), message);
+    }
+    
+    public void reply(Localization text, Object... params)
+    {
+        reply(localize(text, params));
     }
     
     /**
@@ -173,6 +210,11 @@ public class CommandEvent
     public void reply(String message, Consumer<Message> success)
     {
     	sendMessage(event.getChannel(), message, success);
+    }
+    
+    public void reply(Localization text, Consumer<Message> success, Object... params)
+    {
+        reply(localize(text, params), success);
     }
 
     /**
@@ -197,6 +239,11 @@ public class CommandEvent
     public void reply(String message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         sendMessage(event.getChannel(), message, success, failure);
+    }
+    
+    public void reply(Localization text, Consumer<Message> success, Consumer<Throwable> failure, Object... params)
+    {
+        reply(localize(text, params), success, failure);
     }
 
     /**
@@ -485,6 +532,11 @@ public class CommandEvent
             event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
         }
     }
+    
+    public void replyInDm(Localization text, Object... params)
+    {
+        replyInDm(localize(text, params));
+    }
 
     /**
      * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
@@ -514,6 +566,11 @@ public class CommandEvent
         {
             event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message, success));
         }
+    }
+    
+    public void replyInDm(Localization text, Consumer<Message> success, Object... params)
+    {
+        replyInDm(localize(text, params), success);
     }
 
     /**
@@ -546,6 +603,11 @@ public class CommandEvent
         {
             event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message, success, failure), failure);
         }
+    }
+    
+    public void replyInDm(Localization text, Consumer<Message> success, Consumer<Throwable> failure, Object... params)
+    {
+        replyInDm(localize(text, params), success, failure);
     }
 
     /**
@@ -758,6 +820,11 @@ public class CommandEvent
     {
         reply(client.getSuccess()+" "+message);
     }
+    
+    public void replySuccess(Localization text, Object... params)
+    {
+        replySuccess(localize(text, params));
+    }
 
     /**
      * Replies with a String message and a prefixed success emoji and then
@@ -780,6 +847,11 @@ public class CommandEvent
     {
         reply(client.getSuccess()+" "+message, queue);
     }
+    
+    public void replySuccess(Localization text, Consumer<Message> queue, Object... params)
+    {
+        replySuccess(localize(text, params), queue);
+    }
 
     /**
      * Replies with a String message, and a prefixed warning emoji.
@@ -797,6 +869,11 @@ public class CommandEvent
     public void replyWarning(String message)
     {
         reply(client.getWarning()+" "+message);
+    }
+    
+    public void replyWarning(Localization text, Object... params)
+    {
+        replyWarning(localize(text, params));
     }
 
     /**
@@ -820,6 +897,11 @@ public class CommandEvent
     {
         reply(client.getWarning()+" "+message, queue);
     }
+    
+    public void replyWarning(Localization text, Consumer<Message> queue, Object... params)
+    {
+        replyWarning(localize(text, params), queue);
+    }
 
     /**
      * Replies with a String message and a prefixed error emoji.
@@ -837,6 +919,11 @@ public class CommandEvent
     public void replyError(String message)
     {
         reply(client.getError()+" "+message);
+    }
+    
+    public void replyError(Localization text, Object... params)
+    {
+        replyError(localize(text, params));
     }
 
     /**
@@ -859,6 +946,11 @@ public class CommandEvent
     public void replyError(String message, Consumer<Message> queue)
     {
         reply(client.getError()+" "+message, queue);
+    }
+    
+    public void replyError(Localization text, Consumer<Message> queue, Object... params)
+    {
+        replyError(localize(text, params), queue);
     }
 
     /**

@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
+import com.jagrosh.jdautilities.commons.l10n.LocalizationManager;
 import net.dv8tion.jda.core.entities.Guild;
 
 import java.time.OffsetDateTime;
@@ -467,4 +468,12 @@ public interface CommandClient
      * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.
      */
     <M extends GuildSettingsManager> M getSettingsManager();
+    
+    /**
+     * Returns a {@link com.jagrosh.jdautilities.commons.l10n.LocalizationManager LocalizationManager} that was provided
+     * when building this CommandClient, or {@code null} if one was not provided there.
+     * 
+     * @return the LocalizationManager, or {@code null} if one was not provided when building this CommandClient.
+     */
+    LocalizationManager getLocalizationManager();
 }

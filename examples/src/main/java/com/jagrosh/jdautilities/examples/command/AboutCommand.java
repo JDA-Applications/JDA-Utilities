@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import com.jagrosh.jdautilities.commons.l10n.Localization;
 
 /**
  *
@@ -38,7 +39,8 @@ import java.awt.*;
     description = "Gets information about the bot."
 )
 @Author("John Grosh (jagrosh)")
-public class AboutCommand extends Command {
+public class AboutCommand extends Command 
+{
     private boolean IS_AUTHOR = true;
     private String REPLACEMENT_ICON = "+";
     private final Color color;
@@ -70,12 +72,17 @@ public class AboutCommand extends Command {
     }
     
     @Override
-    protected void execute(CommandEvent event) {
-        if (oauthLink == null) {
-            try {
+    protected void execute(CommandEvent event) 
+    {
+        if (oauthLink == null) 
+        {
+            try 
+            {
                 ApplicationInfo info = event.getJDA().asBot().getApplicationInfo().complete();
                 oauthLink = info.isBotPublic() ? info.getInviteUrl(0L, perms) : "";
-            } catch (Exception e) {
+            } 
+            catch (Exception e) 
+            {
                 Logger log = LoggerFactory.getLogger("OAuth2");
                 log.error("Could not generate invite link ", e);
                 oauthLink = "";
@@ -83,39 +90,109 @@ public class AboutCommand extends Command {
         }
         EmbedBuilder builder = new EmbedBuilder();
         builder.setColor(event.getGuild() == null ? color : event.getGuild().getSelfMember().getColor());
-        builder.setAuthor("All about " + event.getSelfUser().getName() + "!", null, event.getSelfUser().getAvatarUrl());
-        boolean join = !(event.getClient().getServerInvite() == null || event.getClient().getServerInvite().isEmpty());
-        boolean inv = !oauthLink.isEmpty();
-        String invline = "\n" + (join ? "Join my server [`here`](" + event.getClient().getServerInvite() + ")" : (inv ? "Please " : "")) 
-                + (inv ? (join ? ", or " : "") + "[`invite`](" + oauthLink + ") me to your server" : "") + "!";
+        builder.setAuthor(event.localize(Messages.AUTHOR, event.getSelfUser().getName()), null, event.getSelfUser().getAvatarUrl());
         String author = event.getJDA().getUserById(event.getClient().getOwnerId())==null ? "<@" + event.getClient().getOwnerId()+">" 
                 : event.getJDA().getUserById(event.getClient().getOwnerId()).getName();
-        StringBuilder descr = new StringBuilder().append("Hello! I am **").append(event.getSelfUser().getName()).append("**, ")
-                .append(description).append("\nI ").append(IS_AUTHOR ? "was written in Java" : "am owned").append(" by **")
-                .append(author).append("** using " + JDAUtilitiesInfo.AUTHOR + "'s [Commands Extension](" + JDAUtilitiesInfo.GITHUB + ") (")
-                .append(JDAUtilitiesInfo.VERSION).append(") and the [JDA library](https://github.com/DV8FromTheWorld/JDA) (")
-                .append(JDAInfo.VERSION).append(")\nType `").append(event.getClient().getTextualPrefix()).append(event.getClient().getHelpWord())
-                .append("` to see my commands!").append(join || inv ? invline : "").append("\n\nSome of my features include: ```css");
+        String invline;
+        if(event.getClient().getServerInvite() == null || event.getClient().getServerInvite().isEmpty())
+        {
+            invline = oauthLink.isEmpty() ? "" : "\n" + event.localize(Messages.DESCRIPTION_INVITE, oauthLink);
+        }
+        else
+        {
+            invline = "\n" + (oauthLink.isEmpty() 
+                    ? event.localize(Messages.DESCRIPTION_JOIN, event.getClient().getServerInvite()) 
+                    : event.localize(Messages.DESCRIPTION_JOININVITE, event.getClient().getServerInvite(), oauthLink));
+        }
+        StringBuilder descr = new StringBuilder().append(event.localize(Messages.DESCRIPTION_HELLO, event.getSelfUser().getName(), description))
+                .append("\n").append(event.localize(IS_AUTHOR ? Messages.DESCRIPTION_WRITTEN : Messages.DESCRIPTION_OWNED, author, 
+                        JDAUtilitiesInfo.AUTHOR, JDAUtilitiesInfo.GITHUB, JDAUtilitiesInfo.VERSION, JDAInfo.GITHUB, JDAInfo.VERSION))
+                .append("\n").append(event.localize(Messages.DESCRIPTION_TYPEHELP, event.getClient().getTextualPrefix(), event.getClient().getHelpWord()))
+                .append(invline).append("\n\n").append(event.localize(Messages.DESCRIPTION_FEATURES)).append(" ```css");
         for (String feature : features)
             descr.append("\n").append(event.getClient().getSuccess().startsWith("<") ? REPLACEMENT_ICON : event.getClient().getSuccess()).append(" ").append(feature);
         descr.append(" ```");
         builder.setDescription(descr);
         if (event.getJDA().getShardInfo() == null)
         {
-            builder.addField("Stats", event.getJDA().getGuilds().size() + " servers\n1 shard", true);
-            builder.addField("Users", event.getJDA().getUsers().size() + " unique\n" + event.getJDA().getGuilds().stream().mapToInt(g -> g.getMembers().size()).sum() + " total", true);
-            builder.addField("Channels", event.getJDA().getTextChannels().size() + " Text\n" + event.getJDA().getVoiceChannels().size() + " Voice", true);
+            builder.addField(event.localize(Messages.FIELD_STATS), 
+                    event.localize(Messages.FIELD_STATS_SERVERTOTAL, event.getJDA().getGuildCache().size()) + "\n" 
+                  + event.localize(Messages.FIELD_STATS_1SHARD), true);
+            builder.addField(event.localize(Messages.FIELD_USERS), 
+                    event.localize(Messages.FIELD_USERS_UNIQUE, event.getJDA().getUserCache().size()) + "\n" 
+                  + event.localize(Messages.FIELD_USERS_TOTAL, event.getJDA().getGuildCache().stream().mapToInt(g -> (int)g.getMemberCache().size()).sum()), true);
+            builder.addField(event.localize(Messages.FIELD_CHANNELS), 
+                    event.localize(Messages.FIELD_CHANNELS_TEXT, event.getJDA().getTextChannelCache().size()) + "\n" 
+                  + event.localize(Messages.FIELD_CHANNELS_VOICE, event.getJDA().getVoiceChannelCache().size()), true);
         }
         else
         {
-            builder.addField("Stats", (event.getClient()).getTotalGuilds() + " Servers\nShard " + (event.getJDA().getShardInfo().getShardId() + 1) 
-                    + "/" + event.getJDA().getShardInfo().getShardTotal(), true);
-            builder.addField("This shard", event.getJDA().getUsers().size() + " Users\n" + event.getJDA().getGuilds().size() + " Servers", true);
-            builder.addField("", event.getJDA().getTextChannels().size() + " Text Channels\n" + event.getJDA().getVoiceChannels().size() + " Voice Channels", true);
+            builder.addField(event.localize(Messages.FIELD_STATS), 
+                    event.localize(Messages.FIELD_STATS_SERVERTOTAL, event.getClient().getTotalGuilds()) + "\n"
+                  + event.localize(Messages.FIELD_STATS_SHARD, event.getJDA().getShardInfo().getShardId()+1, event.getJDA().getShardInfo().getShardTotal()), true);
+            builder.addField(event.localize(Messages.FIELD_THISSHARD), 
+                    event.localize(Messages.FIELD_THISSHARD_USERS, event.getJDA().getUserCache().size()) + "\n"
+                  + event.localize(Messages.FIELD_THISSHARD_SERVERS, event.getJDA().getGuildCache().size()), true);
+            builder.addField("", 
+                    event.localize(Messages.FIELD_THISSHARD_TEXT, event.getJDA().getTextChannelCache().size()) + "\n"
+                  + event.localize(Messages.FIELD_THISSHARD_VOICE, event.getJDA().getVoiceChannelCache().size()), true);
         }
-        builder.setFooter("Last restart", null);
+        builder.setFooter(event.localize(Messages.FOOTER), null);
         builder.setTimestamp(event.getClient().getStartTime());
         event.reply(builder.build());
     }
     
+    private enum Messages implements Localization
+    {
+        DESCRIPTION_HELLO(      "examples.about.description.hello",      "Hello, I am **{0}**, {1}"),
+        DESCRIPTION_WRITTEN(    "examples.about.description.written",    "I was written in Java by **{0}** using {1}'s [Commands Extension]({2}) ({3}) and the [JDA library]({4}) ({5})"),
+        DESCRIPTION_OWNED(      "examples.about.description.owned",      "I am owned by **{0}** using {1}'s [Commands Extension]({2}) ({3}) and the [JDA library]({4}) ({5})"),
+        DESCRIPTION_TYPEHELP(   "examples.about.description.typehelp",   "Type `{0}{1}` to see my commands!"),
+        DESCRIPTION_FEATURES(   "examples.about.description.features",   "Some of my features include:"),
+        DESCRIPTION_JOIN(       "examples.about.description.join",       "Join my server [`here`]({0})!"),
+        DESCRIPTION_INVITE(     "examples.about.description.invite",     "Please [`invite`]({0}) me to your server!"),
+        DESCRIPTION_JOININVITE( "examples.about.description.joininvite", "Join my server [`here`]({0}), or [`invite`]({1}) me to your server!"),
+        
+        AUTHOR(                 "examples.about.author",            "All about {0}!"),
+        FOOTER(                 "examples.about.footer",            "Last restart"),
+        
+        FIELD_STATS(            "examples.about.stats",             "Stats"),
+        FIELD_STATS_SERVERTOTAL("examples.about.stats.servertotal", "{0} Servers"),
+        FIELD_STATS_SHARD(      "examples.about.stats.shard",       "Shard {0}/{1}"),
+        FIELD_STATS_1SHARD(     "examples.about.stats.1shard",      "1 Shard"),
+        
+        FIELD_USERS(            "examples.about.users",             "Users"),
+        FIELD_USERS_UNIQUE(     "examples.about.users.unique",      "{0} unique"),
+        FIELD_USERS_TOTAL(      "examples.about.users.total",       "{0} total"),
+        
+        FIELD_CHANNELS(         "examples.about.channels",          "Channels"),
+        FIELD_CHANNELS_TEXT(    "examples.about.channels.text",     "{0} Text"),
+        FIELD_CHANNELS_VOICE(   "examples.about.channels.voice",    "{0} Voice"),
+        
+        FIELD_THISSHARD(        "examples.about.thisshard",         "This shard"),
+        FIELD_THISSHARD_USERS(  "examples.about.thisshard.users",   "{0} Users"),
+        FIELD_THISSHARD_SERVERS("examples.about.thisshard.servers", "{0} Servers"),
+        FIELD_THISSHARD_TEXT(   "examples.about.thisshard.text",    "{0} Text Channels"),
+        FIELD_THISSHARD_VOICE(  "examples.about.thisshard.voice",   "{0} Voice Channels");
+            
+        private final String key, defaultText;
+        
+        private Messages(String key, String defaultText)
+        {
+            this.key = key;
+            this.defaultText = defaultText;
+        }
+        
+        @Override
+        public String getKey()
+        {
+            return key;
+        }
+
+        @Override
+        public String getDefaultText()
+        {
+            return defaultText;
+        }
+    }
 }
