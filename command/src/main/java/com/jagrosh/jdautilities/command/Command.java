@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+
+import com.jagrosh.jdautilities.commons.l10n.Entities;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -251,7 +253,7 @@ public abstract class Command
                         }
                         else if(!event.getSelfMember().hasPermission(vc, p))
                         {
-                            terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Messages.ENTITY_VOICECHANNEL));
+                            terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Entities.VOICE_CHANNEL));
                             return;
                         }
                     }
@@ -259,7 +261,7 @@ public abstract class Command
                     {
                         if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                         {
-                            terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Messages.ENTITY_CHANNEL));
+                            terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Entities.CHANNEL));
                             return;
                         }
                     }
@@ -268,7 +270,7 @@ public abstract class Command
                 {
                     if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                     {
-                        terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Messages.ENTITY_GUILD));
+                        terminateError(event, Messages.COMMAND_BOTPERM, p.name(), event.localize(Entities.GUILD));
                         return;
                     }
                 }
@@ -281,7 +283,7 @@ public abstract class Command
                 {
                     if(!event.getMember().hasPermission(event.getTextChannel(), p))
                     {
-                        terminateError(event, Messages.COMMAND_USERPERM, p.name(), event.localize(Messages.ENTITY_CHANNEL));
+                        terminateError(event, Messages.COMMAND_USERPERM, p.name(), event.localize(Entities.CHANNEL));
                         return;
                     }
                 }
@@ -289,7 +291,7 @@ public abstract class Command
                 {
                     if(!event.getMember().hasPermission(p))
                     {
-                        terminateError(event, Messages.COMMAND_USERPERM, p.name(), event.localize(Messages.ENTITY_GUILD));
+                        terminateError(event, Messages.COMMAND_USERPERM, p.name(), event.localize(Entities.GUILD));
                         return;
                     }
                 }

@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-
 /**
  *
  * @since  2.2.0
@@ -28,8 +27,12 @@ import java.util.ResourceBundle;
  */
 public class LocalizationManager
 {
+    private static final String DEFAULT_BUNDLE_NAME = "JDAUtilitiesLocalizedText";
+
     private final String bundleName;
     private final ClassLoader loader;
+
+    public LocalizationManager() { this(DEFAULT_BUNDLE_NAME); }
     
     public LocalizationManager(String bundleName)
     {

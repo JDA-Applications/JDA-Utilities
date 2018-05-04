@@ -21,27 +21,28 @@ package com.jagrosh.jdautilities.commons.l10n;
  */
 public enum Entities implements Localization
 {
-    BOT(         "bot",          "Bot"),
-    CHANNEL(     "channel",      "Channel"),
-    EMBED(       "embed",        "Embed"),
-    EMOTE(       "emote",        "Emote"),
-    GUILD(       "guild",        "Guild"),
-    INVITE(      "invite",       "Invite"),
-    MEMBER(      "member",       "Member"),
-    MESSAGE(     "message",      "Message"),
-    PERMISSION(  "permission",   "Permission"),
-    REGION(      "region",       "Region"),
-    ROLE(        "role",         "Role"),
-    SERVER(      "server",       "Server"),
-    TEXTCHANNEL( "textchannel",  "Text Channel"),
-    USER(        "user",         "User"),
-    VOICECHANNEL("voicechannel", "Voice Channel"),
-    WEBHOOK(     "webhook",      "Webhook");
+    BOT(          "bot",              "Bot"),
+    CATEGORY(     "channel.category", "Category"),
+    CHANNEL(      "channel",          "Channel"),
+    EMBED(        "embed",            "Embed"),
+    EMOTE(        "emote",            "Emote"),
+    GUILD(        "guild",            "Guild"),
+    INVITE(       "invite",           "Invite"),
+    MEMBER(       "member",           "Member"),
+    MESSAGE(      "message",          "Message"),
+    PERMISSION(   "permission",       "Permission"),
+    REGION(       "region",           "Region"),
+    ROLE(         "role",             "Role"),
+    SERVER(       "server",           "Server"),
+    TEXT_CHANNEL( "channel.text",     "Text Channel"),
+    USER(         "user",             "User"),
+    VOICE_CHANNEL("channel.voice",    "Voice Channel"),
+    WEBHOOK(      "webhook",          "Webhook");
     
     private final String key, defaultText;
     private final Localization plural, number;
     
-    private Entities(String key, String defaultText)
+    Entities(String key, String defaultText)
     {
         this.key = "entities." + key;
         this.defaultText = defaultText;

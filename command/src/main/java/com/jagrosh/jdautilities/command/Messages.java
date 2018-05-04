@@ -36,16 +36,11 @@ public enum Messages implements Localization
     COOLDOWN_GLOBAL("cooldown.global", "globally!"),
     COOLDOWN_GUILD("cooldown.guild", "in this server!"),
     COOLDOWN_SHARD("cooldown.shard", "on this shard!"),
-    COOLDOWN_USER("cooldown.user", "!"),
-    
-    ENTITY_CHANNEL("entity.channel", "Channel"),
-    ENTITY_GUILD("entity.guild", "Guild"),
-    ENTITY_TEXTCHANNEL("entity.textchannel", "Text Channel"),
-    ENTITY_VOICECHANNEL("entity.voicechannel", "Voice Channel");
+    COOLDOWN_USER("cooldown.user", "!");
     
     private final String key, defaultText;
     
-    private Messages(String key, String defaultText)
+    Messages(String key, String defaultText)
     {
         this.key = key;
         this.defaultText = defaultText;
