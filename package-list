@@ -1,0 +1,11 @@
+com.jagrosh.jdautilities.command
+com.jagrosh.jdautilities.command.annotation
+com.jagrosh.jdautilities.command.impl
+com.jagrosh.jdautilities.commons
+com.jagrosh.jdautilities.commons.utils
+com.jagrosh.jdautilities.commons.waiter
+com.jagrosh.jdautilities.doc
+com.jagrosh.jdautilities.doc.standard
+com.jagrosh.jdautilities.examples.command
+com.jagrosh.jdautilities.examples.doc
+com.jagrosh.jdautilities.menu
