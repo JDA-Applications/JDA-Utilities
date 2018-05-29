@@ -36,9 +36,10 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.Checks;
 
 /**
- * A {@link com.jagrosh.jdautilities.menu.Menu} implementation that paginates a
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that paginates a
  * set of one or more text items across one or more pages.
  *
  * <p>When displayed, a Paginator will add three reactions in the following order:
@@ -430,10 +431,9 @@ public class Paginator extends Menu
         @Override
         public Paginator build()
         {
-            if(waiter==null)
-                throw new IllegalArgumentException("Must set an EventWaiter");
-            if(strings.isEmpty())
-                throw new IllegalArgumentException("Must include at least one item to paginate");
+            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(!strings.isEmpty(), "Must include at least one item to paginate");
+
             return new Paginator(waiter, users, roles, timeout, unit, color, text, finalAction,
                 columns, itemsPerPage, showPageNumbers, numberItems, strings, waitOnSinglePage,
                 bulkSkipNumber, wrapPageEnds, textToLeft, textToRight, allowTextInput);

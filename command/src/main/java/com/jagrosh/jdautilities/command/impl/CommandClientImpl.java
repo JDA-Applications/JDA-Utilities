@@ -31,6 +31,7 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.requests.Requester;
+import net.dv8tion.jda.core.utils.Checks;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -92,7 +93,6 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final Consumer<CommandEvent> helpConsumer;
     private final String helpWord;
     private final ScheduledExecutorService executor;
-    private final int linkedCacheSize;
     private final AnnotatedModuleCompiler compiler;
     private final GuildSettingsManager manager;
 
@@ -105,8 +105,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
             GuildSettingsManager manager)
     {
-        if(ownerId == null)
-            throw new IllegalArgumentException("Owner ID was set null or not set! Please provide an User ID to register as the owner!");
+        Checks.check(ownerId != null, "Owner ID was set null or not set! Please provide an User ID to register as the owner!");
 
         if(!SafeIdUtil.checkId(ownerId))
             LOG.warn(String.format("The provided Owner ID (%s) was found unsafe! Make sure ID is a non-negative long!", ownerId));
@@ -144,7 +143,6 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.useHelp = useHelp;
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
-        this.linkedCacheSize = linkedCacheSize;
         this.compiler = compiler;
         this.manager = manager;
         this.helpConsumer = helpConsumer==null ? (event) -> {
@@ -171,9 +169,11 @@ public class CommandClientImpl implements CommandClient, EventListener
                     if(serverInvite!=null)
                         builder.append(" or join ").append(serverInvite);
                 }
-                if(event.isFromType(ChannelType.TEXT))
-                    event.reactSuccess();
-                event.reply(builder.toString(), unused -> {}, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
+                event.replyInDm(builder.toString(), unused ->
+                {
+                    if(event.isFromType(ChannelType.TEXT))
+                        event.reactSuccess();
+                }, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
         } : helpConsumer;
 
         // Load commands
@@ -409,7 +409,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     @Override
     public boolean usesLinkedDeletion() {
-        return linkedCacheSize>0;
+        return linkMap != null;
     }
 
     @SuppressWarnings("unchecked")
@@ -448,7 +448,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         else if(event instanceof ReadyEvent)
             onReady((ReadyEvent)event);
         else if(event instanceof ShutdownEvent)
+        {
+            GuildSettingsManager<?> manager = getSettingsManager();
+            if(manager != null)
+                manager.shutdown();
             executor.shutdown();
+        }
     }
 
     private void onReady(ReadyEvent event)
@@ -462,6 +467,12 @@ public class CommandClientImpl implements CommandClient, EventListener
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
                 game==null ? null : "default".equals(game.getName()) ? Game.playing("Type "+textPrefix+helpWord) : game);
+
+        // Start SettingsManager if necessary
+        GuildSettingsManager<?> manager = getSettingsManager();
+        if(manager != null)
+            manager.init();
+
         sendStats(event.getJDA());
     }
 
@@ -586,16 +597,19 @@ public class CommandClientImpl implements CommandClient, EventListener
                 }
             });
         }
+
+        // Both bots.discord.pw and discordbots.org use the same JSON body
+        // structure for POST requests to their stats APIs, so we reuse the same
+        // JSON for both
+        JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
+        if(jda.getShardInfo() != null)
+        {
+            body.put("shard_id", jda.getShardInfo().getShardId())
+                .put("shard_count", jda.getShardInfo().getShardTotal());
+        }
         
         if(botsOrgKey != null)
         {
-            JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
-            if(jda.getShardInfo() != null)
-            {
-                body.put("shard_id", jda.getShardInfo().getShardId())
-                    .put("shard_count", jda.getShardInfo().getShardTotal());
-            }
-            
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
                     .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
@@ -621,14 +635,6 @@ public class CommandClientImpl implements CommandClient, EventListener
         
         if(botsKey != null)
         {
-            JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
-
-            if(jda.getShardInfo() != null)
-            {
-                body.put("shard_id", jda.getShardInfo().getShardId())
-                    .put("shard_count", jda.getShardInfo().getShardTotal());
-            }
-
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
                     .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
@@ -657,7 +663,44 @@ public class CommandClientImpl implements CommandClient, EventListener
             }
             else
             {
-                try(Reader reader = client.newCall(new Request.Builder()
+                Request.Builder b = new Request.Builder()
+                    .get().url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", botsKey)
+                    .header("Content-Type", "application/json");
+
+                client.newCall(b.build()).enqueue(new Callback()
+                {
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException
+                    {
+                        try(Reader reader = response.body().charStream())
+                        {
+                            JSONArray array = new JSONObject(new JSONTokener(reader)).getJSONArray("stats");
+                            int total = 0;
+                            for(int i = 0; i < array.length(); i++)
+                                total += array.getJSONObject(i).getInt("server_count");
+                            totalGuilds = total;
+                        }
+                        finally
+                        {
+                            // Close the response
+                            response.close();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call call, IOException e)
+                    {
+                        LOG.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
+                    }
+                });
+
+                // Good thing to keep in mind:
+                // We used to make the request above by blocking the thread and waiting for DBots
+                // to respond. For the future (should we succeed in not blocking that as well),
+                // let's not do this again, okay?
+
+                /*try(Reader reader = client.newCall(new Request.Builder()
                         .get().url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
                         .header("Authorization", botsKey)
                         .header("Content-Type", "application/json")
@@ -669,13 +712,15 @@ public class CommandClientImpl implements CommandClient, EventListener
                     this.totalGuilds = total;
                 } catch (Exception e) {
                     LOG.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
-                }
+                }*/
             }
         }
     }
 
     private void onMessageDelete(GuildMessageDeleteEvent event)
     {
+        // We don't need to cover whether or not this client usesLinkedDeletion() because
+        // that is checked in onEvent(Event) before this is even called.
         synchronized(linkMap)
         {
             if(linkMap.contains(event.getMessageIdLong()))
@@ -718,6 +763,10 @@ public class CommandClientImpl implements CommandClient, EventListener
      */
     public void linkIds(long callId, Message message)
     {
+        // We don't use linked deletion, so we don't do anything.
+        if(!usesLinkedDeletion())
+            return;
+
         synchronized(linkMap)
         {
             Set<Message> stored = linkMap.get(callId);

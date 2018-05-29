@@ -26,6 +26,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.utils.Checks;
 
 /**
  * A wrapper class for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
@@ -117,27 +118,18 @@ public class CommandEvent
      * {@link net.dv8tion.jda.core.entities.MessageChannel#sendMessage(Message) MessageChannel#sendMessage()}
      * or for other reasons cannot use the standard {@code reply()} methods.
      *
-     * <p>The following conditions must be met when using this method or an {@link java.lang.IllegalArgumentException
-     * IllegalArgumentException} will be thrown:
-     * <ul>
-     *     <li>The Message provided is from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}).</li>
-     *     <li>The base {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} must be using
-     *     linked deletion (IE: {@link com.jagrosh.jdautilities.command.CommandClient#usesLinkedDeletion()
-     *     CommandClient#usesLinkedDeletion()} returns {@code true})</li>
-     * </ul>
+     * <p>If the Message provided is <b>not</b> from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}),
+     * an {@link java.lang.IllegalArgumentException IllegalArgumentException} will be thrown.
      *
      * @param  message
      *         The Message to add, must be from the SelfUser while linked deletion is being used.
      *
      * @throws java.lang.IllegalArgumentException
-     *         One or more of the criteria to use this method are not met (see above).
+     *         If the Message provided is not from the bot.
      */
     public void linkId(Message message)
     {
-        if(!message.getAuthor().equals(getSelfUser()))
-            throw new IllegalArgumentException("Attempted to link a Message who's author was not the bot!");
-        if(!client.usesLinkedDeletion())
-            throw new IllegalArgumentException("Linked Deletion has been disabled for this CommandClient!");
+        Checks.check(message.getAuthor().equals(getSelfUser()), "Attempted to link a Message who's author was not the bot!");
         ((CommandClientImpl)client).linkIds(event.getMessageIdLong(), message);
     }
 
@@ -220,7 +212,7 @@ public class CommandEvent
     public void reply(MessageEmbed embed)
     {
         event.getChannel().sendMessage(embed).queue(m -> {
-            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+            if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
         });
     }
@@ -242,7 +234,7 @@ public class CommandEvent
     public void reply(MessageEmbed embed, Consumer<Message> success)
     {
     	event.getChannel().sendMessage(embed).queue(m -> {
-    	    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+    	    if(event.isFromType(ChannelType.TEXT))
     	        linkId(m);
     	    success.accept(m);
         });
@@ -267,7 +259,7 @@ public class CommandEvent
     public void reply(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
         event.getChannel().sendMessage(embed).queue(m -> {
-            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+            if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
             success.accept(m);
         }, failure);
@@ -286,7 +278,7 @@ public class CommandEvent
     public void reply(Message message)
     {
         event.getChannel().sendMessage(message).queue(m -> {
-            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+            if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
         });
     }
@@ -308,7 +300,7 @@ public class CommandEvent
     public void reply(Message message, Consumer<Message> success)
     {
         event.getChannel().sendMessage(message).queue(m -> {
-            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+            if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
             success.accept(m);
         });
@@ -333,7 +325,7 @@ public class CommandEvent
     public void reply(Message message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         event.getChannel().sendMessage(message).queue(m -> {
-            if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+            if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
             success.accept(m);
         }, failure);
@@ -894,13 +886,20 @@ public class CommandEvent
     }
     
     /**
-     * Uses the client's scheduled executor service to run something outside
-     * of JDA's event loop
+     * Uses the {@link com.jagrosh.jdautilities.command.CommandClient#getScheduleExecutor() client's executor}
+     * to run the provided {@link java.lang.Runnable Runnable} asynchronously without blocking the thread this
+     * is called in.
+     *
+     * <p>The ScheduledExecutorService this runs on can be configured using
+     * {@link CommandClientBuilder#setScheduleExecutor(java.util.concurrent.ScheduledExecutorService)
+     * CommandClientBuilder#setScheduleExecutor(ScheduledExecutorService)}.
      * 
-     * @param runnable the runnable to run async
+     * @param  runnable
+     *         The runnable to run async
      */
     public void async(Runnable runnable)
     {
+        Checks.notNull(runnable, "Runnable");
         client.getScheduleExecutor().submit(runnable);
     }
     
@@ -909,25 +908,13 @@ public class CommandEvent
 
     private void react(String reaction)
     {
-        if(reaction.isEmpty())
+        if(reaction == null || reaction.isEmpty())
             return;
-        try{
-            Emote emote = parseEmote(reaction);
-            if(emote==null)
-                event.getMessage().addReaction(reaction).queue();
-            else
-                event.getMessage().addReaction(emote).queue();
-        }catch(PermissionException ignored){}
-    }
-    
-    private Emote parseEmote(String text)
-    {
-        String id = text.replaceAll("<a?:.+:(\\d+)>", "$1");
-        try {
-            return event.getJDA().getEmoteById(id);
-        } catch(Exception e) {
-            return null;
+        try
+        {
+            event.getMessage().addReaction(reaction.replaceAll("<a?:(.+):(\\d+)>", "$1:$2")).queue();
         }
+        catch(PermissionException ignored) {}
     }
     
     private void sendMessage(MessageChannel chan, String message)
@@ -936,7 +923,7 @@ public class CommandEvent
         for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
         {
             chan.sendMessage(messages.get(i)).queue(m -> {
-                if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                if(event.isFromType(ChannelType.TEXT))
                     linkId(m);
             });
         }
@@ -950,7 +937,7 @@ public class CommandEvent
             if(i+1==MAX_MESSAGES || i+1==messages.size())
             {
                 chan.sendMessage(messages.get(i)).queue(m -> {
-                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                    if(event.isFromType(ChannelType.TEXT))
                         linkId(m);
                     success.accept(m);
                 });
@@ -958,7 +945,7 @@ public class CommandEvent
             else
             {
                 chan.sendMessage(messages.get(i)).queue(m -> {
-                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                    if(event.isFromType(ChannelType.TEXT))
                         linkId(m);
                 });
             }
@@ -973,7 +960,7 @@ public class CommandEvent
             if(i + 1 == MAX_MESSAGES || i + 1 == messages.size())
             {
                 chan.sendMessage(messages.get(i)).queue(m -> {
-                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                    if(event.isFromType(ChannelType.TEXT))
                         linkId(m);
                     success.accept(m);
                 }, failure);
@@ -981,7 +968,7 @@ public class CommandEvent
             else
             {
                 chan.sendMessage(messages.get(i)).queue(m -> {
-                    if(event.isFromType(ChannelType.TEXT) && client.usesLinkedDeletion())
+                    if(event.isFromType(ChannelType.TEXT))
                         linkId(m);
                 });
             }

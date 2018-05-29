@@ -35,8 +35,12 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.Checks;
 
 /**
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
+ * a listed display of text choices horizontally that users can scroll through
+ * using reactions and make selections.
  *
  * @author John Grosh
  */
@@ -256,12 +260,10 @@ public class SelectionDialog extends Menu
         @Override
         public SelectionDialog build()
         {
-            if(waiter==null)
-                throw new IllegalArgumentException("Must set an EventWaiter");
-            if(choices.isEmpty())
-                throw new IllegalArgumentException("Must have at least one choice");
-            if(selection == null)
-                throw new IllegalArgumentException("Must provide a selection consumer");
+            Checks.check(waiter != null, "Must set an EventWaiter");
+            Checks.check(!choices.isEmpty(), "Must have at least one choice");
+            Checks.check(selection != null, "Must provide a selection consumer");
+
             return new SelectionDialog(waiter,users,roles,timeout,unit,choices,leftEnd,rightEnd,
                     defaultLeft,defaultRight,color,loop, selection, cancel,text);
         }

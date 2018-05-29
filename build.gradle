@@ -25,16 +25,18 @@ tasks.create(name: 'build') {
     group = 'build'
 }
 
+def versionObj = new Version(major: 2, minor: 1, revision: 1)
+
 allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = 'com.jagrosh'
-    version = '2.0'
+    version = "$versionObj"
 
     project.ext {
-        jdaVersion = '3.5.0_327'
+        jdaVersion = '3.5.0_335'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.9.1'
         findbugsVersion = '3.0.2'
@@ -235,6 +237,7 @@ tasks.create('javadocJar', Jar) {
     destinationDir = project.file("$project.buildDir/libs/")
 
     baseName = "$project.artifactId"
+    version = "$project.version"
     classifier = 'javadoc'
     extension = 'jar'
 }
@@ -248,6 +251,7 @@ tasks.create('sourceJar', Jar) {
     destinationDir = project.file("$project.buildDir/libs/")
 
     baseName = "$project.artifactId"
+    version = "$project.version"
     classifier = 'sources'
     extension = 'jar'
 }
@@ -279,5 +283,18 @@ publishing {
                 }
             }
         }
+    }
+}
+
+class Version {
+    String major, minor, revision
+
+    String release() {
+        return "${major}.${minor}"
+    }
+
+    @Override
+    String toString() {
+        return "${major}.${minor}.${revision}"
     }
 }

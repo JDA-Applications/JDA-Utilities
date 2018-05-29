@@ -224,7 +224,7 @@ public class DocGenerator
      *
      * @return This DocGenerator
      */
-    @SuppressWarnings("JavaReflectionMemberAccess")
+    @SuppressWarnings({"JavaReflectionMemberAccess","unchecked"})
     public <T extends Annotation> DocGenerator register(Class<T> type, Object... converterParams)
     {
         ConvertedBy convertedBy = type.getAnnotation(ConvertedBy.class);

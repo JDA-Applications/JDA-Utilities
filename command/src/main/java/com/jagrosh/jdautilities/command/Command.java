@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.utils.PermissionUtil;
 
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
@@ -252,7 +251,7 @@ public abstract class Command
                             terminate(event, event.getClient().getError()+" You must be in a voice channel to use that!");
                             return;
                         }
-                        else if(!PermissionUtil.checkPermission(vc, event.getSelfMember(), p))
+                        else if(!event.getSelfMember().hasPermission(vc, p))
                         {
                             terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Voice Channel"));
                             return;
@@ -260,7 +259,7 @@ public abstract class Command
                     }
                     else
                     {
-                        if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getSelfMember(), p))
+                        if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                         {
                             terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Channel"));
                             return;
@@ -269,7 +268,7 @@ public abstract class Command
                 }
                 else
                 {
-                    if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getSelfMember(), p))
+                    if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                     {
                         terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Guild"));
                         return;
@@ -282,7 +281,7 @@ public abstract class Command
             {
                 if(p.isChannel())
                 {
-                    if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getMember(), p))
+                    if(!event.getMember().hasPermission(event.getTextChannel(), p))
                     {
                         terminate(event, String.format(USER_PERM, event.getClient().getError(), p.name(), "Channel"));
                         return;
@@ -290,7 +289,7 @@ public abstract class Command
                 }
                 else
                 {
-                    if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getMember(), p))
+                    if(!event.getMember().hasPermission(p))
                     {
                         terminate(event, String.format(USER_PERM, event.getClient().getError(), p.name(), "Guild"));
                         return;
