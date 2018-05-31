@@ -15,6 +15,6 @@
  */
 dependencies {
     compileOnly jda()
-    
-    compile project(':commons')
+
+    compile commons()
 }

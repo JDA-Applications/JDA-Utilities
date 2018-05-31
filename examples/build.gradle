@@ -17,8 +17,8 @@ dependencies {
     compileOnly jda()
     compile slf4j()
 
-    compile project(':commons')
-    compile project(':command')
-    compile project(':menu')
-    compile project(':doc')
+    compile commons()
+    compile command()
+    compile menu()
+    compile doc()
 }

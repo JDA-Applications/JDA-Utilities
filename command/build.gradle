@@ -18,8 +18,9 @@ dependencies {
     compile slf4j()
     compile okhttp()
     compile findbugs()
+    compile json()
 
-    compile project(':commons')
+    compile commons()
 }
 
 javadoc {
