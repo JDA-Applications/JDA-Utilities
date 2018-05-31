@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Statuspage package.<br>
+ * StatusPage package.<br>
  */
 package com.jagrosh.jdautilities.statuspage;

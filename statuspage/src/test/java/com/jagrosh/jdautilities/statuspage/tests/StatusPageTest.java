@@ -1,57 +1,57 @@
 package com.jagrosh.jdautilities.statuspage.tests;
 
-import com.jagrosh.jdautilities.statuspage.Statuspage;
+import com.jagrosh.jdautilities.statuspage.StatusPage;
 import org.junit.Test;
 
-public class StatuspageTest
+public class StatusPageTest
 {
-    public final Statuspage statuspage = new Statuspage();
+    public final StatusPage statusPage = new StatusPage();
 
     @Test
     public void testComponents() throws Exception
     {
-        statuspage.getComponents().get();
+        statusPage.getComponents().get();
     }
 
     @Test
     public void testIncidentsAll() throws Exception
     {
-        statuspage.getIncidentsAll().get();
+        statusPage.getIncidentsAll().get();
     }
 
     @Test
     public void testIncidentsUnresolved() throws Exception
     {
-        statuspage.getIncidentsUnresolved().get();
+        statusPage.getIncidentsUnresolved().get();
     }
 
     @Test
     public void testScheduledMaintenancesActive() throws Exception
     {
-        statuspage.getScheduledMaintenancesActive().get();
+        statusPage.getScheduledMaintenancesActive().get();
     }
 
     @Test
     public void testScheduledMaintenancesAll() throws Exception
     {
-        statuspage.getScheduledMaintenancesAll().get();
+        statusPage.getScheduledMaintenancesAll().get();
     }
 
     @Test
     public void testScheduledMaintenancesUpcoming() throws Exception
     {
-        statuspage.getScheduledMaintenancesUpcoming().get();
+        statusPage.getScheduledMaintenancesUpcoming().get();
     }
 
     @Test
     public void testServiceStatus() throws Exception
     {
-        statuspage.getServiceStatus().get();
+        statusPage.getServiceStatus().get();
     }
 
     @Test
     public void testSummary() throws Exception
     {
-        statuspage.getSummary().get();
+        statusPage.getSummary().get();
     }
 }

@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Immutable
-public class Statuspage
+public class StatusPage
 {
     @Nonnull
     protected static final String URL_API_BASE = "https://status.discordapp.com/api/v2";
@@ -60,19 +60,18 @@ public class Statuspage
     protected static final String URL_SCHEDULED_MAINTENANCES_ACTIVE = URL_SCHEDULED_MAINTENANCES_BASE + "/active.json";
     @Nonnull
     protected static final String URL_SCHEDULED_MAINTENANCES_UPCOMING = URL_SCHEDULED_MAINTENANCES_BASE + "/upcoming.json";
-
     @Nonnull
     protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     @Nonnull
     protected final OkHttpClient client;
 
-    public Statuspage()
+    public StatusPage()
     {
         this(null);
     }
 
-    public Statuspage(@Nullable OkHttpClient client)
+    public StatusPage(@Nullable OkHttpClient client)
     {
         this.client = client == null ? new OkHttpClient.Builder().build() : client;
     }
