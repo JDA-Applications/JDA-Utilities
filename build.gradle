@@ -42,6 +42,7 @@ allprojects {
         okhttpVersion = '3.9.1'
         findbugsVersion = '3.0.2'
         jsonVersion = '20160810'
+        junitVersion = '4.12' // TODO Move to junit 5?
 
         dependencies {
             jda = { [group: 'net.dv8tion', name: 'JDA', version: jdaVersion] }
@@ -49,6 +50,7 @@ allprojects {
             okhttp = { [group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion] }
             findbugs = { [group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion] }
             json = { [group: 'org.json', name: 'json', version: jsonVersion] }
+            junit = { [group: 'junit', name: 'junit', version: junitVersion] }
 
             artifactId = (rootProject == project? project.name : "$rootProject.name-$project.name").toLowerCase()
             moduleName = "${group}.jdautilities${rootProject == project? "" : ".${project.name.toLowerCase()}"}"
