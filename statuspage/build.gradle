@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-dependencies {
-    commons()
-
-    okhttp()
-    json()
-    findbugs()
-
-    junit()
-}
-
 includeInParent = false
+
+dependencies {
+    compile okhttp()
+    compile json()
+    compile findbugs()
+
+    compile commons()
+
+    testCompile "junit:junit:4.12" // temporary fix while I add junit as an extension on master (brb)
+}
