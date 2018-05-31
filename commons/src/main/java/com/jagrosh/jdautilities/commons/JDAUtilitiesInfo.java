@@ -25,12 +25,15 @@ package com.jagrosh.jdautilities.commons;
  */
 public final class JDAUtilitiesInfo
 {
-    public static final String VERSION_MAJOR;
-    public static final String VERSION_MINOR;
-    public static final String VERSION;
+    public static final String VERSION_MAJOR = "@VERSION_MAJOR@";
+    public static final String VERSION_MINOR = "@VERSION_MINOR@";
+    public static final String VERSION_REVISION  = "@VERSION_REVISION@";
+    public static final String VERSION = VERSION_MAJOR.startsWith("@")? "DEV" : VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_REVISION;
     public static final String GITHUB = "https://github.com/JDA-Applications/JDA-Utilities";
     public static final String AUTHOR = "JDA-Applications";
 
+    // Removed in favor of a token replacement.
+    /*
     // Version init block
     static
     {
@@ -43,4 +46,5 @@ public final class JDAUtilitiesInfo
         VERSION_MAJOR = version == null? "2" : parts[0]; // This should only be updated every version major!
         VERSION_MINOR = version == null? "X" : parts[1];
     }
+    */
 }
