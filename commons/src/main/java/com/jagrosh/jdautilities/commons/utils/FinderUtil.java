@@ -202,8 +202,8 @@ public final class FinderUtil
      *     in. The difference, however, comes in that this method may have slight variations in return speed, especially
      *     when put under higher usage over a shorter period of time.</li>
      *     <li><b>2) This method can return {@code null}</b> if and only if an {@link java.lang.Exception Exception} is
-     *     thrown while initially getting banned Users via {@link net.dv8tion.jda.core.entities.Guild#getBans()
-     *     Guild#getBans()}.</li>
+     *     thrown while initially getting banned Users via {@link net.dv8tion.jda.core.entities.Guild#getBanList()
+     *     Guild#getBanList()}.</li>
      * </ul>
      *
      * @param  query
@@ -214,7 +214,7 @@ public final class FinderUtil
      * @return A possibly-empty {@link java.util.List List} of Users found by the query from the provided JDA instance,
      *         or {@code null} if an {@link java.lang.Exception Exception} is thrown while initially getting banned Users.
      *
-     * @see    net.dv8tion.jda.core.entities.Guild#getBans() Guild#getBans()
+     * @see    net.dv8tion.jda.core.entities.Guild#getBanList() Guild#getBanList()
      */
     public static List<User> findBannedUsers(String query, Guild guild)
     {
