@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'com.github.ben-manes.versions' version '0.17.0'
@@ -21,7 +22,9 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
-tasks.create(name: 'build') {
+def versionInfo = [major: '2', minor: '1', revision: '1']
+
+task build {
     group = 'build'
 }
 
@@ -31,33 +34,58 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = 'com.jagrosh'
-    version = '2.1'
+    version = versionInfo.values().join('.')
 
-    project.ext {
-        jdaVersion = '3.5.1_339'
+    ext {
+        jdaVersion = '3.6.0_368'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.9.1'
         findbugsVersion = '3.0.2'
-        jsonVersion = '20180130'
-        junitVersion = '4.12'
+        jsonVersion = '20160810'
 
-        jda = {
-            project.dependencies.compileOnly group: 'net.dv8tion', name: 'JDA', version: jdaVersion
-            project.dependencies.testCompile group: 'net.dv8tion', name: 'JDA', version: jdaVersion
+        dependencies {
+            jda = { [group: 'net.dv8tion', name: 'JDA', version: jdaVersion] }
+            slf4j = { [group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion] }
+            okhttp = { [group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion] }
+            findbugs = { [group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion] }
+            json = { [group: 'org.json', name: 'json', version: jsonVersion] }
+
+            artifactId = (rootProject == project? project.name : "$rootProject.name-$project.name").toLowerCase()
+            moduleName = "${group}.jdautilities${rootProject == project? "" : ".${project.name.toLowerCase()}"}"
         }
-        slf4j = { project.dependencies.compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion }
-        okhttp = { project.dependencies.compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttpVersion }
-        findbugs = { project.dependencies.compile group: 'com.google.code.findbugs', name: 'jsr305', version: findbugsVersion }
-        json = { project.dependencies.compile group: 'org.json', name: 'json', version: jsonVersion }
-        junit = { project.dependencies.testCompile group: 'junit', name: 'junit', version: junitVersion }
 
-        artifactId = (rootProject == project ? rootProject.name : (rootProject.name + '-' + project.name)).toLowerCase()
+        // Helper task that allows us to do a one-line method call to fully
+        //configure a jar task. This prevents possible build inconsistencies.
+        configureJar = { Object jarConfig, String classifier = '' ->
+            jarConfig.baseName = "$project.artifactId"
+            jarConfig.version = "$project.version"
+            jarConfig.classifier = classifier
+            jarConfig.extension = 'jar'
 
-        moduleName = rootProject == project ? "com.jagrosh.jdautilities" : "com.jagrosh.jdautilities.${project.name.toLowerCase()}"
+            jarConfig.manifest {
+                it.attributes(
+                        'Implementation-Title': project.artifactId,
+                        'Implementation-Version': project.version,
+                        'Automatic-Module-Name': "${project.moduleName}"
+                )
+            }
+        }
+
+        // Similar to the extension above, helps keep javadoc
+        //characteristics consistent between artifacts.
+        configureJavadoc = { Object jDocConfig ->
+            jDocConfig.options {
+                it.author()
+                it.encoding = 'UTF-8'
+                it.memberLevel = JavadocMemberLevel.PROTECTED
+                it.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
+            }
+        }
     }
 
-    rootProject.subprojects.each { subproject ->
-        project.ext."$subproject.name" = { project.dependencies.compile project.project(":$subproject.name") }
+    // Create dependency shortcut for every subproject
+    rootProject.subprojects.forEach { subproject ->
+        project.ext."$subproject.name" = { project(":$subproject.name") }
     }
 
     repositories {
@@ -65,9 +93,13 @@ allprojects {
     }
 
     build {
-        dependsOn({ javadocJar } as Object)
-        dependsOn({ sourceJar } as Object)
-        dependsOn({ shadowJar } as Object)
+        // These have to be run in closures
+        //because they are defined later in the buildscript.
+        // Trying to specify these at "script-refresh" time
+        //will cause the refresh to fail.
+        dependsOn { javadocJar }
+        dependsOn { sourceJar }
+        dependsOn { shadowJar }
     }
 
     bintray {
@@ -97,9 +129,9 @@ allprojects {
     publishing {
         publications {
             BintrayRelease(MavenPublication) {
-                groupId = project.group
-                artifactId = project.artifactId
-                version = project.version
+                it.groupId = project.group
+                it.artifactId = project.artifactId
+                it.version = project.version
             }
         }
     }
@@ -107,73 +139,85 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'com.github.ben-manes.versions'
 
     ext {
+        // Allow for individual modules to be marked as excluded
+        //from the collective artifact (IE: jda-utilities)
         includeInParent = true
+    }
+
+    sourceSets {
+        // add main classpath to test classpath
+        test {
+            java.srcDirs += 'src/test/java'
+            compileClasspath += main.compileClasspath
+            runtimeClasspath += main.runtimeClasspath
+        }
+    }
+
+    task sourcesForRelease(type: Copy) {
+        from 'src/main/java'
+        into 'build/filteredSrc'
+
+        filter(ReplaceTokens, tokens: [
+                VERSION_MAJOR:    versionInfo.major,
+                VERSION_MINOR:    versionInfo.minor,
+                VERSION_REVISION: versionInfo.revision
+        ])
     }
 
     compileJava {
         options.encoding = 'UTF-8'
-    }
+        source = sourcesForRelease.destinationDir
+        classpath = sourceSets.main.compileClasspath
 
-    jar {
-        baseName "$project.artifactId"
-
-        manifest {
-            attributes(
-                    'Implementation-Title': project.artifactId,
-                    'Implementation-Version': project.version,
-                    'Automatic-Module-Name': "${project.moduleName}"
-            )
-        }
-    }
-
-    shadowJar {
-        baseName "$project.artifactId"
+        dependsOn sourcesForRelease
     }
 
     javadoc {
-        options.memberLevel = JavadocMemberLevel.PROTECTED
-        options.author()
-        options.encoding = 'UTF-8'
-        options.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
+        destinationDir = file("$buildDir/docs/")
+
+        configureJavadoc(it)
     }
 
-    tasks.create('javadocJar', Jar) {
-        dependsOn tasks.javadoc
+    jar {
+        configureJar(it)
+    }
+
+    shadowJar {
+        configureJar(it, 'all')
+    }
+
+    task javadocJar(type: Jar) {
+        group = 'build'
+        dependsOn javadoc
         from javadoc.destinationDir
-
-        baseName "$project.artifactId"
-        classifier 'javadoc'
-        extension 'jar'
-        group 'build'
+        configureJar(it, 'javadoc')
     }
 
-    tasks.create('sourceJar', Jar) {
-        dependsOn tasks.classes
+    task sourceJar(type: Jar) {
+        group = 'build'
+        dependsOn classes
         from sourceSets.main.allSource
-
-        baseName "$project.artifactId"
-        classifier 'sources'
-        extension 'jar'
-        group 'build'
+        configureJar(it, 'sources')
     }
 
     publishing {
         publications {
             BintrayRelease(MavenPublication) {
                 from components.java
-                artifact tasks.javadocJar
-                artifact tasks.sourceJar
+                artifact javadocJar
+                artifact sourceJar
             }
         }
     }
 
     afterEvaluate {
-        if (project.includeInParent)
+        if(project.includeInParent) {
             rootProject.dependencies.compile project
+        }
     }
-
 }
 
 configurations {
@@ -183,95 +227,64 @@ configurations {
     }
 }
 
-tasks.create('jar', ShadowJar) {
-    group = 'build'
-
-    from { subprojects*.jar }
-
-    destinationDir = project.file("$project.buildDir/libs/")
-
-    baseName = "$project.artifactId"
-    version = "$project.version"
-
-    manifest {
-        attributes(
-                'Implementation-Title': project.artifactId,
-                'Implementation-Version': project.version,
-                'Automatic-Module-Name': "${project.moduleName}"
-        )
-    }
-}
-
-tasks.create('shadowJar', ShadowJar) {
-    group = 'shadow'
-    dependsOn({ rootProject.getTasksByName('jar', true) } as Object[])
-
-    from { subprojects*.jar }
-
-    destinationDir = project.file("$project.buildDir/libs/")
-
-    configurations += configurations.runtime
-
-    baseName = "$project.artifactId"
-    classifier = 'all'
-    version = "$project.version"
-
-    manifest {
-        attributes(
-                'Implementation-Title': project.artifactId,
-                'Implementation-Version': project.version,
-                'Automatic-Module-Name': "${project.moduleName}"
-        )
-    }
-}
-
-tasks.create('javadoc', Javadoc) {
+task javadoc(type: Javadoc) {
     group = 'documentation'
-    dependsOn({ subprojects*.getTasksByName('javadoc', true) } as Object[])
+    dependsOn { subprojects*.getTasksByName('javadoc', true) }
 
     source = { subprojects*.sourceSets.main.allJava }
-    classpath = project.files(subprojects*.javadoc.classpath as FileCollection[])
+    classpath = files(subprojects*.javadoc.classpath)
 
-    destinationDir = project.file("$project.buildDir/docs/")
+    destinationDir = file("$buildDir/docs/")
 
-    options.memberLevel = JavadocMemberLevel.PROTECTED
-    options.author()
-    options.encoding = 'UTF-8'
-    options.tags 'apiNote:a:API Note:', 'implSpec:a:Implementation Requirements:', 'implNote:a:Implementation Note:'
+    configureJavadoc(it)
 }
 
-tasks.create('javadocJar', Jar) {
+// Jar tasks
+
+task jar(type: ShadowJar) {
     group = 'build'
-    dependsOn tasks.javadoc
+
+    configureJar(it)
+
+    from { subprojects*.jar }
+    destinationDir = file("$buildDir/libs/")
+}
+
+task shadowJar(type: ShadowJar) {
+    group = 'shadow'
+    dependsOn { rootProject.getTasksByName('jar', true) }
+
+    it.configurations += configurations.runtime
+    configureJar(it, 'all')
+
+    from { subprojects*.jar }
+    destinationDir = file("$buildDir/libs/")
+}
+
+task javadocJar(type: Jar) {
+    group = 'build'
+    dependsOn { tasks.javadoc }
+
+    configureJar(it, 'javadoc')
 
     from { javadoc.destinationDir }
-
-    destinationDir = project.file("$project.buildDir/libs/")
-
-    baseName = "$project.artifactId"
-    version = "$project.version"
-    classifier = 'javadoc'
-    extension = 'jar'
+    destinationDir = file("$buildDir/libs/")
 }
 
-tasks.create('sourceJar', Jar) {
+task sourceJar(type: Jar) {
     group = 'build'
-    dependsOn({ rootProject.getTasksByName('classes', true) } as Object[])
+    dependsOn { rootProject.getTasksByName('classes', true) }
+
+    configureJar(it, 'sources')
 
     from { subprojects*.sourceSets.main.allSource }
-
-    destinationDir = project.file("$project.buildDir/libs/")
-
-    baseName = "$project.artifactId"
-    version = "$project.version"
-    classifier = 'sources'
-    extension = 'jar'
+    destinationDir = file("$buildDir/libs/")
 }
 
-tasks.create('clean', Delete) {
+task clean(type: Delete) {
     group = 'build'
 
-    delete = project.buildDir
+    delete = buildDir
 }
 
 publishing {
