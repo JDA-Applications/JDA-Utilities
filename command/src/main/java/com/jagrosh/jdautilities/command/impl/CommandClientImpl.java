@@ -169,9 +169,11 @@ public class CommandClientImpl implements CommandClient, EventListener
                     if(serverInvite!=null)
                         builder.append(" or join ").append(serverInvite);
                 }
-                if(event.isFromType(ChannelType.TEXT))
-                    event.reactSuccess();
-                event.replyInDm(builder.toString(), unused -> {}, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
+                event.replyInDm(builder.toString(), unused ->
+                {
+                    if(event.isFromType(ChannelType.TEXT))
+                        event.reactSuccess();
+                }, t -> event.replyWarning("Help cannot be sent because you are blocking Direct Messages."));
         } : helpConsumer;
 
         // Load commands
