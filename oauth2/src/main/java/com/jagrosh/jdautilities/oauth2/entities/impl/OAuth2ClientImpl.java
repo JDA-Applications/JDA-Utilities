@@ -182,7 +182,7 @@ public class OAuth2ClientImpl implements OAuth2Client
                 {
                     obj = body.getJSONObject(i);
                     list.add(new OAuth2GuildImpl(OAuth2ClientImpl.this, obj.getLong("id"),
-                        obj.getString("name"), obj.getString("icon"), obj.getBoolean("owner"),
+                        obj.getString("name"), obj.optString("icon"), obj.getBoolean("owner"),
                         obj.getInt("permissions")));
                 }
                 return list;
