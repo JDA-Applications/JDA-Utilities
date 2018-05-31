@@ -22,5 +22,5 @@ dependencies {
 
     compile commons()
 
-    testCompile "junit:junit:4.12" // temporary fix while I add junit as an extension on master (brb)
+    testCompile junit()
 }
