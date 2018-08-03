@@ -16,20 +16,22 @@
 package com.jagrosh.jdautilities.command.impl;
 
 import com.jagrosh.jdautilities.command.*;
+import com.jagrosh.jdautilities.command.Command.Category;
 import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
-import com.jagrosh.jdautilities.command.Command.Category;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.Requester;
 import net.dv8tion.jda.core.utils.Checks;
 import okhttp3.*;
@@ -49,8 +51,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.events.ShutdownEvent;
+
+import net.dv8tion.jda.core.hooks.EventListener;
 
 /**
  * An implementation of {@link com.jagrosh.jdautilities.command.CommandClient CommandClient} to be used by a bot.
@@ -563,7 +565,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void sendStats(JDA jda)
     {
-        OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
+        OkHttpClient client = ((JDAImpl) jda).getHttpClient();
 
         if(carbonKey != null)
         {
