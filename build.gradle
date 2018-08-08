@@ -22,7 +22,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
-def versionInfo = [major: '2', minor: '1', revision: '2']
+def versionInfo = [major: '2', minor: '1', revision: '3']
 
 task build {
     group = 'build'

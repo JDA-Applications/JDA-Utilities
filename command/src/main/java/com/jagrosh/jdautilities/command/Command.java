@@ -253,7 +253,7 @@ public abstract class Command
                         }
                         else if(!event.getSelfMember().hasPermission(vc, p))
                         {
-                            terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Voice Channel"));
+                            terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.getName(), "Voice Channel"));
                             return;
                         }
                     }
@@ -261,16 +261,16 @@ public abstract class Command
                     {
                         if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
                         {
-                            terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Channel"));
+                            terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.getName(), "Channel"));
                             return;
                         }
                     }
                 }
                 else
                 {
-                    if(!event.getSelfMember().hasPermission(event.getTextChannel(), p))
+                    if(!event.getSelfMember().hasPermission(p))
                     {
-                        terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.name(), "Guild"));
+                        terminate(event, String.format(BOT_PERM, event.getClient().getError(), p.getName(), "Guild"));
                         return;
                     }
                 }
@@ -283,7 +283,7 @@ public abstract class Command
                 {
                     if(!event.getMember().hasPermission(event.getTextChannel(), p))
                     {
-                        terminate(event, String.format(USER_PERM, event.getClient().getError(), p.name(), "Channel"));
+                        terminate(event, String.format(USER_PERM, event.getClient().getError(), p.getName(), "Channel"));
                         return;
                     }
                 }
@@ -291,7 +291,7 @@ public abstract class Command
                 {
                     if(!event.getMember().hasPermission(p))
                     {
-                        terminate(event, String.format(USER_PERM, event.getClient().getError(), p.name(), "Guild"));
+                        terminate(event, String.format(USER_PERM, event.getClient().getError(), p.getName(), "Guild"));
                         return;
                     }
                 }
