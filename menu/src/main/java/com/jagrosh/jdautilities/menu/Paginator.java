@@ -176,10 +176,11 @@ public class Paginator extends Menu
         Message msg = renderPage(pageNum);
         initialize(message.editMessage(msg), pageNum);
     }
-    
+
     private void initialize(RestAction<Message> action, int pageNum)
     {
         action.queue(m -> {
+            setAttachedMessage(m);
             if(pages > 1)
             {
                 if(bulkSkipNumber > 1)
@@ -189,14 +190,14 @@ public class Paginator extends Menu
                 if(bulkSkipNumber > 1)
                     m.addReaction(RIGHT).queue();
                 m.addReaction(bulkSkipNumber > 1? BIG_RIGHT : RIGHT)
-                 .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                 .queue(v -> pagination(pageNum), t -> pagination(pageNum));
             }
             else if(waitOnSinglePage)
             {
                 // Go straight to without text-input because only one page is available
                 m.addReaction(STOP).queue(
-                    v -> paginationWithoutTextInput(m, pageNum),
-                    t -> paginationWithoutTextInput(m, pageNum)
+                    v -> paginationWithoutTextInput(pageNum),
+                    t -> paginationWithoutTextInput(pageNum)
                 );
             }
             else
@@ -206,24 +207,24 @@ public class Paginator extends Menu
         });
     }
 
-    private void pagination(Message message, int pageNum)
+    private void pagination(int pageNum)
     {
         if(allowTextInput || (leftText != null && rightText != null))
-            paginationWithTextInput(message, pageNum);
+            paginationWithTextInput(pageNum);
         else
-            paginationWithoutTextInput(message, pageNum);
+            paginationWithoutTextInput(pageNum);
     }
 
-    private void paginationWithTextInput(Message message, int pageNum)
+    private void paginationWithTextInput(int pageNum)
     {
-        waiter.waitForEvent(GenericMessageEvent.class, event -> {
+        setCancelFuture(waiter.waitForEvent(GenericMessageEvent.class, event -> {
             if(event instanceof MessageReactionAddEvent)
-                return checkReaction((MessageReactionAddEvent) event, message.getIdLong());
+                return checkReaction((MessageReactionAddEvent) event);
             else if(event instanceof MessageReceivedEvent)
             {
                 MessageReceivedEvent mre = (MessageReceivedEvent) event;
                 // Wrong channel
-                if(!mre.getChannel().equals(message.getChannel()))
+                if(!mre.getChannel().equals(getAttachedMessage().getChannel()))
                     return false;
                 String rawContent = mre.getMessage().getContentRaw().trim();
                 if(leftText != null && rightText != null)
@@ -247,7 +248,7 @@ public class Paginator extends Menu
         }, event -> {
             if(event instanceof MessageReactionAddEvent)
             {
-                handleMessageReactionAddAction((MessageReactionAddEvent) event, message, pageNum);
+                handleMessageReactionAddAction((MessageReactionAddEvent) event, pageNum);
             }
             else
             {
@@ -268,24 +269,24 @@ public class Paginator extends Menu
                     targetPage = Integer.parseInt(rawContent);
                 }
 
-                message.editMessage(renderPage(targetPage)).queue(m -> pagination(m, targetPage));
+                getAttachedMessage().editMessage(renderPage(targetPage)).queue(m -> pagination(targetPage));
                 mre.getMessage().delete().queue(v -> {}, t -> {}); // delete the calling message so it doesn't get spammy
             }
-        }, timeout, unit, () -> finalAction.accept(message));
+        }, timeout, unit, () -> callFinalAction(finalAction)));
     }
     
-    private void paginationWithoutTextInput(Message message, int pageNum)
+    private void paginationWithoutTextInput(int pageNum)
     {
-        waiter.waitForEvent(MessageReactionAddEvent.class,
-            event -> checkReaction(event, message.getIdLong()), // Check Reaction
-            event -> handleMessageReactionAddAction(event, message, pageNum), // Handle Reaction
-            timeout, unit, () -> finalAction.accept(message));
+        setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class,
+            event -> checkReaction(event), // Check Reaction
+            event -> handleMessageReactionAddAction(event, pageNum), // Handle Reaction
+            timeout, unit, () -> callFinalAction(finalAction)));
     }
 
     // Private method that checks MessageReactionAddEvents
-    private boolean checkReaction(MessageReactionAddEvent event, long messageId)
+    private boolean checkReaction(MessageReactionAddEvent event)
     {
-        if(event.getMessageIdLong() != messageId)
+        if(event.getMessageIdLong() != getAttachedMessage().getIdLong())
             return false;
         switch(event.getReactionEmote().getName())
         {
@@ -305,7 +306,7 @@ public class Paginator extends Menu
     }
 
     // Private method that handles MessageReactionAddEvents
-    private void handleMessageReactionAddAction(MessageReactionAddEvent event, Message message, int pageNum)
+    private void handleMessageReactionAddAction(MessageReactionAddEvent event, int pageNum)
     {
         int newPageNum = pageNum;
         switch(event.getReaction().getReactionEmote().getName())
@@ -345,7 +346,7 @@ public class Paginator extends Menu
                 }
                 break;
             case STOP:
-                finalAction.accept(message);
+                callFinalAction(finalAction);
                 return;
         }
 
@@ -354,7 +355,7 @@ public class Paginator extends Menu
         } catch(PermissionException ignored) {}
 
         int n = newPageNum;
-        message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
+        getAttachedMessage().editMessage(renderPage(newPageNum)).queue(m -> pagination(n));
     }
     
     private Message renderPage(int pageNum)

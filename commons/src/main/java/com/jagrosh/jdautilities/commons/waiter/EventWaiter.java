@@ -24,9 +24,7 @@ import net.dv8tion.jda.core.utils.Checks;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -157,9 +155,9 @@ public class EventWaiter implements EventListener
      *             <li>2) The internal threadpool is shut down, meaning that no more tasks can be submitted.</li>
      *         </ul>
      */
-    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action)
+    public <T extends Event> Future<Void> waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action)
     {
-        waitForEvent(classType, condition, action, -1, null, null);
+        return waitForEvent(classType, condition, action, -1, null, null);
     }
     
     /**
@@ -198,7 +196,7 @@ public class EventWaiter implements EventListener
      *             <li>2) The internal threadpool is shut down, meaning that no more tasks can be submitted.</li>
      *         </ul>
      */
-    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action,
+    public <T extends Event> Future<Void> waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action,
                                                long timeout, TimeUnit unit, Runnable timeoutAction)
     {
         Checks.check(!isShutdown(), "Attempted to register a WaitingEvent while the EventWaiter's threadpool was already shut down!");
@@ -206,18 +204,18 @@ public class EventWaiter implements EventListener
         Checks.notNull(condition, "The provided condition predicate");
         Checks.notNull(action, "The provided action consumer");
 
-        WaitingEvent we = new WaitingEvent<>(condition, action);
-        Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> new HashSet<>());
-        set.add(we);
+        WaitingEvent<T> we = new WaitingEvent<>(classType, condition, action, timeoutAction);
+        Future<Void> future = we.getFuture();
 
         if(timeout > 0 && unit != null)
         {
             threadpool.schedule(() ->
             {
-                if(set.remove(we) && timeoutAction != null)
-                    timeoutAction.run();
+                future.cancel(false);
             }, timeout, unit);
         }
+
+        return future;
     }
     
     @Override
@@ -268,16 +266,25 @@ public class EventWaiter implements EventListener
 
         threadpool.shutdown();
     }
-    
+
     private class WaitingEvent<T extends Event>
     {
+        final Class<T> classType;
         final Predicate<T> condition;
         final Consumer<T> action;
+        final Runnable cancelAction;
+        final CompletableFuture<Void> future = new WaitingFuture();
         
-        WaitingEvent(Predicate<T> condition, Consumer<T> action)
+        WaitingEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action, Runnable cancelAction)
         {
+            this.classType = classType;
             this.condition = condition;
             this.action = action;
+            this.cancelAction = cancelAction;
+
+
+            Set<WaitingEvent> set = waitingEvents.computeIfAbsent(classType, c -> new HashSet<>());
+            set.add(this);
         }
         
         boolean attempt(T event)
@@ -285,9 +292,28 @@ public class EventWaiter implements EventListener
             if(condition.test(event))
             {
                 action.accept(event);
+                future.complete(null);
                 return true;
             }
             return false;
+        }
+
+        Future<Void> getFuture()
+        {
+            return future;
+        }
+
+        private class WaitingFuture extends CompletableFuture<Void>
+        {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning)
+            {
+                if(isDone() || isCancelled())
+                    return isCancelled();
+                if(waitingEvents.get(classType).remove(WaitingEvent.this) && cancelAction != null)
+                    cancelAction.run();
+                return super.cancel(mayInterruptIfRunning);
+            }
         }
     }
 }

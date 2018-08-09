@@ -157,10 +157,11 @@ public class Slideshow extends Menu
         Message msg = renderPage(pageNum);
         initialize(message.editMessage(msg), pageNum);
     }
-    
+
     private void initialize(RestAction<Message> action, int pageNum)
     {
         action.queue(m->{
+            setAttachedMessage(m);
             if(urls.size()>1)
             {
                 if(bulkSkipNumber > 1)
@@ -170,37 +171,37 @@ public class Slideshow extends Menu
                 if(bulkSkipNumber > 1)
                     m.addReaction(RIGHT).queue();
                 m.addReaction(bulkSkipNumber > 1? BIG_RIGHT : RIGHT)
-                 .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                 .queue(v -> pagination(pageNum), t -> pagination(pageNum));
             }
             else if(waitOnSinglePage)
             {
-                m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                m.addReaction(STOP).queue(v -> pagination(pageNum), t -> pagination(pageNum));
             }
             else
             {
-                finalAction.accept(m);
+                callFinalAction(finalAction);
             }
         });
     }
     
-    private void pagination(Message message, int pageNum)
+    private void pagination(int pageNum)
     {
         if(allowTextInput || (leftText != null && rightText != null))
-            paginationWithTextInput(message, pageNum);
+            paginationWithTextInput(pageNum);
         else
-            paginationWithoutTextInput(message, pageNum);
+            paginationWithoutTextInput(pageNum);
     }
 
-    private void paginationWithTextInput(Message message, int pageNum)
+    private void paginationWithTextInput(int pageNum)
     {
-        waiter.waitForEvent(GenericMessageEvent.class, event -> {
+        setCancelFuture(waiter.waitForEvent(GenericMessageEvent.class, event -> {
             if(event instanceof MessageReactionAddEvent)
-                return checkReaction((MessageReactionAddEvent) event, message.getIdLong());
+                return checkReaction((MessageReactionAddEvent) event);
             else if(event instanceof MessageReceivedEvent)
             {
                 MessageReceivedEvent mre = (MessageReceivedEvent) event;
                 // Wrong channel
-                if(!mre.getChannel().equals(message.getChannel()))
+                if(!mre.getChannel().equals(getAttachedMessage().getChannel()))
                     return false;
                 String rawContent = mre.getMessage().getContentRaw().trim();
                 if(leftText != null && rightText != null)
@@ -224,7 +225,7 @@ public class Slideshow extends Menu
         }, event -> {
             if(event instanceof MessageReactionAddEvent)
             {
-                handleMessageReactionAddAction((MessageReactionAddEvent) event, message, pageNum);
+                handleMessageReactionAddAction((MessageReactionAddEvent) event, pageNum);
             }
             else
             {
@@ -246,24 +247,24 @@ public class Slideshow extends Menu
                     targetPage = Integer.parseInt(rawContent);
                 }
 
-                message.editMessage(renderPage(targetPage)).queue(m -> pagination(m, targetPage));
+                getAttachedMessage().editMessage(renderPage(targetPage)).queue(m -> pagination(targetPage));
                 mre.getMessage().delete().queue(v -> {}, t -> {}); // delete the calling message so it doesn't get spammy
             }
-        }, timeout, unit, () -> finalAction.accept(message));
+        }, timeout, unit, () -> callFinalAction(finalAction)));
     }
 
-    private void paginationWithoutTextInput(Message message, int pageNum)
+    private void paginationWithoutTextInput(int pageNum)
     {
-        waiter.waitForEvent(MessageReactionAddEvent.class,
-            event -> checkReaction(event, message.getIdLong()),
-            event -> handleMessageReactionAddAction(event, message, pageNum),
-            timeout, unit, () -> finalAction.accept(message));
+        setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class,
+            event -> checkReaction(event),
+            event -> handleMessageReactionAddAction(event, pageNum),
+            timeout, unit, () -> callFinalAction(finalAction)));
     }
 
     // Private method that checks MessageReactionAddEvents
-    private boolean checkReaction(MessageReactionAddEvent event, long messageId)
+    private boolean checkReaction(MessageReactionAddEvent event)
     {
-        if(event.getMessageIdLong() != messageId)
+        if(event.getMessageIdLong() != getAttachedMessage().getIdLong())
             return false;
         switch(event.getReactionEmote().getName())
         {
@@ -283,7 +284,7 @@ public class Slideshow extends Menu
     }
 
     // Private method that handles MessageReactionAddEvents
-    private void handleMessageReactionAddAction(MessageReactionAddEvent event, Message message, int pageNum)
+    private void handleMessageReactionAddAction(MessageReactionAddEvent event, int pageNum)
     {
         int newPageNum = pageNum;
         int pages = urls.size();
@@ -324,7 +325,7 @@ public class Slideshow extends Menu
                 }
                 break;
             case STOP:
-                finalAction.accept(message);
+                callFinalAction(finalAction);
                 return;
         }
 
@@ -333,7 +334,7 @@ public class Slideshow extends Menu
         } catch(PermissionException ignored) {}
 
         int n = newPageNum;
-        message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
+        getAttachedMessage().editMessage(renderPage(newPageNum)).queue(m -> pagination(n));
     }
     
     private Message renderPage(int pageNum)

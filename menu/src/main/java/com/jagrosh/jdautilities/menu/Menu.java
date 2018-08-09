@@ -18,7 +18,9 @@ package com.jagrosh.jdautilities.menu;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.*;
@@ -60,6 +62,9 @@ public abstract class Menu
     protected Set<Role> roles;
     protected final long timeout;
     protected final TimeUnit unit;
+
+    private Future<Void> cancelFuture;
+    private Message attachedMessage;
     
     protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit)
     {
@@ -88,6 +93,39 @@ public abstract class Menu
      *         The Message to display this Menu as
      */
     public abstract void display(Message message);
+
+    public Message getAttachedMessage()
+    {
+        return attachedMessage;
+    }
+
+    public void cancel()
+    {
+        if(cancelFuture == null)
+            throw new IllegalStateException("Menu was not yet displayed or is already cancelled");
+        cancelFuture.cancel(false);
+        cancelFuture = null;
+    }
+
+    protected final void setAttachedMessage(Message attachedMessage)
+    {
+        this.attachedMessage = attachedMessage;
+    }
+
+    protected final void setCancelFuture(Future<Void> cancelFuture)
+    {
+        this.cancelFuture = cancelFuture;
+    }
+
+    protected void callFinalAction(Consumer<Message> finalAction)
+    {
+        Message tmp = this.attachedMessage;
+        this.attachedMessage = null;
+        //also clean up cancelFuture if not already
+        this.cancelFuture = null;
+        if(finalAction != null)
+            finalAction.accept(tmp);
+    }
 
     /**
      * Checks to see if the provided {@link net.dv8tion.jda.core.entities.User User}

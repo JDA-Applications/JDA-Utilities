@@ -144,29 +144,30 @@ public class SelectionDialog extends Menu
         Message msg = render(selection);
         initialize(message.editMessage(msg), selection);
     }
-    
+
     private void initialize(RestAction<Message> action, int selection)
     {
         action.queue(m -> {
+            setAttachedMessage(m);
             if(choices.size()>1)
             {
                 m.addReaction(UP).queue();
                 m.addReaction(SELECT).queue();
                 m.addReaction(CANCEL).queue();
-                m.addReaction(DOWN).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(DOWN).queue(v -> selectionDialog(selection), v -> selectionDialog(selection));
             }
             else
             {
                 m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(CANCEL).queue(v -> selectionDialog(selection), v -> selectionDialog(selection));
             }
         });
     }
     
-    private void selectionDialog(Message message, int selection)
+    private void selectionDialog(int selection)
     {
-        waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
-            if(!event.getMessageId().equals(message.getId()))
+        setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
+            if(event.getMessageIdLong() != getAttachedMessage().getIdLong())
                 return false;
             if(!(UP.equals(event.getReaction().getReactionEmote().getName())
                     || DOWN.equals(event.getReaction().getReactionEmote().getName())
@@ -191,10 +192,10 @@ public class SelectionDialog extends Menu
                         newSelection = 1;
                     break;
                 case SELECT:
-                    success.accept(message, selection);
+                    success.accept(getAttachedMessage(), selection);
                     break;
                 case CANCEL:
-                    cancel.accept(message);
+                    callFinalAction(cancel);
                     return;
 
             }
@@ -202,8 +203,8 @@ public class SelectionDialog extends Menu
                 event.getReaction().removeReaction(event.getUser()).queue();
             } catch (PermissionException ignored) {}
             int n = newSelection;
-            message.editMessage(render(n)).queue(m -> selectionDialog(m, n));
-        }, timeout, unit, () -> cancel.accept(message));
+            getAttachedMessage().editMessage(render(n)).queue(m -> selectionDialog(n));
+        }, timeout, unit, () -> callFinalAction(cancel)));
     }
     
     private Message render(int selection)
