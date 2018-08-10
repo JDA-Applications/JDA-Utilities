@@ -56,7 +56,6 @@ public class Slideshow extends Menu
     private final BiFunction<Integer,Integer,String> description;
     private final boolean showPageNumbers;
     private final List<String> urls;
-    private final Consumer<Message> finalAction;
     private final boolean waitOnSinglePage;
     private final int bulkSkipNumber;
     private final boolean wrapPageEnds;
@@ -77,13 +76,12 @@ public class Slideshow extends Menu
               int bulkSkipNumber, boolean wrapPageEnds, String leftText, String rightText,
               boolean allowTextInput)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, finalAction);
         this.color = color;
         this.text = text;
         this.description = description;
         this.showPageNumbers = showPageNumbers;
         this.urls = items;
-        this.finalAction = finalAction;
         this.waitOnSinglePage = waitOnSinglePage;
         this.bulkSkipNumber = bulkSkipNumber;
         this.wrapPageEnds = wrapPageEnds;
@@ -179,7 +177,7 @@ public class Slideshow extends Menu
             }
             else
             {
-                callFinalAction(finalAction);
+                finalizeMenu();
             }
         });
     }
@@ -250,7 +248,7 @@ public class Slideshow extends Menu
                 getAttachedMessage().editMessage(renderPage(targetPage)).queue(m -> pagination(targetPage));
                 mre.getMessage().delete().queue(v -> {}, t -> {}); // delete the calling message so it doesn't get spammy
             }
-        }, timeout, unit, () -> callFinalAction(finalAction)));
+        }, timeout, unit, this::finalizeMenu));
     }
 
     private void paginationWithoutTextInput(int pageNum)
@@ -258,7 +256,7 @@ public class Slideshow extends Menu
         setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class,
             event -> checkReaction(event),
             event -> handleMessageReactionAddAction(event, pageNum),
-            timeout, unit, () -> callFinalAction(finalAction)));
+            timeout, unit, this::finalizeMenu));
     }
 
     // Private method that checks MessageReactionAddEvents
@@ -325,7 +323,7 @@ public class Slideshow extends Menu
                 }
                 break;
             case STOP:
-                callFinalAction(finalAction);
+                finalizeMenu();
                 return;
         }
 

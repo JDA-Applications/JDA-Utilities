@@ -59,7 +59,6 @@ public class OrderedMenu extends Menu
     private final String description;
     private final List<String> choices;
     private final BiConsumer<Message, Integer> action;
-    private final Consumer<Message> cancel;
     private final boolean useLetters;
     private final boolean allowTypedInput;
     private final boolean useCancel;
@@ -76,13 +75,12 @@ public class OrderedMenu extends Menu
                 Color color, String text, String description, List<String> choices, BiConsumer<Message,Integer> action,
                 Consumer<Message> cancel, boolean useLetters, boolean allowTypedInput, boolean useCancel)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, cancel);
         this.color = color;
         this.text = text;
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.cancel = cancel;
         this.useLetters = useLetters;
         this.allowTypedInput = allowTypedInput;
         this.useCancel = useCancel;
@@ -224,14 +222,14 @@ public class OrderedMenu extends Menu
                 MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                 // Process which reaction it is
                 if(event.getReaction().getReactionEmote().getName().equals(CANCEL))
-                    callFinalAction(cancel);
+                    finalizeMenu();
                 else
                 {
                     // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                     // but from 1 to number of choices. So the first choice will correspond to 1, the second
                     // choice to 2, etc.
                     action.accept(m, getNumber(event.getReaction().getReactionEmote().getName()));
-                    callFinalAction(null);
+                    finalizeMenu(false);
                 }
             }
             // If it's a valid MessageReceivedEvent
@@ -241,14 +239,14 @@ public class OrderedMenu extends Menu
                 // Get the number in the message and process
                 int num = getMessageNumber(event.getMessage().getContentRaw());
                 if(num<0 || num>choices.size())
-                    callFinalAction(cancel);
+                    finalizeMenu();
                 else
                 {
                     action.accept(m, num);
-                    callFinalAction(null);
+                    finalizeMenu(false);
                 }
             }
-        }, timeout, unit, () -> callFinalAction(cancel)));
+        }, timeout, unit, this::finalizeMenu));
     }
 
     // Waits only for reaction input
@@ -260,16 +258,16 @@ public class OrderedMenu extends Menu
         }, e -> {
             m.delete().queue();
             if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
-                callFinalAction(cancel);
+                finalizeMenu();
             else
             {
                 // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                 // but from 1 to number of choices. So the first choice will correspond to 1, the second
                 // choice to 2, etc.
                 action.accept(m, getNumber(e.getReaction().getReactionEmote().getName()));
-                callFinalAction(null);
+                finalizeMenu(false);
             }
-        }, timeout, unit, () -> callFinalAction(cancel)));
+        }, timeout, unit, this::finalizeMenu));
     }
 
     // This is where the displayed message for the OrderedMenu is built.

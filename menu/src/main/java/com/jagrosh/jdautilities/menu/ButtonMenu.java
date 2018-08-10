@@ -49,18 +49,16 @@ public class ButtonMenu extends Menu
     private final String description;
     private final List<String> choices;
     private final Consumer<ReactionEmote> action;
-    private final Consumer<Message> finalAction;
 
     ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, finalAction);
         this.color = color;
         this.text = text;
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.finalAction = finalAction;
     }
 
     /**
@@ -140,8 +138,8 @@ public class ButtonMenu extends Menu
 
                             // Preform the specified action with the ReactionEmote
                             action.accept(event.getReaction().getReactionEmote());
-                            callFinalAction(finalAction);
-                        }, timeout, unit, () -> callFinalAction(finalAction)));
+                            finalizeMenu();
+                        }, timeout, unit, this::finalizeMenu));
                     });
                 }
             }

@@ -53,8 +53,7 @@ public class SelectionDialog extends Menu
     private final boolean loop;
     private final Function<Integer,String> text;
     private final BiConsumer<Message, Integer> success;
-    private final Consumer<Message> cancel;
-    
+
     public static final String UP = "\uD83D\uDD3C";
     public static final String DOWN = "\uD83D\uDD3D";
     public static final String SELECT = "\u2705";
@@ -65,7 +64,7 @@ public class SelectionDialog extends Menu
                     Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
                     Consumer<Message> cancel, Function<Integer,String> text)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, cancel);
         this.choices = choices;
         this.leftEnd = leftEnd;
         this.rightEnd = rightEnd;
@@ -74,7 +73,6 @@ public class SelectionDialog extends Menu
         this.color = color;
         this.loop = loop;
         this.success = success;
-        this.cancel = cancel;
         this.text = text;
     }
 
@@ -195,7 +193,7 @@ public class SelectionDialog extends Menu
                     success.accept(getAttachedMessage(), selection);
                     break;
                 case CANCEL:
-                    callFinalAction(cancel);
+                    finalizeMenu();
                     return;
 
             }
@@ -204,7 +202,7 @@ public class SelectionDialog extends Menu
             } catch (PermissionException ignored) {}
             int n = newSelection;
             getAttachedMessage().editMessage(render(n)).queue(m -> selectionDialog(n));
-        }, timeout, unit, () -> callFinalAction(cancel)));
+        }, timeout, unit, this::finalizeMenu));
     }
     
     private Message render(int selection)

@@ -63,16 +63,18 @@ public abstract class Menu
     protected final long timeout;
     protected final TimeUnit unit;
 
+    private final Consumer<Message> finalAction;
     private Future<Void> cancelFuture;
     private Message attachedMessage;
-    
-    protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit)
+
+    protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Consumer<Message> finalAction)
     {
         this.waiter = waiter;
         this.users = users;
         this.roles = roles;
         this.timeout = timeout;
         this.unit = unit;
+        this.finalAction = finalAction;
     }
     
     /**
@@ -117,13 +119,23 @@ public abstract class Menu
         this.cancelFuture = cancelFuture;
     }
 
-    protected void callFinalAction(Consumer<Message> finalAction)
+    protected final Consumer<Message> getFinalAction()
+    {
+        return finalAction;
+    }
+
+    protected void finalizeMenu()
+    {
+        finalizeMenu(true);
+    }
+
+    protected void finalizeMenu(boolean callFinalAction)
     {
         Message tmp = this.attachedMessage;
         this.attachedMessage = null;
         //also clean up cancelFuture if not already
         this.cancelFuture = null;
-        if(finalAction != null)
+        if(callFinalAction && finalAction != null)
             finalAction.accept(tmp);
     }
 

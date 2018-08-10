@@ -66,7 +66,6 @@ public class Paginator extends Menu
     private final boolean numberItems;
     private final List<String> strings;
     private final int pages;
-    private final Consumer<Message> finalAction;
     private final boolean waitOnSinglePage;
     private final int bulkSkipNumber;
     private final boolean wrapPageEnds;
@@ -86,7 +85,7 @@ public class Paginator extends Menu
               boolean numberItems, List<String> items, boolean waitOnSinglePage, int bulkSkipNumber,
               boolean wrapPageEnds, String leftText, String rightText, boolean allowTextInput)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, finalAction);
         this.color = color;
         this.text = text;
         this.columns = columns;
@@ -95,7 +94,6 @@ public class Paginator extends Menu
         this.numberItems = numberItems;
         this.strings = items;
         this.pages = (int)Math.ceil((double)strings.size()/itemsPerPage);
-        this.finalAction = finalAction;
         this.waitOnSinglePage = waitOnSinglePage;
         this.bulkSkipNumber = bulkSkipNumber;
         this.wrapPageEnds = wrapPageEnds;
@@ -202,7 +200,7 @@ public class Paginator extends Menu
             }
             else
             {
-                finalAction.accept(m);
+                finalizeMenu();
             }
         });
     }
@@ -272,7 +270,7 @@ public class Paginator extends Menu
                 getAttachedMessage().editMessage(renderPage(targetPage)).queue(m -> pagination(targetPage));
                 mre.getMessage().delete().queue(v -> {}, t -> {}); // delete the calling message so it doesn't get spammy
             }
-        }, timeout, unit, () -> callFinalAction(finalAction)));
+        }, timeout, unit, this::finalizeMenu));
     }
     
     private void paginationWithoutTextInput(int pageNum)
@@ -280,7 +278,7 @@ public class Paginator extends Menu
         setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class,
             event -> checkReaction(event), // Check Reaction
             event -> handleMessageReactionAddAction(event, pageNum), // Handle Reaction
-            timeout, unit, () -> callFinalAction(finalAction)));
+            timeout, unit, this::finalizeMenu));
     }
 
     // Private method that checks MessageReactionAddEvents
@@ -346,7 +344,7 @@ public class Paginator extends Menu
                 }
                 break;
             case STOP:
-                callFinalAction(finalAction);
+                finalizeMenu();
                 return;
         }
 
