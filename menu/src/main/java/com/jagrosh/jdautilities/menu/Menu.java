@@ -96,11 +96,22 @@ public abstract class Menu
      */
     public abstract void display(Message message);
 
+    /**
+     * Returns the message, this menu was attached to.
+     * This is set <b>asynchronously</b> after a call to a {@code display()} or equivalent method.
+     * <br>The attached message will be reset, when the menu times out or is cancelled.
+     *
+     * @return The message, this menu was attached to or {@code null} if not yet attached or already timed out/cancelled.
+     */
     public Message getAttachedMessage()
     {
         return attachedMessage;
     }
 
+    /**
+     * Cancels the menu. This stops the EventWaiter from waiting for events and behaves exactly the same way as if the menu timed out.
+     * That includes calling the final/cancel action if provided.
+     */
     public void cancel()
     {
         if(cancelFuture == null)
@@ -109,26 +120,61 @@ public abstract class Menu
         cancelFuture = null;
     }
 
+    /**
+     * Internally used to set the attached message.
+     * Should be used by the corresponding Menu implementation as soon as the message was created/edited.
+     *
+     * @param  attachedMessage
+     *         The message, where this menu was attached to
+     */
     protected final void setAttachedMessage(Message attachedMessage)
     {
         this.attachedMessage = attachedMessage;
     }
 
+    /**
+     * Internally used to set the cancelFuture used to cancel the menu.
+     * Should be used by the corresponding Menu implementation as soon as {@code EventWaiter#waitForEvent} was used.
+     *
+     * @param  cancelFuture
+     *         The cancel Future returned from {@code EventWaiter#waitForEvent}
+     */
     protected final void setCancelFuture(Future<Void> cancelFuture)
     {
         this.cancelFuture = cancelFuture;
     }
 
+    /**
+     * Returns the finalAction given via constructor.
+     *
+     * @return The finalAction given via constructor.
+     */
     protected final Consumer<Message> getFinalAction()
     {
         return finalAction;
     }
 
+    /**
+     * Calls the final action and cleans up the attached message and cancelFuture (sets them to {@code null}).
+     * <br>The actual Menu implementation should should call this method whenever the waiting loop is about to exit
+     * and the final action should be called (e.g. as timeout action for the EventWaiter).
+     *
+     * <p>This method is a shortcut for using {@link #finalizeMenu(boolean) finalizeMenu(true)}
+     *
+     * @see #finalizeMenu(boolean)
+     */
     protected void finalizeMenu()
     {
         finalizeMenu(true);
     }
 
+    /**
+     * Cleans up the attached message and cancelFuture (sets them to {@code null}) and optionally calls the final action.
+     * <br>The actual Menu implementation should should call this method whenever the waiting loop is about to exit
+     * and {@link #finalizeMenu() finalizeMenu()} is not applicable.
+     *
+     * @see #finalizeMenu()
+     */
     protected void finalizeMenu(boolean callFinalAction)
     {
         Message tmp = this.attachedMessage;

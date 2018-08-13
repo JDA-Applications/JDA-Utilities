@@ -148,6 +148,9 @@ public class EventWaiter implements EventListener
      * @param  action
      *         The Consumer to perform an action when the condition Predicate returns {@code true}. Never null.
      *
+     * @return Future for canceling the waiting.
+     *         Using {@code Future#cancel(boolean)} with {@code mayInterruptIfRunning} set to {@code true} is not supported.
+     *
      * @throws IllegalArgumentException
      *         One of two reasons:
      *         <ul>
@@ -188,6 +191,9 @@ public class EventWaiter implements EventListener
      * @param  timeoutAction
      *         The Runnable to run if the time runs out before a correct Event is thrown, or
      *         {@code null} if there is no action on timeout.
+     *
+     * @return Future for canceling the waiting. This will call the timeoutAction if provided.
+     *         Using {@code Future#cancel(boolean)} with {@code mayInterruptIfRunning} set to {@code true} is not supported.
      *
      * @throws IllegalArgumentException
      *         One of two reasons:
@@ -308,11 +314,13 @@ public class EventWaiter implements EventListener
             @Override
             public boolean cancel(boolean mayInterruptIfRunning)
             {
+                if(mayInterruptIfRunning)
+                    throw new UnsupportedOperationException("EventWaiter#waitForEvent can not be cancelled with mayInterruptIfRunning set to true");
                 if(isDone() || isCancelled())
                     return isCancelled();
                 if(waitingEvents.get(classType).remove(WaitingEvent.this) && cancelAction != null)
                     cancelAction.run();
-                return super.cancel(mayInterruptIfRunning);
+                return super.cancel(false);
             }
         }
     }
