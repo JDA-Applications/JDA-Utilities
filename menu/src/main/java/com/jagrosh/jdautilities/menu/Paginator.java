@@ -399,7 +399,7 @@ public class Paginator extends Menu
     public static class Builder extends Menu.Builder<Builder, Paginator>
     {
         private BiFunction<Integer,Integer,Color> color = (page, pages) -> null;
-        private BiFunction<Integer,Integer,String> text = (page, pages) -> null;
+        private BiFunction<Integer,Integer,String> text = null;
         private Consumer<Message> finalAction = m -> m.delete().queue();
         private int columns = 1;
         private int itemsPerPage = 12;
@@ -483,7 +483,7 @@ public class Paginator extends Menu
          */
         public Builder setText(String text)
         {
-            this.text = (i0, i1) -> text;
+            this.text =  text == null ? null : (i0, i1) -> text;
             return this;
         }
 
