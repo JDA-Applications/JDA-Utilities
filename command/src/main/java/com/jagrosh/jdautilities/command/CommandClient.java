@@ -467,4 +467,9 @@ public interface CommandClient
      * @return The GuildSettingsManager, or {@code null} if one was not provided when building this CommandClient.
      */
     <M extends GuildSettingsManager> M getSettingsManager();
+    
+    /**
+     * Shuts down internals of the Command Client, such as the threadpool and guild settings manager
+     */
+    void shutdown();
 }
