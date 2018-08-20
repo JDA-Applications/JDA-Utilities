@@ -40,6 +40,15 @@ import javax.annotation.Nullable;
  * the assistance of things such as {@link net.dv8tion.jda.core.entities.MessageReaction reactions},
  * but the actual implementation is only limited to the events provided by Discord and handled through JDA.
  *
+ * <p>Implementations should all use the stateful system consisting of the Constructor with finalAction parameter
+ * and the three methods {@link #setAttachedMessage(Message) setAttachedMessage(Message)},
+ * {@link #setCancelFuture(Future) setCancelFuture(Future)}
+ * and {@link #finalizeMenu() finalizeMenu()} (or {@link #finalizeMenu(boolean) finalizeMenu(boolean)} if needed).
+ * <br>By properly calling those methods as described in their docs, the Menu can be cancelled externaly by calling
+ * {@link #cancel() Menu#cancel()}.
+ * <br>This system is not mandatory, as that would break backwards compatibility with older Menu implementations,
+ * but it should always be used by new ones.
+ *
  * <p>For custom implementations, readability of creating and integrating may be improved
  * by the implementation of a companion builder may be helpful (see the documentation on
  * {@link Menu.Builder Menu.Builder} for more info).
@@ -116,11 +125,15 @@ public abstract class Menu
     /**
      * Cancels the menu. This stops the EventWaiter from waiting for events and behaves exactly the same way as if the menu timed out.
      * That includes calling the final/cancel action if provided.
+     *
+     * @throws IllegalStateException
+     *         If the Menu was not yet displayed, already cancelled (includes timeout or other menu ends)
+     *         or cancel functionality is not supported by the custom implementation
      */
     public void cancel()
     {
         if(cancelFuture == null)
-            throw new IllegalStateException("Menu was not yet displayed or is already cancelled");
+            throw new IllegalStateException("Menu can not be cancelled (not yet displayed, already ended or not supported by custom implementation)");
         cancelFuture.cancel(false);
         cancelFuture = null;
     }
@@ -139,7 +152,7 @@ public abstract class Menu
 
     /**
      * Internally used to set the cancelFuture used to cancel the menu.
-     * Should be used by the corresponding Menu implementation as soon as {@code EventWaiter#waitForEvent} was used.
+     * Should be used by the corresponding Menu implementation as soon as {@code EventWaiter#waitForEvent} was used (with its return value).
      *
      * @param  cancelFuture
      *         The cancel Future returned from {@code EventWaiter#waitForEvent}
@@ -178,7 +191,10 @@ public abstract class Menu
      * <br>The actual Menu implementation should should call this method whenever the waiting loop is about to exit
      * and {@link #finalizeMenu() finalizeMenu()} is not applicable.
      *
-     * @see #finalizeMenu()
+     * @param  callFinalAction
+     *         Whether or not the final action should be called.
+     *
+     * @see    #finalizeMenu()
      */
     protected void finalizeMenu(boolean callFinalAction)
     {
