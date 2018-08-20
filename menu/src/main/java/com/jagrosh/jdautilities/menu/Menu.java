@@ -67,6 +67,11 @@ public abstract class Menu
     private Future<Void> cancelFuture;
     private Message attachedMessage;
 
+    protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit)
+    {
+        this(waiter, users, roles, timeout, unit, null);
+    }
+
     protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Consumer<Message> finalAction)
     {
         this.waiter = waiter;
