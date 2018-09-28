@@ -71,7 +71,7 @@ public class OAuth2GuildImpl implements OAuth2Guild
     @Override
     public String getIconUrl()
     {
-        return icon == null ? null : "https://cdn.discordapp.com/icons/" + id + "/" + icon + ".jpg";
+        return icon == null ? null : "https://cdn.discordapp.com/icons/" + id + "/" + icon + ".png";
     }
     
     @Override
