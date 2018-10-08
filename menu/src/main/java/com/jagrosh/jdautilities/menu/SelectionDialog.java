@@ -46,12 +46,12 @@ import net.dv8tion.jda.core.utils.Checks;
  */
 public class SelectionDialog extends Menu
 {
-    private final List<String> choices;
+    protected final List<String> choices;
     private final String leftEnd, rightEnd;
     private final String defaultLeft, defaultRight;
-    private final Function<Integer,Color> color;
+    protected final Function<Integer,Color> color;
     private final boolean loop;
-    private final Function<Integer,String> text;
+    protected final Function<Integer,String> text;
     private final BiConsumer<Message, Integer> success;
     private final Consumer<Message> cancel;
     
@@ -206,7 +206,7 @@ public class SelectionDialog extends Menu
         }, timeout, unit, () -> cancel.accept(message));
     }
     
-    private Message render(int selection)
+    protected Message render(int selection)
     {
         StringBuilder sbuilder = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
@@ -226,7 +226,7 @@ public class SelectionDialog extends Menu
 
     /**
      * The {@link com.jagrosh.jdautilities.menu.Menu.Builder Menu.Builder} for
-     * a {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectuibDialog}.
+     * a {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog}.
      *
      * @author John Grosh
      */
@@ -247,14 +247,14 @@ public class SelectionDialog extends Menu
          * Builds the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog}
          * with this Builder.
          *
-         * @return The OrderedMenu built from this Builder.
+         * @return The SelectionDialog built from this Builder.
          *
          * @throws java.lang.IllegalArgumentException
          *         If one of the following is violated:
          *         <ul>
          *             <li>No {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter} was set.</li>
          *             <li>No choices were set.</li>
-         *             <li>No action {@link java.util.function.Consumer Consumer} was set.</li>
+         *             <li>No action {@link java.util.function.BiConsumer BiConsumer} was set.</li>
          *         </ul>
          */
         @Override
