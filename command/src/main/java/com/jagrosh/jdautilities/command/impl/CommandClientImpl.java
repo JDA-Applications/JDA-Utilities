@@ -90,6 +90,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final HashMap<String,Integer> uses;
     private final FixedSizeCache<Long, Set<Message>> linkMap;
     private final boolean useHelp;
+    private final boolean shutdownAutomatically;
     private final Consumer<CommandEvent> helpConsumer;
     private final String helpWord;
     private final ScheduledExecutorService executor;
@@ -102,8 +103,8 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
             String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
-            boolean useHelp, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, int linkedCacheSize, AnnotatedModuleCompiler compiler,
-            GuildSettingsManager manager)
+            boolean useHelp, boolean shutdownAutomatically, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, 
+            int linkedCacheSize, AnnotatedModuleCompiler compiler, GuildSettingsManager manager)
     {
         Checks.check(ownerId != null, "Owner ID was set null or not set! Please provide an User ID to register as the owner!");
 
@@ -141,6 +142,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.uses = new HashMap<>();
         this.linkMap = linkedCacheSize>0 ? new FixedSizeCache<>(linkedCacheSize) : null;
         this.useHelp = useHelp;
+        this.shutdownAutomatically = shutdownAutomatically;
         this.helpWord = helpWord==null ? "help" : helpWord;
         this.executor = executor==null ? Executors.newSingleThreadScheduledExecutor() : executor;
         this.compiler = compiler;
@@ -429,6 +431,15 @@ public class CommandClientImpl implements CommandClient, EventListener
     }
 
     @Override
+    public void shutdown()
+    {
+        GuildSettingsManager<?> manager = getSettingsManager();
+        if(manager != null)
+            manager.shutdown();
+        executor.shutdown();
+    }
+
+    @Override
     public void onEvent(Event event)
     {
         if(event instanceof MessageReceivedEvent)
@@ -449,10 +460,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             onReady((ReadyEvent)event);
         else if(event instanceof ShutdownEvent)
         {
-            GuildSettingsManager<?> manager = getSettingsManager();
-            if(manager != null)
-                manager.shutdown();
-            executor.shutdown();
+            if(shutdownAutomatically)
+                shutdown();
         }
     }
 

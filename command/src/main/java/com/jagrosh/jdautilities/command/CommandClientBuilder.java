@@ -51,6 +51,7 @@ public class CommandClientBuilder
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
     private boolean useHelp = true;
+    private boolean shutdownAutomatically = true;
     private Consumer<CommandEvent> helpConsumer;
     private String helpWord;
     private ScheduledExecutorService executor;
@@ -70,7 +71,7 @@ public class CommandClientBuilder
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
                                                      success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
-                                                     helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
+                                                     shutdownAutomatically, helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
         return client;
@@ -438,6 +439,20 @@ public class CommandClientBuilder
     public CommandClientBuilder setScheduleExecutor(ScheduledExecutorService executor)
     {
         this.executor = executor;
+        return this;
+    }
+    
+    /**
+     * Sets the Command Client to shut down internals automatically when a 
+     * {@link net.dv8tion.jda.core.events.ShutdownEvent ShutdownEvent} is received.
+     * 
+     * @param shutdownAutomatically
+     *        {@code false} to disable calling the shutdown method when a ShutdownEvent is received
+     * @return This builder
+     */
+    public CommandClientBuilder setShutdownAutomatically(boolean shutdownAutomatically)
+    {
+        this.shutdownAutomatically = shutdownAutomatically;
         return this;
     }
     
