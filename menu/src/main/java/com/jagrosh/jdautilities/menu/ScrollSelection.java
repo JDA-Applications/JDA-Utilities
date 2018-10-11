@@ -84,8 +84,7 @@ public class ScrollSelection extends SelectionMenu
             Checks.check(!choices.isEmpty(), "Must have at least one choice");
             Checks.check(selection != null, "Must provide a selection consumer");
             Checks.check(format != null, "Must set a format String");
-            // TODO check if String only contains 1 formatter
-            // Checks.check(true, "Format String must contain one String formatter (%s), no more, no less");
+            Checks.check(format.indexOf("%s") == format.lastIndexOf("%s"), "Format String must contain one String formatter (%s), no more, no less");
 
             return new ScrollSelection(waiter, users, roles, timeout, unit, choices,
                 color, loop, singleSelectionMode, selection, cancel, text, format);
