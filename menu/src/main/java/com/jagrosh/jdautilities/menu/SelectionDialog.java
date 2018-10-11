@@ -15,16 +15,6 @@
  */
 package com.jagrosh.jdautilities.menu;
 
-import java.awt.Color;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -32,6 +22,15 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.Checks;
+
+import java.awt.Color;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
@@ -48,16 +47,17 @@ public class SelectionDialog extends SelectionMenu
     
     private SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                     List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
-                    Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
+                    Function<Integer, Color> color, boolean loop, boolean singleSelectionMode, BiConsumer<Message, Integer> success,
                     Consumer<Message> cancel, Function<Integer,String> text)
     {
-        super(waiter, users, roles, timeout, unit, choices, loop, cancel, color, text, success, Arrays.asList(SELECT, UP, DOWN, CANCEL));
+        super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success, Arrays.asList(SELECT, UP, DOWN, CANCEL));
         this.leftEnd = leftEnd;
         this.rightEnd = rightEnd;
         this.defaultLeft = defaultLeft;
         this.defaultRight = defaultRight;
     }
-    
+
+    @Override
     protected Message render(int selection)
     {
         StringBuilder sbuilder = new StringBuilder();
@@ -112,7 +112,7 @@ public class SelectionDialog extends SelectionMenu
             Checks.check(selection != null, "Must provide a selection consumer");
 
             return new SelectionDialog(waiter,users,roles,timeout,unit,choices,leftEnd,rightEnd,
-                    defaultLeft,defaultRight,color,loop, selection, cancel,text);
+                    defaultLeft,defaultRight,color,loop, singleSelectionMode, selection, cancel,text);
         }
 
         /**

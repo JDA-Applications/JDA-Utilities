@@ -31,10 +31,10 @@ public class ScrollSelection extends SelectionMenu
     private final String format;
 
     private ScrollSelection(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-                            List<String> choices, Function<Integer, Color> color, boolean loop, BiConsumer<Message, Integer> success,
+                            List<String> choices, Function<Integer, Color> color, boolean loop, boolean singleSelectionMode, BiConsumer<Message, Integer> success,
                             Consumer<Message> cancel, Function<Integer, String> text, String format)
     {
-        super(waiter, users, roles, timeout, unit, choices, loop, cancel, color, text, success, Arrays.asList(UP, SELECT, CANCEL, DOWN));
+        super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success, Arrays.asList(UP, SELECT, CANCEL, DOWN));
         this.format = format;
     }
 
@@ -84,10 +84,11 @@ public class ScrollSelection extends SelectionMenu
             Checks.check(!choices.isEmpty(), "Must have at least one choice");
             Checks.check(selection != null, "Must provide a selection consumer");
             Checks.check(format != null, "Must set a format String");
-            Checks.check(format.split("%s").length == 2, "Format String must contain one String formatter (%s), no more, no less");
+            // TODO check if String only contains 1 formatter
+            // Checks.check(true, "Format String must contain one String formatter (%s), no more, no less");
 
             return new ScrollSelection(waiter, users, roles, timeout, unit, choices,
-                color, loop, selection, cancel, text, format);
+                color, loop, singleSelectionMode, selection, cancel, text, format);
         }
 
         /**

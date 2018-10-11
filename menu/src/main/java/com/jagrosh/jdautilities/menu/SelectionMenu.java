@@ -17,8 +17,16 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * https://www.github.com/JohnnyJayJay
- * @author Johnny_JayJay
+ * A {@link com.jagrosh.jdautilities.menu.Menu Menu} extension made for menus that provides
+ * a List of Strings to choose from (via reactions).
+ *
+ * <p>Implementations of this class should also have a nested Builder class which extends
+ * {@link com.jagrosh.jdautilities.menu.SelectionMenu.Builder}.
+ *
+ * @see   com.jagrosh.jdautilities.menu.SelectionDialog
+ * @see   com.jagrosh.jdautilities.menu.ScrollSelection
+ *
+ * @author John Grosh / Johnny_JayJay (https://www.github.com/JohnnyJayJay)
  */
 public abstract class SelectionMenu extends Menu
 {
@@ -29,6 +37,7 @@ public abstract class SelectionMenu extends Menu
     public static final String CANCEL = "\u274E";
 
     protected final boolean loop;
+    protected final boolean singleSelectionMode;
     protected final List<String> choices;
     protected final BiConsumer<Message, Integer> success;
     protected final Consumer<Message> cancel;
@@ -39,17 +48,30 @@ public abstract class SelectionMenu extends Menu
 
 
     protected SelectionMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-                            List<String> choices, boolean loop, Consumer<Message> cancel, Function<Integer, Color> colorFunction,
+                            List<String> choices, boolean loop, boolean singleSelectionMode, Consumer<Message> cancel, Function<Integer, Color> colorFunction,
                             Function<Integer, String> textFunction, BiConsumer<Message, Integer> success, List<String> reactions)
     {
         super(waiter, users, roles, timeout, unit);
         this.choices = choices;
         this.loop = loop;
+        this.singleSelectionMode = singleSelectionMode;
         this.cancel = cancel;
         this.colorFunction = colorFunction;
         this.textFunction = textFunction;
         this.success = success;
         this.reactions = reactions;
+    }
+
+    /**
+     * Constructor for backwards compatibility (calls new constructor with singleSelectionMode = false)
+     * @deprecated Use Constructor with extra boolean {@code singleSelectionMode} instead
+     */
+    @Deprecated
+    protected SelectionMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
+                  List<String> choices, boolean loop, Consumer<Message> cancel, Function<Integer, Color> colorFunction,
+                  Function<Integer, String> textFunction, BiConsumer<Message, Integer> success, List<String> reactions)
+    {
+        this(waiter, users, roles, timeout, unit, choices, loop, false, cancel, colorFunction, textFunction, success, reactions);
     }
 
     /**
@@ -192,10 +214,12 @@ public abstract class SelectionMenu extends Menu
                 break;
             case SELECT:
                 success.accept(message, selection);
+                if(singleSelectionMode)
+                    selection = -1;
                 break;
             case CANCEL:
                 cancel.accept(message);
-                return -1;
+                selection = -1;
         }
 
         return selection;
@@ -233,11 +257,27 @@ public abstract class SelectionMenu extends Menu
         protected final List<String> choices = new ArrayList<>();
 
         protected boolean loop = true;
+        protected boolean singleSelectionMode = false;
         protected Function<Integer, String> text = (i) -> null;
         protected Function<Integer, Color> color = (i) -> null;
-        protected BiConsumer<Message, Integer> selection = (m, i) -> {};
+        protected BiConsumer<Message, Integer> selection = null;
         protected Consumer<Message> cancel = (m) -> {};
 
+
+        /**
+         * Sets if the Menu should exit when a selection was made.
+         * By default, this is false and the menu continues showing choices even after a selection was made.
+         *
+         * @param  singleSelectionMode
+         *         {@code true} if the menu should exit after the first selection being made
+         *
+         * @return This builder
+         */
+        public Builder useSingleSelectionMode(boolean singleSelectionMode)
+        {
+            this.singleSelectionMode = singleSelectionMode;
+            return this;
+        }
 
         /**
          * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
