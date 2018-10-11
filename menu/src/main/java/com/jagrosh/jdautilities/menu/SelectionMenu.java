@@ -2,8 +2,13 @@ package com.jagrosh.jdautilities.menu;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.requests.RequestFuture;
 import net.dv8tion.jda.core.requests.RestAction;
 
 import java.awt.Color;
@@ -15,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} extension made for menus that provides
@@ -146,7 +152,8 @@ public abstract class SelectionMenu extends Menu
         action.queue(m -> {
             if(choices.size()>1)
             {
-                reactions.forEach((s) -> m.addReaction(s).queue());
+                RequestFuture.allOf(reactions.stream().map((s) -> m.addReaction(s).submit()).collect(Collectors.toList()))
+                    .thenAccept((v) -> selectionDialog(m, selection));
             }
             else
             {
