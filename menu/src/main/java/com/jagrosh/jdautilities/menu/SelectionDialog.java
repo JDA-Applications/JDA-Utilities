@@ -71,8 +71,8 @@ public class SelectionDialog extends SelectionMenu
     
     private SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                     List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
-                    Function<Integer, Color> color, boolean loop, boolean singleSelectionMode, BiConsumer<Message, Integer> success,
-                    Consumer<Message> cancel, Function<Integer,String> text)
+                    Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
+                    Consumer<Message> cancel, Function<Integer,String> text, boolean singleSelectionMode)
     {
         super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success,
             Arrays.asList(SelectionMenu.SELECT, SelectionMenu.UP, SelectionMenu.DOWN, SelectionMenu.CANCEL));
@@ -80,6 +80,19 @@ public class SelectionDialog extends SelectionMenu
         this.rightEnd = rightEnd;
         this.defaultLeft = defaultLeft;
         this.defaultRight = defaultRight;
+    }
+
+    /**
+     * Constructor for backwards compatibility (calls new constructor with singleSelectionMode = false)
+     * @deprecated Use Constructor with extra boolean {@code singleSelectionMode} instead
+     */
+    @Deprecated
+    SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
+                    List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
+                    Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
+                    Consumer<Message> cancel, Function<Integer,String> text)
+    {
+        this(waiter, users, roles, timeout, unit, choices, leftEnd, rightEnd, defaultLeft, defaultRight, color, loop, success, cancel, text, false);
     }
 
     @Override
@@ -136,8 +149,8 @@ public class SelectionDialog extends SelectionMenu
             Checks.check(!choices.isEmpty(), "Must have at least one choice");
             Checks.check(selection != null, "Must provide a selection consumer");
 
-            return new SelectionDialog(waiter,users,roles,timeout,unit,choices,leftEnd,rightEnd,
-                    defaultLeft,defaultRight,color,loop, singleSelectionMode, selection, cancel,text);
+            return new SelectionDialog(waiter, users, roles, timeout, unit, choices, leftEnd, rightEnd,
+                    defaultLeft, defaultRight, color, loop, selection, cancel, text, singleSelectionMode);
         }
 
         /**

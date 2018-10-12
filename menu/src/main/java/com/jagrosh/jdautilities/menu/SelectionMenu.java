@@ -227,6 +227,7 @@ public abstract class SelectionMenu extends Menu
             case CANCEL:
                 cancel.accept(message);
                 selection = -1;
+                break;
         }
 
         return selection;
