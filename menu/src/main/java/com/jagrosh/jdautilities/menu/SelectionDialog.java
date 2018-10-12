@@ -41,6 +41,30 @@ import java.util.function.Function;
  */
 public class SelectionDialog extends SelectionMenu
 {
+    /**
+     * @deprecated Use {@link com.jagrosh.jdautilities.menu.SelectionMenu#UP this} instead
+     */
+    @Deprecated
+    public static final String UP = "\uD83D\uDD3C";
+
+    /**
+     * @deprecated Use {@link com.jagrosh.jdautilities.menu.SelectionMenu#DOWN this} instead
+     */
+    @Deprecated
+    public static final String DOWN = "\uD83D\uDD3D";
+
+    /**
+     * @deprecated Use {@link com.jagrosh.jdautilities.menu.SelectionMenu#SELECT this} instead
+     */
+    @Deprecated
+    public static final String SELECT = "\u2705";
+
+    /**
+     * @deprecated Use {@link com.jagrosh.jdautilities.menu.SelectionMenu#CANCEL this} instead
+     */
+    @Deprecated
+    public static final String CANCEL = "\u274E";
+
     private final String leftEnd, rightEnd;
     private final String defaultLeft, defaultRight;
 
@@ -50,7 +74,8 @@ public class SelectionDialog extends SelectionMenu
                     Function<Integer, Color> color, boolean loop, boolean singleSelectionMode, BiConsumer<Message, Integer> success,
                     Consumer<Message> cancel, Function<Integer,String> text)
     {
-        super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success, Arrays.asList(SELECT, UP, DOWN, CANCEL));
+        super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success,
+            Arrays.asList(SelectionMenu.SELECT, SelectionMenu.UP, SelectionMenu.DOWN, SelectionMenu.CANCEL));
         this.leftEnd = leftEnd;
         this.rightEnd = rightEnd;
         this.defaultLeft = defaultLeft;

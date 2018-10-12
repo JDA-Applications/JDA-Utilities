@@ -34,7 +34,8 @@ public class ScrollSelection extends SelectionMenu
                             List<String> choices, Function<Integer, Color> color, boolean loop, boolean singleSelectionMode, BiConsumer<Message, Integer> success,
                             Consumer<Message> cancel, Function<Integer, String> text, String format)
     {
-        super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success, Arrays.asList(UP, SELECT, CANCEL, DOWN));
+        super(waiter, users, roles, timeout, unit, choices, loop, singleSelectionMode, cancel, color, text, success,
+            Arrays.asList(SelectionMenu.SELECT, SelectionMenu.UP, SelectionMenu.DOWN, SelectionMenu.CANCEL));
         this.format = format;
     }
 
