@@ -472,4 +472,15 @@ public interface CommandClient
      * Shuts down internals of the Command Client, such as the threadpool and guild settings manager
      */
     void shutdown();
+    
+    
+    /**
+     * Returns a {@link com.jagrosh.jdautilities.command.Command Command} with the specified name or alias or {@code null} if not found.
+     *
+     * @param name
+     *        The command name or alias
+     *         
+     * @return A command with the specified name or alias, or {@code null} if not found.       
+     */
+    Command getCommand(String name);
 }
