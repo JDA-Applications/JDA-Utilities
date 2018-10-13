@@ -438,6 +438,16 @@ public class CommandClientImpl implements CommandClient, EventListener
             manager.shutdown();
         executor.shutdown();
     }
+    
+    @Override
+    public Command getCommand(String name)
+    {
+        int index = commandIndex.getOrDefault(name, -1);
+        if(index == -1)
+            return null; // the command was not found
+        
+        return commands.get(index);
+    }
 
     @Override
     public void onEvent(Event event)
