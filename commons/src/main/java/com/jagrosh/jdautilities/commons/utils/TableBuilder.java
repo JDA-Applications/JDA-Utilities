@@ -31,16 +31,43 @@ import java.util.Arrays;
 public class TableBuilder
 {
 
+    /**
+     * Represents a left alignment.
+     */
+    public static final int LEFT = -1;
+
+    /**
+     * Represents a right alignment.
+     */
+    public static final int RIGHT = 1;
+
+    /**
+     * Represents a centered alignment.
+     */
+    public static final int CENTER = 0;
+
     private String[][] values;
     private String[] headers;
 
-    private char headerDelimiter = '-';
+    private char headerDelimiter = '═';
     private char rowDelimiter = headerDelimiter;
-    private char columnDelimiter = '|';
-    private char crossDelimiter = '+';
+    private char columnDelimiter = '║';
+    private char crossDelimiter = '╬';
     private char headerCrossDelimiter = crossDelimiter;
     private char horizontalOutline = rowDelimiter;
     private char verticalOutline = columnDelimiter;
+
+    private char leftIntersection = '╠';
+    private char rightIntersection = '╣';
+    private char upperIntersection = '╦';
+    private char lowerIntersection = '╩';
+
+    private char upLeftCorner = '╔';
+    private char upRightCorner = '╗';
+    private char lowLeftCorner = '╚';
+    private char lowRightCorner = '╝';
+
+    private int alignment = CENTER;
 
     private boolean codeblock = false;
     private boolean frame = false;
@@ -66,9 +93,10 @@ public class TableBuilder
     {
         Checks.check(headers != null, "Must set headers");
         Checks.check(values != null, "Must set values");
-        Checks.check(Arrays.stream(values).noneMatch((row) -> row.length > headers.length), "There must not be more columns than headers!");
+        Checks.check(Arrays.stream(values).noneMatch((row) -> row.length > headers.length), "Values must not have more columns than headers provided");
         if (autoAdjust)
         {
+            // find the max. value for each column and align headers
             for (int i = 0; i < headers.length; i++)
             {
                 String header = headers[i];
@@ -79,13 +107,28 @@ public class TableBuilder
                     if (value.length() > max)
                         max = value.length();
                 }
-                if (max > header.length())
+
+                int length = header.length();
+                if (max > length)
                 {
-                    StringBuilder newHeader = new StringBuilder().append(header);
-                    for (int j = 0; j < max - header.length(); j++)
-                        newHeader.append(" ");
+                    StringBuilder newHeader = new StringBuilder();
+                    int adjustment = max - length;
+                    this.setAlignment(adjustment, header, newHeader);
 
                     headers[i] = newHeader.toString();
+                }
+            }
+
+            // align values
+            for (String[] row : values)
+            {
+                for (int j = 0; j < row.length; j++)
+                {
+                    int adjustment = headers[j].length() - row[j].length();
+                    String value = row[j];
+                    StringBuilder newValue = new StringBuilder();
+                    this.setAlignment(adjustment, value, newValue);
+                    row[j] = newValue.toString();
                 }
             }
         }
@@ -104,7 +147,7 @@ public class TableBuilder
                     }
                 }
             }
-            Checks.check(check, "Length of values must not be longer than length of headers!");
+            Checks.check(check, "Length of values must not be longer than length of headers");
         }
 
         StringBuilder builder = new StringBuilder();
@@ -112,23 +155,19 @@ public class TableBuilder
         if (codeblock)
             builder.append("```\n");
 
-        int totalLength = Arrays.stream(headers).mapToInt(String::length).sum() + headers.length + (frame ? 1 : -1);
-
         if (frame)
         {
-            for (int i = 0; i < totalLength; i++)
-                builder.append(horizontalOutline);
-
+            this.appendHorizontalOutline(builder, upLeftCorner, upperIntersection, upRightCorner); // append upper outline
             builder.append("\n");
         }
 
         if (frame)
             builder.append(verticalOutline);
 
+        // append headers
         for (int i = 0; i < headers.length; i++)
         {
-            String header = headers[i];
-            builder.append(header);
+            builder.append(headers[i]);
             if (i < headers.length - 1)
                 builder.append(columnDelimiter);
         }
@@ -138,16 +177,11 @@ public class TableBuilder
 
         builder.append("\n");
 
-        if (frame)
-            builder.append(headerDelimiter);
-
-        this.appendHorizontalDelimiter(builder, headerDelimiter, headerCrossDelimiter);
-
-        if (frame)
-            builder.append(headerDelimiter);
+        this.appendHorizontalDelimiter(builder, headerDelimiter, headerCrossDelimiter); // line below headers
 
         builder.append("\n");
 
+        // append row after row
         for (int i = 0; i < values.length; i++)
         {
             String[] row = values[i];
@@ -157,9 +191,6 @@ public class TableBuilder
             for (int j = 0; j < row.length; j++)
             {
                 builder.append(row[j]);
-                for (int k = 0; k < headers[j].length() - row[j].length(); k++)
-                    builder.append(" ");
-
                 if (j < row.length - 1)
                     builder.append(columnDelimiter);
             }
@@ -169,20 +200,16 @@ public class TableBuilder
 
             builder.append("\n");
 
+            // if framing is activated: line between rows
             if (frame && i < values.length - 1)
             {
-                builder.append(rowDelimiter);
                 this.appendHorizontalDelimiter(builder, rowDelimiter, crossDelimiter);
-                builder.append(rowDelimiter);
                 builder.append("\n");
             }
         }
 
         if (frame)
-        {
-            for (int j = 0; j < totalLength; j++)
-                builder.append(horizontalOutline);
-        }
+            this.appendHorizontalOutline(builder, lowLeftCorner, lowerIntersection, lowRightCorner); // append lower outline
 
         if (codeblock)
             builder.append("```");
@@ -191,8 +218,57 @@ public class TableBuilder
 
     }
 
+    private void setAlignment(int adjustment, String oldValue, StringBuilder newValueBuilder) {
+        if (alignment > 0) // right alignment
+        {
+            // first black spaces
+            for (int k = 0; k < adjustment; k++)
+                newValueBuilder.append(" ");
+            newValueBuilder.append(oldValue); // then value
+        }
+        else if (alignment < 0) // left alignment
+        {
+            newValueBuilder.append(oldValue); // first value
+            // then blank spaces
+            for (int k = 0; k < adjustment; k++)
+                newValueBuilder.append(" ");
+        }
+        else
+        {
+            boolean even = adjustment % 2 == 0;
+            int half = adjustment / 2;
+            for (int k = 0; k < half; k++) // append one half of black spaces
+                newValueBuilder.append(" ");
+
+            newValueBuilder.append(oldValue); // append value
+
+            for (int k = 0; k < half; k++) // append other half of blank spaces
+                newValueBuilder.append(" ");
+
+            if (!even) // if the number wasn't event, one blank space is still missing
+                newValueBuilder.append(" ");
+        }
+    }
+
+    private void appendHorizontalOutline(StringBuilder builder, char leftCorner, char intersection, char rightCorner)
+    {
+        builder.append(leftCorner);
+        appendHorizontally(builder, horizontalOutline, intersection);
+        builder.append(rightCorner);
+    }
+
     private void appendHorizontalDelimiter(StringBuilder builder, char rowDelimiter, char crossDelimiter)
     {
+        if (frame)
+            builder.append(leftIntersection);
+
+        appendHorizontally(builder, rowDelimiter, crossDelimiter);
+
+        if (frame)
+            builder.append(rightIntersection);
+    }
+
+    private void appendHorizontally(StringBuilder builder, char rowDelimiter, char crossDelimiter) {
         for (int j = 0; j < headers.length; j++)
         {
             String header = headers[j];
@@ -235,10 +311,9 @@ public class TableBuilder
 
     /**
      * Sets the delimiter to be placed between the rows if framing is activated.
-     * By default, this is {@code -}.
      *
      * @param  rowDelimiter
-     *         The character used to separate the rows from each other.
+     *         The character used to separate the rows from each other. Default: {@code ═}
      *
      * @return this
      */
@@ -250,10 +325,9 @@ public class TableBuilder
 
     /**
      * Sets the delimiter to be placed between the columns.
-     * By default, this is {@code |}.
      *
      * @param  columnDelimiter
-     *         The character used to separate the columns form each other.
+     *         The character used to separate the columns form each other. Default: {@code ║}
      *
      * @return this
      */
@@ -266,10 +340,9 @@ public class TableBuilder
     /**
      * Sets the delimiter to be placed where the vertical and horizontal lines inside the table
      * would cross, if framing is activated.
-     * By default, this is {@code +}.
      *
      * @param  crossDelimiter
-     *         The character to use for that purpose.
+     *         The character to use for that purpose. Default: {@code ╬}
      *
      * @return this
      */
@@ -281,10 +354,9 @@ public class TableBuilder
 
     /**
      * Sets the delimiter to be placed where the header delimiters and column delimiters would cross.
-     * By default, this is {@code +}.
      *
      * @param  headerCrossDelimiter
-     *         The character to be used for that purpose
+     *         The character to be used for that purpose. Default: {@code ╬} (same as cross delimiter)
      *
      * @return this
      */
@@ -296,10 +368,9 @@ public class TableBuilder
 
     /**
      * Sets the delimiter to be placed below the headers.
-     * By default, this is {@code -}.
      *
      * @param  headerDelimiter
-     *         The character used to separate the headers from the rest of the table.
+     *         The character used to separate the headers from the rest of the table. Default: {@code ═} (same as row delimiter)
      *
      * @return This builder.
      *
@@ -313,10 +384,9 @@ public class TableBuilder
 
     /**
      * Sets the char used as the vertical outline of the table (i.e. upper and lower border) if framing is activated.
-     * By default, this is {@code -}.
      *
      * @param  verticalOutline
-     *         The character to use for that purpose.
+     *         The character to use for that purpose. Default: {@code ═} (same as row delimiter)
      *
      * @return This builder.
      */
@@ -328,16 +398,94 @@ public class TableBuilder
 
     /**
      * Sets the char used as the horizontal outline of the table (i.e. left and right border) if framing is activated.
-     * By default, this is {@code |}.
      *
      * @param  horizontalOutline
-     *         The character to use for that purpose.
+     *         The character to use for that purpose. Default: {@code ║} (same as column delimiter)
      *
      * @return This builder.
      */
     public TableBuilder setHorizontalOutline(char horizontalOutline)
     {
         this.horizontalOutline = horizontalOutline;
+        return this;
+    }
+
+    /**
+     * Sets the characters to be placed where the outlines cross the row or column delimiters if framing is activated.
+     *
+     * @param  left
+     *         The character for intersections at the left. Default: {@code ╠}
+     *
+     * @param  right
+     *         The character for intersections at the right. Default: {@code ╣}
+     *
+     * @param  upper
+     *         The character for upper intersections. Default: {@code ╦}
+     *
+     * @param  lower
+     *         The character for lower intersections. Default: {@code ╩}
+     *
+     * @return
+     */
+    public TableBuilder setIntersections(char left, char right, char upper, char lower)
+    {
+        this.leftIntersection = left;
+        this.rightIntersection = right;
+        this.upperIntersection = upper;
+        this.lowerIntersection = lower;
+        return this;
+    }
+
+    /**
+     * Sets the characters to be placed in the corners of the table if framing is activated.
+     *
+     * @param  upLeft
+     *         The character for the upper left corner. Default: {@code ╔}
+     *
+     * @param  upRight
+     *         The character for the upper right corner. Default: {@code ╗}
+     *
+     * @param  lowLeft
+     *         The character for the lower left corner. Default: {@code ╚}
+     *
+     * @param  lowRight
+     *         The character for the lower right corner. Default: {@code ╝}
+     *
+     * @return This builder.
+     */
+    public TableBuilder setCorners(char upLeft, char upRight, char lowLeft, char lowRight)
+    {
+        this.upLeftCorner = upLeft;
+        this.upRightCorner = upRight;
+        this.lowLeftCorner = lowLeft;
+        this.lowRightCorner = lowRight;
+        return this;
+    }
+
+    /**
+     * Sets the alignment/orientation of all headers and values.
+     * This will be applied if and only if autoAdjust is {@code true}.
+     * <br>By default, this is set to {@link TableBuilder#CENTER CENTER}.
+     *
+     * @param  alignment
+     *         The alignment n to set.
+     *         <ul>
+     *             <li>n = 0 results in a centered alignment.</li>
+     *             <li>n < 0 results in a left alignment.</li>
+     *             <li>n > 0 results in a right alignment.</li>
+     *         </ul>
+     *         It is recommended to use the predefined constants of this class for that purpose.
+     *
+     * @return This builder.
+     *
+     * @see    this#autoAdjust(boolean)
+     * @see    this#CENTER
+     * @see    this#LEFT
+     * @see    this#RIGHT
+     */
+    public TableBuilder setAlignment(int alignment)
+    {
+        this.alignment = alignment;
         return this;
     }
 
