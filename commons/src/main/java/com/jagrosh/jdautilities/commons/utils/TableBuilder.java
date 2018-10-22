@@ -50,6 +50,8 @@ public class TableBuilder
     private String[] headers;
     private String[] rowNames;
 
+    private String tableName = "";
+
     private char headerDelimiter = '═';
     private char rowDelimiter = headerDelimiter;
     private char columnDelimiter = '║';
@@ -101,10 +103,11 @@ public class TableBuilder
 
         if (rowNames != null)
         {
+            Checks.check(tableName != null, "Table name must not be null");
             Checks.check(values.length <= rowNames.length, "Values must not have more rows than specified by optional row names");
 
             String[] newHeaders = new String[headers.length + 1];
-            newHeaders[0] = "";
+            newHeaders[0] = tableName;
             if (headers.length > 0)
                 System.arraycopy(headers, 0, newHeaders, 1, headers.length);
             this.headers = newHeaders;
@@ -332,6 +335,8 @@ public class TableBuilder
      * @return This builder.
      *
      * @see    this#setFirstColumnDelimiter(char)
+     *
+     * @see    this#setName(String)
      */
     public TableBuilder setRowNames(String... rows)
     {
@@ -351,6 +356,22 @@ public class TableBuilder
     public TableBuilder setValues(String[][] values)
     {
         this.values = values;
+        return this;
+    }
+
+    /**
+     * Sets the name of the table. This will be displayed in the upper left corner cell if row names were set.
+     *
+     * @param  tableName
+     *         The name of the table as a String. Default: empty String
+     *
+     * @return This builder.
+     *
+     * @see    this#setRowNames(String...)
+     */
+    public TableBuilder setName(String tableName)
+    {
+        this.tableName = tableName;
         return this;
     }
 
@@ -598,6 +619,7 @@ public class TableBuilder
     // testing
     /*public static void main(String[] args) {
         String table = new TableBuilder().setHeaders("Header 1", "Header 2", "Header 3")
+            .setName("Sample Name")
             .setValues(new String[][] {
                 {"Item 1", "Item 2", "Item 3"},
                 {"Item 4", "Item 5", "Item 6"},
