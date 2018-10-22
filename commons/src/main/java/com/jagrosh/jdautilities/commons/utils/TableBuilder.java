@@ -48,12 +48,15 @@ public class TableBuilder
 
     private String[][] values;
     private String[] headers;
+    private String[] rowNames;
 
     private char headerDelimiter = '═';
     private char rowDelimiter = headerDelimiter;
     private char columnDelimiter = '║';
+    private char firstColumnDelimiter = columnDelimiter;
     private char crossDelimiter = '╬';
     private char headerCrossDelimiter = crossDelimiter;
+
     private char horizontalOutline = rowDelimiter;
     private char verticalOutline = columnDelimiter;
 
@@ -81,9 +84,10 @@ public class TableBuilder
      *              <li>No headers were set</li>
      *              <li>No values were set</li>
      *              <li>The values specify more columns than headers provided</li>
+     *              <li>Row names were set and there are more rows in the values than row names given</li>
      *              <li>autoAdjust is false and any value is longer than the corresponding header</li>
      *          </ul>
-     *          Note that empty values are fine. Empty headers cannot work if any values are given.
+     *          Note that empty values are fine. Empty headers however cannot work if any values are given.
      *
      * @return  The table as a String.
      *          If framing is activated, there are strict borders around each cell.
@@ -94,6 +98,27 @@ public class TableBuilder
         Checks.check(headers != null, "Must set headers");
         Checks.check(values != null, "Must set values");
         Checks.check(Arrays.stream(values).noneMatch((row) -> row.length > headers.length), "Values must not have more columns than headers provided");
+
+        if (rowNames != null)
+        {
+            Checks.check(values.length <= rowNames.length, "Values must not have more rows than specified by optional row names");
+
+            String[] newHeaders = new String[headers.length + 1];
+            newHeaders[0] = "";
+            if (headers.length > 0)
+                System.arraycopy(headers, 0, newHeaders, 1, headers.length);
+            this.headers = newHeaders;
+
+            String[][] newValues = new String[values.length][headers.length];
+            for (int i = 0; i < newValues.length && i < values.length; i++)
+            {
+                newValues[i][0] = rowNames[i];
+                if (values[i].length > 0)
+                    System.arraycopy(values[i], 0, newValues[i], 1, values[i].length);
+            }
+            this.values = newValues;
+        }
+
         if (autoAdjust)
         {
             // find the max. value for each column and align headers
@@ -191,7 +216,10 @@ public class TableBuilder
             for (int j = 0; j < row.length; j++)
             {
                 builder.append(row[j]);
-                if (j < row.length - 1)
+
+                if (j == 0)
+                    builder.append(firstColumnDelimiter);
+                else if (j < row.length - 1)
                     builder.append(columnDelimiter);
             }
 
@@ -295,6 +323,23 @@ public class TableBuilder
     }
 
     /**
+     * Sets names for the rows specified in {@link this#setValues(String[][]) values}, applied in the order given here.
+     * <br>This is optional. By default, there will not be any row names.
+     *
+     * @param  rows
+     *         The row names as varargs, so either a String[] or single Strings.
+     *
+     * @return This builder.
+     *
+     * @see    this#setFirstColumnDelimiter(char)
+     */
+    public TableBuilder setRowNames(String... rows)
+    {
+        this.rowNames = rows;
+        return this;
+    }
+
+    /**
      * Sets the values of this table.
      *
      * @param  values
@@ -334,6 +379,21 @@ public class TableBuilder
     public TableBuilder setColumnDelimiter(char columnDelimiter)
     {
         this.columnDelimiter = columnDelimiter;
+        return this;
+    }
+
+    /**
+     * The character to be placed between the first and the second column. This can be useful in combination with row names.
+     *
+     * @param  firstColumnDelimiter
+     *         The character after the first column. Default: {@code ║} (same as column delimiter)
+     *
+     * @return This builder.
+     *
+     * @see    this#setRowNames(String...)
+     */
+    public TableBuilder setFirstColumnDelimiter(char firstColumnDelimiter) {
+        this.firstColumnDelimiter = firstColumnDelimiter;
         return this;
     }
 
@@ -425,7 +485,7 @@ public class TableBuilder
      * @param  lower
      *         The character for lower intersections. Default: {@code ╩}
      *
-     * @return
+     * @return This builder.
      */
     public TableBuilder setIntersections(char left, char right, char upper, char lower)
     {
@@ -534,5 +594,16 @@ public class TableBuilder
         this.autoAdjust = autoAdjust;
         return this;
     }
+
+    // testing
+    /*public static void main(String[] args) {
+        String table = new TableBuilder().setHeaders("Header 1", "Header 2", "Header 3")
+            .setValues(new String[][] {
+                {"Item 1", "Item 2", "Item 3"},
+                {"Item 4", "Item 5", "Item 6"},
+                {"Item 7", "Item 8", "Item 9"}
+            }).setRowNames("Row 1", "Row 2", "Row 3").frame(true).build();
+        System.out.println(table);
+    }*/
 
 }
