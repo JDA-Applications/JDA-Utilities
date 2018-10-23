@@ -33,7 +33,7 @@ import java.util.Arrays;
  *         .build(); // building (note that this consists of unicode box drawing characters, so it might not display correctly on some devices)
  *
  *     // now do whatever you want with that
- *             
+ *
  * </code>
  * <br>The characters used to display the table can be configured individually.
  *
@@ -92,6 +92,7 @@ public class TableBuilder
     private char verticalOutline = columnDelimiter;
 
     private int alignment = CENTER;
+    private int padding = 0;
 
     private boolean codeblock = false;
     private boolean frame = false;
@@ -119,6 +120,7 @@ public class TableBuilder
     {
         Checks.notNull(headers, "Must set headers");
         Checks.notNull(values, "Must set values");
+        Checks.positive(padding, "Padding must not be < 0");
         Checks.check(Arrays.stream(values).noneMatch((row) -> row.length > headers.length), "Values must not have more columns than headers provided");
 
         if (rowNames != null)
@@ -264,6 +266,9 @@ public class TableBuilder
     }
 
     private void setAlignment(int adjustment, String oldValue, StringBuilder newValueBuilder) {
+        for (int i = 0; i < padding; i++) // padding left
+            newValueBuilder.append(" ");
+
         if (alignment > 0) // right alignment
         {
             // first black spaces
@@ -293,6 +298,9 @@ public class TableBuilder
             if (!even) // if the number wasn't event, one blank space is still missing
                 newValueBuilder.append(" ");
         }
+
+        for (int i = 0; i < padding; i++) // padding right
+            newValueBuilder.append(" ");
     }
 
     private void appendHorizontalOutline(StringBuilder builder, boolean upper)
@@ -652,6 +660,22 @@ public class TableBuilder
     }
 
     /**
+     * Sets a paddling that is applied to each value if autoAdjust is {@code true}.
+     * <br>By default, this is {@code 0}.
+     *
+     * @param  padding The minimum amount of blank spaces between a value and the corresponding borders.
+     *
+     * @return This builder.
+     *
+     * @see    this#autoAdjust(boolean) 
+     */
+    public TableBuilder setPadding(int padding)
+    {
+        this.padding = padding;
+        return this;
+    }
+
+    /**
      * Sets whether the table should be embedded in a markdown code block (no special semantics).
      * By default, this is {@code false}.
      *
@@ -706,7 +730,7 @@ public class TableBuilder
                 {"Item 4", "Item 5", "Item 6"},
                 {"Item 7", "Item 8", "Item 9"}
             })
-            //.setRowNames("Row 1", "Row 2", "Row 3")
+            .setRowNames("Row 1", "Row 2", "Row 3")
             .frame(true)
             .build();
         System.out.println(table);
