@@ -7,22 +7,33 @@ import java.util.Arrays;
 /**
  * A utility class that can be used to easily create String tables in Java without any extra frameworks.
  * This can be useful to display table-like structures in Discord codeblocks, for example.
- * <p>The tables usually look like this:
+ *
+ * <p>If framing is activated, the tables usually look like this (but with box drawing characters):
  * <code>
- *     Header[0]  |Header[1]  |Header[2]
- *     -----------+-----------+-----------
- *     Value[0][1]|Value[0][1]|Value[0][2]
- *     Value[1][0]|Value[1][1]|Value[1][2]
+ *     ------------------------------------
+ *     |Table Name| Header[0] | Header[1] |
+ *     -----------+-----------+------------
+ *     |  Row[0]  |Value[0][0]|Value[0][1]|
+ *     -----------+-----------+------------
+ *     |  Row[1]  |Value[1][0]|Value[1][1]|
+ *     ------------------------------------
  * </code>
- * <br>If framing is activated, it looks like this:
+ *
+ * <p> Example to get a table like above:
  * <code>
- *     -------------------------------------
- *     |Header[0]  |Header[1]  |Header[2]  |
- *     ------------+-----------+------------
- *     |Value[0][1]|Value[0][1]|Value[0][2]|
- *     ------------+-----------+------------
- *     |Value[1][0]|Value[1][1]|Value[1][2]|
- *     -------------------------------------
+ *     String table = new TableBuilder()
+ *         .setAlignment(TableBuilder.CENTER) // setting center alignment (already set by default)
+ *         .setHeaders("Header[0]", "Header[1]") // setting headers
+ *         .setValues(new String[][] { // setting values as 2d array
+ *             {"Value[0][0]", "Value[0][1]"},
+ *             {"Value[1][0]", "Value[1][1]"}
+ *         }).setRowNames("Row[0]", "Row[1]") // setting row names
+ *         .setName("Table Name") // the name (displayed in the top left corner)
+ *         .frame(true) // activating framing
+ *         .build(); // building (note that this consists of unicode box drawing characters, so it might not display correctly on some devices)
+ *
+ *     // now do whatever you want with that
+ *             
  * </code>
  * <br>The characters used to display the table can be configured individually.
  *
@@ -52,25 +63,33 @@ public class TableBuilder
 
     private String tableName = "";
 
+    private char rowDelimiter = '─';
+    private char columnDelimiter = '│';
+    private char crossDelimiter = '┼';
+    private char leftIntersection = '├';
+    private char rightIntersection = '┤';
+    private char upperIntersection = '┬';
+    private char lowerIntersection = '┴';
+
+    private char upLeftCorner = '┌';
+    private char upRightCorner = '┐';
+    private char lowLeftCorner = '└';
+    private char lowRightCorner = '┘';
+
     private char headerDelimiter = '═';
-    private char rowDelimiter = headerDelimiter;
-    private char columnDelimiter = '║';
+    private char headerCrossDelimiter = '╪';
+    private char headerLeftIntersection = '╞';
+    private char headerRightIntersection = '╡';
+
     private char firstColumnDelimiter = columnDelimiter;
-    private char crossDelimiter = '╬';
-    private char headerCrossDelimiter = crossDelimiter;
+    private char firstColumnCrossDelimiter = crossDelimiter;
+    private char firstColumnUpperIntersection = upperIntersection;
+    private char firstColumnLowerIntersection = lowerIntersection;
+
+    private char headerColumnCrossDelimiter = '╪';
 
     private char horizontalOutline = rowDelimiter;
     private char verticalOutline = columnDelimiter;
-
-    private char leftIntersection = '╠';
-    private char rightIntersection = '╣';
-    private char upperIntersection = '╦';
-    private char lowerIntersection = '╩';
-
-    private char upLeftCorner = '╔';
-    private char upRightCorner = '╗';
-    private char lowLeftCorner = '╚';
-    private char lowRightCorner = '╝';
 
     private int alignment = CENTER;
 
@@ -81,7 +100,8 @@ public class TableBuilder
     /**
      * Builds a String table according to the settings made.
      *
-     * @throws  IllegalArgumentException if:
+     * @throws  IllegalArgumentException
+     *          if:
      *          <ul>
      *              <li>No headers were set</li>
      *              <li>No values were set</li>
@@ -97,13 +117,13 @@ public class TableBuilder
      */
     public String build()
     {
-        Checks.check(headers != null, "Must set headers");
-        Checks.check(values != null, "Must set values");
+        Checks.notNull(headers, "Must set headers");
+        Checks.notNull(values, "Must set values");
         Checks.check(Arrays.stream(values).noneMatch((row) -> row.length > headers.length), "Values must not have more columns than headers provided");
 
         if (rowNames != null)
         {
-            Checks.check(tableName != null, "Table name must not be null");
+            Checks.notNull(tableName, "Table name must not be null");
             Checks.check(values.length <= rowNames.length, "Values must not have more rows than specified by optional row names");
 
             String[] newHeaders = new String[headers.length + 1];
@@ -185,27 +205,16 @@ public class TableBuilder
 
         if (frame)
         {
-            this.appendHorizontalOutline(builder, upLeftCorner, upperIntersection, upRightCorner); // append upper outline
+            this.appendHorizontalOutline(builder, true); // append upper outline
             builder.append("\n");
         }
 
-        if (frame)
-            builder.append(verticalOutline);
-
         // append headers
-        for (int i = 0; i < headers.length; i++)
-        {
-            builder.append(headers[i]);
-            if (i < headers.length - 1)
-                builder.append(columnDelimiter);
-        }
-
-        if (frame)
-            builder.append(verticalOutline);
+        this.appendRow(builder, headers);
 
         builder.append("\n");
 
-        this.appendHorizontalDelimiter(builder, headerDelimiter, headerCrossDelimiter); // line below headers
+        this.appendHorizontalDelimiter(builder, true); // line below headers
 
         builder.append("\n");
 
@@ -213,40 +222,45 @@ public class TableBuilder
         for (int i = 0; i < values.length; i++)
         {
             String[] row = values[i];
-            if (frame)
-                builder.append(verticalOutline);
 
-            for (int j = 0; j < row.length; j++)
-            {
-                builder.append(row[j]);
-
-                if (j == 0)
-                    builder.append(firstColumnDelimiter);
-                else if (j < row.length - 1)
-                    builder.append(columnDelimiter);
-            }
-
-            if (frame)
-                builder.append(verticalOutline);
+            this.appendRow(builder, row);
 
             builder.append("\n");
 
             // if framing is activated: line between rows
             if (frame && i < values.length - 1)
             {
-                this.appendHorizontalDelimiter(builder, rowDelimiter, crossDelimiter);
+                this.appendHorizontalDelimiter(builder, false);
                 builder.append("\n");
             }
         }
 
         if (frame)
-            this.appendHorizontalOutline(builder, lowLeftCorner, lowerIntersection, lowRightCorner); // append lower outline
+            this.appendHorizontalOutline(builder, false); // append lower outline
 
         if (codeblock)
             builder.append("```");
 
         return builder.toString();
 
+    }
+
+    private void appendRow(StringBuilder builder, String[] row)
+    {
+        if (frame)
+            builder.append(verticalOutline);
+
+        for (int i = 0; i < row.length; i++)
+        {
+            builder.append(row[i]);
+            if (i == 0)
+                builder.append(firstColumnDelimiter);
+            else if (i < row.length - 1)
+                builder.append(columnDelimiter);
+        }
+
+        if (frame)
+            builder.append(verticalOutline);
     }
 
     private void setAlignment(int adjustment, String oldValue, StringBuilder newValueBuilder) {
@@ -281,34 +295,53 @@ public class TableBuilder
         }
     }
 
-    private void appendHorizontalOutline(StringBuilder builder, char leftCorner, char intersection, char rightCorner)
+    private void appendHorizontalOutline(StringBuilder builder, boolean upper)
     {
+        char leftCorner = upper ? this.upLeftCorner : this.lowLeftCorner;
+        char rightCorner = upper ? this.upRightCorner : this.lowRightCorner;
+        char intersection = upper ? this.upperIntersection : this.lowerIntersection;
+        char firstColumnIntersection = upper ? this.firstColumnUpperIntersection : this.firstColumnLowerIntersection;
+
         builder.append(leftCorner);
-        appendHorizontally(builder, horizontalOutline, intersection);
-        builder.append(rightCorner);
-    }
-
-    private void appendHorizontalDelimiter(StringBuilder builder, char rowDelimiter, char crossDelimiter)
-    {
-        if (frame)
-            builder.append(leftIntersection);
-
-        appendHorizontally(builder, rowDelimiter, crossDelimiter);
-
-        if (frame)
-            builder.append(rightIntersection);
-    }
-
-    private void appendHorizontally(StringBuilder builder, char rowDelimiter, char crossDelimiter) {
         for (int j = 0; j < headers.length; j++)
         {
             String header = headers[j];
             for (int k = 0; k < header.length(); k++)
-                builder.append(rowDelimiter);
+                builder.append(this.horizontalOutline);
 
-            if (j < headers.length - 1)
+            if (j == 0)
+                builder.append(firstColumnIntersection);
+            else if (j < headers.length - 1)
+                builder.append(intersection);
+        }
+        builder.append(rightCorner);
+    }
+
+    private void appendHorizontalDelimiter(StringBuilder builder, boolean header)
+    {
+
+        char leftIntersection = header ? this.headerLeftIntersection : this.leftIntersection;
+        char rightIntersection = header ? this.headerRightIntersection : this.rightIntersection;
+        char delimiter = header ? this.headerDelimiter : this.rowDelimiter;
+        char crossDelimiter = header ? this.headerCrossDelimiter : this.crossDelimiter;
+
+
+        if (frame)
+            builder.append(leftIntersection);
+
+        for (int j = 0; j < headers.length; j++)
+        {
+            for (int k = 0; k < headers[j].length(); k++)
+                builder.append(delimiter);
+
+            if (j == 0)
+                builder.append(header ? headerColumnCrossDelimiter : firstColumnCrossDelimiter);
+            else if (j < headers.length - 1)
                 builder.append(crossDelimiter);
         }
+
+        if (frame)
+            builder.append(rightIntersection);
     }
 
     /**
@@ -327,20 +360,28 @@ public class TableBuilder
 
     /**
      * Sets names for the rows specified in {@link this#setValues(String[][]) values}, applied in the order given here.
-     * <br>This is optional. By default, there will not be any row names.
+     * <br>This will also set the default box drawing characters for
+     * {@link this#setFirstColumnChars(char, char, char, char) the first column characters} as well as for
+     * {@link this#setHeaderColumnCrossDelimiter(char) the cross delimiter first row x first column}.
+     *
+     * <p>This setting is optional. By default, there will not be any row names.
      *
      * @param  rows
      *         The row names as varargs, so either a String[] or single Strings.
      *
      * @return This builder.
      *
-     * @see    this#setFirstColumnDelimiter(char)
+     * @see    this#setFirstColumnChars(char, char, char, char)
+     *
+     * @see    this#setHeaderColumnCrossDelimiter(char)
      *
      * @see    this#setName(String)
      */
     public TableBuilder setRowNames(String... rows)
     {
         this.rowNames = rows;
+        this.setFirstColumnChars('║', '╫', '╥', '╨')
+            .setHeaderColumnCrossDelimiter('╬');
         return this;
     }
 
@@ -351,7 +392,7 @@ public class TableBuilder
      *         The values as a 2D-Array. The arrays inside of that array each represent a row.
      *         Each value inside a row will be placed in the table according to its index, which describes the Y-position.
      *
-     * @return this
+     * @return This builder.
      */
     public TableBuilder setValues(String[][] values)
     {
@@ -393,9 +434,11 @@ public class TableBuilder
      * Sets the delimiter to be placed between the columns.
      *
      * @param  columnDelimiter
-     *         The character used to separate the columns form each other. Default: {@code ║}
+     *         The character used to separate the columns form each other.
+     *         Excluded from that is {@link this#setFirstColumnChars(char, char, char, char) the first column delimiter}.
+     *         This can be configured separately if needed.
      *
-     * @return this
+     * @return This builder.
      */
     public TableBuilder setColumnDelimiter(char columnDelimiter)
     {
@@ -404,28 +447,20 @@ public class TableBuilder
     }
 
     /**
-     * The character to be placed between the first and the second column. This can be useful in combination with row names.
-     *
-     * @param  firstColumnDelimiter
-     *         The character after the first column. Default: {@code ║} (same as column delimiter)
-     *
-     * @return This builder.
-     *
-     * @see    this#setRowNames(String...)
-     */
-    public TableBuilder setFirstColumnDelimiter(char firstColumnDelimiter) {
-        this.firstColumnDelimiter = firstColumnDelimiter;
-        return this;
-    }
-
-    /**
      * Sets the delimiter to be placed where the vertical and horizontal lines inside the table
-     * would cross, if framing is activated.
+     * would cross if framing is activated.
+     * <br>Not included:
+     * <ul>
+     *     <li>{@link this#setHeaderColumnCrossDelimiter(char) the first cross}</li>
+     *     <li>{@link this#setFirstColumnChars(char, char, char, char) the crosses right after the first column}</li>
+     *     <li>{@link this#setHeaderChars(char, char, char, char) the crosses right below the headers}</li>
+     * </ul>
+     * That is for convenience and better matching characters. You can configure them separately.
      *
      * @param  crossDelimiter
-     *         The character to use for that purpose. Default: {@code ╬}
+     *         The character to use for that purpose.
      *
-     * @return this
+     * @return This builder.
      */
     public TableBuilder setCrossDelimiter(char crossDelimiter)
     {
@@ -434,32 +469,78 @@ public class TableBuilder
     }
 
     /**
-     * Sets the delimiter to be placed where the header delimiters and column delimiters would cross.
+     * Sets the characters to separate the first row (aka headers) from the rest.
+     * <br>By default, this uses the standard unicode box drawing characters matching
+     * to the rest of this class' default characters.
      *
-     * @param  headerCrossDelimiter
-     *         The character to be used for that purpose. Default: {@code ╬} (same as cross delimiter)
+     * @param  delimiter
+     *         The normal character between the header row and the first row.
      *
-     * @return this
-     */
-    public TableBuilder setHeaderCrossDelimiter(char headerCrossDelimiter)
-    {
-        this.headerCrossDelimiter = headerCrossDelimiter;
-        return this;
-    }
-
-    /**
-     * Sets the delimiter to be placed below the headers.
+     * @param  crossDelimiter
+     *         The character to be placed where the header delimiter and the {@link this#setColumnDelimiter(char) column delimiters} cross.
      *
-     * @param  headerDelimiter
-     *         The character used to separate the headers from the rest of the table. Default: {@code ═} (same as row delimiter)
+     * @param  leftIntersection
+     *         The character to be placed at the very left of the delimiter.
+     *
+     * @param  rightIntersection
+     *         The character to be placed at the very right of the delimiter.
      *
      * @return This builder.
      *
      * @see    this#setRowDelimiter(char)
      */
-    public TableBuilder setHeaderDelimiter(char headerDelimiter)
+    public TableBuilder setHeaderChars(char delimiter, char crossDelimiter, char leftIntersection, char rightIntersection)
     {
-        this.headerDelimiter = headerDelimiter;
+        this.headerDelimiter = delimiter;
+        this.headerCrossDelimiter = crossDelimiter;
+        this.headerLeftIntersection = leftIntersection;
+        this.headerRightIntersection = rightIntersection;
+        return this;
+    }
+
+    /**
+     * Sets the characters to separate the first column from the rest.
+     * <br>By default, there won't be any different from the normal column delimiters.
+     * <br>They are set to the standard unicode box drawing characters utilised all over this class as defaults
+     * if {@link this#setRowNames(String...)} is used.
+     *
+     * @param  delimiter
+     *         The normal character between the first and the second column.
+     *
+     * @param  crossDelimiter
+     *         The character to be placed after the first column where it crosses the row delimiters (only relevant if framing is activated)
+     *
+     * @param  upperIntersection
+     *         The character to be placed at the very top of the delimiter.
+     *
+     * @param  lowerIntersection
+     *         The character to be placed at the very bottom of the delimiter.
+     *
+     * @return This builder.
+     *
+     * @see    this#setRowNames(String...)
+     */
+    public TableBuilder setFirstColumnChars(char delimiter, char crossDelimiter, char upperIntersection, char lowerIntersection)
+    {
+        this.firstColumnDelimiter = delimiter;
+        this.firstColumnCrossDelimiter = crossDelimiter;
+        this.firstColumnUpperIntersection = upperIntersection;
+        this.firstColumnLowerIntersection = lowerIntersection;
+        return this;
+    }
+
+    /**
+     * Sets the character to be placed at the lower right corner of the very first "cell".
+     * <br>By default, this is a standard unicode box drawing characters matching the rest of the default values for this class.
+     *
+     * @param  delimiter
+     *         The character to be placed at the intersection of first row x first column.
+     *
+     * @return This builder.
+     */
+    public TableBuilder setHeaderColumnCrossDelimiter(char delimiter)
+    {
+        this.headerColumnCrossDelimiter = delimiter;
         return this;
     }
 
@@ -616,7 +697,7 @@ public class TableBuilder
         return this;
     }
 
-    // testing
+    // TODO: 23.10.2018 remove this
     /*public static void main(String[] args) {
         String table = new TableBuilder().setHeaders("Header 1", "Header 2", "Header 3")
             .setName("Sample Name")
@@ -624,7 +705,10 @@ public class TableBuilder
                 {"Item 1", "Item 2", "Item 3"},
                 {"Item 4", "Item 5", "Item 6"},
                 {"Item 7", "Item 8", "Item 9"}
-            }).setRowNames("Row 1", "Row 2", "Row 3").frame(true).build();
+            })
+            //.setRowNames("Row 1", "Row 2", "Row 3")
+            .frame(true)
+            .build();
         System.out.println(table);
     }*/
 
