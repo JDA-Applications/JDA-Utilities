@@ -24,11 +24,11 @@ import java.util.Objects;
  * <code>
  *     String table = new TableBuilder()
  *         .setAlignment(TableBuilder.CENTER) // setting center alignment (already set by default)
- *         .setHeaders("Header[0]", "Header[1]") // setting headers
+ *         .addHeaders("Header[0]", "Header[1]") // setting headers
  *         .setValues(new String[][] { // setting values as 2d array
  *             {"Value[0][0]", "Value[0][1]"},
  *             {"Value[1][0]", "Value[1][1]"}
- *         }).setRowNames("Row[0]", "Row[1]") // setting row names
+ *         }).addRowNames("Row[0]", "Row[1]") // setting row names
  *         .setName("Table Name") // the name (displayed in the top left corner)
  *         .frame(true) // activating framing
  *         .build(); // building (note that this consists of unicode box drawing characters, so it might not display correctly on some devices)
@@ -350,14 +350,16 @@ public class TableBuilder
     }
 
     /**
-     * Sets the headers of this table.
+     * Sets the headers for the columns specified in {@link this#setValues(String[][]) values}, applied in the order given here.
+     *
+     * <p>This setting is optional. By default, there will not be any headers.
      *
      * @param  headers
      *         The headers as varargs, so either a String[] or single Strings.
      *
      * @return this
      */
-    public TableBuilder setHeaders(String... headers)
+    public TableBuilder addHeaders(String... headers)
     {
         this.headers = headers;
         return this;
@@ -375,7 +377,7 @@ public class TableBuilder
      *
      * @see    this#setName(String)
      */
-    public TableBuilder setRowNames(String... rows)
+    public TableBuilder addRowNames(String... rows)
     {
         this.rowNames = rows;
         return this;
@@ -418,7 +420,7 @@ public class TableBuilder
      *
      * @return This builder.
      *
-     * @see    this#setRowNames(String...)
+     * @see    this#addRowNames(String...)
      */
     public TableBuilder setName(String tableName)
     {
@@ -499,6 +501,7 @@ public class TableBuilder
      * @param  autoAdjust
      *         {@code true}, if the table should evaluate the space needed automatically.
      *         {@code false}, if you want every value to have max. the same length as the corresponding header and it should be fixed.
+     *         This also deactivates the possibility to use an alignment or a padding.
      *
      * @return This builder.
      */
@@ -508,32 +511,63 @@ public class TableBuilder
         return this;
     }
 
-    // TODO: 23.10.2018
+    /**
+     * An enum that represents the alignments possible to set
+     */
     public enum Alignment 
     {
         LEFT, RIGHT, CENTER
     }
 
+    /**
+     * A data class whose instances store the characters needed to create a table with the enclosing {@link TableBuilder TableBuilder}.
+     * <br>Instances can be created via the factory methods provided by this class.
+     * <br>Some default instances are already given as {@code public static final} fields.
+     * All of them use box drawing characters.
+     */
     public static class Borders
     {
-        public static final Borders HEADER_ROW_FRAME = new Borders('─', '│', '┼',
+
+        /**
+         * An instance that can be used for framed tables with a header row and a columns with row names, for it provides
+         * special delimiters for the first row and column.
+         */
+        public static final Borders HEADER_ROW_FRAME = newHeaderRowNamesFrameBorders('─', '│', '┼',
             '├', '┤', '┬', '┴', '┌', '┐', '└',
             '┘', '═', '╪', '╞', '╡', '║',
             '╫', '╥', '╨', '╬', '─', '│');
 
-        public static final Borders HEADER_FRAME = new Borders('─', '│', '┼',
+        /**
+         * An instance that can be used for framed tables with a header row, for it provides a special delimiter for the first row.
+         */
+        public static final Borders HEADER_FRAME = newHeaderFrameBorders('─', '│', '┼',
             '├', '┤', '┬', '┴', '┌', '┐', '└', '┘',
             '═', '╪', '╞', '╡', '─', '│');
 
-        public static final Borders FRAME = new Borders('─', '│', '┼', '├', '┤',
+        /**
+         * An instance that can be used for framed tables without any special characters for headers or row name columns.
+         */
+        public static final Borders FRAME = newFrameBorders('─', '│', '┼', '├', '┤',
             '┬', '┴', '┌', '┐', '└', '┘', '─', '│');
 
-        public static final Borders HEADER_ROW_PLAIN = new Borders('─', '│', '┼', '═',
+        /**
+         * An instance that can be used for tables without a frame that have a header row and a row name column,
+         * for this provides special delimiters for the first row and column.
+         */
+        public static final Borders HEADER_ROW_PLAIN = newHeaderRowNamesPlainBorders('─', '│', '┼', '═',
             '╪', '║', '╫', '╬');
 
-        public static final Borders HEADER_PLAIN = new Borders('─', '│', '┼', '═', '╪');
+        /**
+         * An instance that can be used for tables without a frame that have a header, for this provides a special
+         * delimiter for the first row.
+         */
+        public static final Borders HEADER_PLAIN = newHeaderPlainBorders('─', '│', '┼', '═', '╪');
 
-        public static final Borders PLAIN = new Borders('─', '│', '┼');
+        /**
+         * An instance that can be used for plain tables without a frame that do not have any special delimiters
+         * for headers or row name columns.
+         */
+        public static final Borders PLAIN = newPlainBorders('─', '│', '┼');
 
         public static final char UNKNOWN = '�';
 
@@ -544,8 +578,82 @@ public class TableBuilder
             firstColumnLowerIntersection, headerColumnCrossDelimiter, horizontalOutline, verticalOutline;
 
         // framing + headers + rows
+        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection,
+                        char rightIntersection, char upperIntersection, char lowerIntersection, char upLeftCorner,
+                        char upRightCorner, char lowLeftCorner, char lowRightCorner, char headerDelimiter,
+                        char headerCrossDelimiter, char headerLeftIntersection, char headerRightIntersection,
+                        char firstColumnDelimiter, char firstColumnCrossDelimiter, char firstColumnUpperIntersection,
+                        char firstColumnLowerIntersection, char headerColumnCrossDelimiter, char horizontalOutline, char verticalOutline)
+        {
+            this.rowDelimiter = rowDelimiter;
+            this.columnDelimiter = columnDelimiter;
+            this.crossDelimiter = crossDelimiter;
+            this.leftIntersection = leftIntersection;
+            this.rightIntersection = rightIntersection;
+            this.upperIntersection = upperIntersection;
+            this.lowerIntersection = lowerIntersection;
+            this.upLeftCorner = upLeftCorner;
+            this.upRightCorner = upRightCorner;
+            this.lowLeftCorner = lowLeftCorner;
+            this.lowRightCorner = lowRightCorner;
+            this.headerDelimiter = headerDelimiter;
+            this.headerCrossDelimiter = headerCrossDelimiter;
+            this.headerLeftIntersection = headerLeftIntersection;
+            this.headerRightIntersection = headerRightIntersection;
+            this.firstColumnDelimiter = firstColumnDelimiter;
+            this.firstColumnCrossDelimiter = firstColumnCrossDelimiter;
+            this.firstColumnUpperIntersection = firstColumnUpperIntersection;
+            this.firstColumnLowerIntersection = firstColumnLowerIntersection;
+            this.headerColumnCrossDelimiter = headerColumnCrossDelimiter;
+            this.horizontalOutline = horizontalOutline;
+            this.verticalOutline = verticalOutline;
+        }
+
+        // framing + headers
+        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
+                        char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
+                        char lowRightCorner, char headerDelimiter, char headerCrossDelimiter, char headerLeftIntersection,
+                        char headerRightIntersection, char horizontalOutline, char verticalOutline)
+        {
+            this(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
+                upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection,
+                headerRightIntersection, columnDelimiter, crossDelimiter, upperIntersection, lowerIntersection, headerCrossDelimiter,
+                horizontalOutline, verticalOutline);
+        }
+
+        // framing
+        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
+                        char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
+                        char lowRightCorner, char horizontalOutline, char verticalOutline)
+        {
+            this(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
+                upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, rowDelimiter, crossDelimiter, leftIntersection, rightIntersection,
+                horizontalOutline, verticalOutline);
+        }
+
+        // plain + headers + rows
+        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter,
+                        char firstColumnDelimiter, char firstColumnCrossDelimiter, char headerColumnCrossDelimiter)
+        {
+            this(rowDelimiter, columnDelimiter, crossDelimiter, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN,
+                headerDelimiter, headerCrossDelimiter, UNKNOWN, UNKNOWN, firstColumnDelimiter, firstColumnCrossDelimiter,
+                UNKNOWN, UNKNOWN, headerColumnCrossDelimiter, UNKNOWN, UNKNOWN);
+        }
+
+        // plain + headers
+        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter)
+        {
+            this(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter, columnDelimiter, crossDelimiter, headerCrossDelimiter);
+        }
+
+        // plain
+        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter)
+        {
+            this(rowDelimiter, columnDelimiter, crossDelimiter, rowDelimiter, crossDelimiter);
+        }
+
         /**
-         * The constructor for {@code Borders} instances that should support framing
+         * The factory method for {@code Borders} instances that should support framing
          * as well as special characters for a header row and a row name column.
          *
          * @param  rowDelimiter
@@ -614,39 +722,20 @@ public class TableBuilder
          * @param  verticalOutline
          *         The character to use for the left and right frame outline
          */
-        public Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection,
-                       char rightIntersection, char upperIntersection, char lowerIntersection, char upLeftCorner,
-                       char upRightCorner, char lowLeftCorner, char lowRightCorner, char headerDelimiter,
-                       char headerCrossDelimiter, char headerLeftIntersection, char headerRightIntersection,
-                       char firstColumnDelimiter, char firstColumnCrossDelimiter, char firstColumnUpperIntersection,
-                       char firstColumnLowerIntersection, char headerColumnCrossDelimiter, char horizontalOutline, char verticalOutline) {
-            this.rowDelimiter = rowDelimiter;
-            this.columnDelimiter = columnDelimiter;
-            this.crossDelimiter = crossDelimiter;
-            this.leftIntersection = leftIntersection;
-            this.rightIntersection = rightIntersection;
-            this.upperIntersection = upperIntersection;
-            this.lowerIntersection = lowerIntersection;
-            this.upLeftCorner = upLeftCorner;
-            this.upRightCorner = upRightCorner;
-            this.lowLeftCorner = lowLeftCorner;
-            this.lowRightCorner = lowRightCorner;
-            this.headerDelimiter = headerDelimiter;
-            this.headerCrossDelimiter = headerCrossDelimiter;
-            this.headerLeftIntersection = headerLeftIntersection;
-            this.headerRightIntersection = headerRightIntersection;
-            this.firstColumnDelimiter = firstColumnDelimiter;
-            this.firstColumnCrossDelimiter = firstColumnCrossDelimiter;
-            this.firstColumnUpperIntersection = firstColumnUpperIntersection;
-            this.firstColumnLowerIntersection = firstColumnLowerIntersection;
-            this.headerColumnCrossDelimiter = headerColumnCrossDelimiter;
-            this.horizontalOutline = horizontalOutline;
-            this.verticalOutline = verticalOutline;
+        public static Borders newHeaderRowNamesFrameBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection,
+                                                            char rightIntersection, char upperIntersection, char lowerIntersection, char upLeftCorner,
+                                                            char upRightCorner, char lowLeftCorner, char lowRightCorner, char headerDelimiter,
+                                                            char headerCrossDelimiter, char headerLeftIntersection, char headerRightIntersection,
+                                                            char firstColumnDelimiter, char firstColumnCrossDelimiter, char firstColumnUpperIntersection,
+                                                            char firstColumnLowerIntersection, char headerColumnCrossDelimiter, char horizontalOutline, char verticalOutline)
+        {
+            return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection, upLeftCorner, upRightCorner,
+                lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection, headerRightIntersection, firstColumnDelimiter, firstColumnCrossDelimiter,
+                firstColumnUpperIntersection, firstColumnLowerIntersection, headerColumnCrossDelimiter, horizontalOutline, verticalOutline);
         }
 
-        // framing + headers
         /**
-         * The constructor for {@code Borders} instances that should support framing and
+         * The factory method for {@code Borders} instances that should support framing and
          * special characters for a header row.
          *
          * @param  rowDelimiter
@@ -700,19 +789,18 @@ public class TableBuilder
          * @param  verticalOutline
          *         The character to use for the left and right frame outline
          */
-        public Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
-                       char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
-                       char lowRightCorner, char headerDelimiter, char headerCrossDelimiter, char headerLeftIntersection,
-                       char headerRightIntersection, char horizontalOutline, char verticalOutline) {
-            this(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
-                upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection,
-                headerRightIntersection, columnDelimiter, crossDelimiter, upperIntersection, lowerIntersection, headerCrossDelimiter,
+        public static Borders newHeaderFrameBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
+                                                    char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
+                                                    char lowRightCorner, char headerDelimiter, char headerCrossDelimiter, char headerLeftIntersection,
+                                                    char headerRightIntersection, char horizontalOutline, char verticalOutline)
+        {
+            return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
+                upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection, headerRightIntersection,
                 horizontalOutline, verticalOutline);
         }
 
-        // framing
         /**
-         * The constructor for {@code Borders} instances that should support framing and don't have
+         * The factory method for {@code Borders} instances that should support framing and don't have
          * any special characters for headers or row names.
          *
          * @param  rowDelimiter
@@ -754,18 +842,19 @@ public class TableBuilder
          * @param  verticalOutline
          *         The character to use for the left and right frame outline
          */
-        public Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
-                       char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
-                       char lowRightCorner, char horizontalOutline, char verticalOutline) {
-            this(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
-                upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, rowDelimiter, crossDelimiter, leftIntersection, rightIntersection,
-                horizontalOutline, verticalOutline);
+        public static Borders newFrameBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
+                                              char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
+                                              char lowRightCorner, char horizontalOutline, char verticalOutline)
+        {
+            return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection, upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, horizontalOutline, verticalOutline);
         }
 
-        // plain + headers + rows
         /**
-         * The constructor for {@code Borders} instances that should not support framing
+         * The factory method for {@code Borders} instances that should not support framing
          * but special characters for a header row and a row name column.
+         *
+         * <p>Warning: using this or the other plain Borders for a framed table will not lead to a satisfying result,
+         * since all the framing characters are {@link this#UNKNOWN unknown unicode characters} here.
          *
          * @param  rowDelimiter
          *         The character used to separate normal rows from each other
@@ -791,16 +880,14 @@ public class TableBuilder
          * @param  headerColumnCrossDelimiter
          *         The character to be placed at the intersection first row x first column
          */
-        public Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter,
-                       char firstColumnDelimiter, char firstColumnCrossDelimiter, char headerColumnCrossDelimiter) {
-            this(rowDelimiter, columnDelimiter, crossDelimiter, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN,
-                headerDelimiter, headerCrossDelimiter, UNKNOWN, UNKNOWN, firstColumnDelimiter, firstColumnCrossDelimiter,
-                UNKNOWN, UNKNOWN, headerColumnCrossDelimiter, UNKNOWN, UNKNOWN);
+        public static Borders newHeaderRowNamesPlainBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter,
+                                                            char firstColumnDelimiter, char firstColumnCrossDelimiter, char headerColumnCrossDelimiter)
+        {
+            return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter, firstColumnDelimiter, firstColumnCrossDelimiter, headerColumnCrossDelimiter);
         }
 
-        // plain + headers
         /**
-         * The constructor for {@code Borders} instances that should not support framing
+         * The factory method for {@code Borders} instances that should not support framing
          * but special characters for a header row.
          *
          * @param  rowDelimiter
@@ -818,13 +905,13 @@ public class TableBuilder
          * @param  headerCrossDelimiter
          *         The character to be placed where the header delimiter and the column delimiters cross
          */
-        public Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter) {
-            this(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter, columnDelimiter, crossDelimiter, headerCrossDelimiter);
+        public static Borders newHeaderPlainBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter)
+        {
+            return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter);
         }
 
-        // plain
         /**
-         * The constructor for {@code Borders} instances that should not support framing
+         * The factory method for {@code Borders} instances that should not support framing
          * and no special characters for a header row or a row name column.
          *
          * @param  rowDelimiter
@@ -836,26 +923,10 @@ public class TableBuilder
          * @param  crossDelimiter
          *         The character to be placed where the vertical and horizontal lines inside the table cross
          */
-        public Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter) {
-            this(rowDelimiter, columnDelimiter, crossDelimiter, rowDelimiter, crossDelimiter);
+        public static Borders newPlainBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter)
+        {
+            return new Borders(rowDelimiter, columnDelimiter, crossDelimiter);
         }
     }
-
-    // TODO: 23.10.2018 remove this
-    /*public static void main(String[] args) {
-        String table = new TableBuilder()
-            .setName("Sample Name")
-            .setHeaders("Header 1", "Header 2", "Header 3")
-            .setValues(new String[][] {
-                {"Item 1", "Item 2", "Item 3"},
-                {"Item 4", "Item 5", "Item 6"},
-                {"Item 7", "Item 8", "Item 9"}
-            })
-            .setRowNames("Row 1", "Row 2", "Row 3")
-            .setBorders(Borders.HEADER_ROW_FRAME)
-            .frame(true)
-            .build();
-        System.out.println(table);
-    }*/
 
 }
