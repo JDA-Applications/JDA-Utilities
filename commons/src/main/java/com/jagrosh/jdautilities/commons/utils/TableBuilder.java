@@ -52,7 +52,7 @@ public class TableBuilder
     private String tableName = "";
 
     private Alignment alignment = Alignment.CENTER;
-    private int padding = 0;
+    private int padding = 1;
 
     private boolean codeblock = false;
     private boolean frame = false;
@@ -450,7 +450,7 @@ public class TableBuilder
 
     /**
      * Sets a paddling that is applied to each value if autoAdjust is {@code true}.
-     * <br>By default, this is {@code 0}.
+     * <br>By default, this is {@code 1}.
      *
      * @param  padding The minimum amount of blank spaces between a value and the corresponding borders.
      *
