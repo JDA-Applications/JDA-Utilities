@@ -536,7 +536,7 @@ public abstract class Command
         if(message!=null)
             event.reply(message);
         if(event.getClient().getListener()!=null)
-            event.getClient().getListener().onTerminatedCommand(event, this);
+            event.getClient().getListener().onTerminatedCommand(event, this, message);
     }
 
     /**

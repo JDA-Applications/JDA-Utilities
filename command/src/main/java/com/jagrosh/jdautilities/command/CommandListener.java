@@ -61,8 +61,10 @@ public interface CommandListener
      *         The CommandEvent that triggered the Command
      * @param  command
      *         The Command that was triggered
+     * @param  message
+     *         The message why it was terminated
      */
-    default void onTerminatedCommand(CommandEvent event, Command command) {}
+    default void onTerminatedCommand(CommandEvent event, Command command, String message) {}
     
     /**
      * Called when a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}
