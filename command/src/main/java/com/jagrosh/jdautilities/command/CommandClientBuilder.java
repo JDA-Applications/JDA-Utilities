@@ -378,10 +378,13 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the <a href="http://bots.discord.pw/">Discord Bots</a> API key for this bot's listing.
+     * Sets the <a href="https://discord.bots.gg/">Discord Bots</a> API key for this bot's listing.
      * 
      * <p>When set, the {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
      * will automatically update it's Discord Bots listing with relevant information such as server count.
+     * 
+     * <p>This will also retrieve the bot's total guild count in the same request, which can be accessed
+     * via {@link com.jagrosh.jdautilities.command.CommandClient#getTotalGuilds()}.
      * 
      * @param  key
      *         A Discord Bots API key
