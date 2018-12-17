@@ -614,7 +614,7 @@ public class CommandClientImpl implements CommandClient, EventListener
             
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-                    .url("https://discord.bots.gg/api/v1/" + jda.getSelfUser().getId() + "/stats")
+                    .url("https://discord.bots.gg/api/v1/bots/" + jda.getSelfUser().getId() + "/stats")
                     .header("Authorization", botsKey)
                     .header("Content-Type", "application/json");
 
@@ -623,26 +623,27 @@ public class CommandClientImpl implements CommandClient, EventListener
                 @Override
                 public void onResponse(Call call, Response response) throws IOException
                 {
-                    LOG.info("Successfully send information to discord.bots.gg");
-                    try(Reader reader = response.body().charStream())
+                    if(response.isSuccessful())
                     {
-                        totalGuilds = new JSONObject(new JSONTokener(reader)).getInt("guildCount");
+                        LOG.info("Successfully sent information to discord.bots.gg");
+                        try(Reader reader = response.body().charStream())
+                        {
+                            totalGuilds = new JSONObject(new JSONTokener(reader)).getInt("guildCount");
+                        }
+                        catch(Exception ex)
+                        {
+                            LOG.error("Failed to retrieve bot shard information from discord.bots.gg ", ex);
+                        }
                     }
-                    catch(Exception ex)
-                    {
-                        LOG.error("Failed to retrieve bot shard information from discord.bots.gg ", ex);
-                    }
-                    finally
-                    {
-                        // Close the response
-                        response.close();
-                    }
+                    else
+                        LOG.error("Failed to send information to discord.bots.gg");
+                    response.close();
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e)
                 {
-                    LOG.error("Failed to send information to bots.discord.pw ", e);
+                    LOG.error("Failed to send information to discord.bots.gg ", e);
                 }
             });
         }
