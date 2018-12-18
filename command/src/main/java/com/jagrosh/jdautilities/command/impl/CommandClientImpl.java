@@ -605,7 +605,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         
         if(botsKey != null)
         {
-            JSONObject body = new JSONObject().put("serverCount", jda.getGuilds().size());
+            JSONObject body = new JSONObject().put("guildCount", jda.getGuilds().size());
             if(jda.getShardInfo() != null)
             {
                 body.put("shardId", jda.getShardInfo().getShardId())
@@ -636,7 +636,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                         }
                     }
                     else
-                        LOG.error("Failed to send information to discord.bots.gg");
+                        LOG.error("Failed to send information to discord.bots.gg: "+response.body().string());
                     response.close();
                 }
 
