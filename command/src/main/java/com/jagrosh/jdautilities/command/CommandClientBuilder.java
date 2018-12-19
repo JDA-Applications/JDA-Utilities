@@ -47,7 +47,6 @@ public class CommandClientBuilder
     private String error;
     private String carbonKey;
     private String botsKey;
-    private String botsOrgKey;
     private final LinkedList<Command> commands = new LinkedList<>();
     private CommandListener listener;
     private boolean useHelp = true;
@@ -70,7 +69,7 @@ public class CommandClientBuilder
     public CommandClient build()
     {
         CommandClient client = new CommandClientImpl(ownerId, coOwnerIds, prefix, altprefix, game, status, serverInvite,
-                                                     success, warning, error, carbonKey, botsKey, botsOrgKey, new ArrayList<>(commands), useHelp,
+                                                     success, warning, error, carbonKey, botsKey, new ArrayList<>(commands), useHelp,
                                                      shutdownAutomatically, helpConsumer, helpWord, executor, linkedCacheSize, compiler, manager);
         if(listener!=null)
             client.setListener(listener);
@@ -379,10 +378,13 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the <a href="http://bots.discord.pw/">Discord Bots</a> API key for this bot's listing.
+     * Sets the <a href="https://discord.bots.gg/">Discord Bots</a> API key for this bot's listing.
      * 
      * <p>When set, the {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
      * will automatically update it's Discord Bots listing with relevant information such as server count.
+     * 
+     * <p>This will also retrieve the bot's total guild count in the same request, which can be accessed
+     * via {@link com.jagrosh.jdautilities.command.CommandClient#getTotalGuilds()}.
      * 
      * @param  key
      *         A Discord Bots API key
@@ -396,19 +398,19 @@ public class CommandClientBuilder
     }
     
     /**
-     * Sets the <a href="https://discordbots.org/">Discord Bot List</a> API key for this bot's listing.
-     * 
-     * <p>When set, the {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl CommandClientImpl}
-     * will automatically update it's Discord Bot List listing with relevant information such as server count.
+     * This method has been deprecated as the new(ish) ratelimit system is more complex than we'd like to
+     * implement in JDA-Utils. Considering using some other library which correctly handles the ratelimits
+     * for this service.
      * 
      * @param  key
      *         A Discord Bot List API key
      *         
      * @return This builder
      */
+    @Deprecated
     public CommandClientBuilder setDiscordBotListKey(String key)
     {
-        this.botsOrgKey = key;
+        // this.botsOrgKey = key;
         return this;
     }
     

@@ -35,7 +35,6 @@ import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.Requester;
 import net.dv8tion.jda.core.utils.Checks;
 import okhttp3.*;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
@@ -83,9 +82,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private final String success;
     private final String warning;
     private final String error;
-    private final String carbonKey;
-    private final String botsKey;
-    private final String botsOrgKey;
+    private final String botsKey, carbonKey;
     private final HashMap<String,OffsetDateTime> cooldowns;
     private final HashMap<String,Integer> uses;
     private final FixedSizeCache<Long, Set<Message>> linkMap;
@@ -102,7 +99,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     private int totalGuilds;
 
     public CommandClientImpl(String ownerId, String[] coOwnerIds, String prefix, String altprefix, Game game, OnlineStatus status, String serverInvite,
-            String success, String warning, String error, String carbonKey, String botsKey, String botsOrgKey, ArrayList<Command> commands,
+            String success, String warning, String error, String carbonKey, String botsKey, ArrayList<Command> commands,
             boolean useHelp, boolean shutdownAutomatically, Consumer<CommandEvent> helpConsumer, String helpWord, ScheduledExecutorService executor, 
             int linkedCacheSize, AnnotatedModuleCompiler compiler, GuildSettingsManager manager)
     {
@@ -135,7 +132,6 @@ public class CommandClientImpl implements CommandClient, EventListener
         this.error = error==null ? "": error;
         this.carbonKey = carbonKey;
         this.botsKey = botsKey;
-        this.botsOrgKey = botsOrgKey;
         this.commandIndex = new HashMap<>();
         this.commands = new ArrayList<>();
         this.cooldowns = new HashMap<>();
@@ -606,123 +602,58 @@ public class CommandClientImpl implements CommandClient, EventListener
                 }
             });
         }
-
-        // Both bots.discord.pw and discordbots.org use the same JSON body
-        // structure for POST requests to their stats APIs, so we reuse the same
-        // JSON for both
-        JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
-        if(jda.getShardInfo() != null)
-        {
-            body.put("shard_id", jda.getShardInfo().getShardId())
-                .put("shard_count", jda.getShardInfo().getShardTotal());
-        }
-        
-        if(botsOrgKey != null)
-        {
-            Request.Builder builder = new Request.Builder()
-                    .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-                    .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
-                    .header("Authorization", botsOrgKey)
-                    .header("Content-Type", "application/json");
-            
-            client.newCall(builder.build()).enqueue(new Callback()
-            {
-                @Override
-                public void onResponse(Call call, Response response)
-                {
-                    LOG.info("Successfully send information to discordbots.org");
-                    response.close();
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e)
-                {
-                    LOG.error("Failed to send information to discordbots.org ", e);
-                }
-            });
-        }
         
         if(botsKey != null)
         {
+            JSONObject body = new JSONObject().put("guildCount", jda.getGuilds().size());
+            if(jda.getShardInfo() != null)
+            {
+                body.put("shardId", jda.getShardInfo().getShardId())
+                    .put("shardCount", jda.getShardInfo().getShardTotal());
+            }
+            
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-                    .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .url("https://discord.bots.gg/api/v1/bots/" + jda.getSelfUser().getId() + "/stats")
                     .header("Authorization", botsKey)
                     .header("Content-Type", "application/json");
 
             client.newCall(builder.build()).enqueue(new Callback()
             {
                 @Override
-                public void onResponse(Call call, Response response)
+                public void onResponse(Call call, Response response) throws IOException
                 {
-                    LOG.info("Successfully send information to bots.discord.pw");
+                    if(response.isSuccessful())
+                    {
+                        LOG.info("Successfully sent information to discord.bots.gg");
+                        try(Reader reader = response.body().charStream())
+                        {
+                            totalGuilds = new JSONObject(new JSONTokener(reader)).getInt("guildCount");
+                        }
+                        catch(Exception ex)
+                        {
+                            LOG.error("Failed to retrieve bot shard information from discord.bots.gg ", ex);
+                        }
+                    }
+                    else
+                        LOG.error("Failed to send information to discord.bots.gg: "+response.body().string());
                     response.close();
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e)
                 {
-                    LOG.error("Failed to send information to bots.discord.pw ", e);
+                    LOG.error("Failed to send information to discord.bots.gg ", e);
                 }
             });
-
-            if(jda.getShardInfo()==null)
-            {
-                this.totalGuilds = jda.getGuilds().size();
-            }
-            else
-            {
-                Request.Builder b = new Request.Builder()
-                    .get().url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
-                    .header("Authorization", botsKey)
-                    .header("Content-Type", "application/json");
-
-                client.newCall(b.build()).enqueue(new Callback()
-                {
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException
-                    {
-                        try(Reader reader = response.body().charStream())
-                        {
-                            JSONArray array = new JSONObject(new JSONTokener(reader)).getJSONArray("stats");
-                            int total = 0;
-                            for(int i = 0; i < array.length(); i++)
-                                total += array.getJSONObject(i).getInt("server_count");
-                            totalGuilds = total;
-                        }
-                        finally
-                        {
-                            // Close the response
-                            response.close();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call call, IOException e)
-                    {
-                        LOG.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
-                    }
-                });
-
-                // Good thing to keep in mind:
-                // We used to make the request above by blocking the thread and waiting for DBots
-                // to respond. For the future (should we succeed in not blocking that as well),
-                // let's not do this again, okay?
-
-                /*try(Reader reader = client.newCall(new Request.Builder()
-                        .get().url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
-                        .header("Authorization", botsKey)
-                        .header("Content-Type", "application/json")
-                        .build()).execute().body().charStream()) {
-                    JSONArray array = new JSONObject(new JSONTokener(reader)).getJSONArray("stats");
-                    int total = 0;
-                    for (int i = 0; i < array.length(); i++)
-                        total += array.getJSONObject(i).getInt("server_count");
-                    this.totalGuilds = total;
-                } catch (Exception e) {
-                    LOG.error("Failed to retrieve bot shard information from bots.discord.pw ", e);
-                }*/
-            }
+        }
+        else if (jda.asBot().getShardManager() != null)
+        {
+            totalGuilds = (int) jda.asBot().getShardManager().getGuildCache().size();
+        }
+        else
+        {
+            totalGuilds = (int) jda.getGuildCache().size();
         }
     }
 
