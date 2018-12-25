@@ -53,8 +53,7 @@ public class SelectionDialog extends Menu
     private final boolean loop;
     private final Function<Integer,String> text;
     private final BiConsumer<Message, Integer> success;
-    private final Consumer<Message> cancel;
-    
+
     public static final String UP = "\uD83D\uDD3C";
     public static final String DOWN = "\uD83D\uDD3D";
     public static final String SELECT = "\u2705";
@@ -65,7 +64,7 @@ public class SelectionDialog extends Menu
                     Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
                     Consumer<Message> cancel, Function<Integer,String> text)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, cancel);
         this.choices = choices;
         this.leftEnd = leftEnd;
         this.rightEnd = rightEnd;
@@ -74,7 +73,6 @@ public class SelectionDialog extends Menu
         this.color = color;
         this.loop = loop;
         this.success = success;
-        this.cancel = cancel;
         this.text = text;
     }
 
@@ -144,29 +142,30 @@ public class SelectionDialog extends Menu
         Message msg = render(selection);
         initialize(message.editMessage(msg), selection);
     }
-    
+
     private void initialize(RestAction<Message> action, int selection)
     {
         action.queue(m -> {
+            setAttachedMessage(m);
             if(choices.size()>1)
             {
                 m.addReaction(UP).queue();
                 m.addReaction(SELECT).queue();
                 m.addReaction(CANCEL).queue();
-                m.addReaction(DOWN).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(DOWN).queue(v -> selectionDialog(selection), v -> selectionDialog(selection));
             }
             else
             {
                 m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(CANCEL).queue(v -> selectionDialog(selection), v -> selectionDialog(selection));
             }
         });
     }
     
-    private void selectionDialog(Message message, int selection)
+    private void selectionDialog(int selection)
     {
-        waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
-            if(!event.getMessageId().equals(message.getId()))
+        setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
+            if(event.getMessageIdLong() != getAttachedMessage().getIdLong())
                 return false;
             if(!(UP.equals(event.getReaction().getReactionEmote().getName())
                     || DOWN.equals(event.getReaction().getReactionEmote().getName())
@@ -191,10 +190,10 @@ public class SelectionDialog extends Menu
                         newSelection = 1;
                     break;
                 case SELECT:
-                    success.accept(message, selection);
+                    success.accept(getAttachedMessage(), selection);
                     break;
                 case CANCEL:
-                    cancel.accept(message);
+                    finalizeMenu();
                     return;
 
             }
@@ -202,8 +201,8 @@ public class SelectionDialog extends Menu
                 event.getReaction().removeReaction(event.getUser()).queue();
             } catch (PermissionException ignored) {}
             int n = newSelection;
-            message.editMessage(render(n)).queue(m -> selectionDialog(m, n));
-        }, timeout, unit, () -> cancel.accept(message));
+            getAttachedMessage().editMessage(render(n)).queue(m -> selectionDialog(n));
+        }, timeout, unit, this::finalizeMenu));
     }
     
     private Message render(int selection)

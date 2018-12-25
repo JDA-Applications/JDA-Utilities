@@ -18,7 +18,9 @@ package com.jagrosh.jdautilities.menu;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.*;
@@ -37,6 +39,15 @@ import javax.annotation.Nullable;
  * <p>The JDA-Utilities default implementations of this superclass typically handle input through
  * the assistance of things such as {@link net.dv8tion.jda.core.entities.MessageReaction reactions},
  * but the actual implementation is only limited to the events provided by Discord and handled through JDA.
+ *
+ * <p>Implementations should all use the stateful system consisting of the Constructor with finalAction parameter
+ * and the three methods {@link #setAttachedMessage(Message) setAttachedMessage(Message)},
+ * {@link #setCancelFuture(Future) setCancelFuture(Future)}
+ * and {@link #finalizeMenu() finalizeMenu()} (or {@link #finalizeMenu(boolean) finalizeMenu(boolean)} if needed).
+ * <br>By properly calling those methods as described in their docs, the Menu can be cancelled externaly by calling
+ * {@link #cancel() Menu#cancel()}.
+ * <br>This system is not mandatory, as that would break backwards compatibility with older Menu implementations,
+ * but it should always be used by new ones.
  *
  * <p>For custom implementations, readability of creating and integrating may be improved
  * by the implementation of a companion builder may be helpful (see the documentation on
@@ -60,14 +71,24 @@ public abstract class Menu
     protected Set<Role> roles;
     protected final long timeout;
     protected final TimeUnit unit;
-    
+
+    private final Consumer<Message> finalAction;
+    private Future<Void> cancelFuture;
+    private Message attachedMessage;
+
     protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit)
+    {
+        this(waiter, users, roles, timeout, unit, null);
+    }
+
+    protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Consumer<Message> finalAction)
     {
         this.waiter = waiter;
         this.users = users;
         this.roles = roles;
         this.timeout = timeout;
         this.unit = unit;
+        this.finalAction = finalAction;
     }
     
     /**
@@ -88,6 +109,102 @@ public abstract class Menu
      *         The Message to display this Menu as
      */
     public abstract void display(Message message);
+
+    /**
+     * Returns the message, this menu was attached to.
+     * This is set <b>asynchronously</b> after a call to a {@code display()} or equivalent method.
+     * <br>The attached message will be reset, when the menu times out or is cancelled.
+     *
+     * @return The message, this menu was attached to or {@code null} if not yet attached or already timed out/cancelled.
+     */
+    public Message getAttachedMessage()
+    {
+        return attachedMessage;
+    }
+
+    /**
+     * Cancels the menu. This stops the EventWaiter from waiting for events and behaves exactly the same way as if the menu timed out.
+     * That includes calling the final/cancel action if provided.
+     *
+     * @throws IllegalStateException
+     *         If the Menu was not yet displayed, already cancelled (includes timeout or other menu ends)
+     *         or cancel functionality is not supported by the custom implementation
+     */
+    public void cancel()
+    {
+        if(cancelFuture == null)
+            throw new IllegalStateException("Menu can not be cancelled (not yet displayed, already ended or not supported by custom implementation)");
+        cancelFuture.cancel(false);
+        cancelFuture = null;
+    }
+
+    /**
+     * Internally used to set the attached message.
+     * Should be used by the corresponding Menu implementation as soon as the message was created/edited.
+     *
+     * @param  attachedMessage
+     *         The message, where this menu was attached to
+     */
+    protected final void setAttachedMessage(Message attachedMessage)
+    {
+        this.attachedMessage = attachedMessage;
+    }
+
+    /**
+     * Internally used to set the cancelFuture used to cancel the menu.
+     * Should be used by the corresponding Menu implementation as soon as {@code EventWaiter#waitForEvent} was used (with its return value).
+     *
+     * @param  cancelFuture
+     *         The cancel Future returned from {@code EventWaiter#waitForEvent}
+     */
+    protected final void setCancelFuture(Future<Void> cancelFuture)
+    {
+        this.cancelFuture = cancelFuture;
+    }
+
+    /**
+     * Returns the finalAction given via constructor.
+     *
+     * @return The finalAction given via constructor.
+     */
+    protected final Consumer<Message> getFinalAction()
+    {
+        return finalAction;
+    }
+
+    /**
+     * Calls the final action and cleans up the attached message and cancelFuture (sets them to {@code null}).
+     * <br>The actual Menu implementation should should call this method whenever the waiting loop is about to exit
+     * and the final action should be called (e.g. as timeout action for the EventWaiter).
+     *
+     * <p>This method is a shortcut for using {@link #finalizeMenu(boolean) finalizeMenu(true)}
+     *
+     * @see #finalizeMenu(boolean)
+     */
+    protected void finalizeMenu()
+    {
+        finalizeMenu(true);
+    }
+
+    /**
+     * Cleans up the attached message and cancelFuture (sets them to {@code null}) and optionally calls the final action.
+     * <br>The actual Menu implementation should should call this method whenever the waiting loop is about to exit
+     * and {@link #finalizeMenu() finalizeMenu()} is not applicable.
+     *
+     * @param  callFinalAction
+     *         Whether or not the final action should be called.
+     *
+     * @see    #finalizeMenu()
+     */
+    protected void finalizeMenu(boolean callFinalAction)
+    {
+        Message tmp = this.attachedMessage;
+        this.attachedMessage = null;
+        //also clean up cancelFuture if not already
+        this.cancelFuture = null;
+        if(callFinalAction && finalAction != null)
+            finalAction.accept(tmp);
+    }
 
     /**
      * Checks to see if the provided {@link net.dv8tion.jda.core.entities.User User}

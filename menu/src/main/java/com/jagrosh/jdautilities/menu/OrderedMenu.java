@@ -59,7 +59,6 @@ public class OrderedMenu extends Menu
     private final String description;
     private final List<String> choices;
     private final BiConsumer<Message, Integer> action;
-    private final Consumer<Message> cancel;
     private final boolean useLetters;
     private final boolean allowTypedInput;
     private final boolean useCancel;
@@ -76,13 +75,12 @@ public class OrderedMenu extends Menu
                 Color color, String text, String description, List<String> choices, BiConsumer<Message,Integer> action,
                 Consumer<Message> cancel, boolean useLetters, boolean allowTypedInput, boolean useCancel)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, cancel);
         this.color = color;
         this.text = text;
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.cancel = cancel;
         this.useLetters = useLetters;
         this.allowTypedInput = allowTypedInput;
         this.useCancel = useCancel;
@@ -156,6 +154,7 @@ public class OrderedMenu extends Menu
     private void initialize(RestAction<Message> ra)
     {
         ra.queue(m -> {
+            setAttachedMessage(m);
             try {
                 // From 0 until the number of choices.
                 // The last run of this loop will be used to queue
@@ -206,7 +205,7 @@ public class OrderedMenu extends Menu
     private void waitGeneric(Message m)
     {
         // Wait for a GenericMessageEvent
-        waiter.waitForEvent(GenericMessageEvent.class, e -> {
+        setCancelFuture(waiter.waitForEvent(GenericMessageEvent.class, e -> {
             // If we're dealing with a message reaction being added we return whether it's valid
             if(e instanceof MessageReactionAddEvent)
                 return isValidReaction(m, (MessageReactionAddEvent)e);
@@ -223,12 +222,15 @@ public class OrderedMenu extends Menu
                 MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                 // Process which reaction it is
                 if(event.getReaction().getReactionEmote().getName().equals(CANCEL))
-                    cancel.accept(m);
+                    finalizeMenu();
                 else
+                {
                     // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                     // but from 1 to number of choices. So the first choice will correspond to 1, the second
                     // choice to 2, etc.
                     action.accept(m, getNumber(event.getReaction().getReactionEmote().getName()));
+                    finalizeMenu(false);
+                }
             }
             // If it's a valid MessageReceivedEvent
             else if (e instanceof MessageReceivedEvent)
@@ -237,29 +239,35 @@ public class OrderedMenu extends Menu
                 // Get the number in the message and process
                 int num = getMessageNumber(event.getMessage().getContentRaw());
                 if(num<0 || num>choices.size())
-                    cancel.accept(m);
+                    finalizeMenu();
                 else
+                {
                     action.accept(m, num);
+                    finalizeMenu(false);
+                }
             }
-        }, timeout, unit, () -> cancel.accept(m));
+        }, timeout, unit, this::finalizeMenu));
     }
 
     // Waits only for reaction input
     private void waitReactionOnly(Message m)
     {
         // This one is only for reactions
-        waiter.waitForEvent(MessageReactionAddEvent.class, e -> {
+        setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class, e -> {
             return isValidReaction(m, e);
         }, e -> {
             m.delete().queue();
             if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
-                cancel.accept(m);
+                finalizeMenu();
             else
+            {
                 // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                 // but from 1 to number of choices. So the first choice will correspond to 1, the second
                 // choice to 2, etc.
                 action.accept(m, getNumber(e.getReaction().getReactionEmote().getName()));
-        }, timeout, unit, () -> cancel.accept(m));
+                finalizeMenu(false);
+            }
+        }, timeout, unit, this::finalizeMenu));
     }
 
     // This is where the displayed message for the OrderedMenu is built.

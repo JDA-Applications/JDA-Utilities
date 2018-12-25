@@ -49,18 +49,16 @@ public class ButtonMenu extends Menu
     private final String description;
     private final List<String> choices;
     private final Consumer<ReactionEmote> action;
-    private final Consumer<Message> finalAction;
-    
+
     ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
     {
-        super(waiter, users, roles, timeout, unit);
+        super(waiter, users, roles, timeout, unit, finalAction);
         this.color = color;
         this.text = text;
         this.description = description;
         this.choices = choices;
         this.action = action;
-        this.finalAction = finalAction;
     }
 
     /**
@@ -94,6 +92,7 @@ public class ButtonMenu extends Menu
     private void initialize(RestAction<Message> ra)
     {
         ra.queue(m -> {
+            setAttachedMessage(m);
             for(int i=0; i<choices.size(); i++)
             {
                 // Get the emote to display.
@@ -113,7 +112,7 @@ public class ButtonMenu extends Menu
                 {
                     // This is the last reaction added.
                     r.queue(v -> {
-                        waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
+                        setCancelFuture(waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
                             // If the message is not the same as the ButtonMenu
                             // currently being displayed.
                             if(!event.getMessageId().equals(m.getId()))
@@ -139,8 +138,8 @@ public class ButtonMenu extends Menu
 
                             // Preform the specified action with the ReactionEmote
                             action.accept(event.getReaction().getReactionEmote());
-                            finalAction.accept(m);
-                        }, timeout, unit, () -> finalAction.accept(m));
+                            finalizeMenu();
+                        }, timeout, unit, this::finalizeMenu));
                     });
                 }
             }
