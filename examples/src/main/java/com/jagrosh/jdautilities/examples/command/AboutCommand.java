@@ -15,23 +15,28 @@
  */
 package com.jagrosh.jdautilities.examples.command;
 
-import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.jagrosh.jdautilities.doc.standard.CommandInfo;
 import com.jagrosh.jdautilities.examples.doc.Author;
-import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.util.List;
 
 /**
  *
  * @author John Grosh (jagrosh)
+ * @author Jonathan Augustine
  */
 @CommandInfo(
     name = "About",
@@ -39,83 +44,165 @@ import java.awt.*;
 )
 @Author("John Grosh (jagrosh)")
 public class AboutCommand extends Command {
-    private boolean IS_AUTHOR = true;
-    private String REPLACEMENT_ICON = "+";
+
     private final Color color;
     private final String description;
-    private final Permission[] perms;
-    private String oauthLink;
-    private final String[] features;
-    
-    public AboutCommand(Color color, String description, String[] features, Permission... perms)
-    {
-        this.color = color;
-        this.description = description;
-        this.features = features;
-        this.name = "about";
+    private final Command[] commands;
+    private Permission[] perms;
+    private String inviteLink;
+
+    /**
+     * Initialize an About command to send information about your bot!
+     *
+     * @param color The Embed Color
+     * @param description The bot's Description
+     * @param commands All the commands to show
+     * @param invPerms Permissions to generate an Invite Link
+     */
+    public AboutCommand(Color color, String description, Command[] commands,
+                        Permission... invPerms) {
+        //Super variables
+        this(color, description, commands);
+
+        //About Command variables
+        this.perms = invPerms;
+        this.inviteLink = null;
+    }
+
+    /**
+     * Initialize an About command to send information about your bot!
+     *
+     * @param color The Embed Color
+     * @param description The bot's Description
+     * @param commands All the commands to show
+     * @param inviteLink The invite link for the bot
+     */
+    public AboutCommand(Color color, String description, Command[] commands,
+                        String inviteLink) {
+        //Super variables
+        this(color,description, commands);
+
+        //About Command variables
+        this.inviteLink = inviteLink;
+        this.perms = null;
+    }
+
+    /**
+     * The default constructor, this is used to clean the clutter from other constructors
+     *
+     * @param color The Embed Color
+     * @param description The bot's Description
+     * @param commands All the commands to show
+     */
+    private AboutCommand(Color color, String description, Command[] commands) {
+        //Super variables
+        this.name = "About";
+        this.aliases = new String[] {"whoareyou"};
         this.help = "shows info about the bot";
         this.guildOnly = false;
-        this.perms = perms;
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
+
+        //About Command variables
+        this.color = color;
+        this.description = description;
+        this.commands = commands;
     }
-    
-    public void setIsAuthor(boolean value)
-    {
-        this.IS_AUTHOR = value;
-    }
-    
-    public void setReplacementCharacter(String value)
-    {
-        this.REPLACEMENT_ICON = value;
-    }
-    
+
+
     @Override
     protected void execute(CommandEvent event) {
-        if (oauthLink == null) {
-            try {
-                ApplicationInfo info = event.getJDA().asBot().getApplicationInfo().complete();
-                oauthLink = info.isBotPublic() ? info.getInviteUrl(0L, perms) : "";
-            } catch (Exception e) {
-                Logger log = LoggerFactory.getLogger("OAuth2");
-                log.error("Could not generate invite link ", e);
-                oauthLink = "";
-            }
+        //Get info about the bot
+        event.getJDA().asBot().getApplicationInfo().queue(info -> {
+            if (inviteLink == null) //Set the invite link if not set yet
+                inviteLink = info.isBotPublic() ? info.getInviteUrl(0L, perms) : "";
+            send(event); // Send the About embed
+        }, failure -> {
+            //Log the failure
+            Logger log = LoggerFactory.getLogger("OAuth2");
+            log.error("Could not generate invite link ", failure);
+            inviteLink = "";
+            send(event); //Send the About embed anyway
+        });
+    }
+
+    private void send(CommandEvent event) {
+        //Save these here so code is less messy
+        JDA jda = event.getJDA();
+        CommandClient cmdClient = event.getClient();
+        Guild guild = event.getGuild();
+        User self = event.getSelfUser();
+        //This gets the Bot Owner as a user Mention
+        // Make sure to set this in your Command Client with .setOwnerId()
+        String ownerMention = "<@" + cmdClient.getOwnerId() + ">";
+        String serverInv = cmdClient.getServerInvite();
+
+        StringBuilder sb = new StringBuilder();
+
+        //Setup the basic parts of the EmbedBuilder
+        EmbedBuilder builder = new EmbedBuilder()
+            .setColor(color)
+            .setAuthor(self.getName(), null, self.getAvatarUrl())
+            .setTitle("About " + self.getName() + "!")
+            .setFooter("Last restart", self.getAvatarUrl())
+            .setTimestamp(cmdClient.getStartTime());
+
+        //Use a StringBuilder cuz nice
+        sb.append("Hello! I am **").append(self.getName()).append("**\n")
+            .append("I was made by **").append(ownerMention)
+            .append("** using " + JDAUtilitiesInfo.AUTHOR + "'s ")
+            .append("[`JDA Utilities " + JDAUtilitiesInfo.VERSION + "`]")
+            .append("(" + JDAUtilitiesInfo.GITHUB + ") ")
+            .append("and the [`JDA " + JDAInfo.VERSION + " library`]")
+            .append("(https://github.com/DV8FromTheWorld/JDA)\n")
+            .append(this.description).append("\n\nType ``")
+            .append(cmdClient.getTextualPrefix()).append(cmdClient.getHelpWord())
+            .append("`` for help using my commands!\n");
+
+        //Append the server invites if they are available
+        if (serverInv != null && !serverInv.isEmpty()) {
+            sb.append("Join [`my server here`](").append(serverInv).append(") and \n");
         }
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(event.getGuild() == null ? color : event.getGuild().getSelfMember().getColor());
-        builder.setAuthor("All about " + event.getSelfUser().getName() + "!", null, event.getSelfUser().getAvatarUrl());
-        boolean join = !(event.getClient().getServerInvite() == null || event.getClient().getServerInvite().isEmpty());
-        boolean inv = !oauthLink.isEmpty();
-        String invline = "\n" + (join ? "Join my server [`here`](" + event.getClient().getServerInvite() + ")" : (inv ? "Please " : "")) 
-                + (inv ? (join ? ", or " : "") + "[`invite`](" + oauthLink + ") me to your server" : "") + "!";
-        String author = event.getJDA().getUserById(event.getClient().getOwnerId())==null ? "<@" + event.getClient().getOwnerId()+">" 
-                : event.getJDA().getUserById(event.getClient().getOwnerId()).getName();
-        StringBuilder descr = new StringBuilder().append("Hello! I am **").append(event.getSelfUser().getName()).append("**, ")
-                .append(description).append("\nI ").append(IS_AUTHOR ? "was written in Java" : "am owned").append(" by **")
-                .append(author).append("** using " + JDAUtilitiesInfo.AUTHOR + "'s [Commands Extension](" + JDAUtilitiesInfo.GITHUB + ") (")
-                .append(JDAUtilitiesInfo.VERSION).append(") and the [JDA library](https://github.com/DV8FromTheWorld/JDA) (")
-                .append(JDAInfo.VERSION).append(")\nType `").append(event.getClient().getTextualPrefix()).append(event.getClient().getHelpWord())
-                .append("` to see my commands!").append(join || inv ? invline : "").append("\n\nSome of my features include: ```css");
-        for (String feature : features)
-            descr.append("\n").append(event.getClient().getSuccess().startsWith("<") ? REPLACEMENT_ICON : event.getClient().getSuccess()).append(" ").append(feature);
-        descr.append(" ```");
-        builder.setDescription(descr);
-        if (event.getJDA().getShardInfo() == null)
-        {
-            builder.addField("Stats", event.getJDA().getGuilds().size() + " servers\n1 shard", true);
-            builder.addField("Users", event.getJDA().getUsers().size() + " unique\n" + event.getJDA().getGuilds().stream().mapToInt(g -> g.getMembers().size()).sum() + " total", true);
-            builder.addField("Channels", event.getJDA().getTextChannels().size() + " Text\n" + event.getJDA().getVoiceChannels().size() + " Voice", true);
+        if (inviteLink != null && !inviteLink.isEmpty()) {
+            sb.append("Please [`invite meto your server!`](")
+              .append(inviteLink).append(") ");
         }
-        else
-        {
-            builder.addField("Stats", (event.getClient()).getTotalGuilds() + " Servers\nShard " + (event.getJDA().getShardInfo().getShardId() + 1) 
-                    + "/" + event.getJDA().getShardInfo().getShardTotal(), true);
-            builder.addField("This shard", event.getJDA().getUsers().size() + " Users\n" + event.getJDA().getGuilds().size() + " Servers", true);
-            builder.addField("", event.getJDA().getTextChannels().size() + " Text Channels\n" + event.getJDA().getVoiceChannels().size() + " Voice Channels", true);
+
+        sb.append("\n\nMy Features include: ```css");
+        for (Command cmd: commands) {
+            if (cmd.isOwnerCommand()) continue;
+            sb.append(cmd.getName()).append("\n");
         }
-        builder.setFooter("Last restart", null);
-        builder.setTimestamp(event.getClient().getStartTime());
+        sb.append(" ```");
+
+        builder.setDescription(sb);
+
+        //Add info about servers & shards
+        JDA.ShardInfo shardInfo = jda.getShardInfo();
+        List<Guild> guilds = jda.getGuilds();
+
+        if (shardInfo == null) { //If not using Shards
+            //Guild Number
+            builder.addField("Stats", guilds.size() + " servers\n1 shard", true);
+            //User Count
+            builder.addField("Users", jda.getUsers().size() + " unique\n" +
+                guilds.stream().mapToInt(g -> g.getMembers().size()).sum() + " total", true);
+            //Channel Count
+            builder.addField("Channels", jda.getTextChannels().size() + " Text\n" +
+                                 jda.getVoiceChannels().size() + " Voice", true);
+        } else { //If using Shards
+            //Guild & Shard count
+            builder.addField("Stats", cmdClient.getTotalGuilds() + " Servers\nShard " +
+                (shardInfo.getShardId() + 1) + "/" + shardInfo.getShardTotal(), true);
+            //Shard info (User & Server count)
+            builder.addField("This shard", jda.getUsers().size() + " Users\n" +
+                guilds.size() + " Servers", true);
+            //Channel Info
+            builder.addField("", jda.getTextChannels().size() +
+                " Text Channels\n" + jda.getVoiceChannels().size() +
+                " Voice Channels", true);
+        }
+
         event.reply(builder.build());
     }
-    
+
 }
