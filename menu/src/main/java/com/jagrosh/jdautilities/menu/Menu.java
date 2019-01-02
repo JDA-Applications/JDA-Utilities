@@ -20,13 +20,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.IEventWaiter;
 import net.dv8tion.jda.core.entities.*;
 
 import javax.annotation.Nullable;
 
 /**
- * A frame for wrapping an {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter}
+ * A frame for wrapping an {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter IEventWaiter}
  * into a "action, reaction" menu that waits on forms of user input such as reactions,
  * or key-phrases.
  *
@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
  * {@link Menu.Builder Menu.Builder} for more info).
  *
  * @see    com.jagrosh.jdautilities.commons.waiter.EventWaiter
+ * @see    com.jagrosh.jdautilities.commons.waiter.IEventWaiter
  * @see    Menu.Builder
  *
  * @author John Grosh
@@ -55,13 +56,13 @@ import javax.annotation.Nullable;
  */
 public abstract class Menu
 {
-    protected final EventWaiter waiter;
+    protected final IEventWaiter waiter;
     protected Set<User> users;
     protected Set<Role> roles;
     protected final long timeout;
     protected final TimeUnit unit;
     
-    protected Menu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit)
+    protected Menu(IEventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit)
     {
         this.waiter = waiter;
         this.users = users;
@@ -185,7 +186,7 @@ public abstract class Menu
     @SuppressWarnings("unchecked")
     public abstract static class Builder<T extends Builder<T, V>, V extends Menu>
     {
-        protected EventWaiter waiter;
+        protected IEventWaiter waiter;
         protected Set<User> users = new HashSet<>();
         protected Set<Role> roles = new HashSet<>();
         protected long timeout = 1;
@@ -201,18 +202,18 @@ public abstract class Menu
         public abstract V build();
 
         /**
-         * Sets the {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter}
+         * Sets the {@link com.jagrosh.jdautilities.commons.waiter.IEventWaiter IEventWaiter}
          * that will do {@link com.jagrosh.jdautilities.menu.Menu Menu} operations.
          *
-         * <p><b>NOTE:</b> All Menus will only work with an EventWaiter set!
-         * <br>Not setting an EventWaiter means the Menu will not work.
+         * <p><b>NOTE:</b> All Menus will only work with an IEventWaiter set!
+         * <br>Not setting an IEventWaiter means the Menu will not work.
          *
          * @param  waiter
-         *         The EventWaiter
+         *         The IEventWaiter
          *
          * @return This builder
          */
-        public final T setEventWaiter(EventWaiter waiter)
+        public final T setEventWaiter(IEventWaiter waiter)
         {
             this.waiter = waiter;
             return (T) this;
