@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Jonathan Augustine & Aquatic Mastery Productions
+ * Copyright 2016-2018 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import com.jagrosh.jdautilities.doc.standard.Error;
 import com.jagrosh.jdautilities.doc.standard.RequiredPermissions;
 import com.jagrosh.jdautilities.examples.doc.Author;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.sun.istack.internal.NotNull;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.utils.Checks;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -37,13 +37,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * A Command that sends a list of all Guilds which the bot is a member of.
  *
- * @author Jonathan Augustine (AMPro)
+ * @author John Grosh (jagrosh)
  */
 @CommandInfo(
     name = "Guildlist",
     description = "Gets a paginated list of the guilds the bot is on.",
     requirements = {
-        "The bot has all necessary permissions.", "The user is the bot's owner."
+        "The bot has all necessary permissions.",
+        "The user is the bot's owner."
     }
 )
 @Error(
@@ -51,7 +52,7 @@ import java.util.concurrent.TimeUnit;
     response = "[PageNumber] is not a valid integer!"
 )
 @RequiredPermissions({Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION})
-@Author("Jonathan Augustine (AMPro)")
+@Author("John Grosh (jagrosh)")
 public class GuildlistCommand extends Command
 {
 
@@ -73,8 +74,9 @@ public class GuildlistCommand extends Command
     }
 
     /** @return a new Paginator */
-    private Paginator.Builder getBuilder(@NotNull String text)
+    private Paginator.Builder getBuilder(String text)
     {
+        Checks.notNull(text, "text");
         return new Paginator.Builder().setItemsPerPage(10)
                             .showPageNumbers(true).waitOnSinglePage(false)
                             .useNumberedItems(true).setEventWaiter(this.waiter)

@@ -36,13 +36,13 @@ import java.util.List;
 /**
  * Sends generic information about the bot
  *
- * @author Jonathan Augustine (AMPro)
+ * @author John Grosh (jagrosh)
  */
 @CommandInfo(
     name = "About",
     description = "Gets information about the bot."
 )
-@Author("Jonathan Augustine (AMPro)")
+@Author(" John Grosh (jagrosh)")
 public class AboutCommand extends Command
 {
 
