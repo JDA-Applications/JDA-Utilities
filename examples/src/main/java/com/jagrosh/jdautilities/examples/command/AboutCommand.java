@@ -43,7 +43,8 @@ import java.util.List;
     description = "Gets information about the bot."
 )
 @Author("Jonathan Augustine (AMPro)")
-public class AboutCommand extends Command {
+public class AboutCommand extends Command
+{
 
     private final Color color;
     private final String description;
@@ -60,7 +61,8 @@ public class AboutCommand extends Command {
      * @param invPerms Permissions to generate an Invite Link
      */
     public AboutCommand(Color color, String description, Command[] commands,
-                        Permission... invPerms) {
+                        Permission... invPerms)
+    {
         //Super variables
         this(color, description, commands);
 
@@ -78,7 +80,8 @@ public class AboutCommand extends Command {
      * @param inviteLink The invite link for the bot
      */
     public AboutCommand(Color color, String description, Command[] commands,
-                        String inviteLink) {
+                        String inviteLink)
+    {
         //Super variables
         this(color,description, commands);
 
@@ -94,7 +97,8 @@ public class AboutCommand extends Command {
      * @param description The bot's Description
      * @param commands All the commands to show
      */
-    private AboutCommand(Color color, String description, Command[] commands) {
+    private AboutCommand(Color color, String description, Command[] commands)
+    {
         //Super variables
         this.name = "About";
         this.aliases = new String[] {"whoareyou"};
@@ -110,7 +114,8 @@ public class AboutCommand extends Command {
 
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected void execute(CommandEvent event)
+    {
         //Get info about the bot
         event.getJDA().asBot().getApplicationInfo().queue(info -> {
             if (inviteLink == null) //Set the invite link if not set yet
@@ -125,7 +130,8 @@ public class AboutCommand extends Command {
         });
     }
 
-    private void send(CommandEvent event) {
+    private void send(CommandEvent event)
+    {
         //Save these here so code is less messy
         JDA jda = event.getJDA();
         CommandClient cmdClient = event.getClient();
@@ -158,16 +164,19 @@ public class AboutCommand extends Command {
           .append("`` for help using my commands!\n");
 
         //Append the server invites if they are available
-        if (serverInv != null && !serverInv.isEmpty()) {
+        if (serverInv != null && !serverInv.isEmpty())
+        {
             sb.append("Join [`my server here`](").append(serverInv).append(") and \n");
         }
-        if (inviteLink != null && !inviteLink.isEmpty()) {
+        if (inviteLink != null && !inviteLink.isEmpty())
+        {
             sb.append("Please [`invite me to your server!`](")
               .append(inviteLink).append(") ");
         }
 
         sb.append("\n\nMy Features include: ```css"); //Use CSS style here for coloring
-        for (Command cmd: commands) {
+        for (Command cmd: commands)
+        {
             if (cmd.isOwnerCommand()) continue;
             //You may need to use a Menu Paginator if there are too many Commands
             //  for 1 MessageEmbed
@@ -181,7 +190,8 @@ public class AboutCommand extends Command {
         JDA.ShardInfo shardInfo = jda.getShardInfo();
         List<Guild> guilds = jda.getGuilds();
 
-        if (shardInfo == null) { //If not using Shards
+        if (shardInfo == null)
+        { //If not using Shards
             //Guild Number
             builder.addField("Stats", guilds.size() + " servers\n1 shard", true);
             //User Count

@@ -52,11 +52,13 @@ import java.util.concurrent.TimeUnit;
 )
 @RequiredPermissions({Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION})
 @Author("Jonathan Augustine (AMPro)")
-public class GuildlistCommand extends Command {
+public class GuildlistCommand extends Command
+{
 
     private final EventWaiter waiter;
 
-    public GuildlistCommand(EventWaiter waiter) {
+    public GuildlistCommand(EventWaiter waiter)
+    {
         this.name = "guildlist";
         this.aliases = new String[]{"listguilds", "guilds"};
         this.help = "shows the list of guilds the bot is on";
@@ -71,7 +73,8 @@ public class GuildlistCommand extends Command {
     }
 
     /** @return a new Paginator */
-    private Paginator.Builder getBuilder(@NotNull String text) {
+    private Paginator.Builder getBuilder(@NotNull String text)
+    {
         return new Paginator.Builder().setItemsPerPage(10)
                             .showPageNumbers(true).waitOnSinglePage(false)
                             .useNumberedItems(true).setEventWaiter(this.waiter)
@@ -89,18 +92,21 @@ public class GuildlistCommand extends Command {
      * @param guild The guild to count
      * @return the number of members which are not bots
      */
-    private static int getHumanCount(Guild guild) {
+    private static int getHumanCount(Guild guild)
+    {
         return guild.getMembers().size() - guild.getMembers().stream()
                                                 .filter(m-> m.getUser().isBot())
                                                 .toArray().length;
     }
 
-    private static double percentHuman(Guild guild) {
+    private static double percentHuman(Guild guild)
+    {
         return Math.round((getHumanCount(guild) * 1.0)/guild.getMembers().size() * 100);
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected void execute(CommandEvent event)
+    {
 
         List<Guild> guilds = event.getJDA().getGuilds();
         //Sort by number of non-bots
@@ -120,10 +126,14 @@ public class GuildlistCommand extends Command {
         ).forEach(builder::addItems);
 
         int page = 1;
-        if(!event.getArgs().isEmpty()) {
-            try {
+        if(!event.getArgs().isEmpty())
+        {
+            try
+            {
                 page = Integer.parseInt(event.getArgs());
-            } catch(NumberFormatException e) {
+            }
+            catch(NumberFormatException e)
+            {
                 event.reply(event.getClient().getError() + " `"
                                 +event.getArgs() + "` is not a valid integer!");
                 return;
