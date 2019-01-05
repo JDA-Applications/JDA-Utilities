@@ -34,15 +34,15 @@ import java.awt.*;
 import java.util.List;
 
 /**
+ * Sends generic information about the bot
  *
- * @author John Grosh (jagrosh)
- * @author Jonathan Augustine
+ * @author Jonathan Augustine (AMPro)
  */
 @CommandInfo(
     name = "About",
     description = "Gets information about the bot."
 )
-@Author("John Grosh (jagrosh)")
+@Author("Jonathan Augustine (AMPro)")
 public class AboutCommand extends Command {
 
     private final Color color;
@@ -129,7 +129,6 @@ public class AboutCommand extends Command {
         //Save these here so code is less messy
         JDA jda = event.getJDA();
         CommandClient cmdClient = event.getClient();
-        Guild guild = event.getGuild();
         User self = event.getSelfUser();
         //This gets the Bot Owner as a user Mention
         // Make sure to set this in your Command Client with .setOwnerId()
@@ -148,28 +147,30 @@ public class AboutCommand extends Command {
 
         //Use a StringBuilder cuz nice
         sb.append("Hello! I am **").append(self.getName()).append("**\n")
-            .append("I was made by **").append(ownerMention)
-            .append("** using " + JDAUtilitiesInfo.AUTHOR + "'s ")
-            .append("[`JDA Utilities " + JDAUtilitiesInfo.VERSION + "`]")
-            .append("(" + JDAUtilitiesInfo.GITHUB + ") ")
-            .append("and the [`JDA " + JDAInfo.VERSION + " library`]")
-            .append("(https://github.com/DV8FromTheWorld/JDA)\n")
-            .append(this.description).append("\n\nType ``")
-            .append(cmdClient.getTextualPrefix()).append(cmdClient.getHelpWord())
-            .append("`` for help using my commands!\n");
+          .append("I was made by **").append(ownerMention)
+          .append("** using " + JDAUtilitiesInfo.AUTHOR + "'s ")
+          .append("[`JDA Utilities ").append(JDAUtilitiesInfo.VERSION).append("`]")
+          .append("(" + JDAUtilitiesInfo.GITHUB + ") ")
+          .append("and the [`JDA ").append(JDAInfo.VERSION).append(" library`]")
+          .append("(https://github.com/DV8FromTheWorld/JDA)\n")
+          .append(this.description).append("\n\nType ``")
+          .append(cmdClient.getTextualPrefix()).append(cmdClient.getHelpWord())
+          .append("`` for help using my commands!\n");
 
         //Append the server invites if they are available
         if (serverInv != null && !serverInv.isEmpty()) {
             sb.append("Join [`my server here`](").append(serverInv).append(") and \n");
         }
         if (inviteLink != null && !inviteLink.isEmpty()) {
-            sb.append("Please [`invite meto your server!`](")
+            sb.append("Please [`invite me to your server!`](")
               .append(inviteLink).append(") ");
         }
 
-        sb.append("\n\nMy Features include: ```css");
+        sb.append("\n\nMy Features include: ```css"); //Use CSS style here for coloring
         for (Command cmd: commands) {
             if (cmd.isOwnerCommand()) continue;
+            //You may need to use a Menu Paginator if there are too many Commands
+            //  for 1 MessageEmbed
             sb.append(cmd.getName()).append("\n");
         }
         sb.append(" ```");
