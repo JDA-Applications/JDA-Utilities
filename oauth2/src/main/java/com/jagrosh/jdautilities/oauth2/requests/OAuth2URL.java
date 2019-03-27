@@ -54,7 +54,7 @@ public enum OAuth2URL
 
         if(hasQueryParams)
         {
-            StringBuilder b = new StringBuilder(route);
+            StringBuilder b = new StringBuilder();
 
             for(int i = 0; i < queryParams.length; i++)
             {
@@ -62,7 +62,7 @@ public enum OAuth2URL
                 b.append(queryParams[i]);
             }
 
-            this.formattableRoute = b.toString();
+            this.formattableRoute = route + b.toString();
             this.queryParams = b.toString();
         }
         else
