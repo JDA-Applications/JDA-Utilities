@@ -35,7 +35,8 @@ public enum OAuth2URL
         "redirect_uri=%s",
         "grant_type=authorization_code",
         "code=%s",
-        "client_secret=%s"),
+        "client_secret=%s",
+        "scope=&s"),
     CURRENT_USER("/users/@me"),
     CURRENT_USER_GUILDS("/users/@me/guilds");
 

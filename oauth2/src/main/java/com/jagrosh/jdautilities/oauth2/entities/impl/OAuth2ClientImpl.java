@@ -19,6 +19,7 @@ import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.Scope;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2Guild;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2User;
+import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException;
 import com.jagrosh.jdautilities.oauth2.requests.OAuth2Action;
 import com.jagrosh.jdautilities.oauth2.requests.OAuth2Requester;
@@ -28,7 +29,6 @@ import com.jagrosh.jdautilities.oauth2.session.Session;
 import com.jagrosh.jdautilities.oauth2.session.SessionController;
 import com.jagrosh.jdautilities.oauth2.session.SessionData;
 import com.jagrosh.jdautilities.oauth2.state.DefaultStateController;
-import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.state.StateController;
 import net.dv8tion.jda.core.exceptions.HttpException;
 import net.dv8tion.jda.core.requests.Method;
@@ -91,7 +91,7 @@ public class OAuth2ClientImpl implements OAuth2Client
     }
 
     @Override
-    public OAuth2Action<Session> startSession(String code, String state, String identifier) throws InvalidStateException
+    public OAuth2Action<Session> startSession(String code, String state, String identifier, Scope... scopes) throws InvalidStateException
     {
         Checks.notEmpty(code, "code");
         Checks.notEmpty(state, "state");
@@ -113,7 +113,7 @@ public class OAuth2ClientImpl implements OAuth2Client
             @Override
             protected RequestBody getBody() {
                 return RequestBody.create(null, oAuth2URL.compileQueryParams(clientId,
-                    MiscUtil.encodeUTF8(redirectUri), code, clientSecret));
+                    MiscUtil.encodeUTF8(redirectUri), code, clientSecret, Scope.join(scopes)));
             }
 
             @Override

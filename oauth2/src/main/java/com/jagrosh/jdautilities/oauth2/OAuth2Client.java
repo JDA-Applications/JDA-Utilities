@@ -75,6 +75,8 @@ public interface OAuth2Client
      *         The state for the Session to start.
      * @param  identifier
      *         The identifier for the Session to start.
+     * @param  scopes
+     *         The provided scopes.
      *
      * @return A {@link com.jagrosh.jdautilities.oauth2.requests.OAuth2Action OAuth2Action} for the Session to start.
      *
@@ -82,7 +84,7 @@ public interface OAuth2Client
      *         If the state, when consumed by this client's StateController, results in a {@code null} redirect URI.
      */
     @CheckReturnValue
-    OAuth2Action<Session> startSession(String code, String state, String identifier) throws InvalidStateException;
+    OAuth2Action<Session> startSession(String code, String state, String identifier, Scope... scopes) throws InvalidStateException;
 
     /**
      * Requests a {@link com.jagrosh.jdautilities.oauth2.entities.OAuth2User OAuth2User}
