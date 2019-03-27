@@ -130,12 +130,37 @@ public enum Scope
      */
     public static String join(Scope... scopes)
     {
+        return join(false, scopes);
+    }
+
+    /**
+     * Joins the specified scopes properly as they should
+     * be represented as part of an authorization URL.
+     *
+     * @param  scopes
+     *         The scopes to join.
+     * @param  bySpace
+     *         If the scopes should be joined by " " or "%20" (default: "%20")
+     *
+     * @return A String representing how the scopes should be
+     *         represented as part of an authorization URL.
+     */
+    public static String join(boolean bySpace, Scope... scopes)
+    {
         if(scopes.length == 0)
             return "";
         StringBuilder sb = new StringBuilder(scopes[0].getText());
         for(int i = 1; i < scopes.length; i++)
         {
-            sb.append("%20").append(scopes[i].getText());
+            if (bySpace)
+            {
+                sb.append(" ");
+            }
+            else
+            {
+                sb.append("%20");
+            }
+            sb.append(scopes[i].getText());
         }
         return sb.toString();
     }

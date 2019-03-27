@@ -37,10 +37,7 @@ import net.dv8tion.jda.core.utils.Checks;
 import net.dv8tion.jda.core.utils.IOUtil;
 import net.dv8tion.jda.core.utils.JDALogger;
 import net.dv8tion.jda.core.utils.MiscUtil;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -112,8 +109,9 @@ public class OAuth2ClientImpl implements OAuth2Client
 
             @Override
             protected RequestBody getBody() {
-                return RequestBody.create(null, oAuth2URL.compileQueryParams(clientId,
-                    MiscUtil.encodeUTF8(redirectUri), code, clientSecret, Scope.join(scopes)));
+                return RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"),
+                    oAuth2URL.compileQueryParams(clientId, MiscUtil.encodeUTF8(redirectUri), code, clientSecret,
+                        Scope.join(true, scopes)));
             }
 
             @Override
