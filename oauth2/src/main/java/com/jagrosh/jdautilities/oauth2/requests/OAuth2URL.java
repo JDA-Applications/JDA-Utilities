@@ -44,6 +44,7 @@ public enum OAuth2URL
     private final String route;
     private final String formattableRoute;
     private final boolean hasQueryParams;
+    private final String queryParams;
 
     OAuth2URL(String route, String... queryParams)
     {
@@ -59,11 +60,14 @@ public enum OAuth2URL
                 b.append(i == 0? '?' : '&');
                 b.append(queryParams[i]);
             }
+
             this.formattableRoute = b.toString();
+            this.queryParams = b.toString();
         }
         else
         {
             this.formattableRoute = route;
+            this.queryParams = "";
         }
     }
 
@@ -75,6 +79,15 @@ public enum OAuth2URL
     public boolean hasQueryParams()
     {
         return hasQueryParams;
+    }
+
+    public String compileQueryParams(Object... values) {
+        return String.format(queryParams, values).replaceFirst("\\?", "");
+    }
+
+    public String getRouteWithBaseUrl()
+    {
+        return BASE_API_URL + route;
     }
 
     public String compile(Object... values)

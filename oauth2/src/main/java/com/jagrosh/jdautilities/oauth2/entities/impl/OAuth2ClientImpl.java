@@ -39,6 +39,7 @@ import net.dv8tion.jda.core.utils.JDALogger;
 import net.dv8tion.jda.core.utils.MiscUtil;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -99,13 +100,20 @@ public class OAuth2ClientImpl implements OAuth2Client
         if(redirectUri == null)
             throw new InvalidStateException(String.format("No state '%s' exists!", state));
 
-        return new OAuth2Action<Session>(this, Method.POST, OAuth2URL.TOKEN.compile(clientId,
-            MiscUtil.encodeUTF8(redirectUri), code, clientSecret))
+        OAuth2URL oAuth2URL = OAuth2URL.TOKEN;
+
+        return new OAuth2Action<Session>(this, Method.POST, oAuth2URL.getRouteWithBaseUrl())
         {
             @Override
             protected Headers getHeaders()
             {
                 return Headers.of("Content-Type", "x-www-form-urlencoded");
+            }
+
+            @Override
+            protected RequestBody getBody() {
+                return RequestBody.create(null, oAuth2URL.compileQueryParams(clientId,
+                    MiscUtil.encodeUTF8(redirectUri), code, clientSecret));
             }
 
             @Override
