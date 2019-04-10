@@ -56,7 +56,7 @@ public class CommandBuilder
     private boolean usesTopicTags = true;
     private CooldownScope cooldownScope = CooldownScope.USER;
     private boolean hidden = false;
-    private boolean terminateInDms;
+    private boolean terminateInDms = false;
 
     /**
      * Sets the {@link com.jagrosh.jdautilities.command.Command#name name}
