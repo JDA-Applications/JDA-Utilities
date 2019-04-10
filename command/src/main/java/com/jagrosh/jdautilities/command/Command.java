@@ -15,14 +15,15 @@
  */
 package com.jagrosh.jdautilities.command;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
@@ -154,6 +155,12 @@ public abstract class Command
      * <br>Default {@code false}
      */
     protected boolean hidden = false;
+
+    /**
+     * {@code true} if this command should reply in dms when terminated.
+     * <br>Default {@code false}
+     */
+    protected boolean terminateInDms = false;
 
     /**
      * The {@link com.jagrosh.jdautilities.command.Command.CooldownScope CooldownScope}
@@ -531,10 +538,25 @@ public abstract class Command
         return hidden;
     }
 
+    /**
+     * Checks whether or not this command should reply in dms upon termination
+     *
+     * @return {@code true} if the command should reply in dms, otherwise {@code false}
+     */
+    public boolean isTerminatingInDms()
+    {
+        return terminateInDms;
+    }
+
     private void terminate(CommandEvent event, String message)
     {
         if(message!=null)
-            event.reply(message);
+            if (terminateInDms) {
+                event.replyInDm(message);
+            } else {
+                event.reply(message);
+            }
+
         if(event.getClient().getListener()!=null)
             event.getClient().getListener().onTerminatedCommand(event, this);
     }
