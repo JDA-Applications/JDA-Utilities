@@ -15,8 +15,8 @@
  */
 package com.jagrosh.jdautilities.command;
 
-import com.jagrosh.jdautilities.command.Command.*;
-
+import com.jagrosh.jdautilities.command.Command.Category;
+import com.jagrosh.jdautilities.command.Command.CooldownScope;
 import net.dv8tion.jda.core.Permission;
 
 import java.util.Collection;
@@ -56,6 +56,7 @@ public class CommandBuilder
     private boolean usesTopicTags = true;
     private CooldownScope cooldownScope = CooldownScope.USER;
     private boolean hidden = false;
+    private boolean terminateInDms;
 
     /**
      * Sets the {@link com.jagrosh.jdautilities.command.Command#name name}
@@ -451,6 +452,23 @@ public class CommandBuilder
     }
 
     /**
+     * Sets the Command built to {@link com.jagrosh.jdautilities.command.Command#terminateInDms when
+     * an error occurs.
+     *
+     *
+     * @param  terminateInDms
+     *         {@code true} if the Command built is replying in dms upon termination, {@code false} if it will not.
+     *
+     * @return This CommandBuilder
+     */
+
+    public CommandBuilder setTerminatingInDms(boolean terminateInDms)
+    {
+        this.terminateInDms = terminateInDms;
+        return this;
+    }
+
+    /**
      * Builds the {@link com.jagrosh.jdautilities.command.Command Command}
      * using the previously provided information.
      *
@@ -492,7 +510,7 @@ public class CommandBuilder
                 guildOnly, requiredRole, ownerCommand, cooldown,
                 userPermissions, botPermissions, aliases.toArray(new String[aliases.size()]),
                 children.toArray(new Command[children.size()]), helpBiConsumer, usesTopicTags,
-                cooldownScope, hidden)
+                cooldownScope, hidden, terminateInDms)
         {
             @Override
             protected void execute(CommandEvent event)
@@ -509,7 +527,7 @@ public class CommandBuilder
                      boolean ownerCommand, int cooldown, Permission[] userPermissions,
                      Permission[] botPermissions, String[] aliases, Command[] children,
                      BiConsumer<CommandEvent, Command> helpBiConsumer,
-                     boolean usesTopicTags, CooldownScope cooldownScope, boolean hidden)
+                     boolean usesTopicTags, CooldownScope cooldownScope, boolean hidden, boolean terminateInDms)
         {
             this.name = name;
             this.help = help;
@@ -527,6 +545,7 @@ public class CommandBuilder
             this.usesTopicTags = usesTopicTags;
             this.cooldownScope = cooldownScope;
             this.hidden = hidden;
+            this.terminateInDms = terminateInDms;
         }
     }
 }
