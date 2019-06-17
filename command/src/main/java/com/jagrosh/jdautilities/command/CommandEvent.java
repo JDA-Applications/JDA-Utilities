@@ -20,26 +20,24 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
-import net.dv8tion.jda.client.entities.Group;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.internal.utils.Checks;
 
 /**
- * A wrapper class for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
+ * A wrapper class for a {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent},
  * {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}, and String user arguments
  * compatible with all {@link com.jagrosh.jdautilities.command.Command Command}s.
  * 
  * <p>From here, developers can invoke several useful and specialized methods to assist in Command function and
  * development. There are also "extension" methods for all methods found in MessageReceivedEvent.
  * 
- * <p>Methods with "reply" in their name can be used to instantly send a {@link net.dv8tion.jda.core.entities.Message Message} 
- * response to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the MessageReceivedEvent was in.
- * <br>All {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by sending a response using these
- * methods automatically {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}, and no further developer
+ * <p>Methods with "reply" in their name can be used to instantly send a {@link net.dv8tion.jda.api.entities.Message Message}
+ * response to the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the MessageReceivedEvent was in.
+ * <br>All {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by sending a response using these
+ * methods automatically {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}, and no further developer
  * input is required.
  * 
  * @author John Grosh (jagrosh)
@@ -56,7 +54,7 @@ public class CommandEvent
      * Constructor for a CommandEvent.
      * 
      * <p><b>You should not call this!</b>
-     * <br>It is a generated wrapper for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}.
+     * <br>It is a generated wrapper for a {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}.
      * 
      * @param  event
      *         The initial MessageReceivedEvent
@@ -89,7 +87,7 @@ public class CommandEvent
     }
     
     /**
-     * Returns the underlying {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}
+     * Returns the underlying {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}
      * for this CommandEvent.
      * 
      * @return The underlying MessageReceivedEvent
@@ -111,14 +109,14 @@ public class CommandEvent
     }
 
     /**
-     * Links a {@link net.dv8tion.jda.core.entities.Message Message} with the calling Message
+     * Links a {@link net.dv8tion.jda.api.entities.Message Message} with the calling Message
      * contained by this CommandEvent.
      *
      * <p>This method is exposed for those who wish to use linked deletion but may require usage of
-     * {@link net.dv8tion.jda.core.entities.MessageChannel#sendMessage(Message) MessageChannel#sendMessage()}
+     * {@link net.dv8tion.jda.api.entities.MessageChannel#sendMessage(Message) MessageChannel#sendMessage()}
      * or for other reasons cannot use the standard {@code reply()} methods.
      *
-     * <p>If the Message provided is <b>not</b> from the bot (IE: {@link net.dv8tion.jda.core.entities.SelfUser SelfUser}),
+     * <p>If the Message provided is <b>not</b> from the bot (IE: {@link net.dv8tion.jda.api.entities.SelfUser SelfUser}),
      * an {@link java.lang.IllegalArgumentException IllegalArgumentException} will be thrown.
      *
      * @param  message
@@ -138,9 +136,9 @@ public class CommandEvent
     /**
      * Replies with a String message.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
@@ -156,9 +154,9 @@ public class CommandEvent
     /**
      * Replies with a String message and then queues a {@link java.util.function.Consumer}.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      * 
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent in 
@@ -178,9 +176,9 @@ public class CommandEvent
     /**
      * Replies with a String message and then queues a {@link java.util.function.Consumer}.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the first Consumer as it's success callback and the second Consumer as the failure callback.
      *
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent in
@@ -200,11 +198,11 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * @param  embed
      *         The MessageEmbed to reply with
@@ -218,12 +216,12 @@ public class CommandEvent
     }
     
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}
      * and then queues a {@link java.util.function.Consumer}.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      * 
      * @param  embed
@@ -241,12 +239,12 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}
      * and then queues a {@link java.util.function.Consumer}.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the first Consumer as it's success callback and the second Consumer as the failure callback.
      *
      * @param  embed
@@ -266,11 +264,11 @@ public class CommandEvent
     }
     
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.Message Message}.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * @param  message
      *         The Message to reply with
@@ -284,12 +282,12 @@ public class CommandEvent
     }
     
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} and then
+     * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} and then
      * queues a {@link java.util.function.Consumer}.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#success()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#success()}
      * with the provided Consumer as it's success callback.
      * 
      * @param  message
@@ -307,12 +305,12 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} and then
+     * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} and then
      * queues a {@link java.util.function.Consumer}.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the first Consumer as it's success callback and the second Consumer as the failure callback.
      *
      * @param  message
@@ -335,11 +333,11 @@ public class CommandEvent
      * Replies with a {@link java.io.File} with the provided name, or a default name
      * if left null.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  file
@@ -349,18 +347,18 @@ public class CommandEvent
      */
     public void reply(File file, String filename)
     {
-        event.getChannel().sendFile(file, filename, null).queue();
+        event.getChannel().sendFile(file, filename).queue();
     }
     
     /**
      * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
      * name if left null.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
@@ -372,16 +370,15 @@ public class CommandEvent
      */
     public void reply(String message, File file, String filename)
     {
-        Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
-        event.getChannel().sendFile(file, filename, msg).queue();
+        event.getChannel().sendFile(file, filename).content(message).queue();
     }
     
     /**
      * Replies with a formatted String message using the provided arguments.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
@@ -397,12 +394,12 @@ public class CommandEvent
     }
     
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} if possible, 
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} if possible,
      * or just a String message if it cannot send the embed.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
      * be sent in two split Messages.
@@ -425,11 +422,11 @@ public class CommandEvent
      * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
      * name if left null.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
@@ -451,24 +448,23 @@ public class CommandEvent
      */
     public void replyOrAlternate(String message, File file, String filename, String alternateMessage)
     {
-        Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
         try {
-            event.getChannel().sendFile(file, filename, msg).queue();
+            event.getChannel().sendFile(file, filename).content(message).queue();
         } catch(Exception e) {
             reply(alternateMessage);
         }
     }
 
     /**
-     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
-     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
+     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      *
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
      * be sent in two split Messages.
@@ -487,15 +483,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
-     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
+     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      *
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
@@ -517,15 +513,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a String message sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s
-     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a String message sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
+     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the first Consumer as it's success callback and the second Consumer as the failure callback.
      *
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will
@@ -549,15 +545,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
-     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      *
      * @param  embed
      *         The MessageEmbed to reply with
@@ -573,15 +569,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
-     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      *
      * @param  embed
@@ -600,15 +596,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} sent to the
-     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} sent to the
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the first Consumer as it's success callback and the second Consumer as the failure callback.
      *
      * @param  embed
@@ -629,15 +625,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} sent to the
-     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} sent to the
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      *
      * @param  message
      *         The Message to reply with
@@ -653,15 +649,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} sent to the
-     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} sent to the
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      *
      * @param  message
@@ -680,15 +676,15 @@ public class CommandEvent
     }
 
     /**
-     * Replies with a {@link net.dv8tion.jda.core.entities.Message Message} sent to the
-     * calling {@link net.dv8tion.jda.core.entities.User User}'s {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} sent to the
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the first Consumer as it's success callback and the second Consumer as the failure callback.
      *
      * @param  message
@@ -710,17 +706,17 @@ public class CommandEvent
 
     /**
      * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
-     * name if left null, and sent to the calling {@link net.dv8tion.jda.core.entities.User User}'s 
-     * {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel}.
+     * name if left null, and sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
+     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
      * 
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.core.entities.MessageChannel#sendFile(File, String, Message) MessageChannel#sendFile(File, String, Message)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
@@ -736,17 +732,16 @@ public class CommandEvent
             reply(message, file, filename);
         else
         {
-            Message msg = message==null ? null : new MessageBuilder().append(splitMessage(message).get(0)).build();
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFile(file, filename, msg).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFile(file, filename).content(message).queue());
         }
     }
     
     /**
      * Replies with a String message, and a prefixed success emoji.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
@@ -763,9 +758,9 @@ public class CommandEvent
      * Replies with a String message and a prefixed success emoji and then
      * queues a {@link java.util.function.Consumer}.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      *
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
@@ -784,9 +779,9 @@ public class CommandEvent
     /**
      * Replies with a String message, and a prefixed warning emoji.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
@@ -803,9 +798,9 @@ public class CommandEvent
      * Replies with a String message and a prefixed warning emoji and then
      * queues a {@link java.util.function.Consumer}.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      *
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
@@ -824,9 +819,9 @@ public class CommandEvent
     /**
      * Replies with a String message and a prefixed error emoji.
      * 
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message} 
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}.
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
      * in two split Messages.
@@ -843,9 +838,9 @@ public class CommandEvent
      * Replies with a String message and a prefixed error emoji and then
      * queues a {@link java.util.function.Consumer}.
      *
-     * <p>The {@link net.dv8tion.jda.core.requests.RestAction RestAction} returned by
-     * sending the response as a {@link net.dv8tion.jda.core.entities.Message Message}
-     * automatically does {@link net.dv8tion.jda.core.requests.RestAction#queue() RestAction#queue()}
+     * <p>The {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by
+     * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
+     * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}
      * with the provided Consumer as it's success callback.
      *
      * <p><b>NOTE:</b> This message can exceed the 2000 character cap, and will be sent
@@ -862,7 +857,7 @@ public class CommandEvent
     }
 
     /**
-     * Adds a success reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
+     * Adds a success reaction to the calling {@link net.dv8tion.jda.api.entities.Message Message}.
      */
     public void reactSuccess()
     {
@@ -870,7 +865,7 @@ public class CommandEvent
     }
     
     /**
-     * Adds a warning reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
+     * Adds a warning reaction to the calling {@link net.dv8tion.jda.api.entities.Message Message}.
      */
     public void reactWarning()
     {
@@ -878,7 +873,7 @@ public class CommandEvent
     }
     
     /**
-     * Adds an error reaction to the calling {@link net.dv8tion.jda.core.entities.Message Message}.
+     * Adds an error reaction to the calling {@link net.dv8tion.jda.api.entities.Message Message}.
      */
     public void reactError()
     {
@@ -979,7 +974,7 @@ public class CommandEvent
      * Splits a String into one or more Strings who's length does not exceed 2000 characters.
      * <br>Also nullifies usages of {@code @here} and {@code @everyone} so that they do not mention anyone.
      * <br>Useful for splitting long messages so that they can be sent in more than one 
-     * {@link net.dv8tion.jda.core.entities.Message Message} at maximum potential length.
+     * {@link net.dv8tion.jda.api.entities.Message Message} at maximum potential length.
      * 
      * @param  stringtoSend
      *         The String to split and send
@@ -1017,7 +1012,7 @@ public class CommandEvent
     // custom shortcuts
     
     /**
-     * Gets a {@link net.dv8tion.jda.core.entities.SelfUser SelfUser} representing the bot.
+     * Gets a {@link net.dv8tion.jda.api.entities.SelfUser SelfUser} representing the bot.
      * <br>This is the same as invoking {@code event.getJDA().getSelfUser()}.
      * 
      * @return A User representing the bot
@@ -1028,8 +1023,8 @@ public class CommandEvent
     }
     
     /**
-     * Gets a {@link net.dv8tion.jda.core.entities.Member Member} representing the bot, or null
-     * if the event does not take place on a {@link net.dv8tion.jda.core.entities.Guild Guild}.
+     * Gets a {@link net.dv8tion.jda.api.entities.Member Member} representing the bot, or null
+     * if the event does not take place on a {@link net.dv8tion.jda.api.entities.Guild Guild}.
      * <br>This is the same as invoking {@code event.getGuild().getSelfMember()}.
      * 
      * @return A possibly-null Member representing the bot
@@ -1040,7 +1035,7 @@ public class CommandEvent
     }
 
     /**
-     * Tests whether or not the {@link net.dv8tion.jda.core.entities.User User} who triggered this
+     * Tests whether or not the {@link net.dv8tion.jda.api.entities.User User} who triggered this
      * event is an owner of the bot.
      * 
      * @return {@code true} if the User is the Owner, else {@code false}
@@ -1061,7 +1056,7 @@ public class CommandEvent
     // shortcuts
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.User User} who triggered this CommandEvent.
+     * Gets the {@link net.dv8tion.jda.api.entities.User User} who triggered this CommandEvent.
      * 
      * @return The User who triggered this CommandEvent
      */
@@ -1071,7 +1066,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} that the CommandEvent
+     * Gets the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} that the CommandEvent
      * was triggered on.
      * 
      * @return The MessageChannel that the CommandEvent was triggered on
@@ -1082,8 +1077,8 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.ChannelType ChannelType} of the 
-     * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} that the CommandEvent was triggered on.
+     * Gets the {@link net.dv8tion.jda.api.entities.ChannelType ChannelType} of the
+     * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} that the CommandEvent was triggered on.
      * 
      * @return The ChannelType of the MessageChannel that this CommandEvent was triggered on
      */
@@ -1093,18 +1088,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.client.entities.Group Group} that this CommandEvent
-     * was triggered in.
-     * 
-     * @return The Group that this CommandEvent was triggered in
-     */
-    public Group getGroup()
-    {
-        return event.getGroup();
-    }
-    
-    /**
-     * Gets the {@link net.dv8tion.jda.core.entities.Guild Guild} that this CommandEvent
+     * Gets the {@link net.dv8tion.jda.api.entities.Guild Guild} that this CommandEvent
      * was triggered on.
      * 
      * @return The Guild that this CommandEvent was triggered on
@@ -1115,7 +1099,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the instance of {@link net.dv8tion.jda.core.JDA JDA} that this CommandEvent 
+     * Gets the instance of {@link net.dv8tion.jda.api.JDA JDA} that this CommandEvent
      * was caught by.
      * 
      * @return The instance of JDA that this CommandEvent was caught by
@@ -1126,7 +1110,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.Member Member} that triggered this CommandEvent.
+     * Gets the {@link net.dv8tion.jda.api.entities.Member Member} that triggered this CommandEvent.
      * 
      * @return The Member that triggered this CommandEvent
      */
@@ -1136,7 +1120,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.Message Message} responsible for triggering
+     * Gets the {@link net.dv8tion.jda.api.entities.Message Message} responsible for triggering
      * this CommandEvent.
      * 
      * @return The Message responsible for the CommandEvent
@@ -1147,7 +1131,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.PrivateChannel PrivateChannel} that this CommandEvent 
+     * Gets the {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel} that this CommandEvent
      * may have taken place on, or {@code null} if it didn't happen on a PrivateChannel.
      * 
      * @return The PrivateChannel that this CommandEvent may have taken place on, or null
@@ -1159,7 +1143,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the response number for the {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}.
+     * Gets the response number for the {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}.
      * 
      * @return The response number for the MessageReceivedEvent
      */
@@ -1169,7 +1153,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.core.entities.TextChannel TextChannel} that this CommandEvent 
+     * Gets the {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} that this CommandEvent
      * may have taken place on, or {@code null} if it didn't happen on a TextChannel.
      * 
      * @return The TextChannel this CommandEvent may have taken place on, or null
@@ -1181,13 +1165,13 @@ public class CommandEvent
     }
     
     /**
-     * Compares a provided {@link net.dv8tion.jda.core.entities.ChannelType ChannelType} with the one this
+     * Compares a provided {@link net.dv8tion.jda.api.entities.ChannelType ChannelType} with the one this
      * CommandEvent occurred on, returning {@code true} if they are the same ChannelType.
      * 
      * @param  channelType
      *         The ChannelType to compare
      *         
-     * @return {@code true} if the CommandEvent originated from a {@link net.dv8tion.jda.core.entities.MessageChannel}
+     * @return {@code true} if the CommandEvent originated from a {@link net.dv8tion.jda.api.entities.MessageChannel}
      *         of the provided ChannelType, otherwise {@code false}.
      */
     public boolean isFromType(ChannelType channelType)

@@ -20,7 +20,7 @@ import java.util.Collection;
 
 /**
  * A basic frame that is optionally implementable by objects returned from
- * {@link GuildSettingsManager#getSettings(net.dv8tion.jda.core.entities.Guild)
+ * {@link GuildSettingsManager#getSettings(net.dv8tion.jda.api.entities.Guild)
  * GuildSettingsManager#getSettings(Guild)}.
  *
  * <p>This interface allows the specification of any of the following functions:

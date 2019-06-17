@@ -39,7 +39,7 @@
  *     <br>A builder system used to create a {@code CommandClientImpl} across several optional chained methods.</li>
  *
  *     <li>{@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent}
- *     <br>A wrapper for a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent},
+ *     <br>A wrapper for a {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent},
  *     {@code CommandClient}, and String arguments. The main basis for carrying information to be used in Commands.</li>
  *
  *     <li>{@link com.jagrosh.jdautilities.command.CommandListener CommandListener}

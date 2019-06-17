@@ -19,10 +19,10 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
@@ -88,7 +88,7 @@ public abstract class Command
     protected String arguments = null;
     
     /**
-     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.core.entities.Guild Guild}, 
+     * {@code true} if the command may only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild},
      * {@code false} if it may be used in both a Guild and a DM.
      * <br>Default {@code true}.
      */
@@ -112,14 +112,14 @@ public abstract class Command
     protected int cooldown = 0;
     
     /**
-     * Any {@link net.dv8tion.jda.core.Permission Permission}s a Member must have to use this command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.core.entities.Guild Guild} environment.
+     * Any {@link net.dv8tion.jda.api.Permission Permission}s a Member must have to use this command.
+     * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
      */
     protected Permission[] userPermissions = new Permission[0];
     
     /**
-     * Any {@link net.dv8tion.jda.core.Permission Permission}s the bot must have to use a command.
-     * <br>These are only checked in a {@link net.dv8tion.jda.core.entities.Guild Guild} environment.
+     * Any {@link net.dv8tion.jda.api.Permission Permission}s the bot must have to use a command.
+     * <br>These are only checked in a {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
      */
     protected Permission[] botPermissions = new Permission[0];
     
@@ -356,7 +356,7 @@ public abstract class Command
     }
 
     /**
-     * Checks whether a command is allowed in a {@link net.dv8tion.jda.core.entities.TextChannel TextChannel}
+     * Checks whether a command is allowed in a {@link net.dv8tion.jda.api.entities.TextChannel TextChannel}
      * by searching the channel topic for topic tags relating to the command.
      *
      * <p>{-{@link com.jagrosh.jdautilities.command.Command#name name}},
@@ -441,7 +441,7 @@ public abstract class Command
     }
 
     /**
-     * Checks if this Command can only be used in a {@link net.dv8tion.jda.core.entities.Guild Guild}.
+     * Checks if this Command can only be used in a {@link net.dv8tion.jda.api.entities.Guild Guild}.
      *
      * @return {@code true} if this Command can only be used in a Guild, else {@code false} if it can
      *         be used outside of one
@@ -734,7 +734,7 @@ public abstract class Command
      * be called in a non-guild environment, causing errors internally.
      * <br>To prevent this, all of the values that contain "{@code GUILD}" in their name default
      * to their "{@code CHANNEL}" counterparts when commands using them are called outside of a
-     * {@link net.dv8tion.jda.core.entities.Guild Guild} environment.
+     * {@link net.dv8tion.jda.api.entities.Guild Guild} environment.
      * <ul>
      *     <li>{@link com.jagrosh.jdautilities.command.Command.CooldownScope#GUILD GUILD} defaults to
      *     {@link com.jagrosh.jdautilities.command.Command.CooldownScope#CHANNEL CHANNEL}.</li>
@@ -744,7 +744,7 @@ public abstract class Command
      *
      * These are effective across a single instance of JDA, and not multiple
      * ones, save when multiple shards run on a single JVM and under a
-     * {@link net.dv8tion.jda.bot.sharding.ShardManager ShardManager}.
+     * {@link net.dv8tion.jda.api.sharding.ShardManager ShardManager}.
      * <br>There is no shard magic, and no guarantees for a 100% "global"
      * cooldown, unless all shards of the bot run under the same ShardManager,
      * and/or via some external system unrelated to JDA-Utilities.
@@ -757,7 +757,7 @@ public abstract class Command
     public enum CooldownScope
     {
         /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} across all
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} across all
          * locations on this instance (IE: TextChannels, PrivateChannels, etc).
          *
          * <p>The key for this is generated in the format
@@ -768,7 +768,7 @@ public abstract class Command
         USER("U:%d",""),
 
         /**
-         * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the
+         * Applies the cooldown to the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the
          * command is called in.
          *
          * <p>The key for this is generated in the format
@@ -779,8 +779,8 @@ public abstract class Command
         CHANNEL("C:%d","in this channel"),
 
         /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
-         * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} the command is called in.
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} local to the
+         * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the command is called in.
          *
          * <p>The key for this is generated in the format
          * <ul>
@@ -790,7 +790,7 @@ public abstract class Command
         USER_CHANNEL("U:%d|C:%d", "in this channel"),
 
         /**
-         * Applies the cooldown to the {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
+         * Applies the cooldown to the {@link net.dv8tion.jda.api.entities.Guild Guild} the command is called in.
          *
          * <p>The key for this is generated in the format
          * <ul>
@@ -804,8 +804,8 @@ public abstract class Command
         GUILD("G:%d", "in this server"),
 
         /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} local to the
-         * {@link net.dv8tion.jda.core.entities.Guild Guild} the command is called in.
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} local to the
+         * {@link net.dv8tion.jda.api.entities.Guild Guild} the command is called in.
          *
          * <p>The key for this is generated in the format
          * <ul>
@@ -827,14 +827,14 @@ public abstract class Command
          * </ul>
          *
          * <p><b>NOTE:</b> This will automatically default back to {@link com.jagrosh.jdautilities.command.Command.CooldownScope#GLOBAL CooldownScope.GLOBAL}
-         * when {@link net.dv8tion.jda.core.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
+         * when {@link net.dv8tion.jda.api.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
          * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
          * from being thrown while generating cooldown keys!
          */
         SHARD("S:%d", "on this shard"),
 
         /**
-         * Applies the cooldown to the calling {@link net.dv8tion.jda.core.entities.User User} on the Shard
+         * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} on the Shard
          * the command is called on.
          *
          * <p>The key for this is generated in the format
@@ -843,7 +843,7 @@ public abstract class Command
          * </ul>
          *
          * <p><b>NOTE:</b> This will automatically default back to {@link com.jagrosh.jdautilities.command.Command.CooldownScope#USER CooldownScope.USER}
-         * when {@link net.dv8tion.jda.core.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
+         * when {@link net.dv8tion.jda.api.JDA#getShardInfo() JDA#getShardInfo()} returns {@code null}.
          * This is done in order to prevent internal {@link java.lang.NullPointerException NullPointerException}s
          * from being thrown while generating cooldown keys!
          */
@@ -853,7 +853,7 @@ public abstract class Command
          * Applies this cooldown globally.
          *
          * <p>As this implies: the command will be unusable on the instance of JDA in all types of
-         * {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}s until the cooldown has ended.
+         * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}s until the cooldown has ended.
          *
          * <p>The key for this is {@code <command-name>|globally}
          */

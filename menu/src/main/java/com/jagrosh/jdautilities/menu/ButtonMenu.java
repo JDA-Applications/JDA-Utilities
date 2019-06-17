@@ -23,17 +23,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.internal.utils.Checks;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
@@ -64,8 +64,8 @@ public class ButtonMenu extends Menu
     }
 
     /**
-     * Shows the ButtonMenu as a new {@link net.dv8tion.jda.core.entities.Message Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+     * Shows the ButtonMenu as a new {@link net.dv8tion.jda.api.entities.Message Message}
+     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
@@ -77,7 +77,7 @@ public class ButtonMenu extends Menu
     }
 
     /**
-     * Displays this ButtonMenu by editing the provided {@link net.dv8tion.jda.core.entities.Message Message}.
+     * Displays this ButtonMenu by editing the provided {@link net.dv8tion.jda.api.entities.Message Message}.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -200,7 +200,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}.
          *
          * @param  color
          *         The Color of the MessageEmbed
@@ -214,7 +214,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+         * Sets the text of the {@link net.dv8tion.jda.api.entities.Message Message} to be displayed
          * when the {@link com.jagrosh.jdautilities.menu.ButtonMenu ButtonMenu} is built.
          *
          * <p>This is displayed directly above the embed.
@@ -231,7 +231,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Sets the description to be placed in an {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         * Sets the description to be placed in an {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}.
          * <br>If this is {@code null}, no MessageEmbed will be displayed
          *
          * @param  description
@@ -280,7 +280,7 @@ public class ButtonMenu extends Menu
         /**
          * Adds a single String unicode emoji as a button choice.
          *
-         * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote Emote} should be
+         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.Emote Emote} should be
          * added using {@link ButtonMenu.Builder#addChoice(Emote)
          * ButtonMenu.Builder#addChoice(Emote)}.
          *
@@ -296,7 +296,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Adds a single custom {@link net.dv8tion.jda.core.entities.Emote Emote} as button choices.
+         * Adds a single custom {@link net.dv8tion.jda.api.entities.Emote Emote} as button choices.
          *
          * <p>Any regular unicode emojis should be added using {@link
          * ButtonMenu.Builder#addChoice(String)
@@ -315,7 +315,7 @@ public class ButtonMenu extends Menu
         /**
          * Adds String unicode emojis as button choices.
          *
-         * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote Emote}s should be
+         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.Emote Emote}s should be
          * added using {@link ButtonMenu.Builder#addChoices(Emote...)
          * ButtonMenu.Builder#addChoices(Emote...)}.
          *
@@ -332,7 +332,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Adds custom {@link net.dv8tion.jda.core.entities.Emote Emote}s as button choices.
+         * Adds custom {@link net.dv8tion.jda.api.entities.Emote Emote}s as button choices.
          *
          * <p>Any regular unicode emojis should be added using {@link
          * ButtonMenu.Builder#addChoices(String...)
@@ -353,7 +353,7 @@ public class ButtonMenu extends Menu
         /**
          * Sets the String unicode emojis as button choices.
          *
-         * <p>Any non-unicode {@link net.dv8tion.jda.core.entities.Emote Emote}s should be
+         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.Emote Emote}s should be
          * set using {@link ButtonMenu.Builder#setChoices(Emote...)
          * ButtonMenu.Builder#setChoices(Emote...)}.
          *
@@ -369,7 +369,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Sets the {@link net.dv8tion.jda.core.entities.Emote Emote}s as button choices.
+         * Sets the {@link net.dv8tion.jda.api.entities.Emote Emote}s as button choices.
          *
          * <p>Any regular unicode emojis should be set using {@link
          * ButtonMenu.Builder#setChoices(String...)
