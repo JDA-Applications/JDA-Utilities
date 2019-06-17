@@ -566,7 +566,7 @@ public class CommandClientImpl implements CommandClient, EventListener
 
     private void sendStats(JDA jda)
     {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = jda.getHttpClient();
 
         if(carbonKey != null)
         {
