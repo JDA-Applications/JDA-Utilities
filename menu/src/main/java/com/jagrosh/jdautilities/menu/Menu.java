@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.api.entities.*;
 
 import javax.annotation.Nullable;
 
@@ -30,12 +30,12 @@ import javax.annotation.Nullable;
  * into a "action, reaction" menu that waits on forms of user input such as reactions,
  * or key-phrases.
  *
- * <p>Classes extending this are able to take a provided {@link net.dv8tion.jda.core.entities.Message Message}
- * or {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel} and display a visualized "Menu"
+ * <p>Classes extending this are able to take a provided {@link net.dv8tion.jda.api.entities.Message Message}
+ * or {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} and display a visualized "Menu"
  * as or in it.
  *
  * <p>The JDA-Utilities default implementations of this superclass typically handle input through
- * the assistance of things such as {@link net.dv8tion.jda.core.entities.MessageReaction reactions},
+ * the assistance of things such as {@link net.dv8tion.jda.api.entities.MessageReaction reactions},
  * but the actual implementation is only limited to the events provided by Discord and handled through JDA.
  *
  * <p>For custom implementations, readability of creating and integrating may be improved
@@ -49,7 +49,7 @@ import javax.annotation.Nullable;
  *
  * @implNote
  *         While the standard JDA-Utilities implementations of this and Menu are
- *         all handled as {@link net.dv8tion.jda.core.entities.MessageEmbed embeds},
+ *         all handled as {@link net.dv8tion.jda.api.entities.MessageEmbed embeds},
  *         there is no bias or advantage of implementing a custom Menu as a message
  *         without an embed.
  */
@@ -71,7 +71,7 @@ public abstract class Menu
     }
     
     /**
-     * Displays this Menu in a {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+     * Displays this Menu in a {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to display this Menu in
@@ -79,9 +79,9 @@ public abstract class Menu
     public abstract void display(MessageChannel channel);
     
     /**
-     * Displays this Menu as a designated {@link net.dv8tion.jda.core.entities.Message Message}.
+     * Displays this Menu as a designated {@link net.dv8tion.jda.api.entities.Message Message}.
      * <br>The Message provided must be one sent by the bot! Trying to provided a Message
-     * authored by another {@link net.dv8tion.jda.core.entities.User User} will prevent the
+     * authored by another {@link net.dv8tion.jda.api.entities.User User} will prevent the
      * Menu from being displayed!
      * 
      * @param  message
@@ -90,7 +90,7 @@ public abstract class Menu
     public abstract void display(Message message);
 
     /**
-     * Checks to see if the provided {@link net.dv8tion.jda.core.entities.User User}
+     * Checks to see if the provided {@link net.dv8tion.jda.api.entities.User User}
      * is valid to interact with this Menu.<p>
      *
      * This is a shortcut for {@link Menu#isValidUser(User, Guild)} where the Guild
@@ -110,7 +110,7 @@ public abstract class Menu
 
     /**
      *
-     * Checks to see if the provided {@link net.dv8tion.jda.core.entities.User User}
+     * Checks to see if the provided {@link net.dv8tion.jda.api.entities.User User}
      * is valid to interact with this Menu.<p>
      *
      * For a User to be considered "valid" to use a Menu, the following logic (in order) is applied:
@@ -179,7 +179,7 @@ public abstract class Menu
      * @implNote
      *         Before 2.0 this were a separate class known as {@code MenuBuilder}.<br>
      *         Note that while the standard JDA-Utilities implementations of this and Menu are
-     *         all handled as {@link net.dv8tion.jda.core.entities.MessageEmbed embeds}, there
+     *         all handled as {@link net.dv8tion.jda.api.entities.MessageEmbed embeds}, there
      *         is no bias or advantage of implementing a custom Menu as a message without an embed.
      */
     @SuppressWarnings("unchecked")
@@ -219,7 +219,7 @@ public abstract class Menu
         }
 
         /**
-         * Adds {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
+         * Adds {@link net.dv8tion.jda.api.entities.User User}s that are allowed to use the
          * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          *
          * @param  users
@@ -234,7 +234,7 @@ public abstract class Menu
         }
 
         /**
-         * Sets {@link net.dv8tion.jda.core.entities.User User}s that are allowed to use the
+         * Sets {@link net.dv8tion.jda.api.entities.User User}s that are allowed to use the
          * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          * <br>This clears any Users already registered before adding the ones specified.
          *
@@ -251,7 +251,7 @@ public abstract class Menu
         }
 
         /**
-         * Adds {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
+         * Adds {@link net.dv8tion.jda.api.entities.Role Role}s that are allowed to use the
          * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          *
          * @param  roles
@@ -266,7 +266,7 @@ public abstract class Menu
         }
 
         /**
-         * Sets {@link net.dv8tion.jda.core.entities.Role Role}s that are allowed to use the
+         * Sets {@link net.dv8tion.jda.api.entities.Role Role}s that are allowed to use the
          * {@link com.jagrosh.jdautilities.menu.Menu Menu} that will be built.
          * <br>This clears any Roles already registered before adding the ones specified.
          *
