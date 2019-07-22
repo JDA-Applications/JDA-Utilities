@@ -643,7 +643,14 @@ public final class FinderUtil
      */
     public static List<StoreChannel> findStoreChannels(String query, JDA jda)
     {
-        if(DISCORD_ID.matcher(query).matches())
+        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+        if(channelMention.matches())
+        {
+            StoreChannel tc = jda.getStoreChannelById(channelMention.group(1));
+            if(tc!=null)
+                return Collections.singletonList(tc);
+        }
+        else if(DISCORD_ID.matcher(query).matches())
         {
             StoreChannel sc = jda.getStoreChannelById(query);
             if(sc!=null)
@@ -668,7 +675,14 @@ public final class FinderUtil
      */
     public static List<StoreChannel> findStoreChannels(String query, Guild guild)
     {
-        if(DISCORD_ID.matcher(query).matches())
+        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+        if(channelMention.matches())
+        {
+            StoreChannel tc = guild.getStoreChannelById(channelMention.group(1));
+            if(tc!=null)
+                return Collections.singletonList(tc);
+        }
+        else if(DISCORD_ID.matcher(query).matches())
         {
             StoreChannel sc = guild.getStoreChannelById(query);
             if(sc!=null)
