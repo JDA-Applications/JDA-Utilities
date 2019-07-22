@@ -628,6 +628,55 @@ public final class FinderUtil
         return genericGuildChannelSearch(query, jda.getCategoryCache());
     }
 
+    /**
+     * Queries a provided instance of {@link net.dv8tion.jda.api.JDA JDA} for
+     * {@link net.dv8tion.jda.api.entities.StoreChannel StoreChannels}.<p>
+     *
+     * <p>The standard search does not follow any special cases.
+     *
+     * @param  query
+     *         The String query to search by
+     * @param  jda
+     *         The instance of JDA to search from
+     *
+     * @return A possibly-empty {@link java.util.List List} of StoreChannels found by the query from the provided JDA instance.
+     */
+    public static List<StoreChannel> findStoreChannels(String query, JDA jda)
+    {
+        if(DISCORD_ID.matcher(query).matches())
+        {
+            StoreChannel sc = jda.getStoreChannelById(query);
+            if(sc!=null)
+                return Collections.singletonList(sc);
+        }
+
+        return genericGuildChannelSearch(query, jda.getStoreChannelCache());
+    }
+
+    /**
+     * Queries a provided {@link net.dv8tion.jda.api.entities.Guild Guild} for
+     * {@link net.dv8tion.jda.api.entities.StoreChannel StoreChannels}.
+     *
+     * <p>The standard search does not follow any special cases.
+     *
+     * @param  query
+     *         The String query to search by
+     * @param  guild
+     *         The Guild to search from
+     *
+     * @return A possibly-empty {@link java.util.List List} of StoreChannels found by the query from the provided Guild.
+     */
+    public static List<StoreChannel> findStoreChannels(String query, Guild guild)
+    {
+        if(DISCORD_ID.matcher(query).matches())
+        {
+            StoreChannel sc = guild.getStoreChannelById(query);
+            if(sc!=null)
+                return Collections.singletonList(sc);
+        }
+        return genericGuildChannelSearch(query, guild.getStoreChannelCache());
+    }
+
     private static <T extends GuildChannel> List<T> genericGuildChannelSearch(String query, SnowflakeCacheView<T> cache)
     {
         ArrayList<T> exact = new ArrayList<>();
