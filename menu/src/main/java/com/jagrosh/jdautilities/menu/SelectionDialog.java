@@ -26,16 +26,16 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.internal.utils.Checks;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} implementation that creates
@@ -79,8 +79,8 @@ public class SelectionDialog extends Menu
     }
 
     /**
-     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting with
+     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
+     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
      * the first selection.
      * 
      * @param  channel
@@ -94,7 +94,7 @@ public class SelectionDialog extends Menu
 
     /**
      * Displays this SelectionDialog by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message Message}, starting with the first selection.
+     * {@link net.dv8tion.jda.api.entities.Message Message}, starting with the first selection.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -106,8 +106,8 @@ public class SelectionDialog extends Menu
     }
     
     /**
-     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.core.entities.Message Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}, starting with
+     * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
+     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
      * the number selection provided.
      * 
      * @param  channel
@@ -127,7 +127,7 @@ public class SelectionDialog extends Menu
     
     /**
      * Displays this SelectionDialog by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message Message}, starting with the number selection
+     * {@link net.dv8tion.jda.api.entities.Message Message}, starting with the number selection
      * provided.
      * 
      * @param  message
@@ -269,7 +269,7 @@ public class SelectionDialog extends Menu
         }
 
         /**
-         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}.
          *
          * @param  color
          *         The Color of the MessageEmbed
@@ -283,7 +283,7 @@ public class SelectionDialog extends Menu
         }
 
         /**
-         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed},
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed},
          * relative to the current selection number as determined by the provided
          * {@link java.util.function.Function Function}.
          * <br>As the selection changes, the Function will re-process the current selection number,
@@ -301,7 +301,7 @@ public class SelectionDialog extends Menu
         }
 
         /**
-         * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+         * Sets the text of the {@link net.dv8tion.jda.api.entities.Message Message} to be displayed
          * when the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog} is built.
          *
          * <p>This is displayed directly above the embed.
@@ -318,7 +318,7 @@ public class SelectionDialog extends Menu
         }
 
         /**
-         * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+         * Sets the text of the {@link net.dv8tion.jda.api.entities.Message Message} to be displayed
          * relative to the current selection number as determined by the provided
          * {@link java.util.function.Function Function}.
          * <br>As the selection changes, the Function will re-process the current selection number,
@@ -389,7 +389,7 @@ public class SelectionDialog extends Menu
 
         /**
          * Sets a {@link java.util.function.BiConsumer BiConsumer} action to perform once a selection is made.
-         * <br>The {@link net.dv8tion.jda.core.entities.Message Message} provided is the one used to display
+         * <br>The {@link net.dv8tion.jda.api.entities.Message Message} provided is the one used to display
          * the menu and the {@link java.lang.Integer Integer} is that of the selection made by the user,
          * and selections are in order of addition, 1 being the first String choice.
          *
