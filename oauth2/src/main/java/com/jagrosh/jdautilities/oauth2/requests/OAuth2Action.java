@@ -16,8 +16,8 @@
 package com.jagrosh.jdautilities.oauth2.requests;
 
 import com.jagrosh.jdautilities.oauth2.entities.impl.OAuth2ClientImpl;
-import net.dv8tion.jda.core.requests.Method;
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.internal.requests.Method;
+import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
- * An adaptable lookalike of JDA's {@link net.dv8tion.jda.core.requests.RestAction RestAction}.
+ * An adaptable lookalike of JDA's {@link net.dv8tion.jda.api.requests.RestAction RestAction}.
  *
  * <p>OAuth2Actions can either be completed <i>asynchronously</i> using {@link OAuth2Action#queue() queue},
  * or synchronously using {@link OAuth2Action#complete() complete}.

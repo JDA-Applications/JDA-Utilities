@@ -23,7 +23,7 @@ import com.jagrosh.jdautilities.oauth2.session.Session;
 import com.jagrosh.jdautilities.oauth2.session.SessionController;
 import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.state.StateController;
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.OkHttpClient;
 
 import javax.annotation.CheckReturnValue;
@@ -33,7 +33,7 @@ import java.util.List;
  * The central controller for OAuth2 state and session management using the Discord API.
  *
  * <p>OAuth2Client's are made using a {@link com.jagrosh.jdautilities.oauth2.OAuth2Client.Builder OAuth2Client.Builder},
- * and sessions can be appended using {@link OAuth2Client#startSession(String, String, String)}.
+ * and sessions can be appended using {@link OAuth2Client#startSession(String, String, String, Scope...)}.
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  * @author Kaidan Gustave

@@ -16,7 +16,7 @@
 package com.jagrosh.jdautilities.oauth2.requests;
 
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
-import net.dv8tion.jda.core.utils.JDALogger;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import okhttp3.*;
 import org.slf4j.Logger;
 
