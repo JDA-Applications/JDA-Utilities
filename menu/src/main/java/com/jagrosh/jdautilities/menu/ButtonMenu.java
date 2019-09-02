@@ -132,7 +132,7 @@ public class ButtonMenu extends Menu
 
                             // Last check is that the person who added the reaction
                             // is a valid user.
-                            return isValidUser(event.getUser(), event.getGuild());
+                            return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
                         }, (MessageReactionAddEvent event) -> {
                             // What happens next is after a valid event
                             // is fired and processed above.

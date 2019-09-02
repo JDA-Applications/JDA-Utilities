@@ -295,7 +295,7 @@ public class OrderedMenu extends Menu
         if(!e.getChannel().equals(m.getChannel()))
             return false;
         // Otherwise if it's a valid user or not
-        return isValidUser(e.getAuthor(), e.getGuild());
+        return isValidUser(e.getAuthor(), e.isFromGuild() ? e.getGuild() : null);
     }
     
     private String getEmoji(int number)
