@@ -64,7 +64,6 @@ import java.util.stream.Collectors;
 public class CommandClientImpl implements CommandClient, EventListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(CommandClient.class);
-    private static final int INDEX_LIMIT = 20;
     private static final String DEFAULT_PREFIX = "@mention";
 
     private final OffsetDateTime start;
@@ -262,23 +261,27 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         if(index>commands.size() || index<0)
             throw new ArrayIndexOutOfBoundsException("Index specified is invalid: ["+index+"/"+commands.size()+"]");
-        String name = command.getName();
         synchronized(commandIndex)
         {
+            String name = command.getName().toLowerCase();
+            //check for collision
             if(commandIndex.containsKey(name))
                 throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+name+"\"!");
             for(String alias : command.getAliases())
             {
-                if(commandIndex.containsKey(alias))
+                if(commandIndex.containsKey(alias.toLowerCase()))
                     throw new IllegalArgumentException("Command added has a name or alias that has already been indexed: \""+alias+"\"!");
-                commandIndex.put(alias, index);
             }
-            commandIndex.put(name, index);
+            //shift if not append
             if(index<commands.size())
             {
-                commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>index).collect(Collectors.toList())
-                            .forEach(key -> commandIndex.put(key, commandIndex.get(key)+1));
+                commandIndex.entrySet().stream().filter(entry -> entry.getValue()>=index).collect(Collectors.toList())
+                    .forEach(entry -> commandIndex.put(entry.getKey(), entry.getValue()+1));
             }
+            //add
+            commandIndex.put(name, index);
+            for(String alias : command.getAliases())
+                commandIndex.put(alias.toLowerCase(), index);
         }
         commands.add(index,command);
     }
@@ -286,17 +289,19 @@ public class CommandClientImpl implements CommandClient, EventListener
     @Override
     public void removeCommand(String name)
     {
-        if(!commandIndex.containsKey(name))
-            throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
-        int targetIndex = commandIndex.remove(name);
-        if(commandIndex.containsValue(targetIndex))
+        synchronized(commandIndex)
         {
-            commandIndex.keySet().stream().filter(key -> commandIndex.get(key) == targetIndex)
-                        .collect(Collectors.toList()).forEach(commandIndex::remove);
+            if(!commandIndex.containsKey(name.toLowerCase()))
+                throw new IllegalArgumentException("Name provided is not indexed: \"" + name + "\"!");
+            int targetIndex = commandIndex.remove(name.toLowerCase());
+            Command removedCommand = commands.remove(targetIndex);
+            for(String alias : removedCommand.getAliases())
+            {
+                commandIndex.remove(alias.toLowerCase());
+            }
+            commandIndex.entrySet().stream().filter(entry -> entry.getValue()>targetIndex).collect(Collectors.toList())
+                .forEach(entry -> commandIndex.put(entry.getKey(), entry.getValue()-1));
         }
-        commandIndex.keySet().stream().filter(key -> commandIndex.get(key)>targetIndex).collect(Collectors.toList())
-                .forEach(key -> commandIndex.put(key, commandIndex.get(key)-1));
-        commands.remove(targetIndex);
     }
 
     @Override
@@ -536,15 +541,10 @@ public class CommandClientImpl implements CommandClient, EventListener
                 String name = parts[0];
                 String args = parts[1]==null ? "" : parts[1];
                 final Command command; // this will be null if it's not a command
-                if(commands.size() < INDEX_LIMIT + 1)
-                    command = commands.stream().filter(cmd -> cmd.isCommandFor(name)).findAny().orElse(null);
-                else
+                synchronized(commandIndex)
                 {
-                    synchronized(commandIndex)
-                    {
-                        int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
-                        command = i != -1? commands.get(i) : null;
-                    }
+                    int i = commandIndex.getOrDefault(name.toLowerCase(), -1);
+                    command = i != -1? commands.get(i) : null;
                 }
 
                 if(command != null)
