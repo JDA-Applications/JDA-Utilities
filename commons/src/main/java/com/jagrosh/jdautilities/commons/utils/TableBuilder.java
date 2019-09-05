@@ -1,6 +1,6 @@
 package com.jagrosh.jdautilities.commons.utils;
 
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.internal.utils.Checks;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -68,7 +68,7 @@ public class TableBuilder
      *              <li>No values were set</li>
      *              <li>The values are empty</li>
      *              <li>One or more of the values are null</li>
-     *              <li>The padding is < 0</li>
+     *              <li>The padding is &lt; 0</li>
      *              <li>Row names were set and there are less rows in the values than row names given</li>
      *              <li>The amount of columns is not consistent throughout headers (if present) and values</li>
      *              <li>autoAdjust is false and no headers were set</li>
@@ -315,34 +315,34 @@ public class TableBuilder
         for (int i = 0; i < padding; i++) // padding left
             newValueBuilder.append(" ");
 
-        if (alignment == Alignment.RIGHT) // right alignment
+        switch(alignment)
         {
-            // first black spaces
-            for (int k = 0; k < adjustment; k++)
-                newValueBuilder.append(" ");
-            newValueBuilder.append(oldValue); // then value
-        }
-        else if (alignment == Alignment.LEFT) // left alignment
-        {
-            newValueBuilder.append(oldValue); // first value
-            // then blank spaces
-            for (int k = 0; k < adjustment; k++)
-                newValueBuilder.append(" ");
-        }
-        else if (alignment == Alignment.CENTER)
-        {
-            boolean even = adjustment % 2 == 0;
-            int half = adjustment / 2;
-            for (int k = 0; k < half; k++) // append one half of black spaces
-                newValueBuilder.append(" ");
+            case RIGHT:
+                // first black spaces
+                for (int k = 0; k < adjustment; k++)
+                    newValueBuilder.append(" ");
+                newValueBuilder.append(oldValue); // then value
+                break;
+            case LEFT:
+                newValueBuilder.append(oldValue); // first value
+                // then blank spaces
+                for (int k = 0; k < adjustment; k++)
+                    newValueBuilder.append(" ");
+                break;
+            case CENTER:
+                boolean even = adjustment % 2 == 0;
+                int half = adjustment / 2;
+                for (int k = 0; k < half; k++) // append one half of black spaces
+                    newValueBuilder.append(" ");
 
-            newValueBuilder.append(oldValue); // append value
+                newValueBuilder.append(oldValue); // append value
 
-            for (int k = 0; k < half; k++) // append other half of blank spaces
-                newValueBuilder.append(" ");
+                for (int k = 0; k < half; k++) // append other half of blank spaces
+                    newValueBuilder.append(" ");
 
-            if (!even) // if the number wasn't event, one blank space is still missing
-                newValueBuilder.append(" ");
+                if (!even) // if the number wasn't event, one blank space is still missing
+                    newValueBuilder.append(" ");
+                break;
         }
 
         for (int i = 0; i < padding; i++) // padding right
@@ -350,7 +350,7 @@ public class TableBuilder
     }
 
     /**
-     * Sets the headers for the columns specified in {@link this#setValues(String[][]) values}, applied in the order given here.
+     * Sets the headers for the columns specified in {@link TableBuilder#setValues(String[][]) values}, applied in the order given here.
      *
      * <p>This setting is optional. By default, there will not be any headers.
      *
@@ -366,7 +366,7 @@ public class TableBuilder
     }
 
     /**
-     * Sets names for the rows specified in {@link this#setValues(String[][]) values}, applied in the order given here.
+     * Sets names for the rows specified in {@link TableBuilder#setValues(String[][]) values}, applied in the order given here.
      *
      * <p>This setting is optional. By default, there will not be any row names.
      *
@@ -375,7 +375,7 @@ public class TableBuilder
      *
      * @return This builder.
      *
-     * @see    this#setName(String)
+     * @see    TableBuilder#setName(String)
      */
     public TableBuilder addRowNames(String... rows)
     {
@@ -420,7 +420,7 @@ public class TableBuilder
      *
      * @return This builder.
      *
-     * @see    this#addRowNames(String...)
+     * @see    TableBuilder#addRowNames(String...)
      */
     public TableBuilder setName(String tableName)
     {
@@ -438,7 +438,7 @@ public class TableBuilder
      *
      * @return This builder.
      *
-     * @see    this#autoAdjust(boolean)
+     * @see    TableBuilder#autoAdjust(boolean)
      *
      * @see    TableBuilder.Alignment
      */
@@ -456,7 +456,7 @@ public class TableBuilder
      *
      * @return This builder.
      *
-     * @see    this#autoAdjust(boolean)
+     * @see    TableBuilder#autoAdjust(boolean)
      */
     public TableBuilder setPadding(int padding)
     {
@@ -532,58 +532,58 @@ public class TableBuilder
          * An instance that can be used for framed tables with a header row and a columns with row names, for it provides
          * special delimiters for the first row and column.
          */
-        public static final Borders HEADER_ROW_FRAME = newHeaderRowNamesFrameBorders('─', '│', '┼',
-            '├', '┤', '┬', '┴', '┌', '┐', '└',
-            '┘', '═', '╪', '╞', '╡', '║',
-            '╫', '╥', '╨', '╬', '─', '│');
+        public static final Borders HEADER_ROW_FRAME = newHeaderRowNamesFrameBorders("─", "│", "┼",
+            "├", "┤", "┬", "┴", "┌", "┐", "└",
+            "┘", "═", "╪", "╞", "╡", "║",
+            "╫", "╥", "╨", "╬", "─", "│");
 
         /**
          * An instance that can be used for framed tables with a header row, for it provides a special delimiter for the first row.
          */
-        public static final Borders HEADER_FRAME = newHeaderFrameBorders('─', '│', '┼',
-            '├', '┤', '┬', '┴', '┌', '┐', '└', '┘',
-            '═', '╪', '╞', '╡', '─', '│');
+        public static final Borders HEADER_FRAME = newHeaderFrameBorders("─", "│", "┼",
+            "├", "┤", "┬", "┴", "┌", "┐", "└", "┘",
+            "═", "╪", "╞", "╡", "─", "│");
 
         /**
          * An instance that can be used for framed tables without any special characters for headers or row name columns.
          */
-        public static final Borders FRAME = newFrameBorders('─', '│', '┼', '├', '┤',
-            '┬', '┴', '┌', '┐', '└', '┘', '─', '│');
+        public static final Borders FRAME = newFrameBorders("─", "│", "┼", "├", "┤",
+            "┬", "┴", "┌", "┐", "└", "┘", "─", "│");
 
         /**
          * An instance that can be used for tables without a frame that have a header row and a row name column,
          * for this provides special delimiters for the first row and column.
          */
-        public static final Borders HEADER_ROW_PLAIN = newHeaderRowNamesPlainBorders('─', '│', '┼', '═',
-            '╪', '║', '╫', '╬');
+        public static final Borders HEADER_ROW_PLAIN = newHeaderRowNamesPlainBorders("─", "│", "┼", "═",
+            "╪", "║", "╫", "╬");
 
         /**
          * An instance that can be used for tables without a frame that have a header, for this provides a special
          * delimiter for the first row.
          */
-        public static final Borders HEADER_PLAIN = newHeaderPlainBorders('─', '│', '┼', '═', '╪');
+        public static final Borders HEADER_PLAIN = newHeaderPlainBorders("─", "│", "┼", "═", "╪");
 
         /**
          * An instance that can be used for plain tables without a frame that do not have any special delimiters
          * for headers or row name columns.
          */
-        public static final Borders PLAIN = newPlainBorders('─', '│', '┼');
+        public static final Borders PLAIN = newPlainBorders("─", "│", "┼");
 
-        public static final char UNKNOWN = '�';
+        public static final String UNKNOWN = "�";
 
-        public final char rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection,
+        public final String rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection,
             upperIntersection, lowerIntersection, upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner,
             headerDelimiter, headerCrossDelimiter, headerLeftIntersection, headerRightIntersection,
             firstColumnDelimiter, firstColumnCrossDelimiter, firstColumnUpperIntersection,
             firstColumnLowerIntersection, headerColumnCrossDelimiter, horizontalOutline, verticalOutline;
 
         // framing + headers + rows
-        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection,
-                        char rightIntersection, char upperIntersection, char lowerIntersection, char upLeftCorner,
-                        char upRightCorner, char lowLeftCorner, char lowRightCorner, char headerDelimiter,
-                        char headerCrossDelimiter, char headerLeftIntersection, char headerRightIntersection,
-                        char firstColumnDelimiter, char firstColumnCrossDelimiter, char firstColumnUpperIntersection,
-                        char firstColumnLowerIntersection, char headerColumnCrossDelimiter, char horizontalOutline, char verticalOutline)
+        private Borders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String leftIntersection,
+                        String rightIntersection, String upperIntersection, String lowerIntersection, String upLeftCorner,
+                        String upRightCorner, String lowLeftCorner, String lowRightCorner, String headerDelimiter,
+                        String headerCrossDelimiter, String headerLeftIntersection, String headerRightIntersection,
+                        String firstColumnDelimiter, String firstColumnCrossDelimiter, String firstColumnUpperIntersection,
+                        String firstColumnLowerIntersection, String headerColumnCrossDelimiter, String horizontalOutline, String verticalOutline)
         {
             this.rowDelimiter = rowDelimiter;
             this.columnDelimiter = columnDelimiter;
@@ -610,10 +610,10 @@ public class TableBuilder
         }
 
         // framing + headers
-        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
-                        char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
-                        char lowRightCorner, char headerDelimiter, char headerCrossDelimiter, char headerLeftIntersection,
-                        char headerRightIntersection, char horizontalOutline, char verticalOutline)
+        private Borders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String leftIntersection, String rightIntersection,
+                        String upperIntersection, String lowerIntersection, String upLeftCorner, String upRightCorner, String lowLeftCorner,
+                        String lowRightCorner, String headerDelimiter, String headerCrossDelimiter, String headerLeftIntersection,
+                        String headerRightIntersection, String horizontalOutline, String verticalOutline)
         {
             this(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
                 upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection,
@@ -622,9 +622,9 @@ public class TableBuilder
         }
 
         // framing
-        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
-                        char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
-                        char lowRightCorner, char horizontalOutline, char verticalOutline)
+        private Borders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String leftIntersection, String rightIntersection,
+                        String upperIntersection, String lowerIntersection, String upLeftCorner, String upRightCorner, String lowLeftCorner,
+                        String lowRightCorner, String horizontalOutline, String verticalOutline)
         {
             this(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
                 upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, rowDelimiter, crossDelimiter, leftIntersection, rightIntersection,
@@ -632,8 +632,8 @@ public class TableBuilder
         }
 
         // plain + headers + rows
-        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter,
-                        char firstColumnDelimiter, char firstColumnCrossDelimiter, char headerColumnCrossDelimiter)
+        private Borders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String headerDelimiter, String headerCrossDelimiter,
+                        String firstColumnDelimiter, String firstColumnCrossDelimiter, String headerColumnCrossDelimiter)
         {
             this(rowDelimiter, columnDelimiter, crossDelimiter, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN,
                 headerDelimiter, headerCrossDelimiter, UNKNOWN, UNKNOWN, firstColumnDelimiter, firstColumnCrossDelimiter,
@@ -641,13 +641,13 @@ public class TableBuilder
         }
 
         // plain + headers
-        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter)
+        private Borders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String headerDelimiter, String headerCrossDelimiter)
         {
             this(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter, columnDelimiter, crossDelimiter, headerCrossDelimiter);
         }
 
         // plain
-        private Borders(char rowDelimiter, char columnDelimiter, char crossDelimiter)
+        private Borders(String rowDelimiter, String columnDelimiter, String crossDelimiter)
         {
             this(rowDelimiter, columnDelimiter, crossDelimiter, rowDelimiter, crossDelimiter);
         }
@@ -721,13 +721,15 @@ public class TableBuilder
          *
          * @param  verticalOutline
          *         The character to use for the left and right frame outline
+         * 
+         * @return Borders instance
          */
-        public static Borders newHeaderRowNamesFrameBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection,
-                                                            char rightIntersection, char upperIntersection, char lowerIntersection, char upLeftCorner,
-                                                            char upRightCorner, char lowLeftCorner, char lowRightCorner, char headerDelimiter,
-                                                            char headerCrossDelimiter, char headerLeftIntersection, char headerRightIntersection,
-                                                            char firstColumnDelimiter, char firstColumnCrossDelimiter, char firstColumnUpperIntersection,
-                                                            char firstColumnLowerIntersection, char headerColumnCrossDelimiter, char horizontalOutline, char verticalOutline)
+        public static Borders newHeaderRowNamesFrameBorders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String leftIntersection,
+                                                            String rightIntersection, String upperIntersection, String lowerIntersection, String upLeftCorner,
+                                                            String upRightCorner, String lowLeftCorner, String lowRightCorner, String headerDelimiter,
+                                                            String headerCrossDelimiter, String headerLeftIntersection, String headerRightIntersection,
+                                                            String firstColumnDelimiter, String firstColumnCrossDelimiter, String firstColumnUpperIntersection,
+                                                            String firstColumnLowerIntersection, String headerColumnCrossDelimiter, String horizontalOutline, String verticalOutline)
         {
             return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection, upLeftCorner, upRightCorner,
                 lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection, headerRightIntersection, firstColumnDelimiter, firstColumnCrossDelimiter,
@@ -788,11 +790,13 @@ public class TableBuilder
          *
          * @param  verticalOutline
          *         The character to use for the left and right frame outline
+         * 
+         * @return Borders instance
          */
-        public static Borders newHeaderFrameBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
-                                                    char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
-                                                    char lowRightCorner, char headerDelimiter, char headerCrossDelimiter, char headerLeftIntersection,
-                                                    char headerRightIntersection, char horizontalOutline, char verticalOutline)
+        public static Borders newHeaderFrameBorders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String leftIntersection, String rightIntersection,
+                                                    String upperIntersection, String lowerIntersection, String upLeftCorner, String upRightCorner, String lowLeftCorner,
+                                                    String lowRightCorner, String headerDelimiter, String headerCrossDelimiter, String headerLeftIntersection,
+                                                    String headerRightIntersection, String horizontalOutline, String verticalOutline)
         {
             return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection,
                 upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, headerDelimiter, headerCrossDelimiter, headerLeftIntersection, headerRightIntersection,
@@ -841,10 +845,12 @@ public class TableBuilder
          *
          * @param  verticalOutline
          *         The character to use for the left and right frame outline
+         * 
+         * @return Borders instance
          */
-        public static Borders newFrameBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char leftIntersection, char rightIntersection,
-                                              char upperIntersection, char lowerIntersection, char upLeftCorner, char upRightCorner, char lowLeftCorner,
-                                              char lowRightCorner, char horizontalOutline, char verticalOutline)
+        public static Borders newFrameBorders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String leftIntersection, String rightIntersection,
+                                              String upperIntersection, String lowerIntersection, String upLeftCorner, String upRightCorner, String lowLeftCorner,
+                                              String lowRightCorner, String horizontalOutline, String verticalOutline)
         {
             return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, leftIntersection, rightIntersection, upperIntersection, lowerIntersection, upLeftCorner, upRightCorner, lowLeftCorner, lowRightCorner, horizontalOutline, verticalOutline);
         }
@@ -854,7 +860,7 @@ public class TableBuilder
          * but special characters for a header row and a row name column.
          *
          * <p>Warning: using this or the other plain Borders for a framed table will not lead to a satisfying result,
-         * since all the framing characters are {@link this#UNKNOWN unknown unicode characters} here.
+         * since all the framing characters are {@link Borders#UNKNOWN unknown unicode characters} here.
          *
          * @param  rowDelimiter
          *         The character used to separate normal rows from each other
@@ -879,9 +885,11 @@ public class TableBuilder
          *
          * @param  headerColumnCrossDelimiter
          *         The character to be placed at the intersection first row x first column
+         * 
+         * @return Borders instance
          */
-        public static Borders newHeaderRowNamesPlainBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter,
-                                                            char firstColumnDelimiter, char firstColumnCrossDelimiter, char headerColumnCrossDelimiter)
+        public static Borders newHeaderRowNamesPlainBorders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String headerDelimiter, String headerCrossDelimiter,
+                                                            String firstColumnDelimiter, String firstColumnCrossDelimiter, String headerColumnCrossDelimiter)
         {
             return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter, firstColumnDelimiter, firstColumnCrossDelimiter, headerColumnCrossDelimiter);
         }
@@ -904,8 +912,10 @@ public class TableBuilder
          *
          * @param  headerCrossDelimiter
          *         The character to be placed where the header delimiter and the column delimiters cross
+         * 
+         * @return Borders instance
          */
-        public static Borders newHeaderPlainBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter, char headerDelimiter, char headerCrossDelimiter)
+        public static Borders newHeaderPlainBorders(String rowDelimiter, String columnDelimiter, String crossDelimiter, String headerDelimiter, String headerCrossDelimiter)
         {
             return new Borders(rowDelimiter, columnDelimiter, crossDelimiter, headerDelimiter, headerCrossDelimiter);
         }
@@ -922,8 +932,10 @@ public class TableBuilder
          *
          * @param  crossDelimiter
          *         The character to be placed where the vertical and horizontal lines inside the table cross
+         * 
+         * @return Borders instance
          */
-        public static Borders newPlainBorders(char rowDelimiter, char columnDelimiter, char crossDelimiter)
+        public static Borders newPlainBorders(String rowDelimiter, String columnDelimiter, String crossDelimiter)
         {
             return new Borders(rowDelimiter, columnDelimiter, crossDelimiter);
         }

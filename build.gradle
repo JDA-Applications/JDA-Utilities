@@ -37,7 +37,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.BETA.0_1'
+        jdaVersion = '4.0.0_46'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.9.1'
         findbugsVersion = '3.0.2'
@@ -170,7 +170,6 @@ subprojects {
     }
 
     compileJava {
-        options.encoding = 'UTF-8'
         source = sourcesForRelease.destinationDir
         classpath = sourceSets.main.compileClasspath
 
