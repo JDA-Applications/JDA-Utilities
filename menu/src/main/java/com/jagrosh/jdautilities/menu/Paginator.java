@@ -229,7 +229,7 @@ public class Paginator extends Menu
                 if(leftText != null && rightText != null)
                 {
                     if(rawContent.equalsIgnoreCase(leftText) || rawContent.equalsIgnoreCase(rightText))
-                        return isValidUser(mre.getAuthor(), mre.getGuild());
+                        return isValidUser(mre.getAuthor(), mre.isFromGuild() ? mre.getGuild() : null);
                 }
 
                 if(allowTextInput)
@@ -238,7 +238,7 @@ public class Paginator extends Menu
                         int i = Integer.parseInt(rawContent);
                         // Minimum 1, Maximum the number of pages, never the current page number
                         if(1 <= i && i <= pages && i != pageNum)
-                            return isValidUser(mre.getAuthor(), mre.getGuild());
+                            return isValidUser(mre.getAuthor(), mre.isFromGuild() ? mre.getGuild() : null);
                     } catch(NumberFormatException ignored) {}
                 }
             }
@@ -295,10 +295,10 @@ public class Paginator extends Menu
             case LEFT:
             case STOP:
             case RIGHT:
-                return isValidUser(event.getUser(), event.getGuild());
+                return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
             case BIG_LEFT:
             case BIG_RIGHT:
-                return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.getGuild());
+                return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
             default:
                 return false;
         }

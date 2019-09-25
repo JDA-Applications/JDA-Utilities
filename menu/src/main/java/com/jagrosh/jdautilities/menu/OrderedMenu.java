@@ -295,7 +295,7 @@ public class OrderedMenu extends Menu
         if(!e.getChannel().equals(m.getChannel()))
             return false;
         // Otherwise if it's a valid user or not
-        return isValidUser(e.getAuthor(), e.getGuild());
+        return isValidUser(e.getAuthor(), e.isFromGuild() ? e.getGuild() : null);
     }
     
     private String getEmoji(int number)
@@ -409,7 +409,7 @@ public class OrderedMenu extends Menu
 
         /**
          * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
-         * using numbers for ordering and reactions (IE: A, B, C, etc.).
+         * using numbers for ordering and reactions (IE: 1, 2, 3, etc.).
          *
          * @return This builder
          */
