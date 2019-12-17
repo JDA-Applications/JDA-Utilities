@@ -279,7 +279,7 @@ public class OrderedMenu extends Menu
         if(!e.getMessageId().equals(m.getId()))
             return false;
         // The user is not valid
-        if(!isValidUser(e.getUser(), e.getGuild()))
+        if(!isValidUser(e.getUser(), e.isFromGuild() ? e.getGuild() : null))
             return false;
         // The reaction is the cancel reaction
         if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
