@@ -97,13 +97,14 @@ public class OAuth2GuildImpl implements OAuth2Guild
         if(isOwner())
             return true;
 
+        long adminPermRaw = Permission.ADMINISTRATOR.getRawValue();
         int permissions = getPermissionsRaw();
-        for(Permission perm : perms)
-        {
-            final long rawValue = perm.getRawValue();
-            if((permissions & rawValue) != rawValue)
-                return false;
-        }
-        return true;
+
+        if ((permissions & adminPermRaw) == adminPermRaw)
+            return true;
+
+        long checkPermsRaw = Permission.getRaw(perms);
+
+        return (permissions & checkPermsRaw) == checkPermsRaw;
     }
 }
