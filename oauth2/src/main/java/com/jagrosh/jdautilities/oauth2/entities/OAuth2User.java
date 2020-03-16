@@ -17,11 +17,11 @@ package com.jagrosh.jdautilities.oauth2.entities;
 
 import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.session.Session;
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.IMentionable;
-import net.dv8tion.jda.core.entities.ISnowflake;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.User;
 
 /**
  * OAuth2 representation of a Discord User.
@@ -177,8 +177,8 @@ public interface OAuth2User extends ISnowflake, IMentionable
     String getAsMention();
 
     /**
-     * Gets the corresponding {@link net.dv8tion.jda.core.entities.User JDA User}
-     * from the provided instance of {@link net.dv8tion.jda.core.JDA JDA}.
+     * Gets the corresponding {@link net.dv8tion.jda.api.entities.User JDA User}
+     * from the provided instance of {@link net.dv8tion.jda.api.JDA JDA}.
      *
      * <p>Note that there is no guarantee that this will not return {@code null}
      * as the instance of JDA may not have access to the User.
@@ -193,8 +193,8 @@ public interface OAuth2User extends ISnowflake, IMentionable
     User getJDAUser(JDA jda);
 
     /**
-     * Gets the corresponding {@link net.dv8tion.jda.core.entities.User JDA User}
-     * from the provided {@link net.dv8tion.jda.bot.sharding.ShardManager ShardManager}.
+     * Gets the corresponding {@link net.dv8tion.jda.api.entities.User JDA User}
+     * from the provided {@link net.dv8tion.jda.api.sharding.ShardManager ShardManager}.
      *
      * <p>Note that there is no guarantee that this will not return {@code null}
      * as the ShardManager may not have access to the User.

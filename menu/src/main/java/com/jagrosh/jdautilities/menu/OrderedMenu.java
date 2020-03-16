@@ -24,22 +24,21 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.GenericMessageEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.Checks;
-import net.dv8tion.jda.core.utils.PermissionUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.internal.utils.Checks;
 
 /**
  * A {@link com.jagrosh.jdautilities.menu.Menu Menu} of ordered buttons signified
@@ -89,8 +88,8 @@ public class OrderedMenu extends Menu
     }
 
     /**
-     * Shows the OrderedMenu as a new {@link net.dv8tion.jda.core.entities.Message Message} 
-     * in the provided {@link net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+     * Shows the OrderedMenu as a new {@link net.dv8tion.jda.api.entities.Message Message}
+     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
@@ -98,9 +97,9 @@ public class OrderedMenu extends Menu
      * @throws java.lang.IllegalArgumentException
      *         If <b>all</b> of the following are violated simultaneously:
      *         <ul>
-     *             <li>Being sent to a {@link net.dv8tion.jda.core.entities.TextChannel TextChannel}.</li>
+     *             <li>Being sent to a {@link net.dv8tion.jda.api.entities.TextChannel TextChannel}.</li>
      *             <li>This OrderedMenu does not allow typed input.</li>
-     *             <li>The bot doesn't have {@link net.dv8tion.jda.core.Permission#MESSAGE_ADD_REACTION
+     *             <li>The bot doesn't have {@link net.dv8tion.jda.api.Permission#MESSAGE_ADD_REACTION
      *             Permission.MESSAGE_ADD_REACTION} in the channel this menu is being sent to.</li>
      *         </ul>
      */
@@ -113,15 +112,14 @@ public class OrderedMenu extends Menu
         // Does not have permission to add reactions
         if(channel.getType()==ChannelType.TEXT
                 && !allowTypedInput
-                && !PermissionUtil.checkPermission((TextChannel)channel,
-                ((TextChannel)channel).getGuild().getSelfMember(), Permission.MESSAGE_ADD_REACTION))
+                && !((TextChannel)channel).getGuild().getSelfMember().hasPermission((TextChannel) channel, Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(channel.sendMessage(getMessage()));
     }
 
     /**
      * Displays this OrderedMenu by editing the provided 
-     * {@link net.dv8tion.jda.core.entities.Message Message}.
+     * {@link net.dv8tion.jda.api.entities.Message Message}.
      * 
      * @param  message
      *         The Message to display the Menu in
@@ -129,9 +127,9 @@ public class OrderedMenu extends Menu
      * @throws java.lang.IllegalArgumentException
      *         If <b>all</b> of the following are violated simultaneously:
      *         <ul>
-     *             <li>Being sent to a {@link net.dv8tion.jda.core.entities.TextChannel TextChannel}.</li>
+     *             <li>Being sent to a {@link net.dv8tion.jda.api.entities.TextChannel TextChannel}.</li>
      *             <li>This OrderedMenu does not allow typed input.</li>
-     *             <li>The bot doesn't have {@link net.dv8tion.jda.core.Permission#MESSAGE_ADD_REACTION
+     *             <li>The bot doesn't have {@link net.dv8tion.jda.api.Permission#MESSAGE_ADD_REACTION
      *             Permission.MESSAGE_ADD_REACTION} in the channel this menu is being sent to.</li>
      *         </ul>
      */
@@ -144,8 +142,7 @@ public class OrderedMenu extends Menu
         // Does not have permission to add reactions
         if(message.getChannelType() == ChannelType.TEXT
                 && !allowTypedInput 
-                && !PermissionUtil.checkPermission(message.getTextChannel(),
-                message.getGuild().getSelfMember(), Permission.MESSAGE_ADD_REACTION))
+                && !message.getGuild().getSelfMember().hasPermission(message.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(message.editMessage(getMessage()));
     }
@@ -282,7 +279,7 @@ public class OrderedMenu extends Menu
         if(!e.getMessageId().equals(m.getId()))
             return false;
         // The user is not valid
-        if(!isValidUser(e.getUser(), e.getGuild()))
+        if(!isValidUser(e.getUser(), e.isFromGuild() ? e.getGuild() : null))
             return false;
         // The reaction is the cancel reaction
         if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
@@ -298,7 +295,7 @@ public class OrderedMenu extends Menu
         if(!e.getChannel().equals(m.getChannel()))
             return false;
         // Otherwise if it's a valid user or not
-        return isValidUser(e.getAuthor(), e.getGuild());
+        return isValidUser(e.getAuthor(), e.isFromGuild() ? e.getGuild() : null);
     }
     
     private String getEmoji(int number)
@@ -384,7 +381,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         * Sets the {@link java.awt.Color Color} of the {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}.
          *
          * @param  color
          *         The Color of the MessageEmbed
@@ -412,7 +409,7 @@ public class OrderedMenu extends Menu
 
         /**
          * Sets the builder to build an {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu}
-         * using numbers for ordering and reactions (IE: A, B, C, etc.).
+         * using numbers for ordering and reactions (IE: 1, 2, 3, etc.).
          *
          * @return This builder
          */
@@ -423,7 +420,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * If {@code true}, {@link net.dv8tion.jda.core.entities.User User}s can type the number or
+         * If {@code true}, {@link net.dv8tion.jda.api.entities.User User}s can type the number or
          * letter of the input to make their selection, in addition to the reaction option.
          *
          * @param  allow
@@ -452,7 +449,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the text of the {@link net.dv8tion.jda.core.entities.Message Message} to be displayed
+         * Sets the text of the {@link net.dv8tion.jda.api.entities.Message Message} to be displayed
          * when the {@link com.jagrosh.jdautilities.menu.OrderedMenu OrderedMenu} is built.
          *
          * <p>This is displayed directly above the embed.
@@ -469,7 +466,7 @@ public class OrderedMenu extends Menu
         }
 
         /**
-         * Sets the description to be placed in an {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+         * Sets the description to be placed in an {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed}.
          * <br>If this is {@code null}, no MessageEmbed will be displayed
          *
          * @param  description

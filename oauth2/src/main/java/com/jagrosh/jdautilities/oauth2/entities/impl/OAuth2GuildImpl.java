@@ -15,12 +15,11 @@
  */
 package com.jagrosh.jdautilities.oauth2.entities.impl;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2Guild;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
+
+import java.util.EnumSet;
 
 /**
  *
@@ -81,9 +80,9 @@ public class OAuth2GuildImpl implements OAuth2Guild
     }
     
     @Override
-    public List<Permission> getPermissions()
+    public EnumSet<Permission> getPermissions()
     {
-        return Collections.unmodifiableList(Permission.getPermissions(permissions));
+        return Permission.getPermissions(permissions);
     }
     
     @Override
@@ -98,13 +97,14 @@ public class OAuth2GuildImpl implements OAuth2Guild
         if(isOwner())
             return true;
 
+        long adminPermRaw = Permission.ADMINISTRATOR.getRawValue();
         int permissions = getPermissionsRaw();
-        for(Permission perm : perms)
-        {
-            final long rawValue = perm.getRawValue();
-            if((permissions & rawValue) != rawValue)
-                return false;
-        }
-        return true;
+
+        if ((permissions & adminPermRaw) == adminPermRaw)
+            return true;
+
+        long checkPermsRaw = Permission.getRaw(perms);
+
+        return (permissions & checkPermsRaw) == checkPermsRaw;
     }
 }

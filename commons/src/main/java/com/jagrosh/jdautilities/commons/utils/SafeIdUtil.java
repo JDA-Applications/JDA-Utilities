@@ -17,7 +17,7 @@ package com.jagrosh.jdautilities.commons.utils;
 
 /**
  * A Utilities class for safely checking and converting String IDs to longs usable with 
- * {@link net.dv8tion.jda.core.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}, a utility used in
+ * {@link net.dv8tion.jda.api.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}, a utility used in
  * several {@code Object#getXById(String)} methods.
  * 
  * <p>This class contains two static methods:
@@ -36,7 +36,7 @@ public final class SafeIdUtil
 {
     /**
      * Safely convert the provided String ID to a {@code long} usable with 
-     * {@link net.dv8tion.jda.core.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}.
+     * {@link net.dv8tion.jda.api.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}.
      * 
      * @param  id
      *         The String ID to be converted
@@ -63,7 +63,7 @@ public final class SafeIdUtil
     }
     
     /**
-     * Checks if the provided String ID is usable with {@link net.dv8tion.jda.core.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}.
+     * Checks if the provided String ID is usable with {@link net.dv8tion.jda.api.utils.MiscUtil#parseSnowflake(String) MiscUtil.parseSnowflake(String)}.
      * 
      * @param  id
      *         The String ID to be converted

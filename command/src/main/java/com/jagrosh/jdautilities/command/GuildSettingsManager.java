@@ -15,7 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.entities.Guild;
 
 import javax.annotation.Nullable;
 
@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  *
  * <p>Standard implementations should be able to simply provide a
  * type of {@link java.lang.Object Object} provided a non-null
- * {@link net.dv8tion.jda.core.entities.Guild Guild}. Further
+ * {@link net.dv8tion.jda.api.entities.Guild Guild}. Further
  * customization of the implementation is allowed on the developer
  * end.
  *
@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
 public interface GuildSettingsManager<T>
 {
     /**
-     * Gets settings for a specified {@link net.dv8tion.jda.core.entities.Guild Guild}
+     * Gets settings for a specified {@link net.dv8tion.jda.api.entities.Guild Guild}
      * as an object of the specified type {@code T}, or {@code null} if the guild has no
      * settings.
      *
@@ -60,14 +60,14 @@ public interface GuildSettingsManager<T>
     T getSettings(Guild guild);
 
     /**
-     * Called when JDA has fired a {@link net.dv8tion.jda.core.events.ReadyEvent ReadyEvent}.
+     * Called when JDA has fired a {@link net.dv8tion.jda.api.events.ReadyEvent ReadyEvent}.
      *
      * <p>Developers should implement this method to create or initialize resources when starting their bot.
      */
     default void init() {}
 
     /**
-     * Called when JDA has fired a {@link net.dv8tion.jda.core.events.ShutdownEvent ShutdownEvent}.
+     * Called when JDA has fired a {@link net.dv8tion.jda.api.events.ShutdownEvent ShutdownEvent}.
      *
      * <p>Developers should implement this method to free up or close resources when shutting their bot.
      */

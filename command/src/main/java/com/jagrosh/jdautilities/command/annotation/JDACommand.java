@@ -16,7 +16,7 @@
 package com.jagrosh.jdautilities.command.annotation;
 
 import com.jagrosh.jdautilities.command.Command;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 
 import java.lang.annotation.*;
 
@@ -125,7 +125,7 @@ public @interface JDACommand
     Cooldown cooldown() default @Cooldown(0);
 
     /**
-     * The {@link net.dv8tion.jda.core.Permission Permissions} the bot must have
+     * The {@link net.dv8tion.jda.api.Permission Permissions} the bot must have
      * on a guild to use this command.
      *
      * @return The required permissions the bot must have to use this command.
@@ -133,7 +133,7 @@ public @interface JDACommand
     Permission[] botPermissions() default {};
 
     /**
-     * The {@link net.dv8tion.jda.core.Permission Permissions} the user must have
+     * The {@link net.dv8tion.jda.api.Permission Permissions} the user must have
      * on a guild to use this command.
      *
      * @return The required permissions a user must have to use this command.

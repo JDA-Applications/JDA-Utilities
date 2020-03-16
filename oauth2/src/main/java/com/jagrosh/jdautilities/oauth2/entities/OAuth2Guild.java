@@ -16,9 +16,10 @@
 package com.jagrosh.jdautilities.oauth2.entities;
 
 import com.jagrosh.jdautilities.oauth2.OAuth2Client;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -69,11 +70,11 @@ public interface OAuth2Guild extends ISnowflake
     int getPermissionsRaw();
 
     /**
-     * Gets the Session User's {@link net.dv8tion.jda.core.Permission Permissions} for the Guild.
+     * Gets the Session User's {@link net.dv8tion.jda.api.Permission Permissions} for the Guild.
      *
      * @return The Session User's Permissions for the Guild.
      */
-    List<Permission> getPermissions();
+    EnumSet<Permission> getPermissions();
 
     /**
      * Whether or not the Session User is the owner of the Guild.
@@ -85,7 +86,7 @@ public interface OAuth2Guild extends ISnowflake
 
     /**
      * Whether or not the Session User has all of the specified
-     * {@link net.dv8tion.jda.core.Permission Permissions} in the Guild.
+     * {@link net.dv8tion.jda.api.Permission Permissions} in the Guild.
      *
      * @param  perms
      *         The Permissions to check for.

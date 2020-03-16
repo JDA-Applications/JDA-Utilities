@@ -19,6 +19,7 @@ import com.jagrosh.jdautilities.oauth2.OAuth2Client;
 import com.jagrosh.jdautilities.oauth2.Scope;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2Guild;
 import com.jagrosh.jdautilities.oauth2.entities.OAuth2User;
+import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException;
 import com.jagrosh.jdautilities.oauth2.requests.OAuth2Action;
 import com.jagrosh.jdautilities.oauth2.requests.OAuth2Requester;
@@ -28,18 +29,14 @@ import com.jagrosh.jdautilities.oauth2.session.Session;
 import com.jagrosh.jdautilities.oauth2.session.SessionController;
 import com.jagrosh.jdautilities.oauth2.session.SessionData;
 import com.jagrosh.jdautilities.oauth2.state.DefaultStateController;
-import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.state.StateController;
-import net.dv8tion.jda.core.exceptions.HttpException;
-import net.dv8tion.jda.core.requests.Method;
-import net.dv8tion.jda.core.requests.Requester;
-import net.dv8tion.jda.core.utils.Checks;
-import net.dv8tion.jda.core.utils.IOUtil;
-import net.dv8tion.jda.core.utils.JDALogger;
-import net.dv8tion.jda.core.utils.MiscUtil;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.Response;
+import net.dv8tion.jda.api.exceptions.HttpException;
+import net.dv8tion.jda.internal.requests.Method;
+import net.dv8tion.jda.internal.utils.Checks;
+import net.dv8tion.jda.internal.utils.EncodingUtil;
+import net.dv8tion.jda.internal.utils.IOUtil;
+import net.dv8tion.jda.internal.utils.JDALogger;
+import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -85,12 +82,12 @@ public class OAuth2ClientImpl implements OAuth2Client
     {
         Checks.notNull(redirectUri, "Redirect URI");
 
-        return OAuth2URL.AUTHORIZE.compile(clientId, MiscUtil.encodeUTF8(redirectUri),
+        return OAuth2URL.AUTHORIZE.compile(clientId, EncodingUtil.encodeUTF8(redirectUri),
             Scope.join(scopes), stateController.generateNewState(redirectUri));
     }
 
     @Override
-    public OAuth2Action<Session> startSession(String code, String state, String identifier) throws InvalidStateException
+    public OAuth2Action<Session> startSession(String code, String state, String identifier, Scope... scopes) throws InvalidStateException
     {
         Checks.notEmpty(code, "code");
         Checks.notEmpty(state, "state");
@@ -99,8 +96,9 @@ public class OAuth2ClientImpl implements OAuth2Client
         if(redirectUri == null)
             throw new InvalidStateException(String.format("No state '%s' exists!", state));
 
-        return new OAuth2Action<Session>(this, Method.POST, OAuth2URL.TOKEN.compile(clientId,
-            MiscUtil.encodeUTF8(redirectUri), code, clientSecret))
+        OAuth2URL oAuth2URL = OAuth2URL.TOKEN;
+
+        return new OAuth2Action<Session>(this, Method.POST, oAuth2URL.getRouteWithBaseUrl())
         {
             @Override
             protected Headers getHeaders()
@@ -109,12 +107,19 @@ public class OAuth2ClientImpl implements OAuth2Client
             }
 
             @Override
+            protected RequestBody getBody() {
+                return RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"),
+                    oAuth2URL.compileQueryParams(clientId, EncodingUtil.encodeUTF8(redirectUri), code, clientSecret,
+                        Scope.join(true, scopes)));
+            }
+
+            @Override
             protected Session handle(Response response) throws IOException
             {
                 if(!response.isSuccessful())
                     throw failure(response);
 
-                JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));
+                JSONObject body = new JSONObject(new JSONTokener(IOUtil.getBody(response)));
 
                 String[] scopeStrings = body.getString("scope").split(" ");
                 Scope[] scopes = new Scope[scopeStrings.length];
@@ -147,7 +152,7 @@ public class OAuth2ClientImpl implements OAuth2Client
             {
                 if(!response.isSuccessful())
                     throw failure(response);
-                JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));
+                JSONObject body = new JSONObject(new JSONTokener(IOUtil.getBody(response)));
                 return new OAuth2UserImpl(OAuth2ClientImpl.this, session, body.getLong("id"),
                     body.getString("username"), body.getString("discriminator"),
                     body.optString("avatar", null), body.optString("email", null),
@@ -175,7 +180,7 @@ public class OAuth2ClientImpl implements OAuth2Client
                 if(!response.isSuccessful())
                     throw failure(response);
 
-                JSONArray body = new JSONArray(new JSONTokener(Requester.getBody(response)));
+                JSONArray body = new JSONArray(new JSONTokener(IOUtil.getBody(response)));
                 List<OAuth2Guild> list = new LinkedList<>();
                 JSONObject obj;
                 for(int i = 0; i < body.length(); i++)
@@ -231,7 +236,7 @@ public class OAuth2ClientImpl implements OAuth2Client
 
     protected static HttpException failure(Response response) throws IOException
     {
-        final InputStream stream = Requester.getBody(response);
+        final InputStream stream = IOUtil.getBody(response);
         final String responseBody = new String(IOUtil.readFully(stream));
         return new HttpException("Request returned failure " + response.code() + ": " + responseBody);
     }

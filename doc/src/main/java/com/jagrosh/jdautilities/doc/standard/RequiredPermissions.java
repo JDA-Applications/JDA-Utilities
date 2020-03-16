@@ -17,14 +17,14 @@ package com.jagrosh.jdautilities.doc.standard;
 
 import com.jagrosh.jdautilities.doc.ConvertedBy;
 import com.jagrosh.jdautilities.doc.DocConverter;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 
 import java.lang.annotation.*;
 
 /**
  * A CommandDoc {@link java.lang.annotation.Annotation Annotation} that lists
- * required {@link net.dv8tion.jda.core.Permission Permission}s a bot must have
- * to use a command on a {@link net.dv8tion.jda.core.entities.Guild Guild}.
+ * required {@link net.dv8tion.jda.api.Permission Permission}s a bot must have
+ * to use a command on a {@link net.dv8tion.jda.api.entities.Guild Guild}.
  *
  * @since  2.0
  * @author Kaidan Gustave
@@ -36,7 +36,7 @@ import java.lang.annotation.*;
 public @interface RequiredPermissions
 {
     /**
-     * An array of {@link net.dv8tion.jda.core.Permission Permission}s
+     * An array of {@link net.dv8tion.jda.api.Permission Permission}s
      * a bot must have to run the command.
      *
      * @return The array of permissions

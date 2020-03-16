@@ -15,7 +15,7 @@
  */
 package com.jagrosh.jdautilities.command;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
  * An implementable "Listener" that can be added to a {@link com.jagrosh.jdautilities.command.CommandClient CommandClient}
@@ -65,7 +65,7 @@ public interface CommandListener
     default void onTerminatedCommand(CommandEvent event, Command command) {}
     
     /**
-     * Called when a {@link net.dv8tion.jda.core.events.message.MessageReceivedEvent MessageReceivedEvent}
+     * Called when a {@link net.dv8tion.jda.api.events.message.MessageReceivedEvent MessageReceivedEvent}
      * is caught by the Client Listener's but doesn't correspond to a
      * {@link com.jagrosh.jdautilities.command.Command Command}.
      * 

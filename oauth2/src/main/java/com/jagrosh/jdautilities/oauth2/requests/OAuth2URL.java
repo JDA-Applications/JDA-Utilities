@@ -35,7 +35,8 @@ public enum OAuth2URL
         "redirect_uri=%s",
         "grant_type=authorization_code",
         "code=%s",
-        "client_secret=%s"),
+        "client_secret=%s",
+        "scope=%s"),
     CURRENT_USER("/users/@me"),
     CURRENT_USER_GUILDS("/users/@me/guilds");
 
@@ -44,6 +45,7 @@ public enum OAuth2URL
     private final String route;
     private final String formattableRoute;
     private final boolean hasQueryParams;
+    private final String queryParams;
 
     OAuth2URL(String route, String... queryParams)
     {
@@ -52,18 +54,21 @@ public enum OAuth2URL
 
         if(hasQueryParams)
         {
-            StringBuilder b = new StringBuilder(route);
+            StringBuilder b = new StringBuilder();
 
             for(int i = 0; i < queryParams.length; i++)
             {
                 b.append(i == 0? '?' : '&');
                 b.append(queryParams[i]);
             }
-            this.formattableRoute = b.toString();
+
+            this.formattableRoute = route + b.toString();
+            this.queryParams = b.toString();
         }
         else
         {
             this.formattableRoute = route;
+            this.queryParams = "";
         }
     }
 
@@ -75,6 +80,15 @@ public enum OAuth2URL
     public boolean hasQueryParams()
     {
         return hasQueryParams;
+    }
+
+    public String compileQueryParams(Object... values) {
+        return String.format(queryParams, values).replaceFirst("\\?", "");
+    }
+
+    public String getRouteWithBaseUrl()
+    {
+        return BASE_API_URL + route;
     }
 
     public String compile(Object... values)
