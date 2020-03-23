@@ -730,7 +730,7 @@ public final class FinderUtil
         if(roleMention.matches())
         {
             Role role = guild.getRoleById(roleMention.group(1));
-            if(role!=null && role.isMentionable())
+            if(role!=null)
                 return Collections.singletonList(role);
         }
         else if(DISCORD_ID.matcher(query).matches())
