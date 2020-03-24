@@ -213,7 +213,7 @@ public class CommandClientImpl implements CommandClient, EventListener
     {
         if(cooldowns.containsKey(name))
         {
-            int time = (int)OffsetDateTime.now().until(cooldowns.get(name), ChronoUnit.SECONDS);
+            int time = (int) Math.ceil(OffsetDateTime.now().until(cooldowns.get(name), ChronoUnit.MILLIS) / 1000D);
             if(time<=0)
             {
                 cooldowns.remove(name);

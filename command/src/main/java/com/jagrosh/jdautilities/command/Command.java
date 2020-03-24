@@ -310,12 +310,8 @@ public abstract class Command
             int remaining = event.getClient().getRemainingCooldown(key);
             if(remaining>0)
             {
-                String error = getCooldownError(event, remaining);
-                if(error!=null)
-                {
-                    terminate(event, error);
-                    return;
-                }
+                terminate(event, getCooldownError(event, remaining));
+                return;
             }
             else event.getClient().applyCooldown(key, cooldown);
         }
