@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
+includeInParent = false
 
-include ':command'
-include ':commons'
-include ':doc'
-include ':examples'
-include ':menu'
-include ':statuspage'
+dependencies {
+    compile okhttp()
+    compile json()
+    compile findbugs()
+
+    compile commons()
+
+    testCompile junit()
+}

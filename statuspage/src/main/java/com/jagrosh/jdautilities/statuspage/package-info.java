@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
-
-include ':command'
-include ':commons'
-include ':doc'
-include ':examples'
-include ':menu'
-include ':statuspage'
+/**
+ * StatusPage package.<br>
+ */
+package com.jagrosh.jdautilities.statuspage;

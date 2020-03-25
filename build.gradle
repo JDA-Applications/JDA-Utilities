@@ -311,3 +311,12 @@ publishing {
         }
     }
 }
+
+dependencyUpdates.resolutionStrategy = {
+    componentSelection { rules ->
+        rules.all { selection ->
+            if ( ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier -> selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/ } )
+                selection.reject('only a release candidate')
+        }
+    }
+}

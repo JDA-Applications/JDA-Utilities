@@ -1,4 +1,6 @@
 gradlew binary
+gradlew.bat binary
+/gradle/wrapper/gradle-wrapper.properties binary
 
 .gitattributes text eol=crlf
 
