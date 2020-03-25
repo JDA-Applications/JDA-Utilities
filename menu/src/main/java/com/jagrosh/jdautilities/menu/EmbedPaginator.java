@@ -150,9 +150,9 @@ public class EmbedPaginator extends Menu{
                 if(bulkSkipNumber > 1)
                     m.addReaction(RIGHT).queue();
                 m.addReaction(bulkSkipNumber > 1 ? BIG_RIGHT : RIGHT)
-                    .queue();
+                    .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }else if(waitOnSinglePage){
-                m.addReaction(STOP).queue();
+                m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }else{
                 finalAction.accept(m);
             }
