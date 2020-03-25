@@ -297,7 +297,7 @@ public class EmbedPaginator extends Menu{
      * 
      * @author Andre_601
      */
-    public class Builder extends Menu.Builder<Builder, EmbedPaginator>{
+    public static class Builder extends Menu.Builder<Builder, EmbedPaginator>{
         
         private BiFunction<Integer, Integer, String> text = (page, pages) -> null;
         private Consumer<Message> finalAction = m -> m.delete().queue();
