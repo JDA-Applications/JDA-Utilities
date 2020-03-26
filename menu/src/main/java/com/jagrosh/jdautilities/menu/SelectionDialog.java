@@ -54,6 +54,7 @@ public class SelectionDialog extends Menu
     private final Function<Integer,String> text;
     private final BiConsumer<Message, Integer> success;
     private final Consumer<Message> cancel;
+    private final boolean singleSelectionMode;
     
     public static final String UP = "\uD83D\uDD3C";
     public static final String DOWN = "\uD83D\uDD3D";
@@ -63,7 +64,7 @@ public class SelectionDialog extends Menu
     SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
                     List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
                     Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
-                    Consumer<Message> cancel, Function<Integer,String> text)
+                    Consumer<Message> cancel, Function<Integer,String> text, boolean singleSelectionMode)
     {
         super(waiter, users, roles, timeout, unit);
         this.choices = choices;
@@ -76,6 +77,20 @@ public class SelectionDialog extends Menu
         this.success = success;
         this.cancel = cancel;
         this.text = text;
+        this.singleSelectionMode = singleSelectionMode;
+    }
+
+    /**
+     * Constructor for backwards compatibility (calls new constructor with singleSelectionMode = false)
+     * @deprecated Use Constructor with extra boolean {@code singleSelectionMode} instead
+     */
+    @Deprecated
+    SelectionDialog(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
+                    List<String> choices, String leftEnd, String rightEnd, String defaultLeft, String defaultRight,
+                    Function<Integer,Color> color, boolean loop, BiConsumer<Message, Integer> success,
+                    Consumer<Message> cancel, Function<Integer,String> text)
+    {
+        this(waiter, users, roles, timeout, unit, choices, leftEnd, rightEnd, defaultLeft, defaultRight, color, loop, success, cancel, text, false);
     }
 
     /**
@@ -192,6 +207,8 @@ public class SelectionDialog extends Menu
                     break;
                 case SELECT:
                     success.accept(message, selection);
+                    if(singleSelectionMode)
+                        return;
                     break;
                 case CANCEL:
                     cancel.accept(message);
@@ -242,6 +259,7 @@ public class SelectionDialog extends Menu
         private Function<Integer,String> text = i -> null;
         private BiConsumer<Message, Integer> selection;
         private Consumer<Message> cancel = (m) -> {};
+        private boolean singleSelectionMode = false;
 
         /**
          * Builds the {@link com.jagrosh.jdautilities.menu.SelectionDialog SelectionDialog}
@@ -265,7 +283,7 @@ public class SelectionDialog extends Menu
             Checks.check(selection != null, "Must provide a selection consumer");
 
             return new SelectionDialog(waiter,users,roles,timeout,unit,choices,leftEnd,rightEnd,
-                    defaultLeft,defaultRight,color,loop, selection, cancel,text);
+                    defaultLeft,defaultRight,color,loop, selection, cancel,text, singleSelectionMode);
         }
 
         /**
@@ -384,6 +402,21 @@ public class SelectionDialog extends Menu
         public Builder useLooping(boolean loop)
         {
             this.loop = loop;
+            return this;
+        }
+
+        /**
+         * Sets if the Menu should exit when a selection was made.
+         * By default, this is false and the menu continues showing choices even after a selection was made.
+         *
+         * @param  singleSelectionMode
+         *         {@code true} if the menu should exit after the first selection being made
+         *
+         * @return This builder
+         */
+        public Builder useSingleSelectionMode(boolean singleSelectionMode)
+        {
+            this.singleSelectionMode = singleSelectionMode;
             return this;
         }
 
