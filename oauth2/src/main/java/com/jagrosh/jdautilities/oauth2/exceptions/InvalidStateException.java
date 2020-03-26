@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
+package com.jagrosh.jdautilities.oauth2.exceptions;
 
-include ':command'
-include ':commons'
-include ':doc'
-include ':examples'
-include ':menu'
-include ':oauth2'
+/**
+ * Exception raised when the provided OAuth2 state is not valid.
+ *
+ * <p><b>Not to be confused with {@link java.lang.IllegalStateException IllegalStateException}</b>
+ *
+ * @author John Grosh (john.a.grosh@gmail.com)
+ */
+public class InvalidStateException extends Exception
+{
+    public InvalidStateException(String message)
+    {
+        super(message);
+    }
+}

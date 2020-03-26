@@ -13,11 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
+package com.jagrosh.jdautilities.oauth2.exceptions;
 
-include ':command'
-include ':commons'
-include ':doc'
-include ':examples'
-include ':menu'
-include ':oauth2'
+import com.jagrosh.jdautilities.oauth2.Scope;
+
+/**
+ * Exception raised whenever attempting to perform an action or function
+ * with a missing {@link com.jagrosh.jdautilities.oauth2.Scope Scope}.
+ *
+ * @author Kaidan Gustave
+ */
+public class MissingScopeException extends RuntimeException
+{
+    private static final String FORMAT = "Cannot %s without '%s' scope!";
+
+    public MissingScopeException(String action, Scope missing)
+    {
+        super(String.format(FORMAT, action, missing.getText()));
+    }
+}

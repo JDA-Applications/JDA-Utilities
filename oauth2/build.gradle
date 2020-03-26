@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'JDA-Utilities'
+dependencies {
+    compileOnly jda()
+    compile findbugs()
+    compile json()
 
-include ':command'
-include ':commons'
-include ':doc'
-include ':examples'
-include ':menu'
-include ':oauth2'
+    compile commons()
+}
