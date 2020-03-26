@@ -19,7 +19,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'com.github.ben-manes.versions' version '0.17.0'
     id 'com.github.johnrengelman.shadow' version '2.0.2'
-    id 'com.jfrog.bintray' version '1.8.0'
+    id 'com.jfrog.bintray' version '1.8.4'
 }
 
 def versionInfo = [major: '3', minor: '0', revision: '3']
