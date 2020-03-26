@@ -147,7 +147,7 @@ public interface OAuth2User extends ISnowflake, IMentionable
     String getEffectiveAvatarUrl();
 
     /**
-     * Gets whether or not this user is a bot.<p>
+     * Gets whether or not this user is a bot.
      *
      * <p>While, at the time of writing this documentation, bots cannot
      * authenticate applications, there may be a time in the future

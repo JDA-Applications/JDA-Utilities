@@ -141,6 +141,8 @@ public abstract class OAuth2Action<T>
      * if it was successful, or throwing the {@link java.lang.Exception Exception} if it was not.
      *
      * <p>Bear in mind when using this, that this method blocks the thread it is called in.
+     * @return the value constructed from the response
+     * @throws java.io.IOException on unsuccessful execution
      */
     public T complete() throws IOException
     {

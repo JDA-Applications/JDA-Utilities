@@ -22,7 +22,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
-def versionInfo = [major: '3', minor: '0', revision: '2']
+def versionInfo = [major: '3', minor: '0', revision: '3']
 
 task build {
     group = 'build'
@@ -37,9 +37,9 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.0.0_46'
+        jdaVersion = '4.1.1_126'
         slf4jVersion = '1.7.25'
-        okhttpVersion = '3.9.1'
+        okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'
         jsonVersion = '20160810'
         junitVersion = '4.12' // TODO Move to junit 5?
