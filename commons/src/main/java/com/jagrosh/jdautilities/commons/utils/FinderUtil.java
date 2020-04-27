@@ -35,16 +35,16 @@ import java.util.stream.Collectors;
  *     <li>Special Cases: Specifics of these are described per individual method documentation.
  *     <br>Note that successful results from these are typically
  *     {@link java.util.Collections#singletonList(Object) a singleton list}.</li>
- *     <li>Direct ID: Query is a number with 17 or more digits, resembling an
+ *     <li>Direct ID: Query is a number with 17 or more digits, resembling a
  *     {@link net.dv8tion.jda.api.entities.ISnowflake Snowflake} ID.</li>
  *     <li>Exact Match: Query provided is an exact match (case sensitive and complete) to one or more entities.</li>
  *     <li>Wrong Case: Query provided is a case-insensitive, but exact, match to the entirety of one or more entities.</li>
- *     <li>Starting With: Query provided is an case-insensitive match to the beginning of one or more entities.</li>
+ *     <li>Starting With: Query provided is a case-insensitive match to the beginning of one or more entities.</li>
  *     <li>Contains: Query provided is a case-insensitive match to a part of one or more entities.</li>
  * </ul>
  * All queries return the highest List in this hierarchy that contains one or more entities, and only of these
- * kind of results (IE: the "exact" list will never contain any results from a successful "starting with" match,
- * unless by chance they could technically be the same result).<p>
+ * kinds of results (IE: the "exact" list will never contain any results from a successful "starting with" match;
+ * however, by chance, they could technically be the same result).<p>
  *
  * <b>Shard Manager Usage</b>
  *
@@ -82,7 +82,7 @@ public final class FinderUtil
      *
      * <p>The following special cases are applied in order of listing before the standard search is done:
      * <ul>
-     *     <li>User Mention: Query provided matches an @user mention (more specifically {@literal <@userID>}).</li>
+     *     <li>User Mention: Query provided matches a @user mention (more specifically {@literal <@userID>}).</li>
      *     <li>Full User Reference: Query provided matches a full Username#XXXX reference.
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
@@ -107,7 +107,7 @@ public final class FinderUtil
      *
      * <p>The following special cases are applied in order of listing before the standard search is done:
      * <ul>
-     *     <li>User Mention: Query provided matches an @user mention (more specifically {@literal <@userID>}).</li>
+     *     <li>User Mention: Query provided matches a @user mention (more specifically {@literal <@userID>}).</li>
      *     <li>Full User Reference: Query provided matches a full Username#XXXX reference.
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
@@ -187,7 +187,7 @@ public final class FinderUtil
      *
      * <p>The following special cases are applied in order of listing before the standard search is done:
      * <ul>
-     *     <li>User Mention: Query provided matches an @user mention (more specifically {@literal <@userID>}).</li>
+     *     <li>User Mention: Query provided matches a @user mention (more specifically {@literal <@userID>}).</li>
      *     <li>Full User Reference: Query provided matches a full Username#XXXX reference.
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
@@ -196,10 +196,10 @@ public final class FinderUtil
      *
      * <p>Unlike the other finder methods, this one has two very unique features that set it apart from the rest:
      * <ul>
-     *     <li><b>1)</b> In order to get a list of bans that is usable, this method initial retrieves it by usage of
+     *     <li><b>1)</b> In order to get a list of bans that is usable, this method initially retrieves it by usage of
      *     {@link net.dv8tion.jda.api.requests.RestAction#complete() Guild#getBans().complete()}. Because of this,
      *     as would be the same expected effect from the other utility methods, this will block the thread it is called
-     *     in. The difference, however, comes in that this method may have slight variations in return speed, especially
+     *     in. The difference, however, is that this method may have slight variations in return speed, especially
      *     when put under higher usage over a shorter period of time.</li>
      *     <li><b>2) This method can return {@code null}</b> if and only if an {@link java.lang.Exception Exception} is
      *     thrown while initially getting banned Users via {@link net.dv8tion.jda.api.entities.Guild#retrieveBanList()
@@ -286,7 +286,7 @@ public final class FinderUtil
      *
      * <p>The following special cases are applied in order of listing before the standard search is done:
      * <ul>
-     *     <li>User Mention: Query provided matches an @user mention (more specifically {@literal <@userID> or <@!userID>}).</li>
+     *     <li>User Mention: Query provided matches a @user mention (more specifically {@literal <@userID> or <@!userID>}).</li>
      *     <li>Full User Reference: Query provided matches a full Username#XXXX reference.
      *     <br><b>NOTE:</b> this can return a list with more than one entity.</li>
      * </ul>
@@ -295,7 +295,7 @@ public final class FinderUtil
      * this method queries based on two different names: user name and effective name (excluding special cases in which it
      * queries solely based on user name).
      * <br>Each standard check looks at the user name, then the member name, and if either one's criteria is met the Member
-     * is added to the returned list. This is important to note, because the returned list may contain exact matches for
+     * is added to the returned list. This is important to note, because the returned list may contain exact matches for a
      * User's name as well as exact matches for a Member's effective name, with nothing guaranteeing the returns will be
      * exclusively containing matches for one or the other.
      * <br>Information on effective name can be found in {@link net.dv8tion.jda.api.entities.Member#getEffectiveName()
@@ -773,7 +773,7 @@ public final class FinderUtil
      *
      * <p>The following special case is applied before the standard search is done:
      * <ul>
-     *     <li>Emote Mention: Query provided matches a :emote: mention (more specifically {@literal <:emoteName:emoteID>}).
+     *     <li>Emote Mention: Query provided matches an :emote: mention (more specifically {@literal <:emoteName:emoteID>}).
      *     <br>Note: This only returns here if the emote is <b>valid</b>. Validity being the ID retrieves a non-null
      *     Emote and that the {@link net.dv8tion.jda.api.entities.Emote#getName() name} of the Emote is equal to the
      *     name found in the query.</li>
@@ -800,7 +800,7 @@ public final class FinderUtil
      *
      * <p>The following special case is applied before the standard search is done:
      * <ul>
-     *     <li>Emote Mention: Query provided matches a :emote: mention (more specifically {@literal <:emoteName:emoteID>}).
+     *     <li>Emote Mention: Query provided matches an :emote: mention (more specifically {@literal <:emoteName:emoteID>}).
      *     <br>Note: This only returns here if the emote is <b>valid</b>. Validity being the ID retrieves a non-null
      *     Emote and that the {@link net.dv8tion.jda.api.entities.Emote#getName() name} of the Emote is equal to the
      *     name found in the query.</li>
@@ -824,7 +824,7 @@ public final class FinderUtil
      *
      * <p>The following special case is applied before the standard search is done:
      * <ul>
-     *     <li>Emote Mention: Query provided matches a :emote: mention (more specifically {@literal <:emoteName:emoteID>}).
+     *     <li>Emote Mention: Query provided matches an :emote: mention (more specifically {@literal <:emoteName:emoteID>}).
      *     <br>Note: This only returns here if the emote is <b>valid</b>. Validity being the ID retrieves a non-null
      *     Emote and that the {@link net.dv8tion.jda.api.entities.Emote#getName() name} of the Emote is equal to the
      *     name found in the query.</li>
