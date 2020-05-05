@@ -40,7 +40,7 @@ public enum OAuth2URL
     CURRENT_USER("/users/@me"),
     CURRENT_USER_GUILDS("/users/@me/guilds");
 
-    public static final String BASE_API_URL = String.format("https://discordapp.com/api/v%d", OAuth2Client.DISCORD_REST_VERSION);
+    public static final String BASE_API_URL = String.format("https://discord.com/api/v%d", OAuth2Client.DISCORD_REST_VERSION);
 
     private final String route;
     private final String formattableRoute;
