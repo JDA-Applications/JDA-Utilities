@@ -22,7 +22,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.4'
 }
 
-def versionInfo = [major: '3', minor: '0', revision: '3']
+def versionInfo = [major: '3', minor: '0', revision: '4']
 
 task build {
     group = 'build'
@@ -37,7 +37,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.1.1_126'
+        jdaVersion = '4.1.1_164'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'
