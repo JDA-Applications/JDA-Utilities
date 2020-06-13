@@ -128,7 +128,7 @@ public class OAuth2UserImpl implements OAuth2User
     @Override
     public String getDefaultAvatarUrl()
     {
-        return "https://discordapp.com/assets/" + getDefaultAvatarId() + ".png";
+        return "https://discord.com/assets/" + getDefaultAvatarId() + ".png";
     }
 
     @Override
