@@ -539,7 +539,7 @@ public abstract class Command
 
     /**
      * Gets the proper cooldown key for this Command under the provided
-     * {@link com.jagrosh.jdautilities.command.CommandEvent CommanEvent}.
+     * {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent}.
      *
      * @param  event
      *         The CommandEvent to generate the cooldown for.
