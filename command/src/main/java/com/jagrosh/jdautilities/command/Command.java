@@ -21,6 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
@@ -245,7 +246,8 @@ public abstract class Command
                 {
                     if(p.name().startsWith("VOICE"))
                     {
-                        VoiceChannel vc = event.getMember().getVoiceState().getChannel();
+                        GuildVoiceState gvc = event.getMember().getVoiceState();
+                        VoiceChannel vc = gvc == null ? null : gvc.getChannel();
                         if(vc==null)
                         {
                             terminate(event, event.getClient().getError()+" You must be in a voice channel to use that!");
