@@ -474,11 +474,9 @@ public class CommandClientImpl implements CommandClient, EventListener
         }
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
         
-        if(status != null)
-            event.getJDA.getPresence().setOnlineStatus(status);
-            
-        event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
-                activity ==null ? null : "default".equals(activity.getName()) ? Activity.playing("Type "+textPrefix+helpWord) : activity);
+        if(activity != null) 
+            event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
+                "default".equals(activity.getName()) ? Activity.playing("Type "+textPrefix+helpWord) : activity);
 
         // Start SettingsManager if necessary
         GuildSettingsManager<?> manager = getSettingsManager();
