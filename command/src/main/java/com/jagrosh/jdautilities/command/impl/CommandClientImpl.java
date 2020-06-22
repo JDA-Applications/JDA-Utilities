@@ -473,6 +473,10 @@ public class CommandClientImpl implements CommandClient, EventListener
             return;
         }
         textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@"+event.getJDA().getSelfUser().getName()+" " : prefix;
+        
+        if(status != null)
+            event.getJDA.getPresence().setOnlineStatus(status);
+            
         event.getJDA().getPresence().setPresence(status==null ? OnlineStatus.ONLINE : status, 
                 activity ==null ? null : "default".equals(activity.getName()) ? Activity.playing("Type "+textPrefix+helpWord) : activity);
 
