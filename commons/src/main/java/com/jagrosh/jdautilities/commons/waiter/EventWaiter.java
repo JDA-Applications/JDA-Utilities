@@ -21,6 +21,8 @@ import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.internal.utils.Checks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +56,7 @@ import java.util.stream.Stream;
  */
 public class EventWaiter implements EventListener
 {
+    private static final Logger LOG = LoggerFactory.getLogger(EventWaiter.class);
     private final HashMap<Class<?>, Set<WaitingEvent>> waitingEvents;
     private final ScheduledExecutorService threadpool;
     private final boolean shutdownAutomatically;
@@ -215,8 +218,15 @@ public class EventWaiter implements EventListener
         {
             threadpool.schedule(() ->
             {
-                if(set.remove(we) && timeoutAction != null)
-                    timeoutAction.run();
+                try
+                {
+                    if(set.remove(we) && timeoutAction != null)
+                        timeoutAction.run();
+                }
+                catch (Exception ex)
+                {
+                    LOG.error("Failed to run timeoutAction", ex);
+                }
             }, timeout, unit);
         }
     }
