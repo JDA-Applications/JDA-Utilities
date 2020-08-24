@@ -62,7 +62,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
  *
  * @author HydroPage90
  */
-public final class InverseEvent
+public final class InverseAction
 {
     /**
      * @return An attempt to change the category's position back
