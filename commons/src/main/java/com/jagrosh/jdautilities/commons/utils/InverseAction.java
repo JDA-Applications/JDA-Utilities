@@ -122,7 +122,7 @@ public final class InverseAction
      */
     public static RestAction<?> of(GuildJoinEvent event)
     {
-        return null;
+        return event.getGuild().leave();
     }
 
     /**
