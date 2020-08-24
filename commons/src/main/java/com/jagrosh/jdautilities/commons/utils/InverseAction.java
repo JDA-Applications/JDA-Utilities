@@ -352,7 +352,7 @@ public final class InverseAction
     /**
      * @return An attempt to change the role's color back to what it just was
      */
-    public static RestAction<?> of(RoleUpdateColorEvent event)
+    public static RoleManager of(RoleUpdateColorEvent event)
     {
         Role role = event.getRole();
         RoleManager manager = role.getManager();
@@ -364,7 +364,7 @@ public final class InverseAction
     /**
      * @return An attempt to close said channel
      */
-    public static RestAction<?> of(PrivateChannelCreateEvent event)
+    public static RestAction<Void> of(PrivateChannelCreateEvent event)
     {
         return event.getChannel().close();
     }
