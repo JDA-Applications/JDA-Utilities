@@ -1,9 +1,7 @@
 package com.jagrosh.jdautilities.commons.utils;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.channel.category.CategoryCreateEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdateNameEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdatePositionEvent;
@@ -42,7 +40,9 @@ import net.dv8tion.jda.api.events.self.*;
 import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
+import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -52,7 +52,7 @@ import java.util.List;
  * All methods are overloaded static factory methods, always returning a {@link net.dv8tion.jda.api.requests.RestAction RestAction}
  * meant to "undo" the given event. Note that this will only be possible for events in which it makes sense.
  * In events where something is posted, the inverse would be another request to remove said post, for example.
- *
+ * <p>
  * Also, since it's a RestAction that simply makes an attempt at the inverse, it's not always possible due to multiple
  * factors, such as permissions, etc. For example, trying to inverse a {@link net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent GuildMessageReceievedEvent} in a channel with no permission
  * to remove messages will fail
@@ -61,7 +61,7 @@ import java.util.List;
  * <p>
  * Events fired when something is "created" like a {@link net.dv8tion.jda.api.events.guild.override.PermissionOverrideCreateEvent PermissionOverrideCreateEvent}
  * can usually be logically inverted, by removing what was created.
- *
+ * <p>
  * Events fired for the deletion of something are a different story. Some cases are logical, but many are not, like the
  * removal of a text channel. Cases where the complete undoing of the event cannot be guaranteed are not implemented
  * </p>
@@ -206,25 +206,36 @@ public final class InverseAction
     /**
      * @return An attempt to remove said override
      */
-    public static RestAction<?> of(PermissionOverrideCreateEvent event)
+    public static AuditableRestAction<Void> of(PermissionOverrideCreateEvent event)
     {
-        return null;
+        return event.getPermissionOverride().delete();
     }
 
     /**
      * @return An attempt to add the override back
      */
-    public static RestAction<?> of(PermissionOverrideDeleteEvent event)
+    public static PermissionOverrideAction of(PermissionOverrideDeleteEvent event)
     {
-        return null;
+        PermissionOverride deleted = event.getPermissionOverride();
+        EnumSet<Permission> allowed = deleted.getAllowed();
+        EnumSet<Permission> denied = deleted.getDenied();
+
+        return event.getChannel()
+                    .createPermissionOverride(event.getPermissionHolder())
+                    .setPermissions(allowed, denied);
     }
 
     /**
      * @return An attempt to set rules to what they just were
      */
-    public static RestAction<?> of(PermissionOverrideUpdateEvent event)
+    public static PermissionOverrideAction of(PermissionOverrideUpdateEvent event)
     {
-        return null;
+        PermissionOverride updated = event.getPermissionOverride();
+        EnumSet<Permission> allow = event.getOldAllow();
+        EnumSet<Permission> deny = event.getOldDeny();
+
+        return updated.getManager()
+                      .setAllow(allow).setDeny(deny);
     }
 
     /**
