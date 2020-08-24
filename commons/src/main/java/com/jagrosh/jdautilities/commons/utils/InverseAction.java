@@ -456,57 +456,81 @@ public final class InverseAction
     /**
      * @return An attempt to remove said channel
      */
-    public static RestAction<?> of(TextChannelCreateEvent event)
+    public static AuditableRestAction<Void> of(TextChannelCreateEvent event)
     {
-        return null;
+        return event.getChannel().delete();
     }
 
     /**
      * @return An attempt to change the text channel's topic back
      */
-    public static RestAction<?> of(TextChannelUpdateTopicEvent event)
+    public static ChannelManager of(TextChannelUpdateTopicEvent event)
     {
-        return null;
+        TextChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        String oldTopic = event.getOldTopic();
+
+        return manager.setTopic(oldTopic);
     }
 
     /**
      * @return An attempt to change the text channel's name back
      */
-    public static RestAction<?> of(TextChannelUpdateNameEvent event)
+    public static ChannelManager of(TextChannelUpdateNameEvent event)
     {
-        return null;
+        TextChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        String oldName = event.getOldName();
+
+        return manager.setName(oldName);
     }
 
     /**
      * @return An attempt to change the text channel's slowmode value back
      */
-    public static RestAction<?> of(TextChannelUpdateSlowmodeEvent event)
+    public static ChannelManager of(TextChannelUpdateSlowmodeEvent event)
     {
-        return null;
+        TextChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        int oldState = event.getOldSlowmode();
+
+        return manager.setSlowmode(oldState);
     }
 
     /**
      * @return An attempt to move the text channel back
      */
-    public static RestAction<?> of(TextChannelUpdatePositionEvent event)
+    public static ChannelManager of(TextChannelUpdatePositionEvent event)
     {
-        return null;
+        TextChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        int oldPos = event.getOldPosition();
+
+        return manager.setPosition(oldPos);
     }
 
     /**
      * @return An attempt to change the text channel's NSFW state back
      */
-    public static RestAction<?> of(TextChannelUpdateNSFWEvent event)
+    public static ChannelManager of(TextChannelUpdateNSFWEvent event)
     {
-        return null;
+        TextChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        boolean oldState = event.getOldNSFW();
+
+        return manager.setNSFW(oldState);
     }
 
     /**
      * @return An attempt to change the text channel's parent back
      */
-    public static RestAction<?> of(TextChannelUpdateParentEvent event)
+    public static ChannelManager of(TextChannelUpdateParentEvent event)
     {
-        return null;
+        TextChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        Category oldParent = event.getOldParent();
+
+        return manager.setParent(oldParent);
     }
 
     /**
