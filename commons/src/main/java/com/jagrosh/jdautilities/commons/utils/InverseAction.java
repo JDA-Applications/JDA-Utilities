@@ -39,10 +39,15 @@ import net.dv8tion.jda.api.events.role.update.*;
 import net.dv8tion.jda.api.events.self.*;
 import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.managers.EmoteManager;
+import net.dv8tion.jda.api.managers.RoleManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.api.requests.restaction.RoleAction;
+import net.dv8tion.jda.api.requests.restaction.order.OrderAction;
+import net.dv8tion.jda.api.requests.restaction.order.RoleOrderAction;
 
+import java.awt.*;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +73,9 @@ import java.util.stream.Collectors;
  * Events fired for the deletion of something are a different story. Some cases are logical, but many are not, like the
  * removal of a text channel. Cases where the complete undoing of the event cannot be guaranteed are not implemented
  * </p>
+ *
+ * Keep in mind that inverting the deletion of something requires for a new object to be created with the same values.
+ * But doing this can't possibly copy information such as the ID of the deleted object
  *
  * @author HydroPage90
  */
@@ -276,49 +284,67 @@ public final class InverseAction
     /**
      * @return An attempt to remove said role
      */
-    public static RestAction<?> of(RoleCreateEvent event)
+    public static AuditableRestAction<Void> of(RoleCreateEvent event)
     {
-        return null;
+        return event.getRole().delete();
     }
 
     /**
      * @return An attempt to add the role back
      */
-    public static RestAction<?> of(RoleDeleteEvent event)
+    public static RoleAction of(RoleDeleteEvent event)
     {
-        return null;
+        return event.getRole().createCopy();
     }
 
     /**
-     * @return An attempt to make the role unmentionable again
+     * @return An attempt to change the mentionable state back
      */
-    public static RestAction<?> of(RoleUpdateMentionableEvent event)
+    public static RoleManager of(RoleUpdateMentionableEvent event)
     {
-        return null;
+        Role role = event.getRole();
+        RoleManager manager = role.getManager();
+        Boolean oldState = event.getOldValue();
+
+        return manager.setMentionable(oldState);
     }
 
     /**
      * @return An attempt to move the role back to where it just was
      */
-    public static RestAction<?> of(RoleUpdatePositionEvent event)
+    public static OrderAction<Role, RoleOrderAction> of(RoleUpdatePositionEvent event)
     {
-        return null;
+        Role role = event.getRole();
+        int oldPos = event.getOldPosition();
+
+        return event.getGuild()
+                    .modifyRolePositions()
+                    .selectPosition(role)
+                    .moveTo(oldPos);
     }
 
     /**
      * @return An attempt to change the role's permissions back
      */
-    public static RestAction<?> of(RoleUpdatePermissionsEvent event)
+    public static RoleManager of(RoleUpdatePermissionsEvent event)
     {
-        return null;
+        Role role = event.getRole();
+        RoleManager manager = role.getManager();
+        EnumSet<Permission> oldPerms = event.getOldPermissions();
+
+        return manager.setPermissions(oldPerms);
     }
 
     /**
      * @return An attempt to change the role's name back
      */
-    public static RestAction<?> of(RoleUpdateNameEvent event)
+    public static RoleManager of(RoleUpdateNameEvent event)
     {
-        return null;
+        Role role = event.getRole();
+        RoleManager manager = role.getManager();
+        String oldName = event.getOldName();
+
+        return manager.setName(oldName);
     }
 
     //TODO What the hell is a hoisted role? Lmao, look at that later
@@ -328,7 +354,11 @@ public final class InverseAction
      */
     public static RestAction<?> of(RoleUpdateColorEvent event)
     {
-        return null;
+        Role role = event.getRole();
+        RoleManager manager = role.getManager();
+        Color oldColor = event.getOldColor();
+
+        return manager.setColor(oldColor);
     }
 
     /**
