@@ -3,6 +3,7 @@ package com.jagrosh.jdautilities.commons.utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.channel.category.CategoryCreateEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdateNameEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdatePositionEvent;
@@ -163,33 +164,43 @@ public final class InverseAction
     /**
      * @return An attempt to undeafen if they were deafened, or an attempt to deafen if they were undeafened
      */
-    public static RestAction<?> of(GuildVoiceGuildDeafenEvent event)
+    public static RestAction<Void> of(GuildVoiceGuildDeafenEvent event)
     {
-        return null;
+        return event.getGuild().leave();
     }
 
     /**
      * @return An attempt to kick them from the channel
      */
-    public static RestAction<?> of(GuildVoiceJoinEvent event)
+    public static RestAction<Void> of(GuildVoiceJoinEvent event)
     {
-        return null;
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
+
+        return guild.kickVoiceMember(member);
     }
 
     /**
      * @return An attempt to move them back to where they just were
      */
-    public static RestAction<?> of(GuildVoiceMoveEvent event)
+    public static RestAction<Void> of(GuildVoiceMoveEvent event)
     {
-        return null;
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
+        VoiceChannel previous = event.getOldValue();
+
+        return guild.moveVoiceMember(member, previous);
     }
 
     /**
      * @return An attempt to unmute if they were muted, or an attempt to mute if they were unmuted
      */
-    public static RestAction<?> of(GuildVoiceGuildMuteEvent event)
+    public static AuditableRestAction<Void> of(GuildVoiceGuildMuteEvent event)
     {
-        return null;
+        Member member = event.getMember();
+        boolean action = event.isGuildMuted();
+
+        return member.mute(!action);
     }
 
     /**
