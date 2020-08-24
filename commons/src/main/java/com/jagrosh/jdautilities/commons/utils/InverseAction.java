@@ -71,7 +71,7 @@ import java.util.List;
  * Events fired for the deletion of something are a different story. Some cases are logical, but many are not, like the
  * removal of a text channel. Cases where the complete undoing of the event cannot be guaranteed are not implemented
  * </p>
- *
+ * <p>
  * Keep in mind that inverting the deletion of something requires for a new object to be created with the same values.
  * But doing this can't possibly copy information such as the ID of the deleted object
  *
@@ -222,15 +222,20 @@ public final class InverseAction
 
     /**
      * @return An attempt to add the override back
+     * @throws com.jagrosh.jdautilities.commons.utils.InverseAction.InversionException If the override's permission holder isn't cached
      */
     public static PermissionOverrideAction of(PermissionOverrideDeleteEvent event)
     {
         PermissionOverride deleted = event.getPermissionOverride();
+        IPermissionHolder holder = event.getPermissionHolder();
         EnumSet<Permission> allowed = deleted.getAllowed();
         EnumSet<Permission> denied = deleted.getDenied();
 
+        if (holder == null)
+            throw new InversionException("No permission holder in cache to use to copy deleted override");
+
         return event.getChannel()
-                    .createPermissionOverride(event.getPermissionHolder())
+                    .createPermissionOverride(holder)
                     .setPermissions(allowed, denied);
     }
 
@@ -576,5 +581,13 @@ public final class InverseAction
     public static AuditableRestAction<Void> of(StoreChannelCreateEvent event)
     {
         return event.getChannel().delete();
+    }
+
+    private static class InversionException extends RuntimeException
+    {
+        public InversionException(String msg)
+        {
+            super(msg);
+        }
     }
 }
