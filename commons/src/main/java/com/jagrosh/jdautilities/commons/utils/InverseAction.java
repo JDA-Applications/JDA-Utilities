@@ -111,19 +111,27 @@ public final class InverseAction
     }
 
     /**
-     * @return An attempt to take said role away
+     * @return An attempt to take said roles away
      */
     public static RestAction<?> of(GuildMemberRoleAddEvent event)
     {
-        return null;
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
+        List<Role> addedRoles = event.getRoles();
+
+        return guild.modifyMemberRoles(member, null, addedRoles);
     }
 
     /**
-     * @return An attempt to give the member the role back
+     * @return An attempt to give the member the roles back
      */
     public static RestAction<?> of(GuildMemberRoleRemoveEvent event)
     {
-        return null;
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
+        List<Role> rolesRemoved = event.getRoles();
+
+        return guild.modifyMemberRoles(member, rolesRemoved, null);
     }
 
     /**
@@ -131,7 +139,10 @@ public final class InverseAction
      */
     public static RestAction<?> of(GuildMemberUpdateNicknameEvent event)
     {
-        return null;
+        Member member = event.getMember();
+        String oldNick = event.getOldNickname();
+
+        return member.modifyNickname(oldNick);
     }
 
     //TODO Look into all the GenericGuildUpdateEvents. There are a lot
@@ -141,7 +152,7 @@ public final class InverseAction
      */
     public static RestAction<?> of(GuildMemberJoinEvent event)
     {
-        return null;
+        return event.getMember().kick();
     }
 
     /**
