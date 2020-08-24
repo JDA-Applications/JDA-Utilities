@@ -1,6 +1,5 @@
 package com.jagrosh.jdautilities.commons.utils;
 
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.channel.category.CategoryCreateEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdateNameEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdatePositionEvent;
@@ -9,7 +8,6 @@ import net.dv8tion.jda.api.events.channel.store.StoreChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.store.update.StoreChannelUpdateNameEvent;
 import net.dv8tion.jda.api.events.channel.store.update.StoreChannelUpdatePositionEvent;
 import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
-import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.text.update.*;
 import net.dv8tion.jda.api.events.channel.voice.VoiceChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent;
@@ -20,7 +18,6 @@ import net.dv8tion.jda.api.events.emote.update.EmoteUpdateRolesEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
-import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
@@ -28,7 +25,10 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.events.guild.override.PermissionOverrideCreateEvent;
 import net.dv8tion.jda.api.events.guild.override.PermissionOverrideDeleteEvent;
 import net.dv8tion.jda.api.events.guild.override.PermissionOverrideUpdateEvent;
-import net.dv8tion.jda.api.events.guild.voice.*;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceGuildDeafenEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceGuildMuteEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
@@ -65,8 +65,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 public final class InverseEvent
 {
     /**
-     * @return A {@link net.dv8tion.jda.api.managers.ChannelManager ChannelManager} action that will return the category
-     * to its old position
+     * @return An attempt to change the category's position back
      */
     public static ChannelManager of(CategoryUpdatePositionEvent event)
     {
@@ -77,7 +76,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to undo the update
+     * @return An attempt to change the category's name back
      */
     public static ChannelManager of(CategoryUpdateNameEvent event)
     {
@@ -88,7 +87,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to remove the category
+     * @return An attempt to remove said category
      */
     public static AuditableRestAction<Void> of(CategoryCreateEvent event)
     {
@@ -96,7 +95,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to remove the invite
+     * @return An attempt to remove said invite
      */
     public static AuditableRestAction<Void> of(GuildInviteCreateEvent event)
     {
@@ -104,7 +103,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to leave the guild
+     * @return An attempt to leave said guild
      */
     public static RestAction<?> of(GuildJoinEvent event)
     {
@@ -112,7 +111,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to take the role away
+     * @return An attempt to take said role away
      */
     public static RestAction<?> of(GuildMemberRoleAddEvent event)
     {
@@ -120,7 +119,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to add the role back
+     * @return An attempt to give the member the role back
      */
     public static RestAction<?> of(GuildMemberRoleRemoveEvent event)
     {
@@ -128,7 +127,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to undo the nickname update
+     * @return An attempt to change the member's nickname back
      */
     public static RestAction<?> of(GuildMemberUpdateNicknameEvent event)
     {
@@ -138,7 +137,7 @@ public final class InverseEvent
     //TODO Look into all the GenericGuildUpdateEvents. There are a lot
 
     /**
-     * @return An attempt to kick the member
+     * @return An attempt to kick said member
      */
     public static RestAction<?> of(GuildMemberJoinEvent event)
     {
@@ -146,7 +145,7 @@ public final class InverseEvent
     }
 
     /**
-     * @return An attempt to ban them again
+     * @return An attempt to ban said member again
      */
     public static RestAction<?> of(GuildUnbanEvent event)
     {
