@@ -298,40 +298,6 @@ public final class InverseEvent
         return null;
     }
 
-    // I'm not sure what this is, but keeping it here for now
-    public static RestAction<?> of(SelfUpdateDiscriminatorEvent event)
-    {
-        return null;
-    }
-
-    /**
-     * @return An attempt to change the avatar back
-     */
-    public static RestAction<?> of(SelfUpdateAvatarEvent event)
-    {
-        return null;
-    }
-
-    // Don't know what this is either
-    public static RestAction<?> of(SelfUpdateMFAEvent event)
-    {
-        return null;
-    }
-
-    /**
-     * @return An attempt to change the name back
-     */
-    public static RestAction<?> of(SelfUpdateNameEvent event)
-    {
-        return null;
-    }
-
-    // Not sure what this is
-    public static RestAction<?> of(SelfUpdateVerifiedEvent event)
-    {
-        return null;
-    }
-
     /**
      * @return An attempt to make the channel again
      */
