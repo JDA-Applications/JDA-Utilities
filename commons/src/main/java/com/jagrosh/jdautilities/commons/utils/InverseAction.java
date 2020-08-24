@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.channel.voice.update.*;
 import net.dv8tion.jda.api.events.emote.EmoteAddedEvent;
 import net.dv8tion.jda.api.events.emote.update.EmoteUpdateNameEvent;
 import net.dv8tion.jda.api.events.emote.update.EmoteUpdateRolesEvent;
+import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -120,9 +121,31 @@ public final class InverseAction
     /**
      * @return An attempt to leave said guild
      */
-    public static RestAction<?> of(GuildJoinEvent event)
+    public static RestAction<Void> of(GuildJoinEvent event)
     {
         return event.getGuild().leave();
+    }
+
+    /**
+     * @return An attempt to ban them again (0 message deletion days will be assumed)
+     */
+    public static AuditableRestAction<Void> of(GuildBanEvent event)
+    {
+        Guild guild = event.getGuild();
+        User user = event.getUser();
+
+        return guild.ban(user, 0);
+    }
+
+    /**
+     * @return An attempt to ban them again
+     */
+    public static AuditableRestAction<Void> of(GuildBanEvent event, int delDays)
+    {
+        Guild guild = event.getGuild();
+        User user = event.getUser();
+
+        return guild.ban(user, delDays);
     }
 
     /**
