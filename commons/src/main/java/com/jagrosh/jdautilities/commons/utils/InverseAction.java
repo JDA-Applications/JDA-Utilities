@@ -536,17 +536,17 @@ public final class InverseAction
     /**
      * @return An attempt to remove said reaction
      */
-    public static RestAction<?> of(MessageReactionAddEvent event)
+    public static RestAction<Void> of(MessageReactionAddEvent event)
     {
-        return null;
+        return event.getReaction().removeReaction();
     }
 
     /**
      * @return An attempt to remove said message
      */
-    public static RestAction<?> of(MessageReceivedEvent event)
+    public static AuditableRestAction<Void> of(MessageReceivedEvent event)
     {
-        return null;
+        return event.getMessage().delete();
     }
 
     // I'm not really sure what to do about store channels.
