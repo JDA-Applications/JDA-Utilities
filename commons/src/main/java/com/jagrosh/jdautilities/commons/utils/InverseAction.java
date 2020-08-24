@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.managers.EmoteManager;
 import net.dv8tion.jda.api.managers.RoleManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
+import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import net.dv8tion.jda.api.requests.restaction.order.OrderAction;
@@ -372,57 +373,84 @@ public final class InverseAction
     /**
      * @return An attempt to make the channel again
      */
-    public static RestAction<?> of(VoiceChannelDeleteEvent event)
+    public static ChannelAction<VoiceChannel> of(VoiceChannelDeleteEvent event)
     {
-        return null;
+        Guild guild = event.getGuild();
+        VoiceChannel deleted = event.getChannel();
+
+        return guild.createVoiceChannel(deleted.getName())
+                    .setUserlimit(deleted.getUserLimit())
+                    .setBitrate(deleted.getBitrate())
+                    .setPosition(deleted.getPosition())
+                    .setParent(deleted.getParent());
     }
 
     /**
      * @return An attempt to remove said channel
      */
-    public static RestAction<?> of(VoiceChannelCreateEvent event)
+    public static AuditableRestAction<Void> of(VoiceChannelCreateEvent event)
     {
-        return null;
+        return event.getChannel().delete();
     }
 
     /**
      * @return An attempt to change the voice channel's name back
      */
-    public static RestAction<?> of(VoiceChannelUpdateNameEvent event)
+    public static ChannelManager of(VoiceChannelUpdateNameEvent event)
     {
-        return null;
+        VoiceChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        String oldName = event.getOldName();
+
+        return manager.setName(oldName);
     }
 
     /**
      * @return An attempt to change the voice channel's parent back
      */
-    public static RestAction<?> of(VoiceChannelUpdateParentEvent event)
+    public static ChannelManager of(VoiceChannelUpdateParentEvent event)
     {
-        return null;
+        VoiceChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        Category oldParent = event.getOldParent();
+
+        return manager.setParent(oldParent);
     }
 
     /**
      * @return An attempt to change the voice channel's position back
      */
-    public static RestAction<?> of(VoiceChannelUpdatePositionEvent event)
+    public static ChannelManager of(VoiceChannelUpdatePositionEvent event)
     {
-        return null;
+        VoiceChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        int oldPos = event.getOldPosition();
+
+        return manager.setPosition(oldPos);
     }
 
     /**
      * @return An attempt to change the voice channel's bitrate back
      */
-    public static RestAction<?> of(VoiceChannelUpdateBitrateEvent event)
+    public static ChannelManager of(VoiceChannelUpdateBitrateEvent event)
     {
-        return null;
+        VoiceChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        int oldBitrate = event.getOldBitrate();
+
+        return manager.setBitrate(oldBitrate);
     }
 
     /**
      * @return An attempt to change the voice channel's user limit back
      */
-    public static RestAction<?> of(VoiceChannelUpdateUserLimitEvent event)
+    public static ChannelManager of(VoiceChannelUpdateUserLimitEvent event)
     {
-        return null;
+        VoiceChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        int oldLimit = event.getOldUserLimit();
+
+        return manager.setUserLimit(oldLimit);
     }
 
     /**
