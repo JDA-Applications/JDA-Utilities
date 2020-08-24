@@ -362,11 +362,11 @@ public final class InverseAction
     }
 
     /**
-     * @return An attempt to remove said channel
+     * @return An attempt to close said channel
      */
     public static RestAction<?> of(PrivateChannelCreateEvent event)
     {
-        return null;
+        return event.getChannel().close();
     }
 
     /**
