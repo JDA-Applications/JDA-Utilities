@@ -145,14 +145,6 @@ public final class InverseAction
     }
 
     /**
-     * @return An attempt to ban said member again
-     */
-    public static RestAction<?> of(GuildUnbanEvent event)
-    {
-        return null;
-    }
-
-    /**
      * @return An attempt to undeafen if they were deafened, or an attempt to deafen if they were undeafened
      */
     public static RestAction<?> of(GuildVoiceGuildDeafenEvent event)
