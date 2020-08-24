@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.events.emote.EmoteAddedEvent;
 import net.dv8tion.jda.api.events.emote.update.EmoteUpdateNameEvent;
 import net.dv8tion.jda.api.events.emote.update.EmoteUpdateRolesEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
@@ -36,7 +35,6 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.role.update.*;
-import net.dv8tion.jda.api.events.self.*;
 import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.managers.EmoteManager;
 import net.dv8tion.jda.api.managers.RoleManager;
@@ -52,7 +50,6 @@ import java.awt.*;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A utility class meant to serve as a way to rollback certain events where it makes sense to.
@@ -63,7 +60,7 @@ import java.util.stream.Collectors;
  * In events where something is posted, the inverse would be another request to remove said post, for example.
  * <p>
  * Also, since it's a RestAction that simply makes an attempt at the inverse, it's not always possible due to multiple
- * factors, such as permissions, etc. For example, trying to inverse a {@link net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent GuildMessageReceievedEvent} in a channel with no permission
+ * factors, such as permissions, etc. For example, trying to invert a {@link net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent GuildMessageReceievedEvent} in a channel with no permission
  * to remove messages will fail
  * </p>
  * <br>
