@@ -38,12 +38,15 @@ import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.role.update.*;
 import net.dv8tion.jda.api.events.self.*;
 import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.managers.EmoteManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A utility class meant to serve as a way to rollback certain events where it makes sense to.
@@ -241,25 +244,33 @@ public final class InverseAction
     /**
      * @return An attempt to remove said emote
      */
-    public static RestAction<?> of(EmoteAddedEvent event)
+    public static AuditableRestAction<Void> of(EmoteAddedEvent event)
     {
-        return null;
+        return event.getEmote().delete();
     }
 
     /**
      * @return An attempt to change the name back to what it just was
      */
-    public static RestAction<?> of(EmoteUpdateNameEvent event)
+    public static EmoteManager of(EmoteUpdateNameEvent event)
     {
-        return null;
+        Emote emote = event.getEmote();
+        EmoteManager manager = emote.getManager();
+        String oldName = event.getOldName();
+
+        return manager.setName(oldName);
     }
 
     /**
      * @return An attempt to change the roles to what they just were
      */
-    public static RestAction<?> of(EmoteUpdateRolesEvent event)
+    public static EmoteManager of(EmoteUpdateRolesEvent event)
     {
-        return null;
+        Emote emote = event.getEmote();
+        EmoteManager manager = emote.getManager();
+        HashSet<Role> oldRoles = new HashSet<>(event.getOldRoles());
+
+        return manager.setRoles(oldRoles);
     }
 
     /**
