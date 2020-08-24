@@ -1,5 +1,8 @@
 package com.jagrosh.jdautilities.commons.utils;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.channel.category.CategoryCreateEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdateNameEvent;
 import net.dv8tion.jda.api.events.channel.category.update.CategoryUpdatePositionEvent;
@@ -38,6 +41,8 @@ import net.dv8tion.jda.api.events.self.*;
 import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
+
+import java.util.List;
 
 /**
  * A utility class meant to serve as a way to rollback certain events where it makes sense to.
@@ -113,7 +118,7 @@ public final class InverseAction
     /**
      * @return An attempt to take said roles away
      */
-    public static RestAction<?> of(GuildMemberRoleAddEvent event)
+    public static AuditableRestAction<Void> of(GuildMemberRoleAddEvent event)
     {
         Guild guild = event.getGuild();
         Member member = event.getMember();
@@ -125,7 +130,7 @@ public final class InverseAction
     /**
      * @return An attempt to give the member the roles back
      */
-    public static RestAction<?> of(GuildMemberRoleRemoveEvent event)
+    public static AuditableRestAction<Void> of(GuildMemberRoleRemoveEvent event)
     {
         Guild guild = event.getGuild();
         Member member = event.getMember();
@@ -137,7 +142,7 @@ public final class InverseAction
     /**
      * @return An attempt to change the member's nickname back
      */
-    public static RestAction<?> of(GuildMemberUpdateNicknameEvent event)
+    public static AuditableRestAction<Void> of(GuildMemberUpdateNicknameEvent event)
     {
         Member member = event.getMember();
         String oldNick = event.getOldNickname();
@@ -150,7 +155,7 @@ public final class InverseAction
     /**
      * @return An attempt to kick said member
      */
-    public static RestAction<?> of(GuildMemberJoinEvent event)
+    public static AuditableRestAction<Void> of(GuildMemberJoinEvent event)
     {
         return event.getMember().kick();
     }
