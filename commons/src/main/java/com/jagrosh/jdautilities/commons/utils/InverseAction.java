@@ -549,29 +549,35 @@ public final class InverseAction
         return event.getMessage().delete();
     }
 
-    // I'm not really sure what to do about store channels.
-
     /**
      * @return An attempt to move the store channel back
      */
-    public static RestAction<?> of(StoreChannelUpdatePositionEvent event)
+    public static ChannelManager of(StoreChannelUpdatePositionEvent event)
     {
-        return null;
+        StoreChannel updated = event.getChannel();
+        ChannelManager manager = updated.getManager();
+        int oldPos = event.getOldPosition();
+
+        return manager.setPosition(oldPos);
     }
 
     /**
      * @return An attempt to change the store channel's name back
      */
-    public static RestAction<?> of(StoreChannelUpdateNameEvent event)
+    public static ChannelManager of(StoreChannelUpdateNameEvent event)
     {
-        return null;
+        StoreChannel update = event.getChannel();
+        ChannelManager manager = update.getManager();
+        String oldName = event.getOldName();
+
+        return manager.setName(oldName);
     }
 
     /**
      * @return An attempt to remove said store channel
      */
-    public static RestAction<?> of(StoreChannelCreateEvent event)
+    public static AuditableRestAction<Void> of(StoreChannelCreateEvent event)
     {
-        return null;
+        return event.getChannel().delete();
     }
 }
