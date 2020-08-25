@@ -575,7 +575,13 @@ public final class InverseAction
      */
     public static RestAction<Void> of(MessageReactionAddEvent event)
     {
-        return event.getReaction().removeReaction();
+        MessageReaction reaction = event.getReaction();
+        User user = event.getUser();
+
+        if (user == null)
+            throw new InversionException("No cached user to remove reaction from");
+
+        return reaction.removeReaction(user);
     }
 
     /**
