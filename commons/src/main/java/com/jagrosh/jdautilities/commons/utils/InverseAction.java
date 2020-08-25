@@ -86,10 +86,157 @@ import java.util.List;
  */
 public final class InverseAction
 {
-    /**
-     * @return An attempt to change the category's position back
-     */
-    public static ChannelManager of(CategoryUpdatePositionEvent event)
+    public static RestAction<?> of(GenericEvent event)
+    {
+        if (event instanceof CategoryUpdatePositionEvent)
+            return inverse((CategoryUpdatePositionEvent) event);
+
+        else if (event instanceof CategoryUpdateNameEvent)
+            return inverse((CategoryUpdateNameEvent) event);
+
+        else if (event instanceof CategoryCreateEvent)
+            return inverse((CategoryCreateEvent) event);
+
+        else if (event instanceof GuildInviteCreateEvent)
+            return inverse((GuildInviteCreateEvent) event);
+
+        else if (event instanceof GuildJoinEvent)
+            return inverse((GuildJoinEvent) event);
+
+        else if (event instanceof GuildBanEvent)
+            return inverse((GuildBanEvent) event);
+
+        else if (event instanceof GuildUnbanEvent)
+            return inverse((GuildUnbanEvent) event);
+
+        else if (event instanceof GuildMemberRoleAddEvent)
+            return inverse((GuildMemberRoleAddEvent) event);
+
+        else if (event instanceof GuildMemberRoleRemoveEvent)
+            return inverse((GuildMemberRoleRemoveEvent) event);
+
+        else if (event instanceof GuildMemberUpdateNicknameEvent)
+            return inverse((GuildMemberUpdateNicknameEvent) event);
+
+        else if (event instanceof GuildMemberJoinEvent)
+            return inverse((GuildMemberJoinEvent) event);
+
+        else if (event instanceof GuildVoiceGuildDeafenEvent)
+            return inverse((GuildVoiceGuildDeafenEvent) event);
+
+        else if (event instanceof GuildVoiceJoinEvent)
+            return inverse((GuildVoiceJoinEvent) event);
+
+        else if (event instanceof GuildVoiceMoveEvent)
+            return inverse((GuildVoiceMoveEvent) event);
+
+        else if (event instanceof GuildVoiceGuildMuteEvent)
+            return inverse((GuildVoiceGuildMuteEvent) event);
+
+        else if (event instanceof PermissionOverrideCreateEvent)
+            return inverse((PermissionOverrideCreateEvent) event);
+
+        else if (event instanceof PermissionOverrideDeleteEvent)
+            return inverse((PermissionOverrideDeleteEvent) event);
+
+        else if (event instanceof PermissionOverrideUpdateEvent)
+            return inverse((PermissionOverrideUpdateEvent) event);
+
+        else if (event instanceof EmoteAddedEvent)
+            return inverse((EmoteAddedEvent) event);
+
+        else if (event instanceof EmoteUpdateNameEvent)
+            return inverse((EmoteUpdateNameEvent) event);
+
+        else if (event instanceof EmoteUpdateRolesEvent)
+            return inverse((EmoteUpdateRolesEvent) event);
+
+        else if (event instanceof RoleCreateEvent)
+            return inverse((RoleCreateEvent) event);
+
+        else if (event instanceof RoleDeleteEvent)
+            return inverse((RoleDeleteEvent) event);
+
+        else if (event instanceof RoleUpdateMentionableEvent)
+            return inverse((RoleUpdateMentionableEvent) event);
+
+        else if (event instanceof RoleUpdatePositionEvent)
+            return inverse((RoleUpdatePositionEvent) event);
+
+        else if (event instanceof RoleUpdatePermissionsEvent)
+            return inverse((RoleUpdatePermissionsEvent) event);
+
+        else if (event instanceof RoleUpdateNameEvent)
+            return inverse((RoleUpdateNameEvent) event);
+
+        else if (event instanceof RoleUpdateColorEvent)
+            return inverse((RoleUpdateColorEvent) event);
+
+        else if (event instanceof PrivateChannelCreateEvent)
+            return inverse((PrivateChannelCreateEvent) event);
+
+        else if (event instanceof VoiceChannelDeleteEvent)
+            return inverse((VoiceChannelDeleteEvent) event);
+
+        else if (event instanceof VoiceChannelCreateEvent)
+            return inverse((VoiceChannelCreateEvent) event);
+
+        else if (event instanceof VoiceChannelUpdateNameEvent)
+            return inverse((VoiceChannelUpdateNameEvent) event);
+
+        else if (event instanceof VoiceChannelUpdateParentEvent)
+            return inverse((VoiceChannelUpdateParentEvent) event);
+
+        else if (event instanceof VoiceChannelUpdatePositionEvent)
+            return inverse((VoiceChannelUpdatePositionEvent) event);
+
+        else if (event instanceof VoiceChannelUpdateBitrateEvent)
+            return inverse((VoiceChannelUpdateBitrateEvent) event);
+
+        else if (event instanceof VoiceChannelUpdateUserLimitEvent)
+            return inverse((VoiceChannelUpdateUserLimitEvent) event);
+
+        else if (event instanceof TextChannelCreateEvent)
+            return inverse((TextChannelCreateEvent) event);
+
+        else if (event instanceof TextChannelUpdateTopicEvent)
+            return inverse((TextChannelUpdateTopicEvent) event);
+
+        else if (event instanceof TextChannelUpdateNameEvent)
+            return inverse((TextChannelUpdateNameEvent) event);
+
+        else if (event instanceof TextChannelUpdateSlowmodeEvent)
+            return inverse((TextChannelUpdateSlowmodeEvent) event);
+
+        else if (event instanceof TextChannelUpdatePositionEvent)
+            return inverse((TextChannelUpdatePositionEvent) event);
+
+        else if (event instanceof TextChannelUpdateNSFWEvent)
+            return inverse((TextChannelUpdateNSFWEvent) event);
+
+        else if (event instanceof TextChannelUpdateParentEvent)
+            return inverse((TextChannelUpdateParentEvent) event);
+
+        else if (event instanceof MessageReactionAddEvent)
+            return inverse((MessageReactionAddEvent) event);
+
+        else if (event instanceof MessageReceivedEvent)
+            return inverse((MessageReceivedEvent) event);
+
+        else if (event instanceof StoreChannelUpdatePositionEvent)
+            return inverse((StoreChannelUpdatePositionEvent) event);
+
+        else if (event instanceof StoreChannelUpdateNameEvent)
+            return inverse((StoreChannelUpdateNameEvent) event);
+
+        else if (event instanceof StoreChannelCreateEvent)
+            return inverse((StoreChannelCreateEvent) event);
+
+        else
+            throw new InversionException("No possible inversion for event: " + event);
+    }
+
+    private static ChannelManager inverse(CategoryUpdatePositionEvent event)
     {
         ChannelManager manager = event.getCategory().getManager();
         int oldPosition = event.getOldPosition();
@@ -97,10 +244,7 @@ public final class InverseAction
         return manager.setPosition(oldPosition);
     }
 
-    /**
-     * @return An attempt to change the category's name back
-     */
-    public static ChannelManager of(CategoryUpdateNameEvent event)
+    private static ChannelManager inverse(CategoryUpdateNameEvent event)
     {
         ChannelManager manager = event.getCategory().getManager();
         String oldName = event.getOldName();
@@ -108,34 +252,22 @@ public final class InverseAction
         return manager.setName(oldName);
     }
 
-    /**
-     * @return An attempt to remove said category
-     */
-    public static AuditableRestAction<Void> of(CategoryCreateEvent event)
+    private static AuditableRestAction<Void> inverse(CategoryCreateEvent event)
     {
         return event.getCategory().delete();
     }
 
-    /**
-     * @return An attempt to remove said invite
-     */
-    public static AuditableRestAction<Void> of(GuildInviteCreateEvent event)
+    private static AuditableRestAction<Void> inverse(GuildInviteCreateEvent event)
     {
         return event.getInvite().delete();
     }
 
-    /**
-     * @return An attempt to leave said guild
-     */
-    public static RestAction<Void> of(GuildJoinEvent event)
+    private static RestAction<Void> inverse(GuildJoinEvent event)
     {
         return event.getGuild().leave();
     }
 
-    /**
-     * @return An attempt to unban them
-     */
-    public static RestAction<Void> of(GuildBanEvent event)
+    private static RestAction<Void> inverse(GuildBanEvent event)
     {
         Guild guild = event.getGuild();
         User user = event.getUser();
@@ -143,10 +275,7 @@ public final class InverseAction
         return guild.unban(user);
     }
 
-    /**
-     * @return An attempt to ban them again (0 message deletion days will be assumed)
-     */
-    public static AuditableRestAction<Void> of(GuildUnbanEvent event)
+    private static AuditableRestAction<Void> inverse(GuildUnbanEvent event)
     {
         Guild guild = event.getGuild();
         User user = event.getUser();
@@ -154,10 +283,7 @@ public final class InverseAction
         return guild.ban(user, 0);
     }
 
-    /**
-     * @return An attempt to take said roles away
-     */
-    public static AuditableRestAction<Void> of(GuildMemberRoleAddEvent event)
+    private static AuditableRestAction<Void> inverse(GuildMemberRoleAddEvent event)
     {
         Guild guild = event.getGuild();
         Member member = event.getMember();
@@ -166,10 +292,7 @@ public final class InverseAction
         return guild.modifyMemberRoles(member, null, addedRoles);
     }
 
-    /**
-     * @return An attempt to give the member the roles back
-     */
-    public static AuditableRestAction<Void> of(GuildMemberRoleRemoveEvent event)
+    private static AuditableRestAction<Void> inverse(GuildMemberRoleRemoveEvent event)
     {
         Guild guild = event.getGuild();
         Member member = event.getMember();
@@ -178,10 +301,7 @@ public final class InverseAction
         return guild.modifyMemberRoles(member, rolesRemoved, null);
     }
 
-    /**
-     * @return An attempt to change the member's nickname back
-     */
-    public static AuditableRestAction<Void> of(GuildMemberUpdateNicknameEvent event)
+    private static AuditableRestAction<Void> inverse(GuildMemberUpdateNicknameEvent event)
     {
         Member member = event.getMember();
         String oldNick = event.getOldNickname();
@@ -191,26 +311,17 @@ public final class InverseAction
 
     //TODO Look into all the GenericGuildUpdateEvents. There are a lot
 
-    /**
-     * @return An attempt to kick said member
-     */
-    public static AuditableRestAction<Void> of(GuildMemberJoinEvent event)
+    private static AuditableRestAction<Void> inverse(GuildMemberJoinEvent event)
     {
         return event.getMember().kick();
     }
 
-    /**
-     * @return An attempt to undeafen if they were deafened, or an attempt to deafen if they were undeafened
-     */
-    public static RestAction<Void> of(GuildVoiceGuildDeafenEvent event)
+    private static RestAction<Void> inverse(GuildVoiceGuildDeafenEvent event)
     {
         return event.getGuild().leave();
     }
 
-    /**
-     * @return An attempt to kick them from the channel
-     */
-    public static RestAction<Void> of(GuildVoiceJoinEvent event)
+    private static RestAction<Void> inverse(GuildVoiceJoinEvent event)
     {
         Guild guild = event.getGuild();
         Member member = event.getMember();
@@ -218,10 +329,7 @@ public final class InverseAction
         return guild.kickVoiceMember(member);
     }
 
-    /**
-     * @return An attempt to move them back to where they just were
-     */
-    public static RestAction<Void> of(GuildVoiceMoveEvent event)
+    private static RestAction<Void> inverse(GuildVoiceMoveEvent event)
     {
         Guild guild = event.getGuild();
         Member member = event.getMember();
@@ -230,10 +338,7 @@ public final class InverseAction
         return guild.moveVoiceMember(member, previous);
     }
 
-    /**
-     * @return An attempt to unmute if they were muted, or an attempt to mute if they were unmuted
-     */
-    public static AuditableRestAction<Void> of(GuildVoiceGuildMuteEvent event)
+    private static AuditableRestAction<Void> inverse(GuildVoiceGuildMuteEvent event)
     {
         Member member = event.getMember();
         boolean action = event.isGuildMuted();
@@ -241,19 +346,12 @@ public final class InverseAction
         return member.mute(!action);
     }
 
-    /**
-     * @return An attempt to remove said override
-     */
-    public static AuditableRestAction<Void> of(PermissionOverrideCreateEvent event)
+    private static AuditableRestAction<Void> inverse(PermissionOverrideCreateEvent event)
     {
         return event.getPermissionOverride().delete();
     }
 
-    /**
-     * @return An attempt to add the override back
-     * @throws com.jagrosh.jdautilities.commons.utils.InverseAction.InversionException If the override's permission holder isn't cached
-     */
-    public static PermissionOverrideAction of(PermissionOverrideDeleteEvent event)
+    private static PermissionOverrideAction inverse(PermissionOverrideDeleteEvent event)
     {
         PermissionOverride deleted = event.getPermissionOverride();
         IPermissionHolder holder = event.getPermissionHolder();
@@ -268,10 +366,7 @@ public final class InverseAction
                     .setPermissions(allowed, denied);
     }
 
-    /**
-     * @return An attempt to set rules to what they just were
-     */
-    public static PermissionOverrideAction of(PermissionOverrideUpdateEvent event)
+    private static PermissionOverrideAction inverse(PermissionOverrideUpdateEvent event)
     {
         PermissionOverride updated = event.getPermissionOverride();
         EnumSet<Permission> allow = event.getOldAllow();
@@ -281,18 +376,12 @@ public final class InverseAction
                       .setAllow(allow).setDeny(deny);
     }
 
-    /**
-     * @return An attempt to remove said emote
-     */
-    public static AuditableRestAction<Void> of(EmoteAddedEvent event)
+    private static AuditableRestAction<Void> inverse(EmoteAddedEvent event)
     {
         return event.getEmote().delete();
     }
 
-    /**
-     * @return An attempt to change the name back to what it just was
-     */
-    public static EmoteManager of(EmoteUpdateNameEvent event)
+    private static EmoteManager inverse(EmoteUpdateNameEvent event)
     {
         Emote emote = event.getEmote();
         EmoteManager manager = emote.getManager();
@@ -301,10 +390,7 @@ public final class InverseAction
         return manager.setName(oldName);
     }
 
-    /**
-     * @return An attempt to change the roles to what they just were
-     */
-    public static EmoteManager of(EmoteUpdateRolesEvent event)
+    private static EmoteManager inverse(EmoteUpdateRolesEvent event)
     {
         Emote emote = event.getEmote();
         EmoteManager manager = emote.getManager();
@@ -313,26 +399,17 @@ public final class InverseAction
         return manager.setRoles(oldRoles);
     }
 
-    /**
-     * @return An attempt to remove said role
-     */
-    public static AuditableRestAction<Void> of(RoleCreateEvent event)
+    private static AuditableRestAction<Void> inverse(RoleCreateEvent event)
     {
         return event.getRole().delete();
     }
 
-    /**
-     * @return An attempt to add the role back
-     */
-    public static RoleAction of(RoleDeleteEvent event)
+    private static RoleAction inverse(RoleDeleteEvent event)
     {
         return event.getRole().createCopy();
     }
 
-    /**
-     * @return An attempt to change the mentionable state back
-     */
-    public static RoleManager of(RoleUpdateMentionableEvent event)
+    private static RoleManager inverse(RoleUpdateMentionableEvent event)
     {
         Role role = event.getRole();
         RoleManager manager = role.getManager();
@@ -341,10 +418,7 @@ public final class InverseAction
         return manager.setMentionable(oldState);
     }
 
-    /**
-     * @return An attempt to move the role back to where it just was
-     */
-    public static OrderAction<Role, RoleOrderAction> of(RoleUpdatePositionEvent event)
+    private static OrderAction<Role, RoleOrderAction> inverse(RoleUpdatePositionEvent event)
     {
         Role role = event.getRole();
         int oldPos = event.getOldPosition();
@@ -355,10 +429,7 @@ public final class InverseAction
                     .moveTo(oldPos);
     }
 
-    /**
-     * @return An attempt to change the role's permissions back
-     */
-    public static RoleManager of(RoleUpdatePermissionsEvent event)
+    private static RoleManager inverse(RoleUpdatePermissionsEvent event)
     {
         Role role = event.getRole();
         RoleManager manager = role.getManager();
@@ -367,10 +438,7 @@ public final class InverseAction
         return manager.setPermissions(oldPerms);
     }
 
-    /**
-     * @return An attempt to change the role's name back
-     */
-    public static RoleManager of(RoleUpdateNameEvent event)
+    private static RoleManager inverse(RoleUpdateNameEvent event)
     {
         Role role = event.getRole();
         RoleManager manager = role.getManager();
@@ -381,10 +449,7 @@ public final class InverseAction
 
     //TODO What the hell is a hoisted role? Lmao, look at that later
 
-    /**
-     * @return An attempt to change the role's color back to what it just was
-     */
-    public static RoleManager of(RoleUpdateColorEvent event)
+    private static RoleManager inverse(RoleUpdateColorEvent event)
     {
         Role role = event.getRole();
         RoleManager manager = role.getManager();
@@ -393,18 +458,12 @@ public final class InverseAction
         return manager.setColor(oldColor);
     }
 
-    /**
-     * @return An attempt to close said channel
-     */
-    public static RestAction<Void> of(PrivateChannelCreateEvent event)
+    private static RestAction<Void> inverse(PrivateChannelCreateEvent event)
     {
         return event.getChannel().close();
     }
 
-    /**
-     * @return An attempt to make the channel again
-     */
-    public static ChannelAction<VoiceChannel> of(VoiceChannelDeleteEvent event)
+    private static ChannelAction<VoiceChannel> inverse(VoiceChannelDeleteEvent event)
     {
         Guild guild = event.getGuild();
         VoiceChannel deleted = event.getChannel();
@@ -416,18 +475,12 @@ public final class InverseAction
                     .setParent(deleted.getParent());
     }
 
-    /**
-     * @return An attempt to remove said channel
-     */
-    public static AuditableRestAction<Void> of(VoiceChannelCreateEvent event)
+    private static AuditableRestAction<Void> inverse(VoiceChannelCreateEvent event)
     {
         return event.getChannel().delete();
     }
 
-    /**
-     * @return An attempt to change the voice channel's name back
-     */
-    public static ChannelManager of(VoiceChannelUpdateNameEvent event)
+    private static ChannelManager inverse(VoiceChannelUpdateNameEvent event)
     {
         VoiceChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -436,10 +489,7 @@ public final class InverseAction
         return manager.setName(oldName);
     }
 
-    /**
-     * @return An attempt to change the voice channel's parent back
-     */
-    public static ChannelManager of(VoiceChannelUpdateParentEvent event)
+    private static ChannelManager inverse(VoiceChannelUpdateParentEvent event)
     {
         VoiceChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -448,10 +498,7 @@ public final class InverseAction
         return manager.setParent(oldParent);
     }
 
-    /**
-     * @return An attempt to change the voice channel's position back
-     */
-    public static ChannelManager of(VoiceChannelUpdatePositionEvent event)
+    private static ChannelManager inverse(VoiceChannelUpdatePositionEvent event)
     {
         VoiceChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -460,10 +507,7 @@ public final class InverseAction
         return manager.setPosition(oldPos);
     }
 
-    /**
-     * @return An attempt to change the voice channel's bitrate back
-     */
-    public static ChannelManager of(VoiceChannelUpdateBitrateEvent event)
+    private static ChannelManager inverse(VoiceChannelUpdateBitrateEvent event)
     {
         VoiceChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -472,10 +516,7 @@ public final class InverseAction
         return manager.setBitrate(oldBitrate);
     }
 
-    /**
-     * @return An attempt to change the voice channel's user limit back
-     */
-    public static ChannelManager of(VoiceChannelUpdateUserLimitEvent event)
+    private static ChannelManager inverse(VoiceChannelUpdateUserLimitEvent event)
     {
         VoiceChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -484,18 +525,12 @@ public final class InverseAction
         return manager.setUserLimit(oldLimit);
     }
 
-    /**
-     * @return An attempt to remove said channel
-     */
-    public static AuditableRestAction<Void> of(TextChannelCreateEvent event)
+    private static AuditableRestAction<Void> inverse(TextChannelCreateEvent event)
     {
         return event.getChannel().delete();
     }
 
-    /**
-     * @return An attempt to change the text channel's topic back
-     */
-    public static ChannelManager of(TextChannelUpdateTopicEvent event)
+    private static ChannelManager inverse(TextChannelUpdateTopicEvent event)
     {
         TextChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -504,10 +539,7 @@ public final class InverseAction
         return manager.setTopic(oldTopic);
     }
 
-    /**
-     * @return An attempt to change the text channel's name back
-     */
-    public static ChannelManager of(TextChannelUpdateNameEvent event)
+    private static ChannelManager inverse(TextChannelUpdateNameEvent event)
     {
         TextChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -516,10 +548,7 @@ public final class InverseAction
         return manager.setName(oldName);
     }
 
-    /**
-     * @return An attempt to change the text channel's slowmode value back
-     */
-    public static ChannelManager of(TextChannelUpdateSlowmodeEvent event)
+    private static ChannelManager inverse(TextChannelUpdateSlowmodeEvent event)
     {
         TextChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -528,10 +557,7 @@ public final class InverseAction
         return manager.setSlowmode(oldState);
     }
 
-    /**
-     * @return An attempt to move the text channel back
-     */
-    public static ChannelManager of(TextChannelUpdatePositionEvent event)
+    private static ChannelManager inverse(TextChannelUpdatePositionEvent event)
     {
         TextChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -540,10 +566,7 @@ public final class InverseAction
         return manager.setPosition(oldPos);
     }
 
-    /**
-     * @return An attempt to change the text channel's NSFW state back
-     */
-    public static ChannelManager of(TextChannelUpdateNSFWEvent event)
+    private static ChannelManager inverse(TextChannelUpdateNSFWEvent event)
     {
         TextChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -552,10 +575,7 @@ public final class InverseAction
         return manager.setNSFW(oldState);
     }
 
-    /**
-     * @return An attempt to change the text channel's parent back
-     */
-    public static ChannelManager of(TextChannelUpdateParentEvent event)
+    private static ChannelManager inverse(TextChannelUpdateParentEvent event)
     {
         TextChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -564,10 +584,7 @@ public final class InverseAction
         return manager.setParent(oldParent);
     }
 
-    /**
-     * @return An attempt to remove said reaction
-     */
-    public static RestAction<Void> of(MessageReactionAddEvent event)
+    private static RestAction<Void> inverse(MessageReactionAddEvent event)
     {
         MessageReaction reaction = event.getReaction();
         User user = event.getUser();
@@ -578,18 +595,12 @@ public final class InverseAction
         return reaction.removeReaction(user);
     }
 
-    /**
-     * @return An attempt to remove said message
-     */
-    public static AuditableRestAction<Void> of(MessageReceivedEvent event)
+    private static AuditableRestAction<Void> inverse(MessageReceivedEvent event)
     {
         return event.getMessage().delete();
     }
 
-    /**
-     * @return An attempt to move the store channel back
-     */
-    public static ChannelManager of(StoreChannelUpdatePositionEvent event)
+    private static ChannelManager inverse(StoreChannelUpdatePositionEvent event)
     {
         StoreChannel updated = event.getChannel();
         ChannelManager manager = updated.getManager();
@@ -598,10 +609,7 @@ public final class InverseAction
         return manager.setPosition(oldPos);
     }
 
-    /**
-     * @return An attempt to change the store channel's name back
-     */
-    public static ChannelManager of(StoreChannelUpdateNameEvent event)
+    private static ChannelManager inverse(StoreChannelUpdateNameEvent event)
     {
         StoreChannel update = event.getChannel();
         ChannelManager manager = update.getManager();
@@ -610,10 +618,7 @@ public final class InverseAction
         return manager.setName(oldName);
     }
 
-    /**
-     * @return An attempt to remove said store channel
-     */
-    public static AuditableRestAction<Void> of(StoreChannelCreateEvent event)
+    private static AuditableRestAction<Void> inverse(StoreChannelCreateEvent event)
     {
         return event.getChannel().delete();
     }
