@@ -154,17 +154,6 @@ public final class InverseAction
     }
 
     /**
-     * @return An attempt to ban them again
-     */
-    public static AuditableRestAction<Void> of(GuildUnbanEvent event, int delDays)
-    {
-        Guild guild = event.getGuild();
-        User user = event.getUser();
-
-        return guild.ban(user, delDays);
-    }
-
-    /**
      * @return An attempt to take said roles away
      */
     public static AuditableRestAction<Void> of(GuildMemberRoleAddEvent event)
