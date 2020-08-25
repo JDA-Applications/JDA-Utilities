@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.events.emote.update.EmoteUpdateNameEvent;
 import net.dv8tion.jda.api.events.emote.update.EmoteUpdateRolesEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
@@ -127,9 +128,20 @@ public final class InverseAction
     }
 
     /**
+     * @return An attempt to unban them
+     */
+    public static RestAction<Void> of(GuildBanEvent event)
+    {
+        Guild guild = event.getGuild();
+        User user = event.getUser();
+
+        return guild.unban(user);
+    }
+
+    /**
      * @return An attempt to ban them again (0 message deletion days will be assumed)
      */
-    public static AuditableRestAction<Void> of(GuildBanEvent event)
+    public static AuditableRestAction<Void> of(GuildUnbanEvent event)
     {
         Guild guild = event.getGuild();
         User user = event.getUser();
@@ -140,7 +152,7 @@ public final class InverseAction
     /**
      * @return An attempt to ban them again
      */
-    public static AuditableRestAction<Void> of(GuildBanEvent event, int delDays)
+    public static AuditableRestAction<Void> of(GuildUnbanEvent event, int delDays)
     {
         Guild guild = event.getGuild();
         User user = event.getUser();
