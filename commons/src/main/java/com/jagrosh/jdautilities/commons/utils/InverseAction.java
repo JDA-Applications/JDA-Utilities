@@ -1,6 +1,7 @@
 package com.jagrosh.jdautilities.commons.utils;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.Region;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.channel.category.CategoryCreateEvent;
@@ -29,6 +30,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.events.guild.override.PermissionOverrideCreateEvent;
 import net.dv8tion.jda.api.events.guild.override.PermissionOverrideDeleteEvent;
 import net.dv8tion.jda.api.events.guild.override.PermissionOverrideUpdateEvent;
+import net.dv8tion.jda.api.events.guild.update.*;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceGuildDeafenEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceGuildMuteEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -40,6 +42,7 @@ import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.role.update.*;
 import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.managers.EmoteManager;
+import net.dv8tion.jda.api.managers.GuildManager;
 import net.dv8tion.jda.api.managers.RoleManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
@@ -117,6 +120,39 @@ public final class InverseAction
 
         else if (event instanceof GuildMemberUpdateNicknameEvent)
             return inverse((GuildMemberUpdateNicknameEvent) event);
+
+        else if (event instanceof GuildUpdateVanityCodeEvent)
+            return inverse((GuildUpdateVanityCodeEvent) event);
+
+        else if (event instanceof GuildUpdateMFALevelEvent)
+            return inverse((GuildUpdateMFALevelEvent) event);
+
+        else if (event instanceof GuildUpdateSystemChannelEvent)
+            return inverse((GuildUpdateSystemChannelEvent) event);
+
+        else if (event instanceof GuildUpdateRegionEvent)
+            return inverse((GuildUpdateRegionEvent) event);
+
+        else if (event instanceof GuildUpdateNameEvent)
+            return inverse((GuildUpdateNameEvent) event);
+
+        else if (event instanceof GuildUpdateDescriptionEvent )
+            return inverse((GuildUpdateDescriptionEvent) event);
+
+        else if (event instanceof GuildUpdateExplicitContentLevelEvent)
+            return inverse((GuildUpdateExplicitContentLevelEvent) event);
+
+        else if (event instanceof GuildUpdateNotificationLevelEvent)
+            return inverse((GuildUpdateNotificationLevelEvent) event);
+
+        else if (event instanceof GuildUpdateVerificationLevelEvent)
+            return inverse((GuildUpdateVerificationLevelEvent) event);
+
+        else if (event instanceof GuildUpdateAfkTimeoutEvent)
+            return inverse((GuildUpdateAfkTimeoutEvent) event);
+
+        else if (event instanceof GuildUpdateAfkChannelEvent)
+            return inverse((GuildUpdateAfkChannelEvent) event);
 
         else if (event instanceof GuildMemberJoinEvent)
             return inverse((GuildMemberJoinEvent) event);
@@ -309,7 +345,104 @@ public final class InverseAction
         return member.modifyNickname(oldNick);
     }
 
-    //TODO Look into all the GenericGuildUpdateEvents. There are a lot
+    private static GuildManager inverse(GuildUpdateVanityCodeEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        String oldCode = event.getOldVanityCode();
+
+        return manager.setVanityCode(oldCode);
+    }
+
+    private static GuildManager inverse(GuildUpdateMFALevelEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        Guild.MFALevel oldMFA = event.getOldMFALevel();
+
+        return manager.setRequiredMFALevel(oldMFA);
+    }
+
+    private static GuildManager inverse(GuildUpdateSystemChannelEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        TextChannel oldChannel = event.getOldSystemChannel();
+
+        return manager.setSystemChannel(oldChannel);
+    }
+
+    private static GuildManager inverse(GuildUpdateRegionEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        Region oldRegion = event.getOldRegion();
+
+        return manager.setRegion(oldRegion);
+    }
+
+    private static GuildManager inverse(GuildUpdateNameEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        String oldName = event.getOldName();
+
+        return manager.setName(oldName);
+    }
+
+    private static GuildManager inverse(GuildUpdateDescriptionEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        String oldDescription = event.getOldDescription();
+
+        return manager.setDescription(oldDescription);
+    }
+
+    private static GuildManager inverse(GuildUpdateExplicitContentLevelEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        Guild.ExplicitContentLevel oldLevel = event.getOldValue();
+
+        return manager.setExplicitContentLevel(oldLevel);
+    }
+
+    private static GuildManager inverse(GuildUpdateNotificationLevelEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        Guild.NotificationLevel oldLevel = event.getOldNotificationLevel();
+
+        return manager.setDefaultNotificationLevel(oldLevel);
+    }
+
+    private static GuildManager inverse(GuildUpdateVerificationLevelEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        Guild.VerificationLevel oldLevel = event.getOldVerificationLevel();
+
+        return manager.setVerificationLevel(oldLevel);
+    }
+
+    private static GuildManager inverse(GuildUpdateAfkTimeoutEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        Guild.Timeout oldTimeout = event.getOldAfkTimeout();
+
+        return manager.setAfkTimeout(oldTimeout);
+    }
+
+    private static GuildManager inverse(GuildUpdateAfkChannelEvent event)
+    {
+        Guild guild = event.getGuild();
+        GuildManager manager = guild.getManager();
+        VoiceChannel oldChannel = event.getOldAfkChannel();
+
+        return manager.setAfkChannel(oldChannel);
+    }
 
     private static AuditableRestAction<Void> inverse(GuildMemberJoinEvent event)
     {
