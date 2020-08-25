@@ -57,12 +57,14 @@ import java.util.List;
  * A utility class meant to serve as a way to rollback certain events where it makes sense to.
  *
  * <p>
- * All methods are overloaded static factory methods, always returning a {@link net.dv8tion.jda.api.requests.RestAction RestAction}
+ * All methods are overloaded static factory methods, always returning a {@link net.dv8tion.jda.api.requests.RestAction RestAction<?>}
  * meant to "undo" the given event. Note that this will only be possible for events in which it makes sense.
  * In events where something is posted, the inverse would be another request to remove said post, for example.
+ * </p>
+ * <br>
  * <p>
  * Also, since it's a RestAction that simply makes an attempt at the inverse, it's not always possible due to multiple
- * factors, such as permissions, etc. For example, trying to invert a {@link net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent GuildMessageReceievedEvent} in a channel with no permission
+ * factors, such as permissions, etc. For example, trying to invert a {@link net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent GuildMessageReceivedEvent} in a channel with no permission
  * to remove messages will fail
  * </p>
  * <br>
@@ -73,9 +75,11 @@ import java.util.List;
  * Events fired for the deletion of something are a different story. Some cases are logical, but many are not, like the
  * removal of a text channel. Cases where the complete undoing of the event cannot be guaranteed are not implemented
  * </p>
+ * <br>
  * <p>
  * Keep in mind that inverting the deletion of something requires for a new object to be created with the same values.
- * But doing this can't possibly copy information such as the ID of the deleted object
+ * But doing this can't possibly copy information such as the ID of the deleted object or undo effects like everyone losing
+ * a role that is deleted
  *
  * @author HydroPage90
  */
