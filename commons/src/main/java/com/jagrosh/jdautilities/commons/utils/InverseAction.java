@@ -205,6 +205,9 @@ public final class InverseAction
         else if (event instanceof RoleUpdateNameEvent)
             return inverse((RoleUpdateNameEvent) event);
 
+        else if (event instanceof RoleUpdateHoistedEvent)
+            return inverse((RoleUpdateHoistedEvent) event);
+
         else if (event instanceof RoleUpdateColorEvent)
             return inverse((RoleUpdateColorEvent) event);
 
@@ -580,7 +583,14 @@ public final class InverseAction
         return manager.setName(oldName);
     }
 
-    //TODO What the hell is a hoisted role? Lmao, look at that later
+    private static RoleManager inverse(RoleUpdateHoistedEvent event)
+    {
+        Role role = event.getRole();
+        RoleManager manager = role.getManager();
+        Boolean oldState = event.getOldValue();
+
+        return manager.setHoisted(oldState);
+    }
 
     private static RoleManager inverse(RoleUpdateColorEvent event)
     {
