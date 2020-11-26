@@ -105,7 +105,7 @@ public abstract class Command
      * Owners or any of the CoOwners.
      * <br>Default {@code false}.
      */
-    protected boolean ownerCommand = false;
+    protected boolean ownerCommand = true;
     
     /**
      * An {@code int} number of seconds users must wait before using this command again.
