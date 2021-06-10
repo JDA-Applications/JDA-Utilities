@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -188,7 +189,8 @@ public class SelectionDialog extends Menu
                     || CANCEL.equals(event.getReaction().getReactionEmote().getName())
                     || SELECT.equals(event.getReaction().getReactionEmote().getName())))
                 return false;
-            return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
+            return isValidUser(
+                Objects.requireNonNull(event.getUser()), event.isFromGuild() ? event.getGuild() : null);
         }, event -> {
             int newSelection = selection;
             switch(event.getReaction().getReactionEmote().getName())
@@ -216,7 +218,7 @@ public class SelectionDialog extends Menu
 
             }
             try {
-                event.getReaction().removeReaction(event.getUser()).queue();
+                event.getReaction().removeReaction(Objects.requireNonNull(event.getUser())).queue();
             } catch (PermissionException ignored) {}
             int n = newSelection;
             message.editMessage(render(n)).queue(m -> selectionDialog(m, n));

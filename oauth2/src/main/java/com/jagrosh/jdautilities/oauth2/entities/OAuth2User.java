@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * OAuth2 representation of a Discord User.
@@ -54,7 +55,7 @@ public interface OAuth2User extends ISnowflake, IMentionable
      *
      * @return The user's Snowflake ID as a String.
      */
-    String getId();
+    @NotNull String getId();
 
     /**
      * Gets the user's Snowflake ID as a {@code long}.
@@ -174,7 +175,7 @@ public interface OAuth2User extends ISnowflake, IMentionable
      *
      * @return A discord formatted mention of this user.
      */
-    String getAsMention();
+    @NotNull String getAsMention();
 
     /**
      * Gets the corresponding {@link net.dv8tion.jda.api.entities.User JDA User}

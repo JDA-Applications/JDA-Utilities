@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * OAuth2 representation of a Discord Server/Guild.

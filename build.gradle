@@ -15,6 +15,7 @@
  */
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.codehaus.groovy.runtime.GStringImpl
 
 plugins {
     id 'com.github.ben-manes.versions' version '0.17.0'
@@ -37,7 +38,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.2.0_214'
+        jdaVersion = '4.2.1_253'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'
@@ -53,7 +54,7 @@ allprojects {
             junit = { [group: 'junit', name: 'junit', version: junitVersion] }
 
             artifactId = (rootProject == project? project.name : "$rootProject.name-$project.name").toLowerCase()
-            moduleName = "${group}.jdautilities${rootProject == project? "" : ".${project.name.toLowerCase()}"}"
+            moduleName = "${group}.jdautilities${rootProject == project? "" : ".${project.name.toLowerCase()}"}" as GStringImpl
         }
 
         // Helper task that allows us to do a one-line method call to fully
@@ -91,7 +92,11 @@ allprojects {
     }
 
     repositories {
-        jcenter()
+        mavenCentral()
+        maven {
+            name 'm2-dv8tion'
+            url 'https://m2.dv8tion.net/releases'
+        }
     }
 
     build {

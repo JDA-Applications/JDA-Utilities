@@ -106,11 +106,13 @@ public class RoleinfoCommand extends Command
     
     private static String listOfRoles(List<Role> list, String query)
     {
-        String out = String.format("**Multiple roles found matching \"%s\":**", query);
+        StringBuilder out = new StringBuilder(
+            String.format("**Multiple roles found matching \"%s\":**", query));
         for(int i = 0; i < 6 && i < list.size(); i++)
-            out += "\n - " + list.get(i).getName() + " (ID:" + list.get(i).getId() + ")";
+            out.append("\n - ").append(list.get(i).getName()).append(" (ID:")
+                .append(list.get(i).getId()).append(")");
         if(list.size() > 6)
-            out += "\n**And " + (list.size() - 6) + " more...**";
-        return out;
+            out.append("\n**And ").append(list.size() - 6).append(" more...**");
+        return out.toString();
     }
 }

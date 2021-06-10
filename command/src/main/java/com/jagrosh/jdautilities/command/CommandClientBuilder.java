@@ -269,13 +269,11 @@ public class CommandClientBuilder
      * 
      * @param  command
      *         The command to add
-     *         
-     * @return This builder
+     *
      */
-    public CommandClientBuilder addCommand(Command command)
+    public void addCommand(Command command)
     {
         commands.add(command);
-        return this;
     }
     
     /**
@@ -305,15 +303,12 @@ public class CommandClientBuilder
      * @param  module
      *         The annotated command module to add
      *
-     * @return This builder
-     *
      * @see    AnnotatedModuleCompiler
      * @see    com.jagrosh.jdautilities.command.annotation.JDACommand
      */
-    public CommandClientBuilder addAnnotatedModule(Object module)
+    public void addAnnotatedModule(Object module)
     {
         this.commands.addAll(compiler.compile(module));
-        return this;
     }
 
     /**

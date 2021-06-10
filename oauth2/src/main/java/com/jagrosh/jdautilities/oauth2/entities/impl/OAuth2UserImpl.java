@@ -23,6 +23,7 @@ import com.jagrosh.jdautilities.oauth2.session.Session;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.NotNull;
 
 /**
  *
@@ -63,7 +64,7 @@ public class OAuth2UserImpl implements OAuth2User
     }
 
     @Override
-    public String getId()
+    public @NotNull String getId()
     {
         return Long.toUnsignedString(id);
     }
@@ -138,7 +139,7 @@ public class OAuth2UserImpl implements OAuth2User
     }
 
     @Override
-    public String getAsMention()
+    public @NotNull String getAsMention()
     {
         return "<@" + id + '>';
     }

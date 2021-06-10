@@ -16,16 +16,15 @@
 package com.jagrosh.jdautilities.oauth2.requests;
 
 import com.jagrosh.jdautilities.oauth2.entities.impl.OAuth2ClientImpl;
+import java.io.IOException;
+import java.util.function.Consumer;
+import javax.annotation.WillClose;
 import net.dv8tion.jda.internal.requests.Method;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import javax.annotation.WillClose;
-import java.io.IOException;
-import java.util.function.Consumer;
 
 /**
  * An adaptable lookalike of JDA's {@link net.dv8tion.jda.api.requests.RestAction RestAction}.
@@ -40,9 +39,7 @@ import java.util.function.Consumer;
 public abstract class OAuth2Action<T>
 {
     protected static final Consumer DEFAULT_SUCCESS = t -> {};
-    protected static final Consumer<Throwable> DEFAULT_FAILURE = t -> {
-        OAuth2Requester.LOGGER.error("Requester encountered an error while processing response!");
-    };
+    protected static final Consumer<Throwable> DEFAULT_FAILURE = t -> OAuth2Requester.LOGGER.error("Requester encountered an error while processing response!");
 
     protected final OAuth2ClientImpl client;
     protected final Method method;

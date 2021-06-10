@@ -54,8 +54,7 @@ import java.util.List;
  */
 public class OAuth2ClientImpl implements OAuth2Client
 {
-    private static final Logger LOG = JDALogger.getLog(OAuth2Client.class);
-    
+
     private final long clientId;
     private final String clientSecret;
     private final SessionController sessionController;

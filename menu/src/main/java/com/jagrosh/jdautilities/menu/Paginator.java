@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -256,9 +257,9 @@ public class Paginator extends Menu
 
                 final int targetPage;
 
-                if(leftText != null && rawContent.equalsIgnoreCase(leftText) && (1 < pageNum || wrapPageEnds))
-                    targetPage = pageNum - 1 < 1 && wrapPageEnds? pages : pageNum - 1;
-                else if(rightText != null && rawContent.equalsIgnoreCase(rightText) && (pageNum < pages || wrapPageEnds))
+                if(rawContent.equalsIgnoreCase(leftText) && (1 < pageNum || wrapPageEnds))
+                    targetPage = pageNum - 1 < 1 ? pages : pageNum - 1;
+                else if(rawContent.equalsIgnoreCase(rightText) && (pageNum < pages || wrapPageEnds))
                     targetPage = pageNum + 1 > pages && wrapPageEnds? 1 : pageNum + 1;
                 else
                 {
@@ -295,10 +296,10 @@ public class Paginator extends Menu
             case LEFT:
             case STOP:
             case RIGHT:
-                return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
+                return isValidUser(Objects.requireNonNull(event.getUser()), event.isFromGuild() ? event.getGuild() : null);
             case BIG_LEFT:
             case BIG_RIGHT:
-                return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
+                return bulkSkipNumber > 1 && isValidUser(Objects.requireNonNull(event.getUser()), event.isFromGuild() ? event.getGuild() : null);
             default:
                 return false;
         }
@@ -327,7 +328,7 @@ public class Paginator extends Menu
                 {
                     for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
                     {
-                        if(newPageNum == 1 && wrapPageEnds)
+                        if(newPageNum == 1)
                             newPageNum = pages + 1;
                         newPageNum--;
                     }
@@ -338,7 +339,7 @@ public class Paginator extends Menu
                 {
                     for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
                     {
-                        if(newPageNum == pages && wrapPageEnds)
+                        if(newPageNum == pages)
                             newPageNum = 0;
                         newPageNum++;
                     }
@@ -350,7 +351,7 @@ public class Paginator extends Menu
         }
 
         try {
-            event.getReaction().removeReaction(event.getUser()).queue();
+            event.getReaction().removeReaction(Objects.requireNonNull(event.getUser())).queue();
         } catch(PermissionException ignored) {}
 
         int n = newPageNum;
@@ -362,7 +363,7 @@ public class Paginator extends Menu
         MessageBuilder mbuilder = new MessageBuilder();
         EmbedBuilder ebuilder = new EmbedBuilder();
         int start = (pageNum-1)*itemsPerPage;
-        int end = strings.size() < pageNum*itemsPerPage ? strings.size() : pageNum*itemsPerPage;
+        int end = Math.min(strings.size(), pageNum * itemsPerPage);
         if(columns == 1)
         {
             StringBuilder sbuilder = new StringBuilder();
@@ -603,12 +604,10 @@ public class Paginator extends Menu
         /**
          * Clears the list of String items to paginate.
          *
-         * @return This builder
          */
-        public Builder clearItems()
+        public void clearItems()
         {
             strings.clear();
-            return this;
         }
 
         /**
@@ -617,12 +616,10 @@ public class Paginator extends Menu
          * @param  items
          *         The String list of items to add
          *
-         * @return This builder
          */
-        public Builder addItems(String... items)
+        public void addItems(String... items)
         {
             strings.addAll(Arrays.asList(items));
-            return this;
         }
 
         /**

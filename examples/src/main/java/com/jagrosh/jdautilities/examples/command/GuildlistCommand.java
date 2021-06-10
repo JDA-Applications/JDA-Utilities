@@ -93,9 +93,11 @@ public class GuildlistCommand extends Command {
         event.getJDA().getGuilds().stream()
                 .map(g -> "**"+g.getName()+"** (ID:"+g.getId()+") ~ "+g.getMembers().size()+" Members")
                 .forEach(pbuilder::addItems);
+        event.getJDA().getShardInfo();
         Paginator p = pbuilder.setColor(event.isFromType(ChannelType.TEXT) ? event.getSelfMember().getColor() : Color.black)
-                .setText(event.getClient().getSuccess()+" Guilds that **"+event.getSelfUser().getName()+"** is connected to"
-                        +(event.getJDA().getShardInfo()==null ? ":" : "(Shard ID "+event.getJDA().getShardInfo().getShardId()+"):"))
+                .setText(event.getClient().getSuccess() + " Guilds that **" + event.getSelfUser()
+                    .getName() + "** is connected to"
+                    + "(Shard ID " + event.getJDA().getShardInfo().getShardId() + "):")
                 .setUsers(event.getAuthor())
                 .build();
         p.paginate(event.getChannel(), page);

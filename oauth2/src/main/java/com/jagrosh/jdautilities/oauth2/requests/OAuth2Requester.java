@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.oauth2.requests;
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -44,44 +45,31 @@ public class OAuth2Requester
         httpClient.newCall(request.buildRequest()).enqueue(new Callback()
         {
             @Override
-            public void onResponse(Call call, Response response)
+            public void onResponse(@NotNull Call call, @NotNull Response response)
             {
-                try
-                {
+                try {
                     T value = request.handle(response);
                     logSuccessfulRequest(request);
 
                     // Handle end-user exception differently
-                    try
-                    {
-                        if(value != null)
+                    try {
+                        if (value != null)
                             success.accept(value);
-                    }
-                    catch(Throwable t)
-                    {
+                    } catch (Throwable t) {
                         LOGGER.error("OAuth2Action success callback threw an exception!", t);
                     }
-                }
-                catch(Throwable t)
-                {
+                } catch (Throwable t) {
                     // Handle end-user exception differently
-                    try
-                    {
+                    try {
                         failure.accept(t);
-                    }
-                    catch(Throwable t1)
-                    {
+                    } catch (Throwable t1) {
                         LOGGER.error("OAuth2Action success callback threw an exception!", t1);
                     }
-                }
-                finally
-                {
-                    response.close();
                 }
             }
 
             @Override
-            public void onFailure(Call call, IOException e)
+            public void onFailure(@NotNull Call call, @NotNull IOException e)
             {
                 LOGGER.error("Requester encountered an error when submitting a request!", e);
             }

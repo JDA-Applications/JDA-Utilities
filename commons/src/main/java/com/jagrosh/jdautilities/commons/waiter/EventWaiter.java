@@ -237,7 +237,7 @@ public class EventWaiter implements EventListener
             if(waitingEvents.containsKey(c))
             {
                 Set<WaitingEvent> set = waitingEvents.get(c);
-                WaitingEvent[] toRemove = set.toArray(new WaitingEvent[set.size()]);
+                WaitingEvent[] toRemove = set.toArray(new WaitingEvent[0]);
 
                 // WaitingEvent#attempt invocations that return true have passed their condition tests
                 // and executed the action. We filter the ones that return false out of the toRemove and
@@ -270,7 +270,7 @@ public class EventWaiter implements EventListener
         threadpool.shutdown();
     }
     
-    private class WaitingEvent<T extends GenericEvent>
+    private static class WaitingEvent<T extends GenericEvent>
     {
         final Predicate<T> condition;
         final Consumer<T> action;

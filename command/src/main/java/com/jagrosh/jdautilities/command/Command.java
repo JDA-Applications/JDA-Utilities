@@ -557,10 +557,12 @@ public abstract class Command
             case GUILD:        return event.getGuild()!=null ? cooldownScope.genKey(name,event.getGuild().getIdLong()) :
                     CooldownScope.CHANNEL.genKey(name,event.getChannel().getIdLong());
             case CHANNEL:      return cooldownScope.genKey(name,event.getChannel().getIdLong());
-            case SHARD:        return event.getJDA().getShardInfo()!=null ? cooldownScope.genKey(name, event.getJDA().getShardInfo().getShardId()) :
-                    CooldownScope.GLOBAL.genKey(name, 0);
-            case USER_SHARD:   return event.getJDA().getShardInfo()!=null ? cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getJDA().getShardInfo().getShardId()) :
-                    CooldownScope.USER.genKey(name, event.getAuthor().getIdLong());
+            case SHARD:
+                event.getJDA().getShardInfo();
+                return cooldownScope.genKey(name, event.getJDA().getShardInfo().getShardId());
+            case USER_SHARD:
+                event.getJDA().getShardInfo();
+                return cooldownScope.genKey(name,event.getAuthor().getIdLong(),event.getJDA().getShardInfo().getShardId());
             case GLOBAL:       return cooldownScope.genKey(name, 0);
             default:           return "";
         }

@@ -15,15 +15,14 @@
  */
 package com.jagrosh.jdautilities.menu;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.api.entities.*;
-
 import javax.annotation.Nullable;
+import net.dv8tion.jda.api.entities.*;
 
 /**
  * A frame for wrapping an {@link com.jagrosh.jdautilities.commons.waiter.EventWaiter EventWaiter}
@@ -56,8 +55,8 @@ import javax.annotation.Nullable;
 public abstract class Menu
 {
     protected final EventWaiter waiter;
-    protected Set<User> users;
-    protected Set<Role> roles;
+    protected final Set<User> users;
+    protected final Set<Role> roles;
     protected final long timeout;
     protected final TimeUnit unit;
     
@@ -153,7 +152,7 @@ public abstract class Menu
         if(guild == null || !guild.isMember(user))
             return false;
 
-        return guild.getMember(user).getRoles().stream().anyMatch(roles::contains);
+        return Objects.requireNonNull(guild.getMember(user)).getRoles().stream().anyMatch(roles::contains);
     }
 
     /**
@@ -186,8 +185,8 @@ public abstract class Menu
     public abstract static class Builder<T extends Builder<T, V>, V extends Menu>
     {
         protected EventWaiter waiter;
-        protected Set<User> users = new HashSet<>();
-        protected Set<Role> roles = new HashSet<>();
+        protected final Set<User> users = new HashSet<>();
+        protected final Set<Role> roles = new HashSet<>();
         protected long timeout = 1;
         protected TimeUnit unit = TimeUnit.MINUTES;
 

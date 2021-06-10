@@ -64,15 +64,13 @@ public class CommandBuilder
      * @param  name
      *         The name of the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setName(String name)
+    public void setName(String name)
     {
         if(name == null)
             this.name = "null";
         else
             this.name = name;
-        return this;
     }
 
     /**
@@ -82,15 +80,13 @@ public class CommandBuilder
      * @param  help
      *         The help snippet of the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setHelp(String help)
+    public void setHelp(String help)
     {
         if(help == null)
             this.help = "no help available";
         else
             this.help = help;
-        return this;
     }
 
     /**
@@ -100,12 +96,10 @@ public class CommandBuilder
      * @param  category
      *         The category of the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setCategory(Category category)
+    public void setCategory(Category category)
     {
         this.category = category;
-        return this;
     }
 
     /**
@@ -115,12 +109,10 @@ public class CommandBuilder
      * @param  arguments
      *         The arguments of the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setArguments(String arguments)
+    public void setArguments(String arguments)
     {
         this.arguments = arguments;
-        return this;
     }
 
     /**
@@ -130,12 +122,10 @@ public class CommandBuilder
      * @param  guildOnly
      *         {@code true} if the Command built is guild only, {@code false} if it is not.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setGuildOnly(boolean guildOnly)
+    public void setGuildOnly(boolean guildOnly)
     {
         this.guildOnly = guildOnly;
-        return this;
     }
 
     /**
@@ -145,12 +135,10 @@ public class CommandBuilder
      * @param  requiredRole
      *         The name of a role required to use the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setRequiredRole(String requiredRole)
+    public void setRequiredRole(String requiredRole)
     {
         this.requiredRole = requiredRole;
-        return this;
     }
 
     /**
@@ -160,12 +148,10 @@ public class CommandBuilder
      * @param  ownerCommand
      *         {@code true} if the Command built is owner only, {@code false} if it is not.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setOwnerCommand(boolean ownerCommand)
+    public void setOwnerCommand(boolean ownerCommand)
     {
         this.ownerCommand = ownerCommand;
-        return this;
     }
 
     /**
@@ -175,12 +161,10 @@ public class CommandBuilder
      * @param  cooldown
      *         The number of seconds the built Command will be on cooldown.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setCooldown(int cooldown)
+    public void setCooldown(int cooldown)
     {
         this.cooldown = cooldown;
-        return this;
     }
 
     /**
@@ -190,15 +174,13 @@ public class CommandBuilder
      * @param  userPermissions
      *         The required Permissions a User must have when using the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setUserPermissions(Permission... userPermissions)
+    public void setUserPermissions(Permission... userPermissions)
     {
         if(userPermissions == null)
             this.userPermissions = new Permission[0];
         else
             this.userPermissions = userPermissions;
-        return this;
     }
 
     /**
@@ -226,15 +208,13 @@ public class CommandBuilder
      * @param  botPermissions
      *         The required Permissions the bot must have when using the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setBotPermissions(Permission... botPermissions)
+    public void setBotPermissions(Permission... botPermissions)
     {
         if(botPermissions == null)
             this.botPermissions = new Permission[0];
         else
             this.botPermissions = botPermissions;
-        return this;
     }
 
     /**
@@ -262,12 +242,10 @@ public class CommandBuilder
      * @param  alias
      *         The Command alias to add.
      *
-     * @return This CommandBuilder.
      */
-    public CommandBuilder addAlias(String alias)
+    public void addAlias(String alias)
     {
         aliases.add(alias);
-        return this;
     }
 
     /**
@@ -328,12 +306,10 @@ public class CommandBuilder
      * @param  child
      *         The child Command to add.
      *
-     * @return This CommandBuilder.
      */
-    public CommandBuilder addChild(Command child)
+    public void addChild(Command child)
     {
         children.add(child);
-        return this;
     }
 
     /**
@@ -409,12 +385,10 @@ public class CommandBuilder
      * @param  usesTopicTags
      *         {@code true} if the Command built is uses topic tags, {@code false} if it does not.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setUsesTopicTags(boolean usesTopicTags)
+    public void setUsesTopicTags(boolean usesTopicTags)
     {
         this.usesTopicTags = usesTopicTags;
-        return this;
     }
 
     /**
@@ -424,15 +398,13 @@ public class CommandBuilder
      * @param  cooldownScope
      *         The CooldownScope of the Command to be built.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setCooldownScope(CooldownScope cooldownScope)
+    public void setCooldownScope(CooldownScope cooldownScope)
     {
         if(cooldownScope == null)
             this.cooldownScope = CooldownScope.USER;
         else
             this.cooldownScope = cooldownScope;
-        return this;
     }
 
     /**
@@ -442,12 +414,10 @@ public class CommandBuilder
      * @param  hidden
      *         {@code true} if this will be hidden from the help builder, {@code false} otherwise.
      *
-     * @return This CommandBuilder
      */
-    public CommandBuilder setHidden(boolean hidden)
+    public void setHidden(boolean hidden)
     {
         this.hidden = hidden;
-        return this;
     }
 
     /**
@@ -490,8 +460,8 @@ public class CommandBuilder
     {
         return new BlankCommand(name, help, category, arguments,
                 guildOnly, requiredRole, ownerCommand, cooldown,
-                userPermissions, botPermissions, aliases.toArray(new String[aliases.size()]),
-                children.toArray(new Command[children.size()]), helpBiConsumer, usesTopicTags,
+                userPermissions, botPermissions, aliases.toArray(new String[0]),
+                children.toArray(new Command[0]), helpBiConsumer, usesTopicTags,
                 cooldownScope, hidden)
         {
             @Override
@@ -502,7 +472,7 @@ public class CommandBuilder
         };
     }
 
-    private abstract class BlankCommand extends Command
+    private abstract static class BlankCommand extends Command
     {
         BlankCommand(String name, String help, Category category,
                      String arguments, boolean guildOnly, String requiredRole,

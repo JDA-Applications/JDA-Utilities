@@ -44,7 +44,7 @@ import net.dv8tion.jda.internal.utils.Checks;
  */
 public class CommandEvent
 {
-    public static int MAX_MESSAGES = 2;
+    public static final int MAX_MESSAGES = 2;
     
     private final MessageReceivedEvent event;
     private String args;
@@ -1031,7 +1031,8 @@ public class CommandEvent
      */
     public Member getSelfMember()
     {
-        return event.getGuild() == null ? null : event.getGuild().getSelfMember();
+        event.getGuild();
+        return event.getGuild().getSelfMember();
     }
 
     /**

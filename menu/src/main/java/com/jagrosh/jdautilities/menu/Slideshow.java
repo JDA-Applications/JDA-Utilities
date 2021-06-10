@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -234,9 +235,9 @@ public class Slideshow extends Menu
                 int pages = urls.size();
                 final int targetPage;
 
-                if(leftText != null && rawContent.equalsIgnoreCase(leftText) && (1 < pageNum || wrapPageEnds))
-                    targetPage = pageNum - 1 < 1 && wrapPageEnds? pages : pageNum - 1;
-                else if(rightText != null && rawContent.equalsIgnoreCase(rightText) && (pageNum < pages || wrapPageEnds))
+                if(rawContent.equalsIgnoreCase(leftText) && (1 < pageNum || wrapPageEnds))
+                    targetPage = pageNum - 1 < 1 ? pages : pageNum - 1;
+                else if(rawContent.equalsIgnoreCase(rightText) && (pageNum < pages || wrapPageEnds))
                     targetPage = pageNum + 1 > pages && wrapPageEnds? 1 : pageNum + 1;
                 else
                 {
@@ -273,10 +274,10 @@ public class Slideshow extends Menu
             case LEFT:
             case STOP:
             case RIGHT:
-                return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
+                return isValidUser(Objects.requireNonNull(event.getUser()), event.isFromGuild() ? event.getGuild() : null);
             case BIG_LEFT:
             case BIG_RIGHT:
-                return bulkSkipNumber > 1 && isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
+                return bulkSkipNumber > 1 && isValidUser(Objects.requireNonNull(event.getUser()), event.isFromGuild() ? event.getGuild() : null);
             default:
                 return false;
         }
@@ -306,7 +307,7 @@ public class Slideshow extends Menu
                 {
                     for(int i = 1; (newPageNum > 1 || wrapPageEnds) && i < bulkSkipNumber; i++)
                     {
-                        if(newPageNum == 1 && wrapPageEnds)
+                        if(newPageNum == 1)
                             newPageNum = pages + 1;
                         newPageNum--;
                     }
@@ -317,7 +318,7 @@ public class Slideshow extends Menu
                 {
                     for(int i = 1; (newPageNum < pages || wrapPageEnds) && i < bulkSkipNumber; i++)
                     {
-                        if(newPageNum == pages && wrapPageEnds)
+                        if(newPageNum == pages)
                             newPageNum = 0;
                         newPageNum++;
                     }
@@ -329,7 +330,7 @@ public class Slideshow extends Menu
         }
 
         try {
-            event.getReaction().removeReaction(event.getUser()).queue();
+            event.getReaction().removeReaction(Objects.requireNonNull(event.getUser())).queue();
         } catch(PermissionException ignored) {}
 
         int n = newPageNum;
