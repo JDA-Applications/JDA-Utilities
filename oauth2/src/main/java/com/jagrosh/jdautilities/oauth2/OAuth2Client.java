@@ -43,7 +43,7 @@ public interface OAuth2Client
     /**
      * The REST version targeted by JDA-Utilities OAuth2.
      */
-    int DISCORD_REST_VERSION = 6;
+    int DISCORD_REST_VERSION = 8;
 
     /**
      * Generates a formatted authorization URL from the provided redirect URI fragment
