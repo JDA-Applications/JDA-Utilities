@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard)
+ * Copyright 2016-2021 John Grosh (jagrosh) & Kaidan Gustave (TheMonitorLizard)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
+    id 'maven-publish'
     id 'com.github.ben-manes.versions' version '0.17.0'
     id 'com.github.johnrengelman.shadow' version '2.0.2'
-    id 'com.jfrog.bintray' version '1.8.4'
 }
 
-def versionInfo = [major: '3', minor: '0', revision: '5']
+def versionInfo = [major: '3', minor: '1', revision: '0']
 
 task build {
     group = 'build'
@@ -30,14 +30,13 @@ task build {
 
 allprojects {
     apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group = 'com.jagrosh'
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.2.0_214'
+        jdaVersion = '4.3.0_313'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'
@@ -91,7 +90,11 @@ allprojects {
     }
 
     repositories {
-        jcenter()
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://m2.dv8tion.net/releases"
+        }
     }
 
     build {
@@ -104,33 +107,9 @@ allprojects {
         dependsOn { shadowJar }
     }
 
-    bintray {
-        user = bintrayUsername
-        key = bintrayApiKey
-        publications = ['BintrayRelease']
-        publish = true
-        pkg {
-            repo = 'maven'
-            name = 'JDA-Utilities'
-            licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/JDA-Applications/JDA-Utilities'
-            version {
-                name = project.version
-                released = new Date()
-            }
-        }
-    }
-
-    bintrayUpload {
-        dependsOn { rootProject.getTasksByName('build', true) }
-
-        onlyIf { !project.property('bintrayUsername')?.trim()?.empty }
-        onlyIf { !project.property('bintrayApiKey')?.trim()?.empty }
-    }
-
     publishing {
         publications {
-            BintrayRelease(MavenPublication) {
+            maven(MavenPublication) {
                 it.groupId = project.group
                 it.artifactId = project.artifactId
                 it.version = project.version
@@ -206,7 +185,7 @@ subprojects {
 
     publishing {
         publications {
-            BintrayRelease(MavenPublication) {
+            maven(MavenPublication) {
                 from components.java
                 artifact javadocJar
                 artifact sourceJar
@@ -286,28 +265,4 @@ task clean(type: Delete) {
     group = 'build'
 
     delete = buildDir
-}
-
-publishing {
-    publications {
-        BintrayRelease(MavenPublication) {
-            pom.withXml {
-                def repositoriesNode = asNode().appendNode('repositories')
-                def repositoryNode = repositoriesNode.appendNode('repository')
-
-                repositoryNode.appendNode('name', 'bintray')
-                repositoryNode.appendNode('id', 'bintray-jagrosh-maven')
-                repositoryNode.appendNode('url', 'https://dl.bintray.com/jagrosh/maven')
-
-                def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.compile.allDependencies.each {
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', it.group)
-                    dependencyNode.appendNode('artifactId', it instanceof ProjectDependency ? it.dependencyProject.artifactId : it.name)
-                    dependencyNode.appendNode('version', it.version)
-                    dependencyNode.appendNode('scope', 'compile')
-                }
-            }
-        }
-    }
 }
