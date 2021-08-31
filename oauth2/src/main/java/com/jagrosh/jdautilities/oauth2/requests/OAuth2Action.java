@@ -41,7 +41,7 @@ public abstract class OAuth2Action<T>
 {
     protected static final Consumer DEFAULT_SUCCESS = t -> {};
     protected static final Consumer<Throwable> DEFAULT_FAILURE = t -> {
-        OAuth2Requester.LOGGER.error("Requester encountered an error while processing response!");
+        OAuth2Requester.LOGGER.error("Requester encountered an error while processing response!", t);
     };
 
     protected final OAuth2ClientImpl client;
@@ -86,6 +86,7 @@ public abstract class OAuth2Action<T>
         }
 
         builder.url(url);
+        builder.header("User-Agent", OAuth2Requester.USER_AGENT);
         builder.headers(getHeaders());
 
         return builder.build();
