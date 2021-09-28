@@ -63,6 +63,13 @@ repositories {
     jcenter()
 }
 ```
+With gradle but not jcenter:
+```groovy
+dependencies {
+    implementation 'com.jagrosh:jda-utilities:JDA-UTILITIES-VERSION'
+    implementation 'net.dv8tion:JDA:JDA-VERSION'
+}
+```
 
 Individual modules can be downloaded using the same structure shown above, with the addition of the module's
 name as a suffix to the dependency:
@@ -83,6 +90,13 @@ With gradle:
 dependencies {
     // Notice that the dependency notation ends with "-command"
     compile 'com.jagrosh:jda-utilities-command:JDA-UTILITIES-VERSION'
+}
+```
+
+With gradle but not jcenter:
+```groovy
+dependencies {
+    implementation 'com.jagrosh:jda-utilities-command:JDA-UTILITIES-VERSION'
 }
 ```
 
