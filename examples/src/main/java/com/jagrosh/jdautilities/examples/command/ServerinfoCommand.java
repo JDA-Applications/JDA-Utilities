@@ -18,10 +18,7 @@ package com.jagrosh.jdautilities.examples.command;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import java.time.format.DateTimeFormatter;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -56,26 +53,17 @@ public class ServerinfoCommand extends Command
                 .replace("@everyone", "@\u0435veryone") // cyrillic e
                 .replace("@here", "@h\u0435re") // cyrillic e
                 .replace("discord.gg/", "dis\u0441ord.gg/"); // cyrillic c;
-        String verif;
-        switch(guild.getVerificationLevel()) 
-        {
-            case VERY_HIGH: 
-                verif = "┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻"; 
-                break;
-            case HIGH:    
-                verif = "(╯°□°）╯︵ ┻━┻"; 
-                break;
-            default:      
-                verif = guild.getVerificationLevel().name(); 
-                break;
-        }
         String str = LINESTART + "ID: **" + guild.getId() + "**\n"
-                + LINESTART + "Owner: " + (owner == null ? "Unknown" : "**" + owner.getUser().getName() + "**#" + owner.getUser().getDiscriminator()) + "\n"
-                + LINESTART + "Location: " + (guild.getRegion().getEmoji().isEmpty() ? NO_REGION : guild.getRegion().getEmoji()) + " **" + guild.getRegion().getName() + "**\n"
-                + LINESTART + "Creation: **" + guild.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME) + "**\n"
+                + LINESTART + "Owner: " + (owner == null ? "Unknown" : "**" + owner.getUser().getName() + "**#" + owner.getUser().getDiscriminator()) + "\n";
+        if(!guild.getVoiceChannels().isEmpty())
+        {
+            Region reg = guild.getVoiceChannels().get(0).getRegion();
+            str += LINESTART + "Location: " + (reg.getEmoji() == null || reg.getEmoji().isEmpty() ? NO_REGION : reg.getEmoji()) + " **" + reg.getName() + "**\n";
+        }
+        str +=    LINESTART + "Creation: **" + guild.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME) + "**\n"
                 + LINESTART + "Users: **" + guild.getMemberCache().size() + "** (" + onlineCount + " online, " + botCount + " bots)\n"
                 + LINESTART + "Channels: **" + guild.getTextChannelCache().size() + "** Text, **" + guild.getVoiceChannelCache().size() + "** Voice, **" + guild.getCategoryCache().size() + "** Categories\n"
-                + LINESTART + "Verification: **" + verif + "**";
+                + LINESTART + "Verification: **" + guild.getVerificationLevel().name() + "**";
         if(!guild.getFeatures().isEmpty())
             str += "\n" + LINESTART + "Features: **" + String.join("**, **", guild.getFeatures()) + "**";
         if(guild.getSplashId() != null)
