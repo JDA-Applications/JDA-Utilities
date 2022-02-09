@@ -15,8 +15,8 @@
  */
 dependencies {
     compileOnly jda()
-    compile findbugs()
-    compile json()
+    implementation findbugs()
+    implementation json()
 
-    compile commons()
+    implementation commons()
 }

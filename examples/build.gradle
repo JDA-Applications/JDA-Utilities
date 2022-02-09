@@ -15,10 +15,10 @@
  */
 dependencies {
     compileOnly jda()
-    compile slf4j()
+    implementation slf4j()
 
-    compile commons()
-    compile command()
-    compile menu()
-    compile doc()
+    implementation commons()
+    implementation command()
+    implementation menu()
+    implementation doc()
 }

@@ -16,5 +16,5 @@
 dependencies {
     compileOnly jda()
 
-    compile commons()
+    implementation commons()
 }
