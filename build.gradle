@@ -115,9 +115,6 @@ allprojects {
                 it.version = project.version
             }
         }
-        repositories {
-            mavenLocal()
-        }
     }
 }
 
@@ -193,9 +190,6 @@ subprojects {
                 artifact javadocJar
                 artifact sourceJar
             }
-        }
-        repositories {
-            mavenLocal()
         }
     }
 
