@@ -269,22 +269,26 @@ task clean(type: Delete) {
 
 publishing {
     publications {
-        BintrayRelease(MavenPublication) {
-            pom.withXml {
-                def repositoriesNode = asNode().appendNode('repositories')
-                def repositoryNode = repositoriesNode.appendNode('repository')
+        maven(MavenPublication) {
+            repositories {
+                maven {
+                    url "https://m2.dv8tion.net/releases"
+                }
+            }
 
-                repositoryNode.appendNode('name', 'null')
-                repositoryNode.appendNode('id', 'null')
-                repositoryNode.appendNode('url', 'https://dl.bintray.com/jagrosh/maven')
-
-                def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.compile.allDependencies.each {
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', it.group)
-                    dependencyNode.appendNode('artifactId', it instanceof ProjectDependency ? it.dependencyProject.artifactId : it.name)
-                    dependencyNode.appendNode('version', it.version)
-                    dependencyNode.appendNode('scope', 'compile')
+            pom {
+                name = 'JDA-Utilities'
+                description = 'A series of tools and utilities for JDA to assist in bot creation.'
+                url = 'https://github.com/JDA-Applications/JDA-Utilities'
+                properties = [
+                    "name": project.version,
+                    "released": new Date().toString()
+                ]
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://github.com/JDA-Applications/JDA-Utilities/blob/master/LICENSE.md'
+                    }
                 }
             }
         }
