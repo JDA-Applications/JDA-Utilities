@@ -270,7 +270,7 @@ task clean(type: Delete) {
 publishing {
     repositories {
         maven {
-            url = 'https://m2.dv8tion.net'
+            url = 's3://m2.dv8tion.net/releases'
             credentials(AwsCredentials) {
                 accessKey = repoAccessKey
                 secretKey = repoSecretKey
