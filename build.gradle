@@ -268,14 +268,18 @@ task clean(type: Delete) {
 }
 
 publishing {
+    repositories {
+        maven {
+            url = 'https://m2.dv8tion.net'
+            credentials(AwsCredentials) {
+                accessKey = repoAccessKey
+                secretKey = repoSecretKey
+
+            }
+        }
+    }
     publications {
         maven(MavenPublication) {
-            repositories {
-                maven {
-                    url "https://m2.dv8tion.net/releases"
-                }
-            }
-
             pom {
                 name = 'JDA-Utilities'
                 description = 'A series of tools and utilities for JDA to assist in bot creation.'
