@@ -71,7 +71,7 @@ public class ServerinfoCommand extends Command
         }
         String str = LINESTART + "ID: **" + guild.getId() + "**\n"
                 + LINESTART + "Owner: " + (owner == null ? "Unknown" : "**" + owner.getUser().getName() + "**#" + owner.getUser().getDiscriminator()) + "\n"
-                + LINESTART + "Location: " + (guild.getRegion().getEmoji().isEmpty() ? NO_REGION : guild.getRegion().getEmoji()) + " **" + guild.getRegion().getName() + "**\n"
+                //+ LINESTART + "Location: " + (guild.getRegion().getEmoji().isEmpty() ? NO_REGION : guild.getRegion().getEmoji()) + " **" + guild.getRegion().getName() + "**\n"
                 + LINESTART + "Creation: **" + guild.getTimeCreated().format(DateTimeFormatter.RFC_1123_DATE_TIME) + "**\n"
                 + LINESTART + "Users: **" + guild.getMemberCache().size() + "** (" + onlineCount + " online, " + botCount + " bots)\n"
                 + LINESTART + "Channels: **" + guild.getTextChannelCache().size() + "** Text, **" + guild.getVoiceChannelCache().size() + "** Voice, **" + guild.getCategoryCache().size() + "** Categories\n"
@@ -87,6 +87,6 @@ public class ServerinfoCommand extends Command
             builder.setThumbnail(guild.getIconUrl());
         builder.setColor(owner == null ? null : owner.getColor());
         builder.setDescription(str);
-        event.reply(new MessageBuilder().append(title).setEmbed(builder.build()).build());
+        event.reply(new MessageBuilder().append(title).setEmbeds(builder.build()).build());
     }
 }

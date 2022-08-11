@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -165,15 +166,15 @@ public class SelectionDialog extends Menu
         action.queue(m -> {
             if(choices.size()>1)
             {
-                m.addReaction(UP).queue();
-                m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue();
-                m.addReaction(DOWN).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(Emoji.fromUnicode(UP)).queue();
+                m.addReaction(Emoji.fromUnicode(SELECT)).queue();
+                m.addReaction(Emoji.fromUnicode(CANCEL)).queue();
+                m.addReaction(Emoji.fromUnicode(DOWN)).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
             }
             else
             {
-                m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(Emoji.fromUnicode(SELECT)).queue();
+                m.addReaction(Emoji.fromUnicode(CANCEL)).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
             }
         });
     }
@@ -183,15 +184,15 @@ public class SelectionDialog extends Menu
         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(UP.equals(event.getReaction().getReactionEmote().getName())
-                    || DOWN.equals(event.getReaction().getReactionEmote().getName())
-                    || CANCEL.equals(event.getReaction().getReactionEmote().getName())
-                    || SELECT.equals(event.getReaction().getReactionEmote().getName())))
+            if(!(UP.equals(event.getReaction().getEmoji().getName())
+                    || DOWN.equals(event.getReaction().getEmoji().getName())
+                    || CANCEL.equals(event.getReaction().getEmoji().getName())
+                    || SELECT.equals(event.getReaction().getEmoji().getName())))
                 return false;
             return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
         }, event -> {
             int newSelection = selection;
-            switch(event.getReaction().getReactionEmote().getName())
+            switch(event.getReaction().getEmoji().getName())
             {
                 case UP:
                     if(newSelection>1)
@@ -235,7 +236,7 @@ public class SelectionDialog extends Menu
         String content = text.apply(selection);
         if(content!=null)
             mbuilder.append(content);
-        return mbuilder.setEmbed(new EmbedBuilder()
+        return mbuilder.setEmbeds(new EmbedBuilder()
                 .setColor(color.apply(selection))
                 .setDescription(sbuilder.toString())
                 .build()).build();

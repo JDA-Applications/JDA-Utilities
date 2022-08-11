@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.*;
@@ -444,8 +444,8 @@ public class CommandClientImpl implements CommandClient, EventListener
         if(event instanceof MessageReceivedEvent)
             onMessageReceived((MessageReceivedEvent)event);
 
-        else if(event instanceof GuildMessageDeleteEvent && usesLinkedDeletion())
-            onMessageDelete((GuildMessageDeleteEvent) event);
+        else if(event instanceof MessageDeleteEvent && usesLinkedDeletion())
+            onMessageDelete((MessageDeleteEvent) event);
 
         else if(event instanceof GuildJoinEvent)
         {
@@ -536,7 +536,7 @@ public class CommandClientImpl implements CommandClient, EventListener
                     listener.onCompletedCommand(cevent, null);
                 return; // Help Consumer is done
             }
-            else if(event.isFromType(ChannelType.PRIVATE) || event.getTextChannel().canTalk())
+            else if(event.isFromType(ChannelType.PRIVATE) || event.getChannel().asTextChannel().canTalk())
             {
                 String name = parts[0];
                 String args = parts[1]==null ? "" : parts[1];
@@ -655,7 +655,7 @@ public class CommandClientImpl implements CommandClient, EventListener
         }
     }
 
-    private void onMessageDelete(GuildMessageDeleteEvent event)
+    private void onMessageDelete(MessageDeleteEvent event)
     {
         // We don't need to cover whether or not this client usesLinkedDeletion() because
         // that is checked in onEvent(Event) before this is even called.
@@ -665,8 +665,8 @@ public class CommandClientImpl implements CommandClient, EventListener
             {
                 Set<Message> messages = linkMap.get(event.getMessageIdLong());
                 if(messages.size()>1 && event.getGuild().getSelfMember()
-                        .hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE))
-                    event.getChannel().deleteMessages(messages).queue(unused -> {}, ignored -> {});
+                        .hasPermission(event.getChannel().asTextChannel(), Permission.MESSAGE_MANAGE))
+                    event.getChannel().deleteMessageById(event.getMessageIdLong()).queue(unused -> {}, ignored -> {});
                 else if(messages.size()>0)
                     messages.forEach(m -> m.delete().queue(unused -> {}, ignored -> {}));
             }
