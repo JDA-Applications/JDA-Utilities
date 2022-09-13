@@ -98,7 +98,7 @@ public class RoleinfoCommand extends Command
         
         event.reply(new MessageBuilder()
                 .append(title)
-                .setEmbed(new EmbedBuilder()
+                .setEmbeds(new EmbedBuilder()
                         .setDescription(desr.toString().trim())
                         .setColor(role.getColor()).build())
                 .build());

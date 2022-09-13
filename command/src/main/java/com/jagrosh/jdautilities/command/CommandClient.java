@@ -16,6 +16,7 @@
 package com.jagrosh.jdautilities.command;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -61,7 +62,7 @@ import java.util.function.Function;
  *
  *         <p><b>4)</b> Do not provide strings when using {@link com.jagrosh.jdautilities.command.CommandClientBuilder#setEmojis(String, String, String)
  *                      CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that do
- *                      not match the custom emote format specified in {@link net.dv8tion.jda.api.entities.Emote#getAsMention()
+ *                      not match the custom emote format specified in {@link Emoji#getName()} ()
  *                      Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
  *
  *         <p><b>5)</b> Avoid using {@link com.jagrosh.jdautilities.command.impl.CommandClientImpl#linkIds(long,

@@ -247,7 +247,7 @@ public abstract class Command
                     if(p.name().startsWith("VOICE"))
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
-                        VoiceChannel vc = gvc == null ? null : gvc.getChannel();
+                        VoiceChannel vc = gvc == null ? null : gvc.getChannel().getJDA().getVoiceChannelById(event.getChannel().getIdLong());
                         if(vc==null)
                         {
                             terminate(event, event.getClient().getError()+" You must be in a voice channel to use that!");

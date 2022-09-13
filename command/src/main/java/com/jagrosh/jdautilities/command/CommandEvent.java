@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -209,7 +210,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed)
     {
-        event.getChannel().sendMessage(embed).queue(m -> {
+        event.getChannel().sendMessageEmbeds(embed).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
         });
@@ -231,7 +232,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed, Consumer<Message> success)
     {
-    	event.getChannel().sendMessage(embed).queue(m -> {
+    	event.getChannel().sendMessageEmbeds(embed).queue(m -> {
     	    if(event.isFromType(ChannelType.TEXT))
     	        linkId(m);
     	    success.accept(m);
@@ -256,7 +257,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
-        event.getChannel().sendMessage(embed).queue(m -> {
+        event.getChannel().sendMessageEmbeds(embed).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
             success.accept(m);
@@ -412,7 +413,7 @@ public class CommandEvent
     public void replyOrAlternate(MessageEmbed embed, String alternateMessage)
     {
         try {
-            event.getChannel().sendMessage(embed).queue();
+            event.getChannel().sendMessageEmbeds(embed).queue();
         } catch(PermissionException e) {
             reply(alternateMessage);
         }
@@ -564,7 +565,7 @@ public class CommandEvent
             reply(embed);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue());
         }
     }
 
@@ -588,10 +589,10 @@ public class CommandEvent
     public void replyInDm(MessageEmbed embed, Consumer<Message> success)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(embed).queue(success);
+            getPrivateChannel().sendMessageEmbeds(embed).queue(success);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success));
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue(success));
         }
     }
 
@@ -617,10 +618,10 @@ public class CommandEvent
     public void replyInDm(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(embed).queue(success, failure);
+            getPrivateChannel().sendMessageEmbeds(embed).queue(success, failure);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success, failure), failure);
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue(success, failure), failure);
         }
     }
 
@@ -907,7 +908,7 @@ public class CommandEvent
             return;
         try
         {
-            event.getMessage().addReaction(reaction.replaceAll("<a?:(.+):(\\d+)>", "$1:$2")).queue();
+            event.getMessage().addReaction(Emoji.fromFormatted(reaction.replaceAll("<a?:(.+):(\\d+)>", "$1:$2"))).queue();
         }
         catch(PermissionException ignored) {}
     }
@@ -1139,7 +1140,7 @@ public class CommandEvent
      */
     public PrivateChannel getPrivateChannel()
     {
-        return event.getPrivateChannel();
+        return event.getChannel().asPrivateChannel();
     }
     
     /**
@@ -1161,7 +1162,7 @@ public class CommandEvent
      */
     public TextChannel getTextChannel()
     {
-        return event.getTextChannel();
+        return event.getChannel().asTextChannel();
     }
     
     /**

@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -142,7 +143,7 @@ public class OrderedMenu extends Menu
         // Does not have permission to add reactions
         if(message.getChannelType() == ChannelType.TEXT
                 && !allowTypedInput 
-                && !message.getGuild().getSelfMember().hasPermission(message.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
+                && !message.getGuild().getSelfMember().hasPermission(message.getChannel().asTextChannel(), Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(message.editMessage(getMessage()));
     }
@@ -163,11 +164,11 @@ public class OrderedMenu extends Menu
                 {
                     // If this is not the last run of this loop
                     if(i < choices.size()-1)
-                        m.addReaction(getEmoji(i)).queue();
+                        m.addReaction(Emoji.fromUnicode(getEmoji(i))).queue();
                     // If this is the last run of this loop
                     else 
                     {
-                        RestAction<Void> re = m.addReaction(getEmoji(i));
+                        RestAction<Void> re = m.addReaction(Emoji.fromUnicode(getEmoji(i)));
                         // If we're using the cancel function we want
                         // to add a "step" so we queue the last emoji being
                         // added and then make the RestAction to start waiting
@@ -175,7 +176,7 @@ public class OrderedMenu extends Menu
                         if(useCancel)
                         {
                             re.queue(); // queue the last emoji
-                            re = m.addReaction(CANCEL);
+                            re = m.addReaction(Emoji.fromUnicode(CANCEL));
                         }
                         // queue the last emoji or the cancel button
                         re.queue(v -> {
@@ -219,13 +220,13 @@ public class OrderedMenu extends Menu
             {
                 MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                 // Process which reaction it is
-                if(event.getReaction().getReactionEmote().getName().equals(CANCEL))
+                if(event.getReaction().getEmoji().getName().equals(CANCEL))
                     cancel.accept(m);
                 else
                     // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                     // but from 1 to number of choices. So the first choice will correspond to 1, the second
                     // choice to 2, etc.
-                    action.accept(m, getNumber(event.getReaction().getReactionEmote().getName()));
+                    action.accept(m, getNumber(event.getReaction().getEmoji().getName()));
             }
             // If it's a valid MessageReceivedEvent
             else if (e instanceof MessageReceivedEvent)
@@ -249,13 +250,13 @@ public class OrderedMenu extends Menu
             return isValidReaction(m, e);
         }, e -> {
             m.delete().queue();
-            if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
+            if(e.getReaction().getEmoji().getName().equals(CANCEL))
                 cancel.accept(m);
             else
                 // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                 // but from 1 to number of choices. So the first choice will correspond to 1, the second
                 // choice to 2, etc.
-                action.accept(m, getNumber(e.getReaction().getReactionEmote().getName()));
+                action.accept(m, getNumber(e.getReaction().getEmoji().getName()));
         }, timeout, unit, () -> cancel.accept(m));
     }
 
@@ -268,7 +269,7 @@ public class OrderedMenu extends Menu
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
             sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));
-        mbuilder.setEmbed(new EmbedBuilder().setColor(color)
+        mbuilder.setEmbeds(new EmbedBuilder().setColor(color)
                 .setDescription(description==null ? sb.toString() : description+sb.toString()).build());
         return mbuilder.build();
     }
@@ -282,10 +283,10 @@ public class OrderedMenu extends Menu
         if(!isValidUser(e.getUser(), e.isFromGuild() ? e.getGuild() : null))
             return false;
         // The reaction is the cancel reaction
-        if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
+        if(e.getReaction().getEmoji().getName().equals(CANCEL))
             return true;
 
-        int num = getNumber(e.getReaction().getReactionEmote().getName());
+        int num = getNumber(e.getReaction().getEmoji().getName());
         return !(num<0 || num>choices.size());
     }
     
