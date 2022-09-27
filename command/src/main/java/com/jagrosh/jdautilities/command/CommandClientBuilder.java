@@ -223,7 +223,7 @@ public class CommandClientBuilder
 
     /**
      * Sets the {@link net.dv8tion.jda.api.entities.Activity Game} to use when the bot is ready.
-     * <br>Can be set to {@code null} for no activity.
+     * <br>Can be set to {@code null} for JDA Utilities to not set it.
      * 
      * @param  activity
      *         The Game to use when the bot is ready
