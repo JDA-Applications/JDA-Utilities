@@ -441,7 +441,7 @@ public final class FinderUtil
                 return Collections.singletonList(tc);
         }
 
-        return genericTextChannelSearch(query, guild.getTextChannelCache());
+        return genericGuildChannelSearch(query, guild.getTextChannelCache());
     }
 
     private static List<TextChannel> jdaTextChannelSearch(String query, JDA jda, boolean useShardManager)
@@ -464,34 +464,7 @@ public final class FinderUtil
                 return Collections.singletonList(tc);
         }
 
-        return genericTextChannelSearch(query, manager != null? manager.getTextChannelCache() : jda.getTextChannelCache());
-    }
-
-    private static List<TextChannel> genericTextChannelSearch(String query, SnowflakeCacheView<TextChannel> cache)
-    {
-        ArrayList<TextChannel> exact = new ArrayList<>();
-        ArrayList<TextChannel> wrongcase = new ArrayList<>();
-        ArrayList<TextChannel> startswith = new ArrayList<>();
-        ArrayList<TextChannel> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
-        cache.forEach((tc) -> {
-            String name = tc.getName();
-            if(name.equals(query))
-                exact.add(tc);
-            else if(name.equalsIgnoreCase(query) && exact.isEmpty())
-                wrongcase.add(tc);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
-                startswith.add(tc);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
-                contains.add(tc);
-        });
-        if(!exact.isEmpty())
-            return Collections.unmodifiableList(exact);
-        if(!wrongcase.isEmpty())
-            return Collections.unmodifiableList(wrongcase);
-        if(!startswith.isEmpty())
-            return Collections.unmodifiableList(startswith);
-        return Collections.unmodifiableList(contains);
+        return genericGuildChannelSearch(query, manager != null? manager.getTextChannelCache() : jda.getTextChannelCache());
     }
 
     /**
@@ -557,7 +530,7 @@ public final class FinderUtil
             if(vc!=null)
                 return Collections.singletonList(vc);
         }
-        return genericVoiceChannelSearch(query, guild.getVoiceChannelCache());
+        return genericGuildChannelSearch(query, guild.getVoiceChannelCache());
     }
 
     private static List<VoiceChannel> jdaVoiceChannelSearch(String query, JDA jda, boolean useShardManager)
@@ -571,34 +544,7 @@ public final class FinderUtil
                 return Collections.singletonList(vc);
         }
 
-        return genericVoiceChannelSearch(query, manager != null? manager.getVoiceChannelCache() : jda.getVoiceChannelCache());
-    }
-
-    private static List<VoiceChannel> genericVoiceChannelSearch(String query, SnowflakeCacheView<VoiceChannel> cache)
-    {
-        ArrayList<VoiceChannel> exact = new ArrayList<>();
-        ArrayList<VoiceChannel> wrongcase = new ArrayList<>();
-        ArrayList<VoiceChannel> startswith = new ArrayList<>();
-        ArrayList<VoiceChannel> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
-        cache.forEach((vc) -> {
-            String name = vc.getName();
-            if(name.equals(query))
-                exact.add(vc);
-            else if(name.equalsIgnoreCase(query) && exact.isEmpty())
-                wrongcase.add(vc);
-            else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
-                startswith.add(vc);
-            else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
-                contains.add(vc);
-        });
-        if(!exact.isEmpty())
-            return Collections.unmodifiableList(exact);
-        if(!wrongcase.isEmpty())
-            return Collections.unmodifiableList(wrongcase);
-        if(!startswith.isEmpty())
-            return Collections.unmodifiableList(startswith);
-        return Collections.unmodifiableList(contains);
+        return genericGuildChannelSearch(query, manager != null? manager.getVoiceChannelCache() : jda.getVoiceChannelCache());
     }
 
     /**
@@ -665,7 +611,7 @@ public final class FinderUtil
                 return Collections.singletonList(cat);
         }
 
-        return genericCategorySearch(query, guild.getCategoryCache());
+        return genericGuildChannelSearch(query, guild.getCategoryCache());
     }
 
     private static List<Category> jdaCategorySearch(String query, JDA jda, boolean useShardManager)
@@ -679,26 +625,89 @@ public final class FinderUtil
                 return Collections.singletonList(cat);
         }
 
-        return genericCategorySearch(query, jda.getCategoryCache());
+        return genericGuildChannelSearch(query, jda.getCategoryCache());
     }
 
-    private static List<Category> genericCategorySearch(String query, SnowflakeCacheView<Category> cache)
+    /**
+     * Queries a provided instance of {@link net.dv8tion.jda.api.JDA JDA} for
+     * {@link net.dv8tion.jda.api.entities.StoreChannel StoreChannels}.<p>
+     *
+     * <p>The standard search does not follow any special cases.
+     *
+     * @param  query
+     *         The String query to search by
+     * @param  jda
+     *         The instance of JDA to search from
+     *
+     * @return A possibly-empty {@link java.util.List List} of StoreChannels found by the query from the provided JDA instance.
+     */
+    public static List<StoreChannel> findStoreChannels(String query, JDA jda)
     {
-        ArrayList<Category> exact = new ArrayList<>();
-        ArrayList<Category> wrongcase = new ArrayList<>();
-        ArrayList<Category> startswith = new ArrayList<>();
-        ArrayList<Category> contains = new ArrayList<>();
+        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+        if(channelMention.matches())
+        {
+            StoreChannel tc = jda.getStoreChannelById(channelMention.group(1));
+            if(tc!=null)
+                return Collections.singletonList(tc);
+        }
+        else if(DISCORD_ID.matcher(query).matches())
+        {
+            StoreChannel sc = jda.getStoreChannelById(query);
+            if(sc!=null)
+                return Collections.singletonList(sc);
+        }
+
+        return genericGuildChannelSearch(query, jda.getStoreChannelCache());
+    }
+
+    /**
+     * Queries a provided {@link net.dv8tion.jda.api.entities.Guild Guild} for
+     * {@link net.dv8tion.jda.api.entities.StoreChannel StoreChannels}.
+     *
+     * <p>The standard search does not follow any special cases.
+     *
+     * @param  query
+     *         The String query to search by
+     * @param  guild
+     *         The Guild to search from
+     *
+     * @return A possibly-empty {@link java.util.List List} of StoreChannels found by the query from the provided Guild.
+     */
+    public static List<StoreChannel> findStoreChannels(String query, Guild guild)
+    {
+        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+        if(channelMention.matches())
+        {
+            StoreChannel tc = guild.getStoreChannelById(channelMention.group(1));
+            if(tc!=null)
+                return Collections.singletonList(tc);
+        }
+        else if(DISCORD_ID.matcher(query).matches())
+        {
+            StoreChannel sc = guild.getStoreChannelById(query);
+            if(sc!=null)
+                return Collections.singletonList(sc);
+        }
+        return genericGuildChannelSearch(query, guild.getStoreChannelCache());
+    }
+
+    private static <T extends GuildChannel> List<T> genericGuildChannelSearch(String query, SnowflakeCacheView<T> cache)
+    {
+        ArrayList<T> exact = new ArrayList<>();
+        ArrayList<T> wrongcase = new ArrayList<>();
+        ArrayList<T> startswith = new ArrayList<>();
+        ArrayList<T> contains = new ArrayList<>();
         String lowerquery = query.toLowerCase();
-        cache.forEach(cat -> {
-            String name = cat.getName();
+        cache.forEach((c) -> {
+            String name = c.getName();
             if(name.equals(query))
-                exact.add(cat);
+                exact.add(c);
             else if(name.equalsIgnoreCase(query) && exact.isEmpty())
-                wrongcase.add(cat);
+                wrongcase.add(c);
             else if(name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
-                startswith.add(cat);
+                startswith.add(c);
             else if(name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
-                contains.add(cat);
+                contains.add(c);
         });
         if(!exact.isEmpty())
             return Collections.unmodifiableList(exact);
