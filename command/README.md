@@ -14,7 +14,7 @@ public class MyBot
         
         // Set your bot's prefix
         builder.setPrefix("!");
-        builder.setAlternatePrefix("+");
+        builder.setAlternativePrefix("+");
         
         // Add commands
         builder.addCommand(new CoolCommand());
@@ -26,7 +26,7 @@ public class MyBot
         
         new JDABuilder(AccountType.BOT)
             // ...
-            .addEventListener(client) // Add the new CommandClient as a listener
+            .addEventListeners(client) // Add the new CommandClient as a listener
             // ...
             .buildAsync();
     }
