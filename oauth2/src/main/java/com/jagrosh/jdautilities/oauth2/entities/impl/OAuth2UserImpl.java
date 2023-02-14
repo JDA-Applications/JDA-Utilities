@@ -83,7 +83,7 @@ public class OAuth2UserImpl implements OAuth2User
     @Override
     public String getEmail()
     {
-        if(Scope.contains(getSession().getScopes(), Scope.EMAIL))
+        if(!Scope.contains(getSession().getScopes(), Scope.EMAIL))
             throw new MissingScopeException("get email for user", Scope.EMAIL);
         return email;
     }
