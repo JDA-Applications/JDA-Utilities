@@ -23,6 +23,7 @@ import com.jagrosh.jdautilities.oauth2.session.Session;
 import com.jagrosh.jdautilities.oauth2.session.SessionController;
 import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException;
 import com.jagrosh.jdautilities.oauth2.state.StateController;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.OkHttpClient;
 
@@ -128,6 +129,28 @@ public interface OAuth2Client
     OAuth2Action<List<OAuth2Guild>> getGuilds(Session session);
 
     /**
+     * For the love of god and my sanity being broken, because I worked on this for 2 weeks. I am not going to document it now.
+     *
+     * @param  user
+     *         The User that should join the given Guild.
+     *
+     * @param guild
+     *        The Guild the User should join.
+     *
+     * @param botAuthorizationToken
+     *        The bot's authorization token.
+     *
+     * @return A {@link com.jagrosh.jdautilities.oauth2.requests.OAuth2Action OAuth2Action} for
+     *         the OAuth2Guilds to be retrieved.
+     *
+     * @throws com.jagrosh.jdautilities.oauth2.exceptions.MissingScopeException
+     *         If the provided Session does not have the 'guilds' scope.
+     */
+    @CheckReturnValue
+    OAuth2Action<OAuth2User> joinGuild(OAuth2User user, Guild guild, String botAuthorizationToken);
+
+
+    /**
      * Gets the client ID for this OAuth2Client.
      *
      * @return The client ID.
@@ -153,7 +176,7 @@ public interface OAuth2Client
      *
      * @return The client's SessionController.
      */
-    SessionController getSessionController();
+    SessionController<?> getSessionController();
 
     /**
      * Builder for creating OAuth2Client instances.
@@ -165,7 +188,7 @@ public interface OAuth2Client
     {
         private long clientId = -1;
         private String clientSecret;
-        private SessionController sessionController;
+        private SessionController<?> sessionController;
         private StateController stateController;
         private OkHttpClient client;
 
@@ -225,7 +248,7 @@ public interface OAuth2Client
          *
          * @return This builder.
          */
-        public Builder setSessionController(SessionController sessionController)
+        public Builder setSessionController(SessionController<?> sessionController)
         {
             this.sessionController = sessionController;
             return this;

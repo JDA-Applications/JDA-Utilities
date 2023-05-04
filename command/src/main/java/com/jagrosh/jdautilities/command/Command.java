@@ -20,10 +20,10 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 /**
  * <h1><b>Commands In JDA-Utilities</b></h1>
@@ -247,7 +247,7 @@ public abstract class Command
                     if(p.name().startsWith("VOICE"))
                     {
                         GuildVoiceState gvc = event.getMember().getVoiceState();
-                        VoiceChannel vc = gvc == null ? null : gvc.getChannel();
+                        VoiceChannel vc = gvc == null ? null : gvc.getChannel().asVoiceChannel();
                         if(vc==null)
                         {
                             terminate(event, event.getClient().getError()+" You must be in a voice channel to use that!");
@@ -354,7 +354,7 @@ public abstract class Command
     }
 
     /**
-     * Checks whether a command is allowed in a {@link net.dv8tion.jda.api.entities.TextChannel TextChannel}
+     * Checks whether a command is allowed in a {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel TextChannel}
      * by searching the channel topic for topic tags relating to the command.
      *
      * <p>{-{@link com.jagrosh.jdautilities.command.Command#name name}},
@@ -766,7 +766,7 @@ public abstract class Command
         USER("U:%d",""),
 
         /**
-         * Applies the cooldown to the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the
+         * Applies the cooldown to the {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel} the
          * command is called in.
          *
          * <p>The key for this is generated in the format
@@ -778,7 +778,7 @@ public abstract class Command
 
         /**
          * Applies the cooldown to the calling {@link net.dv8tion.jda.api.entities.User User} local to the
-         * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the command is called in.
+         * {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel} the command is called in.
          *
          * <p>The key for this is generated in the format
          * <ul>
@@ -851,7 +851,7 @@ public abstract class Command
          * Applies this cooldown globally.
          *
          * <p>As this implies: the command will be unusable on the instance of JDA in all types of
-         * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}s until the cooldown has ended.
+         * {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}s until the cooldown has ended.
          *
          * <p>The key for this is {@code <command-name>|globally}
          */

@@ -16,7 +16,7 @@
 package com.jagrosh.jdautilities.oauth2.requests;
 
 import com.jagrosh.jdautilities.oauth2.entities.impl.OAuth2ClientImpl;
-import net.dv8tion.jda.internal.requests.Method;
+import net.dv8tion.jda.api.requests.Method;
 import net.dv8tion.jda.internal.utils.Checks;
 import okhttp3.Headers;
 import okhttp3.Request;
@@ -39,16 +39,14 @@ import java.util.function.Consumer;
  */
 public abstract class OAuth2Action<T>
 {
-    protected static final Consumer DEFAULT_SUCCESS = t -> {};
-    protected static final Consumer<Throwable> DEFAULT_FAILURE = t -> {
-        OAuth2Requester.LOGGER.error("Requester encountered an error while processing response!", t);
-    };
+    protected final Consumer<T> DEFAULT_SUCCESS = t -> {};
+    protected static final Consumer<Throwable> DEFAULT_FAILURE = t -> OAuth2Requester.LOGGER.error("Requester encountered an error while processing response!", t);
 
     protected final OAuth2ClientImpl client;
     protected final Method method;
     protected final String url;
 
-    public OAuth2Action(OAuth2ClientImpl client, Method method, String url)
+    protected OAuth2Action(OAuth2ClientImpl client, Method method, String url)
     {
         Checks.notNull(client, "OAuth2Client");
         Checks.notNull(method, "Request method");
@@ -80,6 +78,9 @@ public abstract class OAuth2Action<T>
                 break;
             case POST:
                 builder.post(getBody());
+                break;
+            case PUT:
+                builder.put(getBody());
                 break;
             default:
                 throw new IllegalArgumentException(method.name() + " requests are not supported!");

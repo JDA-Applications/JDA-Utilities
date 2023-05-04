@@ -28,7 +28,10 @@ import java.time.format.DateTimeFormatter;
  */
 public class SessionData
 {
-    private final String identifier, accessToken, refreshToken, tokenType;
+    private final String identifier,
+            accessToken,
+            refreshToken,
+            tokenType;
     private final OffsetDateTime expiration;
     private final Scope[] scopes;
 
@@ -119,5 +122,10 @@ public class SessionData
         return String.format("SessionData(identifier: %s, access-token: %s, refresh-token: %s, type: %s, expires: %s)",
             getIdentifier(), getAccessToken(), getRefreshToken(), getTokenType(),
             getExpiration().format(DateTimeFormatter.RFC_1123_DATE_TIME));
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

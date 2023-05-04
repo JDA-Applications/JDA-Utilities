@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * OAuth2 representation of a Discord User.
@@ -54,7 +55,7 @@ public interface OAuth2User extends ISnowflake, IMentionable
      *
      * @return The user's Snowflake ID as a String.
      */
-    String getId();
+    @NotNull @Override String getId();
 
     /**
      * Gets the user's Snowflake ID as a {@code long}.
@@ -147,34 +148,12 @@ public interface OAuth2User extends ISnowflake, IMentionable
     String getEffectiveAvatarUrl();
 
     /**
-     * Gets whether or not this user is a bot.
-     *
-     * <p>While, at the time of writing this documentation, bots cannot
-     * authenticate applications, there may be a time in the future
-     * where they have such an ability.
-     *
-     * @return {@code false}
-     *
-     * @deprecated
-     *         Due to the nature of OAuth2 at this moment, bots are not
-     *         allowed to use the various urls provided.
-     *         <br>This method is scheduled for removal upon merging it
-     *         with <code>master</code> in JDA-Utilities 2.2
-     */
-    @Deprecated
-    default boolean isBot()
-    {
-        // Note: the code here has not changed from it's implementation.
-        return false;
-    }
-
-    /**
      * Gets the user as a discord formatted mention:
      * <br>{@code <@SNOWFLAKE_ID> }
      *
      * @return A discord formatted mention of this user.
      */
-    String getAsMention();
+    @NotNull String getAsMention();
 
     /**
      * Gets the corresponding {@link net.dv8tion.jda.api.entities.User JDA User}
