@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 /**
  *
@@ -75,6 +76,6 @@ public class ServerinfoCommand extends Command
             builder.setThumbnail(guild.getIconUrl());
         builder.setColor(owner == null ? null : owner.getColor());
         builder.setDescription(str);
-        event.reply(new MessageBuilder().append(title).setEmbed(builder.build()).build());
+        event.reply(new MessageCreateBuilder().setContent(title).setEmbeds(builder.build()).build());
     }
 }

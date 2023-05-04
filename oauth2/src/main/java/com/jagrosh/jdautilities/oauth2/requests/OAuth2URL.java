@@ -38,7 +38,8 @@ public enum OAuth2URL
         "client_secret=%s",
         "scope=%s"),
     CURRENT_USER("/users/@me"),
-    CURRENT_USER_GUILDS("/users/@me/guilds");
+    CURRENT_USER_GUILDS("/users/@me/guilds"),
+    GUILD_JOIN("/guilds/%guild_id%/members/%user_id%");
 
     public static final String BASE_API_URL = String.format("https://discord.com/api/v%d", OAuth2Client.DISCORD_REST_VERSION);
 
@@ -62,7 +63,7 @@ public enum OAuth2URL
                 b.append(queryParams[i]);
             }
 
-            this.formattableRoute = route + b.toString();
+            this.formattableRoute = route + b;
             this.queryParams = b.toString();
         }
         else
@@ -93,6 +94,22 @@ public enum OAuth2URL
 
     public String compile(Object... values)
     {
-        return BASE_API_URL + (hasQueryParams? String.format(formattableRoute, values) : formattableRoute);
+        if (hasQueryParams) {
+            return BASE_API_URL + String.format(formattableRoute, values);
+        } else {
+            String formatted = formattableRoute;
+
+            // TODO find a better way to do this.
+
+            if (formatted.contains("%guild_id%") && values.length >= 1) {
+                formatted = formatted.replace("%guild_id%", (String)values[0]);
+            }
+
+            if (formatted.contains("%user_id%") && values.length >= 2) {
+                formatted = formatted.replace("%user_id%", (String)values[1]);
+            }
+
+            return BASE_API_URL + formatted;
+        }
     }
 }

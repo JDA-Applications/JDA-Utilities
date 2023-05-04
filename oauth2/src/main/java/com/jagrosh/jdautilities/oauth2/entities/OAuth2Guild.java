@@ -16,11 +16,12 @@
 package com.jagrosh.jdautilities.oauth2.entities;
 
 import com.jagrosh.jdautilities.oauth2.OAuth2Client;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * OAuth2 representation of a Discord Server/Guild.
@@ -33,6 +34,24 @@ import java.util.List;
  */
 public interface OAuth2Guild extends ISnowflake
 {
+    /**
+     * Check if the Bot is on the Guild.
+     *
+     * @param jda The {@link JDA} that should be used.
+     *
+     * @return true, if the bot is on the Guild | false, if not.
+     */
+    boolean botJoined(JDA jda);
+
+    /**
+     * Check if the Bot is on the Guild.
+     *
+     * @param shardManager The {@link ShardManager} that should be used.
+     *
+     * @return true, if the bot is on the Guild | false, if not.
+     */
+    boolean botJoined(ShardManager shardManager);
+
     /**
      * Gets the underlying {@link com.jagrosh.jdautilities.oauth2.OAuth2Client OAuth2Client}
      * that created this OAuth2Guild.
@@ -67,7 +86,7 @@ public interface OAuth2Guild extends ISnowflake
      *
      * @return The Session User's raw permission value for the Guild.
      */
-    int getPermissionsRaw();
+    long getPermissionsRaw();
 
     /**
      * Gets the Session User's {@link net.dv8tion.jda.api.Permission Permissions} for the Guild.

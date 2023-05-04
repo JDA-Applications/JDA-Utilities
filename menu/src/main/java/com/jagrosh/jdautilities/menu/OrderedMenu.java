@@ -25,19 +25,23 @@ import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -89,7 +93,7 @@ public class OrderedMenu extends Menu
 
     /**
      * Shows the OrderedMenu as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * in the provided {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
@@ -97,24 +101,24 @@ public class OrderedMenu extends Menu
      * @throws java.lang.IllegalArgumentException
      *         If <b>all</b> of the following are violated simultaneously:
      *         <ul>
-     *             <li>Being sent to a {@link net.dv8tion.jda.api.entities.TextChannel TextChannel}.</li>
+     *             <li>Being sent to a {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel TextChannel}.</li>
      *             <li>This OrderedMenu does not allow typed input.</li>
      *             <li>The bot doesn't have {@link net.dv8tion.jda.api.Permission#MESSAGE_ADD_REACTION
      *             Permission.MESSAGE_ADD_REACTION} in the channel this menu is being sent to.</li>
      *         </ul>
      */
     @Override
-    public void display(MessageChannel channel)
+    public void display(MessageChannelUnion channel)
     {
         // This check is basically for whether or not the menu can even display.
         // Is from text channel
         // Does not allow typed input
         // Does not have permission to add reactions
-        if(channel.getType()==ChannelType.TEXT
+        if(channel.getType()== ChannelType.TEXT
                 && !allowTypedInput
                 && !((TextChannel)channel).getGuild().getSelfMember().hasPermission((TextChannel) channel, Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
-        initialize(channel.sendMessage(getMessage()));
+        initialize(channel.sendMessage(getMessageCreate()));
     }
 
     /**
@@ -127,7 +131,7 @@ public class OrderedMenu extends Menu
      * @throws java.lang.IllegalArgumentException
      *         If <b>all</b> of the following are violated simultaneously:
      *         <ul>
-     *             <li>Being sent to a {@link net.dv8tion.jda.api.entities.TextChannel TextChannel}.</li>
+     *             <li>Being sent to a {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel TextChannel}.</li>
      *             <li>This OrderedMenu does not allow typed input.</li>
      *             <li>The bot doesn't have {@link net.dv8tion.jda.api.Permission#MESSAGE_ADD_REACTION
      *             Permission.MESSAGE_ADD_REACTION} in the channel this menu is being sent to.</li>
@@ -142,7 +146,7 @@ public class OrderedMenu extends Menu
         // Does not have permission to add reactions
         if(message.getChannelType() == ChannelType.TEXT
                 && !allowTypedInput 
-                && !message.getGuild().getSelfMember().hasPermission(message.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
+                && !message.getGuild().getSelfMember().hasPermission(message.getGuildChannel(), Permission.MESSAGE_ADD_REACTION))
             throw new PermissionException("Must be able to add reactions if not allowing typed input!");
         initialize(message.editMessage(getMessage()));
     }
@@ -163,11 +167,11 @@ public class OrderedMenu extends Menu
                 {
                     // If this is not the last run of this loop
                     if(i < choices.size()-1)
-                        m.addReaction(getEmoji(i)).queue();
+                        m.addReaction(Emoji.fromUnicode(getEmoji(i))).queue();
                     // If this is the last run of this loop
                     else 
                     {
-                        RestAction<Void> re = m.addReaction(getEmoji(i));
+                        RestAction<Void> re = m.addReaction(Emoji.fromUnicode(getEmoji(i)));
                         // If we're using the cancel function we want
                         // to add a "step" so we queue the last emoji being
                         // added and then make the RestAction to start waiting
@@ -175,7 +179,7 @@ public class OrderedMenu extends Menu
                         if(useCancel)
                         {
                             re.queue(); // queue the last emoji
-                            re = m.addReaction(CANCEL);
+                            re = m.addReaction(Emoji.fromUnicode(CANCEL));
                         }
                         // queue the last emoji or the cancel button
                         re.queue(v -> {
@@ -219,13 +223,13 @@ public class OrderedMenu extends Menu
             {
                 MessageReactionAddEvent event = (MessageReactionAddEvent)e;
                 // Process which reaction it is
-                if(event.getReaction().getReactionEmote().getName().equals(CANCEL))
+                if(event.getReaction().getEmoji().getName().equals(CANCEL))
                     cancel.accept(m);
                 else
                     // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                     // but from 1 to number of choices. So the first choice will correspond to 1, the second
                     // choice to 2, etc.
-                    action.accept(m, getNumber(event.getReaction().getReactionEmote().getName()));
+                    action.accept(m, getNumber(event.getReaction().getEmoji().getName()));
             }
             // If it's a valid MessageReceivedEvent
             else if (e instanceof MessageReceivedEvent)
@@ -249,26 +253,39 @@ public class OrderedMenu extends Menu
             return isValidReaction(m, e);
         }, e -> {
             m.delete().queue();
-            if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
+            if(e.getReaction().getEmoji().getName().equals(CANCEL))
                 cancel.accept(m);
             else
                 // The int provided in the success consumer is not indexed from 0 to number of choices - 1,
                 // but from 1 to number of choices. So the first choice will correspond to 1, the second
                 // choice to 2, etc.
-                action.accept(m, getNumber(e.getReaction().getReactionEmote().getName()));
+                action.accept(m, getNumber(e.getReaction().getEmoji().getName()));
         }, timeout, unit, () -> cancel.accept(m));
     }
 
     // This is where the displayed message for the OrderedMenu is built.
-    private Message getMessage()
+    private MessageCreateData getMessageCreate()
     {
-        MessageBuilder mbuilder = new MessageBuilder();
+        MessageCreateBuilder mbuilder = new MessageCreateBuilder();
         if(text!=null)
-            mbuilder.append(text);
+            mbuilder.setContent(text);
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
             sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));
-        mbuilder.setEmbed(new EmbedBuilder().setColor(color)
+        mbuilder.setEmbeds(new EmbedBuilder().setColor(color)
+                .setDescription(description==null ? sb.toString() : description+sb.toString()).build());
+        return mbuilder.build();
+    }
+
+    private MessageEditData getMessage()
+    {
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
+        if(text!=null)
+            mbuilder.setContent(text);
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<choices.size(); i++)
+            sb.append("\n").append(getEmoji(i)).append(" ").append(choices.get(i));
+        mbuilder.setEmbeds(new EmbedBuilder().setColor(color)
                 .setDescription(description==null ? sb.toString() : description+sb.toString()).build());
         return mbuilder.build();
     }
@@ -282,10 +299,10 @@ public class OrderedMenu extends Menu
         if(!isValidUser(e.getUser(), e.isFromGuild() ? e.getGuild() : null))
             return false;
         // The reaction is the cancel reaction
-        if(e.getReaction().getReactionEmote().getName().equals(CANCEL))
+        if(e.getReaction().getEmoji().getName().equals(CANCEL))
             return true;
 
-        int num = getNumber(e.getReaction().getReactionEmote().getName());
+        int num = getNumber(e.getReaction().getEmoji().getName());
         return !(num<0 || num>choices.size());
     }
     

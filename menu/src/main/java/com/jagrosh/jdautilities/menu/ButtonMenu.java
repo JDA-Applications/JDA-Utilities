@@ -24,15 +24,17 @@ import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -48,11 +50,11 @@ public class ButtonMenu extends Menu
     private final String text;
     private final String description;
     private final List<String> choices;
-    private final Consumer<ReactionEmote> action;
+    private final Consumer<Emoji> action;
     private final Consumer<Message> finalAction;
     
     ButtonMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit,
-               Color color, String text, String description, List<String> choices, Consumer<ReactionEmote> action, Consumer<Message> finalAction)
+               Color color, String text, String description, List<String> choices, Consumer<Emoji> action, Consumer<Message> finalAction)
     {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
@@ -65,15 +67,15 @@ public class ButtonMenu extends Menu
 
     /**
      * Shows the ButtonMenu as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * in the provided {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
      */
     @Override
-    public void display(MessageChannel channel)
+    public void display(MessageChannelUnion channel)
     {
-        initialize(channel.sendMessage(getMessage()));
+        initialize(channel.sendMessage(getMessageCreate()));
     }
 
     /**
@@ -97,16 +99,16 @@ public class ButtonMenu extends Menu
             for(int i=0; i<choices.size(); i++)
             {
                 // Get the emote to display.
-                Emote emote;
+                Emoji emote;
                 try {
-                    emote = m.getJDA().getEmoteById(choices.get(i));
+                    emote = m.getJDA().getEmojiById(choices.get(i));
                 } catch(Exception e) {
                     emote = null;
                 }
                 // If the emote is null that means that it might be an emoji.
                 // If it's neither, that's on the developer and we'll let it
                 // throw an error when we queue a rest action.
-                RestAction<Void> r = emote==null ? m.addReaction(choices.get(i)) : m.addReaction(emote);
+                RestAction<Void> r = emote==null ? m.addReaction(Emoji.fromFormatted(choices.get(i))) : m.addReaction(emote);
                 if(i+1<choices.size())
                     r.queue(); // If there is still more reactions to add we delay using the EventWaiter
                 else
@@ -121,9 +123,7 @@ public class ButtonMenu extends Menu
 
                             // If the reaction is an Emote we get the Snowflake,
                             // otherwise we get the unicode value.
-                            String re = event.getReaction().getReactionEmote().isEmote()
-                                ? event.getReaction().getReactionEmote().getId()
-                                : event.getReaction().getReactionEmote().getName();
+                            String re = event.getReaction().getEmoji().getAsReactionCode();
 
                             // If the value we got is not registered as a button to
                             // the ButtonMenu being displayed we return false.
@@ -138,7 +138,7 @@ public class ButtonMenu extends Menu
                             // is fired and processed above.
 
                             // Preform the specified action with the ReactionEmote
-                            action.accept(event.getReaction().getReactionEmote());
+                            action.accept(event.getReaction().getEmoji());
                             finalAction.accept(m);
                         }, timeout, unit, () -> finalAction.accept(m));
                     });
@@ -148,13 +148,24 @@ public class ButtonMenu extends Menu
     }
 
     // Generates a ButtonMenu message
-    private Message getMessage()
+    private MessageCreateData getMessageCreate()
     {
-        MessageBuilder mbuilder = new MessageBuilder();
+        MessageCreateBuilder mbuilder = new MessageCreateBuilder();
         if(text!=null)
-            mbuilder.append(text);
+            mbuilder.setContent(text);
         if(description!=null)
-            mbuilder.setEmbed(new EmbedBuilder().setColor(color).setDescription(description).build());
+            mbuilder.setEmbeds(new EmbedBuilder().setColor(color).setDescription(description).build());
+        return mbuilder.build();
+    }
+
+    // Generates a ButtonMenu message
+    private MessageEditData getMessage()
+    {
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
+        if(text!=null)
+            mbuilder.setContent(text);
+        if(description!=null)
+            mbuilder.setEmbeds(new EmbedBuilder().setColor(color).setDescription(description).build());
         return mbuilder.build();
     }
 
@@ -170,7 +181,7 @@ public class ButtonMenu extends Menu
         private String text;
         private String description;
         private final List<String> choices = new LinkedList<>();
-        private Consumer<ReactionEmote> action;
+        private Consumer<Emoji> action;
         private Consumer<Message> finalAction = (m) -> {};
 
         /**
@@ -253,7 +264,7 @@ public class ButtonMenu extends Menu
          *
          * @return This builder
          */
-        public Builder setAction(Consumer<ReactionEmote> action)
+        public Builder setAction(Consumer<Emoji> action)
         {
             this.action = action;
             return this;
@@ -280,8 +291,8 @@ public class ButtonMenu extends Menu
         /**
          * Adds a single String unicode emoji as a button choice.
          *
-         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.Emote Emote} should be
-         * added using {@link ButtonMenu.Builder#addChoice(Emote)
+         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.emoji.Emoji Emote} should be
+         * added using {@link ButtonMenu.Builder#addChoice(Emoji)
          * ButtonMenu.Builder#addChoice(Emote)}.
          *
          * @param  emoji
@@ -296,7 +307,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Adds a single custom {@link net.dv8tion.jda.api.entities.Emote Emote} as button choices.
+         * Adds a single custom {@link net.dv8tion.jda.api.entities.emoji.Emoji  Emote} as button choices.
          *
          * <p>Any regular unicode emojis should be added using {@link
          * ButtonMenu.Builder#addChoice(String)
@@ -307,16 +318,16 @@ public class ButtonMenu extends Menu
          *
          * @return This builder
          */
-        public Builder addChoice(Emote emote)
+        public Builder addChoice(Emoji emote)
         {
-            return addChoice(emote.getId());
+            return addChoice(emote.getFormatted());
         }
 
         /**
          * Adds String unicode emojis as button choices.
          *
-         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.Emote Emote}s should be
-         * added using {@link ButtonMenu.Builder#addChoices(Emote...)
+         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.emoji.Emoji  Emote}s should be
+         * added using {@link ButtonMenu.Builder#addChoices(Emoji...)
          * ButtonMenu.Builder#addChoices(Emote...)}.
          *
          * @param  emojis
@@ -332,7 +343,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Adds custom {@link net.dv8tion.jda.api.entities.Emote Emote}s as button choices.
+         * Adds custom {@link net.dv8tion.jda.api.entities.emoji.Emoji  Emote}s as button choices.
          *
          * <p>Any regular unicode emojis should be added using {@link
          * ButtonMenu.Builder#addChoices(String...)
@@ -343,9 +354,9 @@ public class ButtonMenu extends Menu
          *
          * @return This builder
          */
-        public Builder addChoices(Emote... emotes)
+        public Builder addChoices(Emoji... emotes)
         {
-            for(Emote emote : emotes)
+            for(Emoji emote : emotes)
                 addChoice(emote);
             return this;
         }
@@ -353,8 +364,8 @@ public class ButtonMenu extends Menu
         /**
          * Sets the String unicode emojis as button choices.
          *
-         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.Emote Emote}s should be
-         * set using {@link ButtonMenu.Builder#setChoices(Emote...)
+         * <p>Any non-unicode {@link net.dv8tion.jda.api.entities.emoji.Emoji  Emote}s should be
+         * set using {@link ButtonMenu.Builder#setChoices(Emoji...)
          * ButtonMenu.Builder#setChoices(Emote...)}.
          *
          * @param  emojis
@@ -369,7 +380,7 @@ public class ButtonMenu extends Menu
         }
 
         /**
-         * Sets the {@link net.dv8tion.jda.api.entities.Emote Emote}s as button choices.
+         * Sets the {@link net.dv8tion.jda.api.entities.emoji.Emoji  Emote}s as button choices.
          *
          * <p>Any regular unicode emojis should be set using {@link
          * ButtonMenu.Builder#setChoices(String...)
@@ -380,7 +391,7 @@ public class ButtonMenu extends Menu
          *
          * @return This builder
          */
-        public Builder setChoices(Emote... emotes)
+        public Builder setChoices(Emoji... emotes)
         {
             this.choices.clear();
             return addChoices(emotes);

@@ -22,7 +22,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
-def versionInfo = [major: '3', minor: '1', revision: '0']
+def versionInfo = [major: '4', minor: '0', revision: '0']
 
 task build {
     group = 'build'
@@ -36,7 +36,7 @@ allprojects {
     version = versionInfo.values().join('.')
 
     ext {
-        jdaVersion = '4.3.0_313'
+        jdaVersion = '5.0.0-beta.8'
         slf4jVersion = '1.7.25'
         okhttpVersion = '3.13.0'
         findbugsVersion = '3.0.2'
@@ -92,9 +92,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven {
-            url "https://m2.dv8tion.net/releases"
-        }
     }
 
     build {

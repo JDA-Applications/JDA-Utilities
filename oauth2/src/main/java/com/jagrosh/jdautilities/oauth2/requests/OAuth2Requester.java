@@ -18,6 +18,7 @@ package com.jagrosh.jdautilities.oauth2.requests;
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -57,21 +58,21 @@ public class OAuth2Requester
                         if(value != null)
                             success.accept(value);
                     }
-                    catch(Throwable t)
+                    catch(Exception ex)
                     {
-                        LOGGER.error("OAuth2Action success callback threw an exception!", t);
+                        LOGGER.error("OAuth2Action success callback threw an exception!", ex);
                     }
                 }
-                catch(Throwable t)
+                catch(Exception ex)
                 {
                     // Handle end-user exception differently
                     try
                     {
-                        failure.accept(t);
+                        failure.accept(ex);
                     }
-                    catch(Throwable t1)
+                    catch(Exception ex1)
                     {
-                        LOGGER.error("OAuth2Action success callback threw an exception!", t1);
+                        LOGGER.error("OAuth2Action success callback threw an exception!", ex1);
                     }
                 }
                 finally
@@ -81,7 +82,7 @@ public class OAuth2Requester
             }
 
             @Override
-            public void onFailure(Call call, IOException e)
+            public void onFailure(@NotNull Call call, @NotNull IOException e)
             {
                 LOGGER.error("Requester encountered an error when submitting a request!", e);
             }
@@ -98,7 +99,7 @@ public class OAuth2Requester
         }
     }
 
-    private static void logSuccessfulRequest(OAuth2Action request)
+    private static void logSuccessfulRequest(OAuth2Action<?> request)
     {
         LOGGER.debug("Got a response for {} - {}\nHeaders: {}", request.getMethod(),
             request.getUrl(), request.getHeaders());

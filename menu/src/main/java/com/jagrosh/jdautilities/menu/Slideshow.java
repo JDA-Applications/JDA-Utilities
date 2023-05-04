@@ -26,16 +26,20 @@ import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -94,13 +98,13 @@ public class Slideshow extends Menu
 
     /**
      * Begins pagination on page 1 as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * in the provided {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
      */
     @Override
-    public void display(MessageChannel channel)
+    public void display(MessageChannelUnion channel)
     {
         paginate(channel, 1);
     }
@@ -120,7 +124,7 @@ public class Slideshow extends Menu
     
     /**
      * Begins pagination as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting
+     * in the provided {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}, starting
      * on whatever page number is provided.
      * 
      * @param  channel
@@ -128,13 +132,13 @@ public class Slideshow extends Menu
      * @param  pageNum
      *         The page number to begin on
      */
-    public void paginate(MessageChannel channel, int pageNum)
+    public void paginate(MessageChannelUnion channel, int pageNum)
     {
         if(pageNum<1)
             pageNum = 1;
         else if (pageNum>urls.size())
             pageNum = urls.size();
-        Message msg = renderPage(pageNum);
+        MessageCreateData msg = renderPageCreate(pageNum);
         initialize(channel.sendMessage(msg), pageNum);
     }
     
@@ -154,7 +158,7 @@ public class Slideshow extends Menu
             pageNum = 1;
         else if (pageNum>urls.size())
             pageNum = urls.size();
-        Message msg = renderPage(pageNum);
+        MessageEditData msg = renderPage(pageNum);
         initialize(message.editMessage(msg), pageNum);
     }
     
@@ -164,17 +168,17 @@ public class Slideshow extends Menu
             if(urls.size()>1)
             {
                 if(bulkSkipNumber > 1)
-                    m.addReaction(BIG_LEFT).queue();
-                m.addReaction(LEFT).queue();
-                m.addReaction(STOP).queue();
+                    m.addReaction(Emoji.fromUnicode(BIG_LEFT)).queue();
+                m.addReaction(Emoji.fromUnicode(LEFT)).queue();
+                m.addReaction(Emoji.fromUnicode(STOP)).queue();
                 if(bulkSkipNumber > 1)
-                    m.addReaction(RIGHT).queue();
-                m.addReaction(bulkSkipNumber > 1? BIG_RIGHT : RIGHT)
+                    m.addReaction(Emoji.fromUnicode(RIGHT)).queue();
+                m.addReaction(bulkSkipNumber > 1? Emoji.fromUnicode(BIG_RIGHT) : Emoji.fromUnicode(RIGHT))
                  .queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else if(waitOnSinglePage)
             {
-                m.addReaction(STOP).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
+                m.addReaction(Emoji.fromUnicode(STOP)).queue(v -> pagination(m, pageNum), t -> pagination(m, pageNum));
             }
             else
             {
@@ -265,7 +269,7 @@ public class Slideshow extends Menu
     {
         if(event.getMessageIdLong() != messageId)
             return false;
-        switch(event.getReactionEmote().getName())
+        switch(event.getReaction().getEmoji().getName())
         {
             // LEFT, STOP, RIGHT, BIG_LEFT, BIG_RIGHT all fall-through to
             // return if the User is valid or not. If none trip, this defaults
@@ -287,7 +291,7 @@ public class Slideshow extends Menu
     {
         int newPageNum = pageNum;
         int pages = urls.size();
-        switch(event.getReaction().getReactionEmote().getName())
+        switch(event.getReaction().getEmoji().getName())
         {
             case LEFT:
                 if(newPageNum == 1 && wrapPageEnds)
@@ -336,18 +340,33 @@ public class Slideshow extends Menu
         message.editMessage(renderPage(newPageNum)).queue(m -> pagination(m, n));
     }
     
-    private Message renderPage(int pageNum)
+    private MessageCreateData renderPageCreate(int pageNum)
     {
-        MessageBuilder mbuilder = new MessageBuilder();
+        MessageCreateBuilder mbuilder = new MessageCreateBuilder();
         EmbedBuilder ebuilder = new EmbedBuilder();
         ebuilder.setImage(urls.get(pageNum-1));
         ebuilder.setColor(color.apply(pageNum, urls.size()));
         ebuilder.setDescription(description.apply(pageNum, urls.size()));
         if(showPageNumbers)
             ebuilder.setFooter("Image "+pageNum+"/"+urls.size(), null);
-        mbuilder.setEmbed(ebuilder.build());
+        mbuilder.setEmbeds(ebuilder.build());
         if(text!=null)
-            mbuilder.append(text.apply(pageNum, urls.size()));
+            mbuilder.setContent(text.apply(pageNum, urls.size()));
+        return mbuilder.build();
+    }
+
+    private MessageEditData renderPage(int pageNum)
+    {
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
+        EmbedBuilder ebuilder = new EmbedBuilder();
+        ebuilder.setImage(urls.get(pageNum-1));
+        ebuilder.setColor(color.apply(pageNum, urls.size()));
+        ebuilder.setDescription(description.apply(pageNum, urls.size()));
+        if(showPageNumbers)
+            ebuilder.setFooter("Image "+pageNum+"/"+urls.size(), null);
+        mbuilder.setEmbeds(ebuilder.build());
+        if(text!=null)
+            mbuilder.setContent(text.apply(pageNum, urls.size()));
         return mbuilder.build();
     }
 
@@ -626,7 +645,7 @@ public class Slideshow extends Menu
         /**
          * Sets the {@link com.jagrosh.jdautilities.menu.Slideshow Slideshow} to traverse
          * left or right when a provided text input is sent in the form of a Message to
-         * the {@link net.dv8tion.jda.api.entities.GuildChannel GuildChannel} the menu is displayed in.
+         * the {@link net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion GuildChannel} the menu is displayed in.
          *
          * <p>If one or both these parameters are provided {@code null} this resets
          * both of them and they will no longer be available when the Slideshow is built.

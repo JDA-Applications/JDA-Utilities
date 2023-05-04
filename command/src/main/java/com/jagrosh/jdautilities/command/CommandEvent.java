@@ -17,13 +17,21 @@ package com.jagrosh.jdautilities.command;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.jagrosh.jdautilities.command.impl.CommandClientImpl;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -35,7 +43,7 @@ import net.dv8tion.jda.internal.utils.Checks;
  * development. There are also "extension" methods for all methods found in MessageReceivedEvent.
  * 
  * <p>Methods with "reply" in their name can be used to instantly send a {@link net.dv8tion.jda.api.entities.Message Message}
- * response to the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} the MessageReceivedEvent was in.
+ * response to the {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel} the MessageReceivedEvent was in.
  * <br>All {@link net.dv8tion.jda.api.requests.RestAction RestAction} returned by sending a response using these
  * methods automatically {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}, and no further developer
  * input is required.
@@ -113,7 +121,7 @@ public class CommandEvent
      * contained by this CommandEvent.
      *
      * <p>This method is exposed for those who wish to use linked deletion but may require usage of
-     * {@link net.dv8tion.jda.api.entities.MessageChannel#sendMessage(Message) MessageChannel#sendMessage()}
+     * {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion#sendMessage(CharSequence)} )} MessageChannel#sendMessage()}
      * or for other reasons cannot use the standard {@code reply()} methods.
      *
      * <p>If the Message provided is <b>not</b> from the bot (IE: {@link net.dv8tion.jda.api.entities.SelfUser SelfUser}),
@@ -209,7 +217,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed)
     {
-        event.getChannel().sendMessage(embed).queue(m -> {
+        event.getChannel().sendMessageEmbeds(embed).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
         });
@@ -231,7 +239,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed, Consumer<Message> success)
     {
-    	event.getChannel().sendMessage(embed).queue(m -> {
+    	event.getChannel().sendMessageEmbeds(embed).queue(m -> {
     	    if(event.isFromType(ChannelType.TEXT))
     	        linkId(m);
     	    success.accept(m);
@@ -256,7 +264,7 @@ public class CommandEvent
      */
     public void reply(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
-        event.getChannel().sendMessage(embed).queue(m -> {
+        event.getChannel().sendMessageEmbeds(embed).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
                 linkId(m);
             success.accept(m);
@@ -273,7 +281,7 @@ public class CommandEvent
      * @param  message
      *         The Message to reply with
      */
-    public void reply(Message message)
+    public void reply(MessageCreateData message)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
@@ -295,7 +303,7 @@ public class CommandEvent
      * @param  success
      *         The Consumer to success after sending the Message is sent.
      */
-    public void reply(Message message, Consumer<Message> success)
+    public void reply(MessageCreateData message, Consumer<Message> success)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
@@ -320,7 +328,7 @@ public class CommandEvent
      * @param  failure
      *         The Consumer to run if an error occurs when sending the Message.
      */
-    public void reply(Message message, Consumer<Message> success, Consumer<Throwable> failure)
+    public void reply(MessageCreateData message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         event.getChannel().sendMessage(message).queue(m -> {
             if(event.isFromType(ChannelType.TEXT))
@@ -337,7 +345,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion#sendFiles(Collection)  MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  file
@@ -347,7 +355,7 @@ public class CommandEvent
      */
     public void reply(File file, String filename)
     {
-        event.getChannel().sendFile(file, filename).queue();
+        event.getChannel().sendFiles(FileUpload.fromData(file, filename)).queue();
     }
     
     /**
@@ -358,7 +366,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion#sendFiles(Collection) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
@@ -370,7 +378,7 @@ public class CommandEvent
      */
     public void reply(String message, File file, String filename)
     {
-        event.getChannel().sendFile(file, filename).content(message).queue();
+        event.getChannel().sendFiles(FileUpload.fromData(file, filename)).setContent(message).queue();
     }
     
     /**
@@ -412,7 +420,7 @@ public class CommandEvent
     public void replyOrAlternate(MessageEmbed embed, String alternateMessage)
     {
         try {
-            event.getChannel().sendMessage(embed).queue();
+            event.getChannel().sendMessageEmbeds(embed).queue();
         } catch(PermissionException e) {
             reply(alternateMessage);
         }
@@ -426,7 +434,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion#sendFiles(Collection) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * <p><b>NOTE:</b> This alternate String message can exceed the 2000 character cap, and will 
@@ -449,7 +457,7 @@ public class CommandEvent
     public void replyOrAlternate(String message, File file, String filename, String alternateMessage)
     {
         try {
-            event.getChannel().sendFile(file, filename).content(message).queue();
+            event.getChannel().sendFiles(FileUpload.fromData(file, filename)).setContent(message).queue();
         } catch(Exception e) {
             reply(alternateMessage);
         }
@@ -457,7 +465,7 @@ public class CommandEvent
 
     /**
      * Replies with a String message sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
-     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -478,13 +486,13 @@ public class CommandEvent
             reply(message);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message));
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue());
         }
     }
 
     /**
      * Replies with a String message sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
-     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -508,13 +516,13 @@ public class CommandEvent
             reply(message, success);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message, success));
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(success));
         }
     }
 
     /**
      * Replies with a String message sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
-     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -540,13 +548,13 @@ public class CommandEvent
             reply(message, success, failure);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> sendMessage(pc, message, success, failure), failure);
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(success, failure), failure);
         }
     }
 
     /**
      * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} sent to the
-     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -564,13 +572,13 @@ public class CommandEvent
             reply(embed);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue());
         }
     }
 
     /**
      * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} sent to the
-     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -588,16 +596,16 @@ public class CommandEvent
     public void replyInDm(MessageEmbed embed, Consumer<Message> success)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(embed).queue(success);
+            getPrivateChannel().sendMessageEmbeds(embed).queue(success);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success));
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue(success));
         }
     }
 
     /**
      * Replies with a {@link net.dv8tion.jda.api.entities.MessageEmbed MessageEmbed} sent to the
-     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -617,16 +625,16 @@ public class CommandEvent
     public void replyInDm(MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure)
     {
         if(event.isFromType(ChannelType.PRIVATE))
-            getPrivateChannel().sendMessage(embed).queue(success, failure);
+            getPrivateChannel().sendMessageEmbeds(embed).queue(success, failure);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessage(embed).queue(success, failure), failure);
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendMessageEmbeds(embed).queue(success, failure), failure);
         }
     }
 
     /**
      * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} sent to the
-     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -638,7 +646,7 @@ public class CommandEvent
      * @param  message
      *         The Message to reply with
      */
-    public void replyInDm(Message message)
+    public void replyInDm(MessageCreateData message)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             reply(message);
@@ -650,7 +658,7 @@ public class CommandEvent
 
     /**
      * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} sent to the
-     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -665,7 +673,7 @@ public class CommandEvent
      * @param  success
      *         The Consumer to queue after sending the Message is sent.
      */
-    public void replyInDm(Message message, Consumer<Message> success)
+    public void replyInDm(MessageCreateData message, Consumer<Message> success)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             getPrivateChannel().sendMessage(message).queue(success);
@@ -677,7 +685,7 @@ public class CommandEvent
 
     /**
      * Replies with a {@link net.dv8tion.jda.api.entities.Message Message} sent to the
-     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * calling {@link net.dv8tion.jda.api.entities.User User}'s {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      *
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -694,7 +702,7 @@ public class CommandEvent
      * @param  failure
      *         The Consumer to run if an error occurs when sending the Message.
      */
-    public void replyInDm(Message message, Consumer<Message> success, Consumer<Throwable> failure)
+    public void replyInDm(MessageCreateData message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         if(event.isFromType(ChannelType.PRIVATE))
             getPrivateChannel().sendMessage(message).queue(success, failure);
@@ -707,7 +715,7 @@ public class CommandEvent
     /**
      * Replies with a String message and a {@link java.io.File} with the provided name, or a default 
      * name if left null, and sent to the calling {@link net.dv8tion.jda.api.entities.User User}'s
-     * {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel}.
+     * {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel}.
      * 
      * <p>If the User to be Direct Messaged does not already have a PrivateChannel
      * open to send messages to, this method will automatically open one.
@@ -716,7 +724,7 @@ public class CommandEvent
      * sending the response as a {@link net.dv8tion.jda.api.entities.Message Message}
      * automatically does {@link net.dv8tion.jda.api.requests.RestAction#queue() RestAction#queue()}.
      * 
-     * <p>This method uses {@link net.dv8tion.jda.api.entities.MessageChannel#sendFile(File, String, net.dv8tion.jda.api.utils.AttachmentOption...) MessageChannel#sendFile(File, String, AttachmentOption...)}
+     * <p>This method uses {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion#sendFiles(Collection) MessageChannel#sendFile(File, String, AttachmentOption...)}
      * to send the File. For more information on what a bot may send using this, you may find the info in that method.
      * 
      * @param  message
@@ -732,7 +740,7 @@ public class CommandEvent
             reply(message, file, filename);
         else
         {
-            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFile(file, filename).content(message).queue());
+            event.getAuthor().openPrivateChannel().queue(pc -> pc.sendFiles(FileUpload.fromData(file, filename)).setContent(message).queue());
         }
     }
     
@@ -907,12 +915,12 @@ public class CommandEvent
             return;
         try
         {
-            event.getMessage().addReaction(reaction.replaceAll("<a?:(.+):(\\d+)>", "$1:$2")).queue();
+            event.getMessage().addReaction(Emoji.fromFormatted(reaction.replaceAll("<a?:(.+):(\\d+)>", "$1:$2"))).queue();
         }
         catch(PermissionException ignored) {}
     }
     
-    private void sendMessage(MessageChannel chan, String message)
+    private void sendMessage(MessageChannelUnion chan, String message)
     {
         ArrayList<String> messages = splitMessage(message);
         for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
@@ -924,7 +932,7 @@ public class CommandEvent
         }
     }
     
-    private void sendMessage(MessageChannel chan, String message, Consumer<Message> success)
+    private void sendMessage(MessageChannelUnion chan, String message, Consumer<Message> success)
     {
         ArrayList<String> messages = splitMessage(message);
         for(int i=0; i<MAX_MESSAGES && i<messages.size(); i++)
@@ -947,7 +955,7 @@ public class CommandEvent
         }
     }
 
-    private void sendMessage(MessageChannel chan, String message, Consumer<Message> success, Consumer<Throwable> failure)
+    private void sendMessage(MessageChannelUnion chan, String message, Consumer<Message> success, Consumer<Throwable> failure)
     {
         ArrayList<String> messages = splitMessage(message);
         for(int i = 0; i < MAX_MESSAGES && i < messages.size(); i++)
@@ -1066,19 +1074,19 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} that the CommandEvent
+     * Gets the {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel} that the CommandEvent
      * was triggered on.
      * 
      * @return The MessageChannel that the CommandEvent was triggered on
      */
-    public MessageChannel getChannel()
+    public MessageChannelUnion getChannel()
     {
         return event.getChannel();
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.api.entities.ChannelType ChannelType} of the
-     * {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} that the CommandEvent was triggered on.
+     * Gets the {@link net.dv8tion.jda.api.entities.channel.ChannelType ChannelType} of the
+     * {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel} that the CommandEvent was triggered on.
      * 
      * @return The ChannelType of the MessageChannel that this CommandEvent was triggered on
      */
@@ -1131,7 +1139,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.api.entities.PrivateChannel PrivateChannel} that this CommandEvent
+     * Gets the {@link net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel PrivateChannel} that this CommandEvent
      * may have taken place on, or {@code null} if it didn't happen on a PrivateChannel.
      * 
      * @return The PrivateChannel that this CommandEvent may have taken place on, or null
@@ -1139,7 +1147,7 @@ public class CommandEvent
      */
     public PrivateChannel getPrivateChannel()
     {
-        return event.getPrivateChannel();
+        return event.getChannel().asPrivateChannel();
     }
     
     /**
@@ -1153,7 +1161,7 @@ public class CommandEvent
     }
     
     /**
-     * Gets the {@link net.dv8tion.jda.api.entities.TextChannel TextChannel} that this CommandEvent
+     * Gets the {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel TextChannel} that this CommandEvent
      * may have taken place on, or {@code null} if it didn't happen on a TextChannel.
      * 
      * @return The TextChannel this CommandEvent may have taken place on, or null
@@ -1161,17 +1169,17 @@ public class CommandEvent
      */
     public TextChannel getTextChannel()
     {
-        return event.getTextChannel();
+        return event.getChannel().asTextChannel();
     }
     
     /**
-     * Compares a provided {@link net.dv8tion.jda.api.entities.ChannelType ChannelType} with the one this
+     * Compares a provided {@link net.dv8tion.jda.api.entities.channel.ChannelType ChannelType} with the one this
      * CommandEvent occurred on, returning {@code true} if they are the same ChannelType.
      * 
      * @param  channelType
      *         The ChannelType to compare
      *         
-     * @return {@code true} if the CommandEvent originated from a {@link net.dv8tion.jda.api.entities.MessageChannel}
+     * @return {@code true} if the CommandEvent originated from a {@link net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion}
      *         of the provided ChannelType, otherwise {@code false}.
      */
     public boolean isFromType(ChannelType channelType)

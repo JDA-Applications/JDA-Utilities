@@ -43,9 +43,11 @@ public class DefaultSessionController implements SessionController<DefaultSessio
         return created;
     }
 
-    public class DefaultSession implements Session
+    public static class DefaultSession implements Session
     {
-        private final String accessToken, refreshToken, tokenType;
+        private final String accessToken,
+                refreshToken,
+                tokenType;
         private final OffsetDateTime expiration;
         private final Scope[] scopes;
         

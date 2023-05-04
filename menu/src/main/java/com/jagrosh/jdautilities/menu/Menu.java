@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import javax.annotation.Nullable;
 
@@ -31,7 +32,7 @@ import javax.annotation.Nullable;
  * or key-phrases.
  *
  * <p>Classes extending this are able to take a provided {@link net.dv8tion.jda.api.entities.Message Message}
- * or {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel} and display a visualized "Menu"
+ * or {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel} and display a visualized "Menu"
  * as or in it.
  *
  * <p>The JDA-Utilities default implementations of this superclass typically handle input through
@@ -71,12 +72,12 @@ public abstract class Menu
     }
     
     /**
-     * Displays this Menu in a {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}.
+     * Displays this Menu in a {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}.
      * 
      * @param  channel
      *         The MessageChannel to display this Menu in
      */
-    public abstract void display(MessageChannel channel);
+    public abstract void display(MessageChannelUnion channel);
     
     /**
      * Displays this Menu as a designated {@link net.dv8tion.jda.api.entities.Message Message}.

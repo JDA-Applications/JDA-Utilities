@@ -27,14 +27,18 @@ import java.util.function.Function;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 
 /**
@@ -95,14 +99,14 @@ public class SelectionDialog extends Menu
 
     /**
      * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
+     * in the provided {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}, starting with
      * the first selection.
      * 
      * @param  channel
      *         The MessageChannel to send the new Message to
      */
     @Override
-    public void display(MessageChannel channel)
+    public void display(MessageChannelUnion channel)
     {
         showDialog(channel, 1);
     }
@@ -122,7 +126,7 @@ public class SelectionDialog extends Menu
     
     /**
      * Shows the SelectionDialog as a new {@link net.dv8tion.jda.api.entities.Message Message}
-     * in the provided {@link net.dv8tion.jda.api.entities.MessageChannel MessageChannel}, starting with
+     * in the provided {@link net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion MessageChannel}, starting with
      * the number selection provided.
      * 
      * @param  channel
@@ -130,13 +134,13 @@ public class SelectionDialog extends Menu
      * @param  selection
      *         The number selection to start on
      */
-    public void showDialog(MessageChannel channel, int selection)
+    public void showDialog(MessageChannelUnion channel, int selection)
     {
         if(selection<1)
             selection = 1;
         else if(selection>choices.size())
             selection = choices.size();
-        Message msg = render(selection);
+        MessageCreateData msg = renderCreate(selection);
         initialize(channel.sendMessage(msg), selection);
     }
     
@@ -156,7 +160,7 @@ public class SelectionDialog extends Menu
             selection = 1;
         else if(selection>choices.size())
             selection = choices.size();
-        Message msg = render(selection);
+        MessageEditData msg = render(selection);
         initialize(message.editMessage(msg), selection);
     }
     
@@ -165,15 +169,15 @@ public class SelectionDialog extends Menu
         action.queue(m -> {
             if(choices.size()>1)
             {
-                m.addReaction(UP).queue();
-                m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue();
-                m.addReaction(DOWN).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(Emoji.fromUnicode(UP)).queue();
+                m.addReaction(Emoji.fromUnicode(SELECT)).queue();
+                m.addReaction(Emoji.fromUnicode(CANCEL)).queue();
+                m.addReaction(Emoji.fromUnicode(DOWN)).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
             }
             else
             {
-                m.addReaction(SELECT).queue();
-                m.addReaction(CANCEL).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
+                m.addReaction(Emoji.fromUnicode(SELECT)).queue();
+                m.addReaction(Emoji.fromUnicode(CANCEL)).queue(v -> selectionDialog(m, selection), v -> selectionDialog(m, selection));
             }
         });
     }
@@ -183,15 +187,15 @@ public class SelectionDialog extends Menu
         waiter.waitForEvent(MessageReactionAddEvent.class, event -> {
             if(!event.getMessageId().equals(message.getId()))
                 return false;
-            if(!(UP.equals(event.getReaction().getReactionEmote().getName())
-                    || DOWN.equals(event.getReaction().getReactionEmote().getName())
-                    || CANCEL.equals(event.getReaction().getReactionEmote().getName())
-                    || SELECT.equals(event.getReaction().getReactionEmote().getName())))
+            if(!(UP.equals(event.getReaction().getEmoji().getName())
+                    || DOWN.equals(event.getReaction().getEmoji().getName())
+                    || CANCEL.equals(event.getReaction().getEmoji().getName())
+                    || SELECT.equals(event.getReaction().getEmoji().getName())))
                 return false;
             return isValidUser(event.getUser(), event.isFromGuild() ? event.getGuild() : null);
         }, event -> {
             int newSelection = selection;
-            switch(event.getReaction().getReactionEmote().getName())
+            switch(event.getReaction().getEmoji().getName())
             {
                 case UP:
                     if(newSelection>1)
@@ -223,7 +227,7 @@ public class SelectionDialog extends Menu
         }, timeout, unit, () -> cancel.accept(message));
     }
     
-    private Message render(int selection)
+    private MessageCreateData renderCreate(int selection)
     {
         StringBuilder sbuilder = new StringBuilder();
         for(int i=0; i<choices.size(); i++)
@@ -231,11 +235,28 @@ public class SelectionDialog extends Menu
                 sbuilder.append("\n").append(leftEnd).append(choices.get(i)).append(rightEnd);
             else
                 sbuilder.append("\n").append(defaultLeft).append(choices.get(i)).append(defaultRight);
-        MessageBuilder mbuilder = new MessageBuilder();
+        MessageCreateBuilder mbuilder = new MessageCreateBuilder();
         String content = text.apply(selection);
         if(content!=null)
-            mbuilder.append(content);
-        return mbuilder.setEmbed(new EmbedBuilder()
+            mbuilder.setContent(content);
+        return mbuilder.setEmbeds(new EmbedBuilder()
+                .setColor(color.apply(selection))
+                .setDescription(sbuilder.toString())
+                .build()).build();
+    }
+    private MessageEditData render(int selection)
+    {
+        StringBuilder sbuilder = new StringBuilder();
+        for(int i=0; i<choices.size(); i++)
+            if(i+1==selection)
+                sbuilder.append("\n").append(leftEnd).append(choices.get(i)).append(rightEnd);
+            else
+                sbuilder.append("\n").append(defaultLeft).append(choices.get(i)).append(defaultRight);
+        MessageEditBuilder mbuilder = new MessageEditBuilder();
+        String content = text.apply(selection);
+        if(content!=null)
+            mbuilder.setContent(content);
+        return mbuilder.setEmbeds(new EmbedBuilder()
                 .setColor(color.apply(selection))
                 .setDescription(sbuilder.toString())
                 .build()).build();
