@@ -8,7 +8,16 @@
 [ ![license][] ](https://github.com/JDA-Applications/JDA-Utilities/tree/master/LICENSE)
 [ ![issues][] ][issues-link]
 
+# ⚠️ Archived
+
+This library is no longer compatible with the latest version of JDA. Please use more maintained alternatives that build on recent releases of JDA.
+
+The source code remains open, archived but unmaintained.
+
+------
+
 ## JDA-Utilities
+
 JDA-Utilities is a series of tools and utilities for use with [JDA](https://github.com/DV8FromTheWorld/JDA) 
 to assist in bot creation.
 
